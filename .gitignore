@@ -1,0 +1,3 @@
+# Ignore Setup files in the top directory as those are specific to the system
+/Make.*
+
