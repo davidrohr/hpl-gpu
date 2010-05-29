@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#ifdef __APPLE__ & __MACH__
+#ifdef __APPLE__
 #include <mach/mach_time.h>
 
 // method to get monotonic mac time, inspired by 
@@ -28,20 +28,20 @@
  */
 inline uint64_t util_getTimestamp( )
 {
-#ifdef __APPLE__ & __MACH__
+#ifdef __APPLE__
         return mach_absolute_time();
 #else
-        struct timespec now;    
+        struct timespec now;
         clock_gettime( CLOCK_MONOTONIC, &now );
 
         long nanos = now.tv_nsec;
         time_t seconds = now.tv_sec;
-    
+
         uint64_t mus = static_cast<uint64_t>( seconds ) * 1000 * 1000 + nanos / 1000;
-    
+
         return mus;
 #endif
-} 
+}
 
 /**
  * Retrieves the difference in mus between two timestamps
@@ -49,13 +49,13 @@ inline uint64_t util_getTimestamp( )
 inline uint64_t util_getTimeDifference( )
 {
         uint64_t mus;
-#ifdef __APPLE__ & __MACH__
-        uint64_t difference = end - start;  
-        mach_timebase_info_data_t info = {0,0};  
-    
-        if (info.denom == 0)  
-                mach_timebase_info(&info);  
-    
+#ifdef __APPLE__
+        uint64_t difference = end - start;
+        mach_timebase_info_data_t info = {0,0};
+
+        if (info.denom == 0)
+                mach_timebase_info(&info);
+
         uint64_t nanos = difference * (info.numer / info.denom);
         mus = nanos / 1000;
 #else
