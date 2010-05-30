@@ -48,6 +48,7 @@
  * Include files
  */
 #include "hpl.h"
+#include "util_trace.h"
 
 #ifdef STDC_HEADERS
 int main
@@ -103,6 +104,8 @@ int main( ARGC, ARGV )
    HPL_T_ORDER                pmapping;
    HPL_T_FACT                 rpfa;
    HPL_T_SWAP                 fswap;
+
+   int run;
 /* ..
  * .. Executable Statements ..
  */
@@ -155,6 +158,7 @@ int main( ARGC, ARGV )
  * Loop over different process grids - Define process grid. Go to bottom
  * of process grid loop if this case does not use my process.
  */
+   run = 0;
    for( ipq = 0; ipq < npqs; ipq++ )
    {
       (void) HPL_grid_init( MPI_COMM_WORLD, pmapping, pval[ipq], qval[ipq],
@@ -220,8 +224,17 @@ int main( ARGC, ARGV )
               algo.fswap = fswap; algo.fsthr = tswap;
               algo.equil = equil; algo.align = align;
 
+              ++run;
+#ifdef TRACE_DGEMM
+              trace_dgemm = openTraceFile( "trace_dgemm", run, rank );
+#endif
+
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb] );
 
+#ifdef TRACE_DGEMM
+              fclose( trace_dgemm );
+              trace_dgemm = 0;
+#endif
              }
             }
            }

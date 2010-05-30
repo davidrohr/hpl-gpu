@@ -163,7 +163,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DTRACE_DGEMM
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
@@ -178,7 +178,7 @@ CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O4 -funroll-loops -lgfortran
 # the Fortran internals used in the BLAS library.
 #
 LINKER       = mpicc
-LINKFLAGS    = $(CCFLAGS)
+LINKFLAGS    = $(CCFLAGS) -lrt
 #
 ARCHIVER     = ar
 ARFLAGS      = r

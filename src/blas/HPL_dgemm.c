@@ -49,6 +49,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifndef HPL_dgemm
 
 #ifdef HPL_CALL_VSIPL
@@ -406,6 +409,11 @@ void HPL_dgemm
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_DGEMM
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_DGEMM */
+
 #ifdef HPL_CALL_CBLAS
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                 BETA, C, LDC );
@@ -513,6 +521,13 @@ void HPL_dgemm
 #endif
    }
 #endif
+
+#ifdef TRACE_DGEMM
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "%i,%i,%i,%i,%i,%i,%i,%i,%i,%llu\n",ORDER, TRANSA, TRANSB, M, N, K, LDA, LDB, LDC, tr_diff );
+#endif /* TRACE_DGEMM */
 /*
  * End of HPL_dgemm
  */
