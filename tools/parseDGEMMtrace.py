@@ -64,9 +64,9 @@ for filename in files:
 			oldtime = oldval[2]
 			newtime = oldval[2] + time;
 			newgflops = ( oldval[1] * oldtime + gflops * time ) / newtime if newtime <> 0 else 0;
-			val = ( score( newgflops, newtime ), newgflops, newtime )
+			val = ( score( newgflops, newtime ), newgflops, newtime, oldval[3]+1 )
 		except KeyError:
-			val = ( score( gflops, time ), gflops, time )
+			val = ( score( gflops, time ), gflops, time, 0 )
 
 		binned[bin] = val
 
@@ -81,6 +81,7 @@ scored = sorted( scored, key=lambda entry: entry[0][0] )
 nZeroScores = 0
 lowTime = 0
 printed = 0
+print "((Score, Gflops, Time, Score),(TransA,TransB,M,N,K))"
 for value in scored:
 	if value[0][0] <> 0:
 		if value[0][2] >= 100000:
