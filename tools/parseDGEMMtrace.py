@@ -81,12 +81,16 @@ scored = sorted( scored, key=lambda entry: entry[0][0] )
 nZeroScores = 0
 lowTime = 0
 printed = 0
+noK = 0
 print "((Score, Gflops, Time, Score),(TransA,TransB,M,N,K))"
 for value in scored:
 	if value[0][0] <> 0:
 		if value[0][2] >= 100000:
-			print value
-			printed += 1
+			if value[1][4] <> 0:
+				print value
+				printed += 1
+			else:
+				noK += 1
 		else:
 			lowTime += 1
 	else:
@@ -95,4 +99,5 @@ for value in scored:
 print printed,"values have been displayed"
 print nZeroScores,"bins had a score of 0"
 print lowTime,"bins took less than one 100 millis in total"
+print noK,"bins had a value of 0 for K"
 
