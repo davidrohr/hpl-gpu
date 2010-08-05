@@ -92,7 +92,7 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-LAdir        = $(HOME)/GotoBLAS2
+LAdir        = /home/bach/GotoBLAS2
 LAinc        = $(LAdir)/include
 LAlib        = -L$(LAdir) -lgoto2  
 #
@@ -141,8 +141,8 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc)
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/mkretz/tbb30_056oss/include
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$/home/mkretz/tbb30_056oss/lib -ltbb
 #
 # - Compile time options -----------------------------------------------
 #
