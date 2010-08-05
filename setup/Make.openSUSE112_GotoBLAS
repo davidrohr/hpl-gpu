@@ -163,15 +163,16 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$/home/mkretz/tbb30_056oss/lib -ltb
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
 # ----------------------------------------------------------------------
 #
 CC           = gcc
+CXX          = g++
 CCNOOPT      = $(HPL_DEFS)
-CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O4 -funroll-loops -lgfortran
+CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -lgfortran
 #CCFLAGS      = $(HPL_DEFS) -O0 -g -lgfortran
 #
 # On some platforms,  it is necessary  to use the Fortran linker to find
