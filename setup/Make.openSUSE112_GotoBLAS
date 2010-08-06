@@ -142,7 +142,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/mkretz/tbb30_056oss/include
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$/home/mkretz/tbb30_056oss/lib -ltbb
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L/home/mkretz/tbb30_056oss/lib -ltbb
 #
 # - Compile time options -----------------------------------------------
 #
