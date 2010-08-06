@@ -54,17 +54,33 @@
 //#include <ammintrin.h>
 #include <mm3dnow.h>
 #include <iostream>
-
-int init_tbb_mine()
-{
-    tbb::task_scheduler_init(12);
-    return 0;
-}
-
-int _init_tbb_mine = init_tbb_mine();
+#include <cstdlib>
 
 namespace
 {
+    struct Perm { int a, b; };
+    static Perm *__restrict__ g_perm = 0;
+
+    struct HPL_init_dlaswp00N_Perm
+    {
+        HPL_init_dlaswp00N_Perm() { g_perm = new Perm[1024]; }
+        ~HPL_init_dlaswp00N_Perm() { delete[] g_perm; }
+    };
+
+    int HPL_init_dlaswp00N()
+    {
+        static HPL_init_dlaswp00N_Perm x;
+        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
+        int num_threads = tbb::task_scheduler_init::default_num_threads();
+        if (num_threads_string) {
+            num_threads = atoi(num_threads_string);
+        }
+        static tbb::task_scheduler_init init(num_threads);
+        return 0;
+    }
+
+    int _HPL_init_dlaswp00N = HPL_init_dlaswp00N();
+
     template<typename T>
         static inline void swap(__restrict__ T &a, __restrict__ T &b)
         {
@@ -75,38 +91,37 @@ namespace
 
     template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
 
-    struct Perm { int a, b; };
-}
+    class HPL_dlaswp00N_impl
+    {
+        private:
+            double *__restrict__ const A;
+            const Perm *__restrict__ const perm;
+            const int LDA, permSize;
+        public:
+            inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const Perm *_perm)
+                : A(_A), perm(_perm), LDA(_LDA), permSize(_permSize)
+            {}
 
-class HPL_dlaswp00N_impl
-{
-    private:
-        double *__restrict__ A;
-        const Perm *__restrict__ perm;
-        const int LDA, permSize;
-    public:
-        inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const Perm *_perm)
-            : A(_A), perm(_perm), LDA(_LDA), permSize(_permSize)
-        {}
-
-        inline void operator()(const tbb::blocked_range<size_t> &range) const {
-            for (size_t colIndex = range.begin(); colIndex < range.end(); ++colIndex) {
-                double *__restrict__ col = &A[colIndex * LDA];
-                int i = 0;
-                for (; i < permSize - 8; i += 2) {
-                    _m_prefetchw(&col[perm[i + 8].a]);
-                    _m_prefetchw(&col[perm[i + 8].b]);
-                    swap(col[perm[i + 0].a], col[perm[i + 0].b]);
-                    swap(col[perm[i + 1].a], col[perm[i + 1].b]);
-                }
-                for (; i < permSize; ++i) {
-                    const int rowIndex = perm[i].a;
-                    const int otherRow = perm[i].b;
-                    swap(col[rowIndex], col[otherRow]);
+            inline void operator()(const tbb::blocked_range<size_t> &range) const {
+                for (size_t colIndex = range.begin(); colIndex < range.end(); ++colIndex) {
+                    double *__restrict__ col = &A[colIndex * LDA];
+                    int i = 0;
+                    for (; i < permSize - 8; i += 2) {
+                        const Perm *__restrict__ const p = &perm[i];
+                        _m_prefetchw(&col[p[8].a]);
+                        _m_prefetchw(&col[p[8].b]);
+                        swap(col[p[0].a], col[p[0].b]);
+                        swap(col[p[1].a], col[p[1].b]);
+                    }
+                    for (; i < permSize; ++i) {
+                        const int rowIndex = perm[i].a;
+                        const int otherRow = perm[i].b;
+                        swap(col[rowIndex], col[otherRow]);
+                    }
                 }
             }
-        }
-};
+    };
+}
 
 /**
  * Performs a series of local row interchanges on a matrix A.
@@ -136,7 +151,6 @@ class HPL_dlaswp00N_impl
  */
 extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, const int LDA, const int *__restrict__ IPIV)
 {
-    std::cout << "HPL_dlaswp00N( " << M << ", " << N << ", " << LDA << ")\n";
     // A is stored as
     // r0c0 r1c0 r2c0 ... rM-1c0 ... rLDA-1c0 r0c1
     // M   : #rows
@@ -177,7 +191,12 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
         return;
     }
 
-    Perm *__restrict__ perm = new Perm[M];
+    if (M > 1024) {
+        std::cerr << "maximum block size is hard-coded to 1024\n";
+        abort();
+    }
+
+    Perm *__restrict__ const perm = g_perm;
     int permSize = 0;
     for (int rowIndex = 0; rowIndex < M; ++rowIndex) {
         const int otherRow = IPIV[rowIndex];
@@ -194,6 +213,4 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, chunksize),
             HPL_dlaswp00N_impl(A, LDA, permSize, perm)
             );
-
-    delete[] perm;
 }
