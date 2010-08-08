@@ -121,9 +121,11 @@ void HPL_pdtest
  */
 #ifdef HPL_DETAILED_TIMING
    double                     HPL_w[HPL_TIMING_N];
+   double                     HPL_c[HPL_TIMING_N];
 #endif
    HPL_T_pmat                 mat;
    double                     wtime[1];
+   double                     ctime[1];
    int                        info[3];
    double                     Anorm1, AnormI, Gflops, Xnorm1, XnormI,
                               BnormI, resid0, resid1;
@@ -203,6 +205,8 @@ void HPL_pdtest
  */
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_WALL_PTIME,
                        1, 0, wtime );
+   HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_CPU_TIME,
+                       1, 0, ctime );
 
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
@@ -213,7 +217,7 @@ void HPL_pdtest
                       "========================================" );
          HPL_fprintf( TEST->outfp, "%s%s\n",
                       "T/V                N    NB     P     Q",
-                      "               Time                 Gflops" );
+                      "               Time    CPU          Gflops" );
          HPL_fprintf( TEST->outfp, "%s%s\n",
                       "----------------------------------------",
                       "----------------------------------------" );
@@ -245,14 +249,16 @@ void HPL_pdtest
 
       if( wtime[0] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-             "W%c%1d%c%c%1d%c%1d%12d %5d %5d %5d %18.2f     %18.3e\n",
+             "W%c%1d%c%c%1d%c%1d%12d %5d %5d %5d %18.2f %6.2f %15.3e\n",
              ( GRID->order == HPL_ROW_MAJOR ? 'R' : 'C' ),
              ALGO->depth, ctop, crfact, ALGO->nbdiv, cpfact, ALGO->nbmin,
-             N, NB, nprow, npcol, wtime[0], Gflops );
+             N, NB, nprow, npcol, wtime[0], ctime[0], Gflops );
    }
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_WALL_PTIME,
                        HPL_TIMING_N, HPL_TIMING_BEG, HPL_w );
+   HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_CPU_TIME,
+                       HPL_TIMING_N, HPL_TIMING_BEG, HPL_c );
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
       HPL_fprintf( TEST->outfp, "%s%s\n",
@@ -263,43 +269,55 @@ void HPL_pdtest
  */
       if( HPL_w[HPL_TIMING_RPFACT-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "Max aggregated wall time rfact . . . : %18.2f\n",
-                      HPL_w[HPL_TIMING_RPFACT-HPL_TIMING_BEG] );
+                      "Max aggregated wall time rfact . . . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_RPFACT-HPL_TIMING_BEG], HPL_c[HPL_TIMING_RPFACT-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_RPFACT-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_RPFACT-HPL_TIMING_BEG]
+                 );
 /*
  * Panel factorization
  */
       if( HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "+ Max aggregated wall time pfact . . : %18.2f\n",
-                      HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG] );
+                      "+ Max aggregated wall time pfact . . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG], HPL_c[HPL_TIMING_PFACT-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_PFACT-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG]
+                 );
 /*
  * Panel factorization (swap)
  */
       if( HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "+ Max aggregated wall time mxswp . . : %18.2f\n",
-                      HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG] );
+                      "+ Max aggregated wall time mxswp . . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG], HPL_c[HPL_TIMING_MXSWP-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_MXSWP-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG]
+                 );
 /*
  * Update
  */
       if( HPL_w[HPL_TIMING_UPDATE-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "Max aggregated wall time update  . . : %18.2f\n",
-                      HPL_w[HPL_TIMING_UPDATE-HPL_TIMING_BEG] );
+                      "Max aggregated wall time update  . . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_UPDATE-HPL_TIMING_BEG], HPL_c[HPL_TIMING_UPDATE-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_UPDATE-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_UPDATE-HPL_TIMING_BEG]
+                 );
 /*
  * Update (swap)
  */
       if( HPL_w[HPL_TIMING_LASWP-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "+ Max aggregated wall time laswp . . : %18.2f\n",
-                      HPL_w[HPL_TIMING_LASWP-HPL_TIMING_BEG] );
+                      "+ Max aggregated wall time laswp . . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_LASWP-HPL_TIMING_BEG], HPL_c[HPL_TIMING_LASWP-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_LASWP-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_LASWP-HPL_TIMING_BEG]
+                 );
 /*
  * Upper triangular system solve
  */
       if( HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "Max aggregated wall time up tr sv  . : %18.2f\n",
-                      HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG] );
+                      "Max aggregated wall time up tr sv  . : %18.2f %6.2f %4.2f\n",
+                      HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG], HPL_c[HPL_TIMING_PTRSV-HPL_TIMING_BEG],
+                      HPL_c[HPL_TIMING_PTRSV-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG]
+                 );
 
       if( TEST->thrsh <= HPL_rzero )
          HPL_fprintf( TEST->outfp, "%s%s\n",
