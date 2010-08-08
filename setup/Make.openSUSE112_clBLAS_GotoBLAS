@@ -61,7 +61,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = openSUSE112_GotoBLAS
+ARCH         = openSUSE112_clBLAS_GotoBLAS
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -92,9 +92,10 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-LAdir        = $(HOME)/GotoBLAS2
-LAinc        = $(LAdir)/include
-LAlib        = -L$(LAdir) -lgoto2  
+LAdir1        = $(HOME)/clBLAS
+LAdir2        = $(HOME)/GotoBLAS2
+LAinc        = $(LAdir1)/include
+LAlib        = -L$(LAdir1)/build -L$(LAdir2) -lclblas -lgoto2 -lpthread
 #
 # ----------------------------------------------------------------------
 # - F77 / C interface --------------------------------------------------
@@ -149,9 +150,8 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
 # -DHPL_CALL_VSIPL       call the vsip  library;
-# -DHPL_CALL_CUBLAS      call the cublas library
+# -DHPL_CALL_CLBLAS      call the clblas library (implicits cblas)
 # -DHPL_DETAILED_TIMING  enable detailed timers;
-# -DHPL_VERBOSE_CUBLAS   make cublas calls more verbose
 # 											 (does more extensive error checking)
 #
 # By default HPL will:
@@ -163,7 +163,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CLBLAS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
@@ -171,14 +171,14 @@ HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
 #
 CC           = gcc
 CCNOOPT      = $(HPL_DEFS)
-CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O4 -funroll-loops -lgfortran
+CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O4 -funroll-loops
 #CCFLAGS      = $(HPL_DEFS) -O0 -g -lgfortran
 #
 # On some platforms,  it is necessary  to use the Fortran linker to find
 # the Fortran internals used in the BLAS library.
 #
-LINKER       = gcc
-LINKFLAGS    = $(CCFLAGS) -lmpi
+LINKER       = mpif90
+LINKFLAGS    = $(CCFLAGS)
 #
 ARCHIVER     = ar
 ARFLAGS      = r
