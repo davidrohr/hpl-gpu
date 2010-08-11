@@ -141,8 +141,8 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/mkretz/tbb30_056oss/include
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L/home/mkretz/tbb30_056oss/lib -ltbb
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/bach/tbb30_056oss/include
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L/home/bach/tbb30_056oss/lib -ltbb -lmpi -lgfortran
 #
 # - Compile time options -----------------------------------------------
 #
@@ -172,14 +172,14 @@ HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING
 CC           = gcc
 CXX          = g++
 CCNOOPT      = $(HPL_DEFS)
-CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -lgfortran
+CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona
 #CCFLAGS      = $(HPL_DEFS) -O0 -g -lgfortran
 #
 # On some platforms,  it is necessary  to use the Fortran linker to find
 # the Fortran internals used in the BLAS library.
 #
 LINKER       = gcc
-LINKFLAGS    = $(CCFLAGS) -lmpi
+LINKFLAGS    = $(CCFLAGS)
 #
 ARCHIVER     = ar
 ARFLAGS      = r
