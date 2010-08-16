@@ -134,7 +134,7 @@ void HPL_daxpy
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DAXPY,N=%i,ALPHA=%3.1f,INCX=%i,INCY=%i,TIME=%llu\n", N, ALPHA, INCX, INCY, tr_diff );
+   fprintf( trace_dgemm, "DAXPY,N=%i,ALPHA=%3.1f,INCX=%i,INCY=%i,TIME=%lu\n", N, ALPHA, INCX, INCY, tr_diff );
 #endif /* TRACE_BLAS */
 /*
  * End of HPL_daxpy

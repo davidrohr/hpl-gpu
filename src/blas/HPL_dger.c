@@ -200,7 +200,7 @@ void HPL_dger
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DGER,ORDER=%i,M=%i,N=%i,INCX=%i,INCY=%i,LDA=%i,TIME=%llu\n",ORDER, M, N, INCX, INCY, LDA, tr_diff );
+   fprintf( trace_dgemm, "DGER,ORDER=%i,M=%i,N=%i,INCX=%i,INCY=%i,LDA=%i,TIME=%lu\n",ORDER, M, N, INCX, INCY, LDA, tr_diff );
 #endif /* TRACE_BLAS */
 /*
  * End of HPL_dger

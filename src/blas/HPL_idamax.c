@@ -172,7 +172,7 @@ int HPL_idamax
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "IDAMAX,N=%i,INCX=%i,TIME=%llu\n", N, INCX, tr_diff );
+   fprintf( trace_dgemm, "IDAMAX,N=%i,INCX=%i,TIME=%lu\n", N, INCX, tr_diff );
 #endif /* TRACE_BLAS */
 /*
  * End of HPL_idamax

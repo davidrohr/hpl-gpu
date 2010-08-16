@@ -331,7 +331,7 @@ void HPL_dgemv
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DGEMV,ORDER=%i,TRANS=%i,M=%i,N=%i,ALPHA=%3.1f,LDA=%i,INCX=%i,BETA=%3.1f,INCY=%i,TIME=%llu\n",
+   fprintf( trace_dgemm, "DGEMV,ORDER=%i,TRANS=%i,M=%i,N=%i,ALPHA=%3.1f,LDA=%i,INCX=%i,BETA=%3.1f,INCY=%i,TIME=%lu\n",
             ORDER, TRANS, M, N, ALPHA, LDA, INCX, BETA, INCY, tr_diff );
 #endif /* TRACE_BLAS */
 /*

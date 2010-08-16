@@ -525,7 +525,7 @@ void HPL_dtrsv
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DTRSV,ORDER=%i,UPLO=%i,TRANS=%i,DIAG=%i,N=%i,LDA=%i,INCX=%i,TIME=%llu\n", ORDER, UPLO, TRANS, DIAG, N, LDA, INCX, tr_diff );
+   fprintf( trace_dgemm, "DTRSV,ORDER=%i,UPLO=%i,TRANS=%i,DIAG=%i,N=%i,LDA=%i,INCX=%i,TIME=%lu\n", ORDER, UPLO, TRANS, DIAG, N, LDA, INCX, tr_diff );
 #endif /* TRACE_BLAS */
 /*
  * End of HPL_dtrsv

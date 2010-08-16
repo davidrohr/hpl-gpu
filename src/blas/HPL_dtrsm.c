@@ -982,7 +982,7 @@ void HPL_dtrsm
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DTRSM,M=%i,N=%i,LDA=%i,LDB=%i,TIME=%llu\n", M, N, LDA, LDB, tr_diff );
+   fprintf( trace_dgemm, "DTRSM,M=%i,N=%i,LDA=%i,LDB=%i,TIME=%lu\n", M, N, LDA, LDB, tr_diff );
 #endif /* TRACE_BLAS */
 /*
  * End of HPL_dtrsm
