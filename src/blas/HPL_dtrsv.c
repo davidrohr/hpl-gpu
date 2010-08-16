@@ -49,6 +49,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifndef HPL_dtrsv
 
 #ifdef HPL_CALL_VSIPL
@@ -437,6 +440,11 @@ void HPL_dtrsv
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_DGEMM
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_DGEMM */
+
 #ifdef HPL_CALL_CBLAS
    cblas_dtrsv( ORDER, UPLO, TRANS, DIAG, N, A, LDA, X, INCX );
 #endif
@@ -512,6 +520,13 @@ void HPL_dtrsv
 #endif
 
 #endif
+
+#ifdef TRACE_DGEMM
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DTRSV,ORDER=%i,UPLO=%i,TRANS=%i,DIAG=%i,N=%i,LDA=%i,INCX=%i,TIME=%llu\n", ORDER, UPLO, TRANS, DIAG, N, LDA, INCX, tr_diff );
+#endif /* TRACE_DGEMM */
 /*
  * End of HPL_dtrsv
  */

@@ -526,7 +526,8 @@ void HPL_dgemm
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "%i,%i,%i,%i,%i,%i,%i,%i,%i,%llu\n",ORDER, TRANSA, TRANSB, M, N, K, LDA, LDB, LDC, tr_diff );
+   fprintf( trace_dgemm, "DGEMM,ORDER=%i,TRANSA=%i,TRANSB=%i,M=%i,N=%i,K=%i,ALPHA=%3.1f,LDA=%i,LDB=%i,BETA=%3.1f,LDC=%i,TIME=%llu\n",
+            ORDER, TRANSA, TRANSB, M, N, K, ALPHA, LDA, LDB, BETA, LDC, tr_diff );
 #endif /* TRACE_DGEMM */
 /*
  * End of HPL_dgemm
