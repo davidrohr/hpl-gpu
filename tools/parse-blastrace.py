@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
     # all ops in all_ops
     print "== Total statistics =="
+    print
     print "  %d BLAS function calls; %f ms total BLAS runtime" % (all_ops.n_ops, all_ops.time_total/1000)
     for func, f_ops in all_ops.bin('FUNC').items():
         print
@@ -67,7 +68,14 @@ if __name__ == "__main__":
         print "   %d calls to %s; %f ms function runtime (%4.1f %%)" % \
             (f_ops.n_ops, func, f_ops.time_total/1000, 100*f_ops.time_total/all_ops.time_total)
         print
-        for n, n_ops in f_ops.bin('N').items():
-            print "      with N=%d: %5d calls, %8.1f ms runtime (%4.1f %% from total)" % \
-                (int(n), n_ops.n_ops, n_ops.time_total/1000, 100*n_ops.time_total/all_ops.time_total)
+        mnk_dict = f_ops.bin('N')       # Bin according to N
+
+        # Sort bins according to aggregate runtime
+        sorted_mnk = sorted(mnk_dict, key=lambda k: mnk_dict[k].time_total, reverse=True)
+        for mnk in sorted_mnk[:10]:
+            ops = mnk_dict[mnk]      # All ops in this bin
+            percentage = 100*ops.time_total/all_ops.time_total
+
+            print "      with N=%8s: %6d calls, %8.1f ms runtime (%4.1f %% of total)" % \
+                (mnk, ops.n_ops, ops.time_total/1000, percentage)
 
