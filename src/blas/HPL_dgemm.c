@@ -415,8 +415,12 @@ void HPL_dgemm
 #endif /* TRACE_DGEMM */
 
 #ifdef HPL_CALL_CBLAS
+#ifdef HPL_CALL_CALDGEM
+   TODO implement, but this is only needed if we want to trace
+#else
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                 BETA, C, LDC );
+#endif
 #endif
 #ifdef HPL_CALL_VSIPL
    if( ORDER == HplColumnMajor )

@@ -67,6 +67,13 @@
 #define HPL_CALL_FBLAS
 #endif
 #endif
+
+#ifdef HPL_CALL_CALBLAS                     /* CALBLAS requires CBLAS */
+#ifndef HPL_CALL_CBLAS
+#define HPL_CALL_CBLAS
+#endif
+#endif
+
 /*
  * ---------------------------------------------------------------------
  * Include files

@@ -49,6 +49,7 @@
  */
 #include "hpl.h"
 #include "util_trace.h"
+#include "util_cal.h"
 
 #ifdef STDC_HEADERS
 int main
@@ -112,6 +113,9 @@ int main( ARGC, ARGV )
    MPI_Init( &ARGC, &ARGV );
 #ifdef HPL_CALL_VSIPL
    vsip_init((void*)0);
+#endif
+#ifdef HPL_CALL_CALDGEMM
+   CALDGEMM_Init();
 #endif
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
@@ -293,6 +297,9 @@ label_end_of_npqs: ;
       if( ( test.outfp != stdout ) && ( test.outfp != stderr ) )
          (void) fclose( test.outfp );
    }
+#ifdef HPL_CALL_CALDGEMM
+   CALDGEMM_Shutdown();
+#endif
 #ifdef HPL_CALL_VSIPL
    vsip_finalize((void*)0);
 #endif
