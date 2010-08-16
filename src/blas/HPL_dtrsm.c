@@ -859,10 +859,10 @@ void HPL_dtrsm
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
-#endif /* TRACE_DGEMM */
+#endif /* TRACE_BLAS */
 
 #ifdef HPL_CALL_CBLAS
    cblas_dtrsm( ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB );
@@ -978,12 +978,12 @@ void HPL_dtrsm
    }
 #endif
 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
    fprintf( trace_dgemm, "DTRSM,M=%i,N=%i,LDA=%i,LDB=%i,TIME=%llu\n", M, N, LDA, LDB, tr_diff );
-#endif /* TRACE_DGEMM */
+#endif /* TRACE_BLAS */
 /*
  * End of HPL_dtrsm
  */

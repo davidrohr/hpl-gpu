@@ -225,13 +225,13 @@ int main( ARGC, ARGV )
               algo.equil = equil; algo.align = align;
 
               ++run;
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
               trace_dgemm = openTraceFile( "trace_dgemm", run, rank );
 #endif
 
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb] );
 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
               fclose( trace_dgemm );
               trace_dgemm = 0;
 #endif

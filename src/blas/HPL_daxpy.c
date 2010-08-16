@@ -68,10 +68,10 @@ void HPL_daxpy
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
-#endif /* TRACE_DGEMM */
+#endif /* TRACE_BLAS */
 
 #ifdef HPL_CALL_CBLAS
    cblas_daxpy( N, ALPHA, X, INCX, Y, INCY );
@@ -130,12 +130,12 @@ void HPL_daxpy
    F77daxpy( &F77N, &alpha, X, &F77incx, Y, &F77incy );
 #endif
 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_BLAS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
    fprintf( trace_dgemm, "DAXPY,N=%i,ALPHA=%3.1f,INCX=%i,INCY=%i,TIME=%llu\n", N, ALPHA, INCX, INCY, tr_diff );
-#endif /* TRACE_DGEMM */
+#endif /* TRACE_BLAS */
 /*
  * End of HPL_daxpy
  */
