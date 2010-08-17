@@ -17,7 +17,7 @@ void CALDGEMM_Init()
 	cal_info.Verify = CAL_FALSE;
 	cal_info.PrintIL = CAL_FALSE;
 	cal_info.Disassemble = CAL_FALSE;
-	cal_info.Quiet = CAL_TRUE;
+	cal_info.Quiet = CAL_FALSE;
 	cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
 	cal_info.Height = 2048;
@@ -51,6 +51,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 		// cal_dgemm assumes row major order but linpack is always column major
 		// therefore it needs to work on C^T -> we need to switch A and B
 		// TODO insert a check, though redundent
+		cal_dgemm.ResetTimers();
 		cal_dgemm.RunCALDGEMM( (double*) B, (double*) A, C, (double) ALPHA, (double) BETA, (int) N, (int) M, (int) LDB, (int) LDA, (int) LDC );
 	}
 	else

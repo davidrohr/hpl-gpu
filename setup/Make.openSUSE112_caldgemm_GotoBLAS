@@ -81,7 +81,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /usr/lib64/mpi/gcc/openmpi
+MPdir        = /usr/mpi/gcc/openmpi-1.4.1
 MPinc        = $(MPdir)/include
 MPlib        = -L$(MPdir)/lib64 -lmpi
 #
@@ -152,6 +152,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 # -DHPL_CALL_CUBLAS      call the cublas library
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
+# -DHPL_TRACE_DGEMM       trace blas calls
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -162,7 +163,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_DETAILED_TIMING -DHPL_TRACE_DGEMM
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
