@@ -81,7 +81,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /usr/lib64/mpi/gcc/openmpi
+MPdir        = /usr/mpi/gcc/openmpi-1.4.1
 MPinc        = $(MPdir)/include
 MPlib        = -L$(MPdir)/lib64 -lmpi
 #
@@ -92,9 +92,9 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-LAdir        = /home/bach/GotoBLAS2
-LAinc        = $(LAdir)/include
-LAlib        = -L$(LAdir) -lgoto2  
+LAdir        = $(TOPdir)/GotoBLAS2
+LAinc        = 
+LAlib        = $(LAdir)/libgoto2.a
 #
 # ----------------------------------------------------------------------
 # - F77 / C interface --------------------------------------------------
@@ -141,8 +141,8 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/bach/tbb30_056oss/include
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L/home/bach/tbb30_056oss/lib -ltbb -lmpi -lgfortran
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(MPinc) -I$(HOME)/tbb30_056oss/include
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(HOME)/tbb30_056oss/lib -ltbb -lmpi -lgfortran
 #
 # - Compile time options -----------------------------------------------
 #
