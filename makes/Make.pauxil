@@ -92,32 +92,32 @@ HPL_numroc.o           : ../HPL_numroc.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numroc.c
 HPL_numrocI.o          : ../HPL_numrocI.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numrocI.c
-HPL_dlaswp00N.o        : ../HPL_dlaswp00N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp00N.c
+HPL_dlaswp00N.o        : ../HPL_dlaswp00N.cpp      $(INCdep)
+	$(CXX) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp10N.o        : ../HPL_dlaswp10N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp10N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp01N.o        : ../HPL_dlaswp01N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp01N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp01T.o        : ../HPL_dlaswp01T.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp01T.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp02N.o        : ../HPL_dlaswp02N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp02N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp03N.o        : ../HPL_dlaswp03N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp03N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp03T.o        : ../HPL_dlaswp03T.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp03T.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp04N.o        : ../HPL_dlaswp04N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp04N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp04T.o        : ../HPL_dlaswp04T.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp04T.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp05N.o        : ../HPL_dlaswp05N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp05N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp05T.o        : ../HPL_dlaswp05T.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp05T.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp06N.o        : ../HPL_dlaswp06N.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp06N.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp06T.o        : ../HPL_dlaswp06T.c        $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlaswp06T.c
+	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_pwarn.o            : ../HPL_pwarn.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pwarn.c
 HPL_pabort.o           : ../HPL_pabort.c           $(INCdep)
