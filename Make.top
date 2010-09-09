@@ -46,27 +46,28 @@
 #  
 arch             = UNKNOWN
 #
-include Make.$(arch)
+TOPdir       := $(CURDIR)
+include setup/Make.$(arch)
 #
 ## build ###############################################################
 #
 build_src        :
-	( $(CD) src/auxil/$(arch);         $(MAKE) )
-	( $(CD) src/blas/$(arch);          $(MAKE) )
-	( $(CD) src/comm/$(arch);          $(MAKE) )
-	( $(CD) src/grid/$(arch);          $(MAKE) )
-	( $(CD) src/panel/$(arch);         $(MAKE) )
-	( $(CD) src/pauxil/$(arch);        $(MAKE) )
-	( $(CD) src/pfact/$(arch);         $(MAKE) )
-	( $(CD) src/pgesv/$(arch);         $(MAKE) )
+	( $(CD) src/auxil/$(arch);         $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/blas/$(arch);          $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/comm/$(arch);          $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/grid/$(arch);          $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/panel/$(arch);         $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/pauxil/$(arch);        $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/pfact/$(arch);         $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) src/pgesv/$(arch);         $(MAKE) TOPdir=$(TOPdir))
 #
 build_tst        :
-	( $(CD) testing/matgen/$(arch);    $(MAKE) )
-	( $(CD) testing/timer/$(arch);     $(MAKE) )
-	( $(CD) testing/pmatgen/$(arch);   $(MAKE) )
-	( $(CD) testing/ptimer/$(arch);    $(MAKE) )
-	( $(CD) testing/util/$(arch);      $(MAKE) )
-	( $(CD) testing/ptest/$(arch);     $(MAKE) )
+	( $(CD) testing/matgen/$(arch);    $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) testing/timer/$(arch);     $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) testing/pmatgen/$(arch);   $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) testing/ptimer/$(arch);    $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) testing/util/$(arch);      $(MAKE) TOPdir=$(TOPdir))
+	( $(CD) testing/ptest/$(arch);     $(MAKE) TOPdir=$(TOPdir))
 #( SPMS_make_cd`' testing/test/$(arch);      SPMS_make_make`' )
 #
 ## startup #############################################################
@@ -193,6 +194,6 @@ clean_guard_tst  :
 leaf             :
 	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
 	- ( $(CD) $(le)/$(arch) ; \
-            $(LN_S) $(TOPdir)/Make.$(arch) Make.inc )
+            $(LN_S) $(TOPdir)/setup/Make.$(arch) Make.inc )
 #
 ########################################################################
