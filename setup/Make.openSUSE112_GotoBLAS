@@ -140,8 +140,8 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc) -I/home/bach/tbb30_056oss/include
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L/home/bach/tbb30_056oss/lib -ltbb -lmpi -lgfortran
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(LAinc) -I$(MPinc)
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran
 #
 # - Compile time options -----------------------------------------------
 #
