@@ -50,6 +50,7 @@
 
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
+#include "permutationhelper.h"
 //#include <xmmintrin.h>
 //#include <ammintrin.h>
 #include <mm3dnow.h>
@@ -58,15 +59,6 @@
 
 namespace
 {
-    struct Perm { int a, b; };
-    static Perm *__restrict__ g_perm = 0;
-
-    struct HPL_init_dlaswp00N_Perm
-    {
-        HPL_init_dlaswp00N_Perm() { g_perm = new Perm[1024]; }
-        ~HPL_init_dlaswp00N_Perm() { delete[] g_perm; }
-    };
-
     int HPL_init_dlaswp00N()
     {
         static HPL_init_dlaswp00N_Perm x;
@@ -95,10 +87,10 @@ namespace
     {
         private:
             double *__restrict__ const A;
-            const Perm *__restrict__ const perm;
+            const PermutationHelper &__restrict__ const perm;
             const int LDA, permSize;
         public:
-            inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const Perm *_perm)
+            inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const PermutationHelper &_perm)
                 : A(_A), perm(_perm), LDA(_LDA), permSize(_permSize)
             {}
 
@@ -107,11 +99,10 @@ namespace
                     double *__restrict__ col = &A[colIndex * LDA];
                     int i = 0;
                     for (; i < permSize - 8; i += 2) {
-                        const Perm *__restrict__ const p = &perm[i];
-                        _m_prefetchw(&col[p[8].a]);
-                        _m_prefetchw(&col[p[8].b]);
-                        swap(col[p[0].a], col[p[0].b]);
-                        swap(col[p[1].a], col[p[1].b]);
+                        //_m_prefetchw(&col[p[8].a]);
+                        //_m_prefetchw(&col[p[8].b]);
+                        swap(col[perm[i + 0].a], col[perm[i + 0].b]);
+                        swap(col[perm[i + 1].a], col[perm[i + 1].b]);
                     }
                     for (; i < permSize; ++i) {
                         const int rowIndex = perm[i].a;
@@ -191,12 +182,8 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
         return;
     }
 
-    if (M > 1024) {
-        std::cerr << "maximum block size is hard-coded to 1024\n";
-        abort();
-    }
-
-    Perm *__restrict__ const perm = g_perm;
+    PermutationHelper &perm = PermutationHelper::instance();
+    perm.ensureSize(M);
     int permSize = 0;
     for (int rowIndex = 0; rowIndex < M; ++rowIndex) {
         const int otherRow = IPIV[rowIndex];

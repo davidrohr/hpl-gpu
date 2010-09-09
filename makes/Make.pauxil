@@ -92,8 +92,10 @@ HPL_numroc.o           : ../HPL_numroc.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numroc.c
 HPL_numrocI.o          : ../HPL_numrocI.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numrocI.c
+permutationhelper.o    : ../permutationhelper.cpp  $(INCdep)
+	$(CXX) -o $@ -c $(CCFLAGS) $<
 HPL_dlaswp00N.o        : ../HPL_dlaswp00N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CCFLAGS)  $<
+	$(CXX) -o $@ -c $(CCFLAGS) $<
 HPL_dlaswp10N.o        : ../HPL_dlaswp10N.c        $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp01N.o        : ../HPL_dlaswp01N.c        $(INCdep)
