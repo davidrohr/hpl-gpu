@@ -13,25 +13,25 @@ static caldgemm cal_dgemm;
 
 void CALDGEMM_Init()
 {
-	cal_info.Pin = -3;
-	cal_info.Verify = CAL_FALSE;
-	cal_info.Disassemble = CAL_FALSE;
+	//cal_info.Pin = -3;
+	//cal_info.Verify = CAL_FALSE;
+	//cal_info.Disassemble = CAL_FALSE;
 	cal_info.Quiet = CAL_FALSE;
-	cal_info.DeviceNum = 0;
+	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
-	cal_info.Height = 2048;
-	cal_info.AutoHeight = CAL_TRUE;
-	cal_info.Iterations = 1;
-	cal_info.DstMemory = 'c';
-	cal_info.VerboseTiming = CAL_FALSE;
-	cal_info.Debug = CAL_FALSE;
-	cal_info.MultiThread = CAL_TRUE;
-	cal_info.UseGPU = CAL_TRUE;
-	cal_info.UseCPU = CAL_TRUE;
-	cal_info.GPURatio = -1;
-	cal_info.DynamicSched = CAL_TRUE;
-	cal_info.MemPolicy = CAL_TRUE;
-	cal_info.DumpMatrix = CAL_FALSE;
+	//cal_info.Height = 2048;
+	//cal_info.AutoHeight = CAL_TRUE;
+	//cal_info.Iterations = 1;
+	//cal_info.DstMemory = 'c';
+	//cal_info.VerboseTiming = CAL_FALSE;
+	//cal_info.Debug = CAL_FALSE;
+	//cal_info.MultiThread = CAL_TRUE;
+	//cal_info.UseGPU = CAL_TRUE;
+	//cal_info.UseCPU = CAL_TRUE;
+	//cal_info.GPURatio = -1;
+	//cal_info.DynamicSched = CAL_TRUE;
+	//cal_info.MemPolicy = CAL_TRUE;
+	//cal_info.DumpMatrix = CAL_FALSE;
 
 	cal_dgemm.InitCALDGEMM( &cal_info );
 }
@@ -47,7 +47,8 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
                      const double * B, const int LDB, const double BETA, double * C,
                      const int LDC )
 {
-        if( M >= 2048 && N >= 2048 && K >= 512 )
+	if (M == 0 || N == 0 || K == 0) return;
+        else if( M >= 2048 && N >= 2048 && K >= 512 )
         {
 	    cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB );
         }
