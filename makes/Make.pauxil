@@ -50,7 +50,8 @@ include Make.inc
 #
 INCdep           = \
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_blas.h   $(INCdir)/hpl_auxil.h \
-   $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h   $(INCdir)/hpl_pauxil.h
+   $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h   $(INCdir)/hpl_pauxil.h \
+   ../permutationhelper.h
 #
 ## Object files ########################################################
 #
@@ -93,9 +94,9 @@ HPL_numroc.o           : ../HPL_numroc.c           $(INCdep)
 HPL_numrocI.o          : ../HPL_numrocI.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numrocI.c
 permutationhelper.o    : ../permutationhelper.cpp  $(INCdep)
-	$(CXX) -o $@ -c $(CCFLAGS) $<
+	$(CXX) -o $@ -c $(CXXFLAGS) $<
 HPL_dlaswp00N.o        : ../HPL_dlaswp00N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CCFLAGS) $<
+	$(CXX) -o $@ -c $(CXXFLAGS) $<
 HPL_dlaswp10N.o        : ../HPL_dlaswp10N.c        $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  $<
 HPL_dlaswp01N.o        : ../HPL_dlaswp01N.c        $(INCdep)
