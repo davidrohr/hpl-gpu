@@ -179,8 +179,12 @@ HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING
 CC           = gcc
 CXX          = g++
 CCNOOPT      = $(HPL_DEFS)
-CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona
-#CCFLAGS      = $(HPL_DEFS) -O0 -g -lgfortran
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -Wall -Wimplicit \
+                -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
+                -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow
+CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
+CCFLAGS      = $(_FLAGS) -std=gnu99
 #
 # On some platforms,  it is necessary  to use the Fortran linker to find
 # the Fortran internals used in the BLAS library.
