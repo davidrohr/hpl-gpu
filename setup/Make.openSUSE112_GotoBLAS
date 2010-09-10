@@ -94,6 +94,14 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 LAdir        = $(TOPdir)/GotoBLAS2
 LAinc        = 
 LAlib        = $(LAdir)/libgoto2.a
+
+.DEFAULT_GOAL := all
+
+$(LAlib): $(LAdir)/*.h $(LAdir)/*.c $(LAdir)/interface/* $(LAdir)/kernel/x86_64/* $(LAdir)/driver/*/*
+	pushd GotoBLAS2; $(MAKE); popd
+
+build: $(LAlib)
+
 #
 # ----------------------------------------------------------------------
 # - F77 / C interface --------------------------------------------------
@@ -141,7 +149,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(MPinc)
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
