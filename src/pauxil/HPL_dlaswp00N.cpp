@@ -61,7 +61,6 @@ namespace
 {
     int HPL_init_dlaswp00N()
     {
-        static HPL_init_dlaswp00N_Perm x;
         const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         int num_threads = tbb::task_scheduler_init::default_num_threads();
         if (num_threads_string) {
@@ -87,7 +86,7 @@ namespace
     {
         private:
             double *__restrict__ const A;
-            const PermutationHelper &__restrict__ const perm;
+            const PermutationHelper &__restrict__ perm;
             const int LDA, permSize;
         public:
             inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const PermutationHelper &_perm)

@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-PermutationHelper::PermutationHelper *s_instance = 0;
+PermutationHelper *__restrict__ PermutationHelper::s_instance = 0;
 
 PermutationHelper::~PermutationHelper()
 {
@@ -32,7 +32,8 @@ void PermutationHelper::resize(size_t size)
 {
     m_size = size;
     free(m_data);
-    int err = posix_memalign(&m_data, 4096, m_size * sizeof(Data));
+    void *tmp = m_data;
+    int err = posix_memalign(&tmp, 4096, m_size * sizeof(Data));
     if (0 != err) {
         fprintf(stderr, "posix_memalign failed to allocate %d Bytes\n", m_size * sizeof(Data));
         abort();

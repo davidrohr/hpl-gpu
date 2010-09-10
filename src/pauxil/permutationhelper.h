@@ -19,6 +19,8 @@
 #ifndef PERMUTATIONHELPER_H
 #define PERMUTATIONHELPER_H
 
+#include <cstddef>
+
 class PermutationHelper
 {
     public:

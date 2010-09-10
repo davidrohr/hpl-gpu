@@ -63,7 +63,7 @@ HPL_pauobj       = \
    HPL_dlaswp04T.o        HPL_dlaswp05N.o        HPL_dlaswp05T.o        \
    HPL_dlaswp06N.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
    HPL_pabort.o           HPL_pdlaprnt.o         HPL_pdlamch.o          \
-   HPL_pdlange.o
+   HPL_pdlange.o          permutationhelper.o
 #
 ## Targets #############################################################
 #
