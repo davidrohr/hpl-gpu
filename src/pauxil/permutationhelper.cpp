@@ -32,10 +32,11 @@ void PermutationHelper::resize(size_t size)
 {
     m_size = size;
     free(m_data);
-    void *tmp = m_data;
+    void *tmp;
     int err = posix_memalign(&tmp, 4096, m_size * sizeof(Data));
+    m_data = static_cast<Data *>(tmp);
     if (0 != err) {
-        fprintf(stderr, "posix_memalign failed to allocate %d Bytes\n", m_size * sizeof(Data));
+        fprintf(stderr, "posix_memalign failed to allocate %ld Bytes\n", m_size * sizeof(Data));
         abort();
     }
 }
@@ -45,6 +46,8 @@ int PermutationHelper::_init()
     static PermutationHelper tmp;
     s_instance = &tmp;
     s_instance->resize(1024);
+
+    return 1;
 }
 
 namespace
