@@ -69,6 +69,7 @@ refresh          :
 	$(MAKE) -f Make.top refresh_tst     arch=$(arch)
 #
 build            :
+	pushd GotoBLAS2; $(MAKE); popd
 	$(MAKE) -f Make.top build_src       arch=$(arch)
 	$(MAKE) -f Make.top build_tst       arch=$(arch)
 #
