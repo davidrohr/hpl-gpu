@@ -44,20 +44,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
+
+#include <cstddef>
+
 /*
  * Define default value for unrolling factor
  */
-#ifndef HPL_LASWP01N_DEPTH
-#define    HPL_LASWP01N_DEPTH      32
-#define    HPL_LASWP01N_LOG2_DEPTH  5
+#ifndef HPL_LASWP01T_DEPTH
+#define    HPL_LASWP01T_DEPTH       32
+#define    HPL_LASWP01T_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp01N
+extern "C" void HPL_dlaswp01T
 (
    const int                        M,
    const int                        N,
@@ -68,28 +66,16 @@ void HPL_dlaswp01N
    const int *                      LINDXA,
    const int *                      LINDXAU
 )
-#else
-void HPL_dlaswp01N
-( M, N, A, LDA, U, LDU, LINDXA, LINDXAU )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        LDA;
-   double *                         U;
-   const int                        LDU;
-   const int *                      LINDXA;
-   const int *                      LINDXAU;
-#endif
 {
 /* 
  * Purpose
  * =======
  *
- * HPL_dlaswp01N copies  scattered rows  of  A  into itself  and into an
- * array  U.  The row offsets in  A  of the source rows are specified by
+ * HPL_dlaswp01T copies  scattered rows  of  A  into itself  and into an
+ * array U.  The row offsets in  A  of the source rows  are specified by
  * LINDXA.  The  destination of those rows are specified by  LINDXAU.  A
- * positive value of  LINDXAU indicates that the array destination is U,
- * and A otherwise.
+ * positive value of LINDXAU indicates that the array  destination is U,
+ * and A otherwise. Rows of A are stored as columns in U.
  *
  * Arguments
  * =========
@@ -112,13 +98,14 @@ void HPL_dlaswp01N
  *         LDA must be at least MAX(1,M).
  *
  * U       (local input/output)          double *
- *         On entry, U points to an array of dimension (LDU,N). The rows
- *         of A specified by LINDXA are be copied within this array U at
- *         the positions indicated by positive values of LINDXAU.
+ *         On entry, U points to an array of dimension (LDU,M). The rows
+ *         of A specified by  LINDXA  are copied within this array  U at
+ *         the  positions indicated by positive values of LINDXAU.  The
+ *         rows of A are stored as columns in U.
  *
  * LDU     (local input)                 const int
  *         On entry, LDU specifies the leading dimension of the array U.
- *         LDU must be at least MAX(1,M).
+ *         LDU must be at least MAX(1,N).
  *
  * LINDXA  (local input)                 const int *
  *         On entry, LINDXA is an array of dimension M that contains the
@@ -142,68 +129,110 @@ void HPL_dlaswp01N
  */
    double                     * a0, * a1;
    const int                  incA = (int)( (unsigned int)(LDA) <<
-                                            HPL_LASWP01N_LOG2_DEPTH ),
-                              incU = (int)( (unsigned int)(LDU) <<
-                                            HPL_LASWP01N_LOG2_DEPTH );
-   int                        lda1, nu, nr;
+                                            HPL_LASWP01T_LOG2_DEPTH ),
+                              incU = ( 1 << HPL_LASWP01T_LOG2_DEPTH );
+   int                        nu, nr;
    register int               i, j;
 /* ..
  * .. Executable Statements ..
  */
    if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP01N_LOG2_DEPTH ) <<
-                            HPL_LASWP01N_LOG2_DEPTH ) );
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP01T_LOG2_DEPTH ) <<
+                            HPL_LASWP01T_LOG2_DEPTH ) );
 
-   for( j = 0; j < nu; j += HPL_LASWP01N_DEPTH, A += incA, U += incU )
+   for( j = 0; j < nu; j += HPL_LASWP01T_DEPTH, A += incA, U += incU )
    {
       for( i = 0; i < M; i++ )
       {
          a0 = A + (size_t)(LINDXA[i]);
-         if( LINDXAU[i] >= 0 ) { a1 = U + (size_t)(LINDXAU[i]); lda1 = LDU; }
-         else                  { a1 = A - (size_t)(LINDXAU[i]); lda1 = LDA; }
 
-         *a1 = *a0; a1 += lda1; a0 += LDA;
-#if ( HPL_LASWP01N_DEPTH >  1 )
-         *a1 = *a0; a1 += lda1; a0 += LDA;
+         if( LINDXAU[i] >= 0 )
+         {
+            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
+
+            a1[ 0] = *a0; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  1 )
+            a1[ 1] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  2 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  2 )
+            a1[ 2] = *a0; a0 += LDA; a1[ 3] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  4 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  4 )
+            a1[ 4] = *a0; a0 += LDA; a1[ 5] = *a0; a0 += LDA;
+            a1[ 6] = *a0; a0 += LDA; a1[ 7] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  8 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  8 )
+            a1[ 8] = *a0; a0 += LDA; a1[ 9] = *a0; a0 += LDA;
+            a1[10] = *a0; a0 += LDA; a1[11] = *a0; a0 += LDA;
+            a1[12] = *a0; a0 += LDA; a1[13] = *a0; a0 += LDA;
+            a1[14] = *a0; a0 += LDA; a1[15] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH > 16 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH > 16 )
+            a1[16] = *a0; a0 += LDA; a1[17] = *a0; a0 += LDA;
+            a1[18] = *a0; a0 += LDA; a1[19] = *a0; a0 += LDA;
+            a1[20] = *a0; a0 += LDA; a1[21] = *a0; a0 += LDA;
+            a1[22] = *a0; a0 += LDA; a1[23] = *a0; a0 += LDA;
+            a1[24] = *a0; a0 += LDA; a1[25] = *a0; a0 += LDA;
+            a1[26] = *a0; a0 += LDA; a1[27] = *a0; a0 += LDA;
+            a1[28] = *a0; a0 += LDA; a1[29] = *a0; a0 += LDA;
+            a1[30] = *a0; a0 += LDA; a1[31] = *a0; a0 += LDA;
 #endif
+         }
+         else
+         {
+            a1 = A - (size_t)(LINDXAU[i]);
+
+            *a1 = *a0; a1 += LDA; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  1 )
+            *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  2 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  4 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  8 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH > 16 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+         }
       }
    }
 
-   if( nr )
+   if( nr > 0 )
    {
       for( i = 0; i < M; i++ )
       {
          a0 = A + (size_t)(LINDXA[i]);
-         if( LINDXAU[i] >= 0 ) { a1 = U + (size_t)(LINDXAU[i]); lda1 = LDU; }
-         else                  { a1 = A - (size_t)(LINDXAU[i]); lda1 = LDA; }
-         for( j = 0; j < nr; j++, a1 += lda1, a0 += LDA ) { *a1 = *a0; }
+
+         if( LINDXAU[i] >= 0 )
+         {
+            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
+            for( j = 0; j < nr; j++, a0 += LDA ) { a1[j] = *a0; }
+         }
+         else
+         {
+            a1 = A - (size_t)(LINDXAU[i]);
+            for( j = 0; j < nr; j++, a1 += LDA, a0 += LDA ) { *a1 = *a0; }
+         }
       }
    }
 /*
- * End of HPL_dlaswp01N
+ * End of HPL_dlaswp01T
  */
 } 

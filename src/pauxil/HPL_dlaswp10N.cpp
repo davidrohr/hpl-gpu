@@ -45,10 +45,6 @@
  * ---------------------------------------------------------------------
  */ 
 /*
- * Include files
- */
-#include "hpl.h"
-/*
  * Define default value for unrolling factor
  */
 #ifndef HPL_LASWP10N_DEPTH
@@ -56,8 +52,7 @@
 #define    HPL_LASWP10N_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp10N
+extern "C" void HPL_dlaswp10N
 (
    const int                        M,
    const int                        N,
@@ -65,15 +60,6 @@ void HPL_dlaswp10N
    const int                        LDA,
    const int *                      IPIV
 )
-#else
-void HPL_dlaswp10N
-( M, N, A, LDA, IPIV )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        LDA;
-   const int *                      IPIV;
-#endif
 {
 /* 
  * Purpose

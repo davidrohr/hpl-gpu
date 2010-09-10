@@ -44,10 +44,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
+
+#include <cstddef>
+
 /*
  * Define default value for unrolling factor
  */
@@ -56,8 +55,7 @@
 #define    HPL_LASWP05N_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp05N
+extern "C" void HPL_dlaswp05N
 (
    const int                        M,
    const int                        N,
@@ -68,18 +66,6 @@ void HPL_dlaswp05N
    const int *                      LINDXA,
    const int *                      LINDXAU
 )
-#else
-void HPL_dlaswp05N
-( M, N, A, LDA, U, LDU, LINDXA, LINDXAU )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        LDA;
-   const double *                   U;
-   const int                        LDU;
-   const int *                      LINDXA;
-   const int *                      LINDXAU;
-#endif
 {
 /* 
  * Purpose
