@@ -47,7 +47,7 @@
 arch             = UNKNOWN
 #
 TOPdir       := $(CURDIR)
-include setup/Make.$(arch)
+include      Make.$(arch)
 #
 ## build ###############################################################
 #
@@ -194,6 +194,6 @@ clean_guard_tst  :
 leaf             :
 	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
 	- ( $(CD) $(le)/$(arch) ; \
-            $(LN_S) $(TOPdir)/setup/Make.$(arch) Make.inc )
+            $(LN_S) $(TOPdir)/Make.$(arch) Make.inc )
 #
 ########################################################################
