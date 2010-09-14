@@ -62,11 +62,20 @@
 #define HPL_NO_DETAILED_TIMING
 #endif
  
+#ifndef TRACE_DGEMM                  /* Don't trace on function level */
+#define NO_TRACE_DGEMM
+#endif
+ 
 #ifndef HPL_CALL_VSIPL          /* Call the Fortran 77 BLAS interface */
 #ifndef HPL_CALL_CBLAS                       /* there can be only one */
 #define HPL_CALL_FBLAS
 #endif
 #endif
+ 
+#ifndef HPL_CALL_CBLAS                    /* Dont use cblas interface */
+#define HPL_NO_CALL_CBLAS
+#endif
+
 /*
  * ---------------------------------------------------------------------
  * Include files
