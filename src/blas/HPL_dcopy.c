@@ -49,6 +49,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifndef HPL_dcopy
 
 #ifdef STDC_HEADERS
@@ -104,6 +107,11 @@ void HPL_dcopy
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_BLAS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_BLAS */
+
 #ifdef HPL_CALL_CBLAS
    cblas_dcopy( N, X, INCX, Y, INCY );
 #endif
@@ -160,6 +168,13 @@ void HPL_dcopy
 #endif
    F77dcopy( &F77N, X, &F77incx, Y, &F77incy );
 #endif
+
+#ifdef TRACE_BLAS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DCOPY,N=%i,INCX=%i,INCY=%i,TIME=%lu\n", N, INCX, INCY, tr_diff );
+#endif /* TRACE_BLAS */
 /*
  * End of HPL_dcopy
  */

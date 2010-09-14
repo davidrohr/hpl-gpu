@@ -49,6 +49,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifndef HPL_dscal
 
 #ifdef STDC_HEADERS
@@ -99,6 +102,11 @@ void HPL_dscal
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_BLAS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_BLAS */
+
 #ifdef HPL_CALL_CBLAS
    cblas_dscal( N, ALPHA, X, INCX );
 #endif
@@ -171,6 +179,13 @@ void HPL_dscal
 
    F77dscal( &F77N, &alpha, X, &F77incx );
 #endif
+
+#ifdef TRACE_BLAS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DSCAL,N=%i,INCX=%i,TIME=%lu\n", N, INCX, tr_diff );
+#endif /* TRACE_BLAS */
 /*
  * End of HPL_dscal
  */
