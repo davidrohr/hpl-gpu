@@ -100,7 +100,7 @@ LAlib        = $(LAdir)/libgoto2.a
 $(LAlib): $(LAdir)/*.h $(LAdir)/*.c $(LAdir)/interface/* $(LAdir)/kernel/x86_64/* $(LAdir)/driver/*/*
 	pushd GotoBLAS2; $(MAKE); popd
 
-build: $(LAlib)
+build_src: $(LAlib)
 
 #
 # ----------------------------------------------------------------------
