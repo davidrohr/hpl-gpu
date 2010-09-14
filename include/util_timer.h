@@ -9,6 +9,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Retrieves a timestamt that never walks backwards.
  *
@@ -20,6 +24,10 @@ uint64_t util_getTimestamp( );
  * Retrieves the difference in mus between two timestamps
  */
 uint64_t util_getTimeDifference( uint64_t start, uint64_t end );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
