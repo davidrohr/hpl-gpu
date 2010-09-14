@@ -7,3 +7,6 @@
 /lib/
 /**/**/**/
 
+*.o
+libgoto2*.a
+libgoto2*.so
