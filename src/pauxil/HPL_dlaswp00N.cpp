@@ -56,6 +56,9 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 namespace
 {
     struct Perm { int a, b; };
@@ -151,6 +154,11 @@ namespace
  */
 extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, const int LDA, const int *__restrict__ IPIV)
 {
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
     // A is stored as
     // r0c0 r1c0 r2c0 ... rM-1c0 ... rLDA-1c0 r0c1
     // M   : #rows
@@ -213,4 +221,11 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, chunksize),
             HPL_dlaswp00N_impl(A, LDA, permSize, perm)
             );
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DLASWP00N,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+#endif /* TRACE_CALLS */
 }
