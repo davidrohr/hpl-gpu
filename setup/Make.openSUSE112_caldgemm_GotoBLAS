@@ -67,7 +67,6 @@ ARCH         = openSUSE112_caldgemm_GotoBLAS
 # - HPL Directory Structure / HPL library ------------------------------
 # ----------------------------------------------------------------------
 #
-TOPdir       = $(HOME)/hpl
 INCdir       = $(TOPdir)/include
 BINdir       = $(TOPdir)/bin/$(ARCH)
 LIBdir       = $(TOPdir)/lib/$(ARCH)
@@ -102,12 +101,12 @@ LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
 .DEFAULT_GOAL := all
 
 $(GOTOlib): $(GOTOdir)/*.h $(GOTOdir)/*.c $(GOTOdir)/interface/* $(GOTOdir)/kernel/x86_64/* $(GOTOdir)/driver/*/*
-	pushd GotoBLAS2; $(MAKE); popd
+	pushd $(GOTOdir); $(MAKE); popd
 
 $(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il
-	pushd caldgemm; $(MAKE); popd
+	pushd $(CALDGEMMdir); $(MAKE); popd
 
-build: $(GOTOlib) $(CALDGEMMlib)
+build_src: $(GOTOlib) $(CALDGEMMlib)
 
 #
 # ----------------------------------------------------------------------
@@ -155,18 +154,18 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc) -I$(HOME)/tbb30_056oss/include
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(HOME)/tbb30_056oss/lib -ltbb -lmpi
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
 # -DHPL_CALL_VSIPL       call the vsip  library;
-# -DHPL_CALL_CUBLAS      call the cublas library
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
-# -DHPL_TRACE_DGEMM       trace blas calls
+# -DTRACE_CALLS          function level tracing for calls that might
+#                        be relevant for optimization
 #
 # By default HPL will:
 #    *) not copy L before broadcast,

@@ -8,7 +8,7 @@
  * File pointers to write traces to
  */
 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_CALLS
 extern FILE* trace_dgemm;
 #endif
 

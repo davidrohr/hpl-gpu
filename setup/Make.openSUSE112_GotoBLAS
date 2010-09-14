@@ -98,9 +98,9 @@ LAlib        = $(LAdir)/libgoto2.a
 .DEFAULT_GOAL := all
 
 $(LAlib): $(LAdir)/*.h $(LAdir)/*.c $(LAdir)/interface/* $(LAdir)/kernel/x86_64/* $(LAdir)/driver/*/*
-	pushd GotoBLAS2; $(MAKE); popd
+	pushd $(LAdir); $(MAKE); popd
 
-build: $(LAlib)
+build_src: $(LAlib)
 
 #
 # ----------------------------------------------------------------------
@@ -156,10 +156,9 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
 # -DHPL_CALL_VSIPL       call the vsip  library;
-# -DHPL_CALL_CUBLAS      call the cublas library
 # -DHPL_DETAILED_TIMING  enable detailed timers;
-# -DHPL_VERBOSE_CUBLAS   make cublas calls more verbose
-# 											 (does more extensive error checking)
+# -DTRACE_CALLS          function level tracing for calls that might
+#                        be relevant for optimization
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -170,7 +169,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
