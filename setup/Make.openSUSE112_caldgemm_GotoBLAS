@@ -176,7 +176,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -ltbb -lmpi -lgfortran -Wl,-rpath=$(T
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_DETAILED_TIMING -DHPL_TRACE_DGEMM
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
