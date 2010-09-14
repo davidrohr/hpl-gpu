@@ -93,10 +93,10 @@ int HPL_idamax
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_BLAS
+#ifdef TRACE_CALLS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
-#endif /* TRACE_BLAS */
+#endif /* TRACE_CALLS */
 
 #ifdef HPL_CALL_CBLAS
    return( (int)(cblas_idamax( N, X, INCX )) );
@@ -168,12 +168,12 @@ int HPL_idamax
    return( imax );
 #endif
 
-#ifdef TRACE_BLAS
+#ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
    fprintf( trace_dgemm, "IDAMAX,N=%i,INCX=%i,TIME=%lu\n", N, INCX, tr_diff );
-#endif /* TRACE_BLAS */
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_idamax
  */

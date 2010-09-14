@@ -144,10 +144,10 @@ void HPL_dger
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_BLAS
+#ifdef TRACE_CALLS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
-#endif /* TRACE_BLAS */
+#endif /* TRACE_CALLS */
 
 #ifdef HPL_CALL_CBLAS
    cblas_dger( ORDER, M, N, ALPHA, X, INCX, Y, INCY, A, LDA );
@@ -196,12 +196,12 @@ void HPL_dger
    {  F77dger( &F77N, &F77M, &alpha, Y, &F77incy, X, &F77incx, A, &F77lda ); }
 #endif
 
-#ifdef TRACE_BLAS
+#ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
    fprintf( trace_dgemm, "DGER,ORDER=%i,M=%i,N=%i,INCX=%i,INCY=%i,LDA=%i,TIME=%lu\n",ORDER, M, N, INCX, INCY, LDA, tr_diff );
-#endif /* TRACE_BLAS */
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dger
  */

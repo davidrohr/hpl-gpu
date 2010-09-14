@@ -149,10 +149,9 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
 # -DHPL_CALL_VSIPL       call the vsip  library;
-# -DHPL_CALL_CUBLAS      call the cublas library
 # -DHPL_DETAILED_TIMING  enable detailed timers;
-# -DHPL_VERBOSE_CUBLAS   make cublas calls more verbose
-# 											 (does more extensive error checking)
+# -DTRACE_CALLS          function level tracing for calls that might
+#                        be relevant for optimization
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -163,7 +162,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DTRACE_BLAS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

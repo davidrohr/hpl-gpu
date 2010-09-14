@@ -12,7 +12,7 @@
  * File pointers to write traces to
  */
 
-#ifdef TRACE_BLAS
+#ifdef TRACE_CALLS
 FILE* trace_dgemm = 0;
 #endif
 
