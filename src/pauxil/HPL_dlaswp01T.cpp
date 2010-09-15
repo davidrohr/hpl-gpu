@@ -48,16 +48,144 @@
 #include <cstddef>
 #include "util_timer.h"
 #include "util_trace.h"
+#include <tbb/parallel_for.h>
+#include <emmintrin.h>
+#include <mm3dnow.h>
 
-/*
- * Define default value for unrolling factor
- */
-#ifndef HPL_LASWP01T_LOG2_DEPTH
-#define    HPL_LASWP01T_LOG2_DEPTH   5
-#endif
-#ifndef HPL_LASWP01T_DEPTH
-#define    HPL_LASWP01T_DEPTH        (1 << HPL_LASWP01T_LOG2_DEPTH)
-#endif
+class dlaswp01T_impl
+{
+    private:
+        const size_t M, LDA, LDU;
+        double *const __restrict__ A;
+        double *const __restrict__ U;
+        const int *const __restrict__ LINDXA;
+        const int *const __restrict__ LINDXAU;
+
+    public:
+        dlaswp01T_impl(const int _M, double *_A, const unsigned int _LDA,
+                double *_U, const unsigned int _LDU, const int *_LINDXA, const int *_LINDXAU)
+            : M(_M), LDA(_LDA), LDU(_LDU), A(_A), U(_U), LINDXA(_LINDXA), LINDXAU(_LINDXAU)
+        {}
+
+        void operator()(const tbb::blocked_range<size_t> &range) const
+        {
+            for (size_t i = 0; i < M - 1; ++i) {
+                const double *Ar = &A[LINDXA[i]];
+                const ptrdiff_t ArNext = &A[LINDXA[i + 1]] - Ar;
+                if (LINDXAU[i] >= 0) {
+                    const size_t rowUw = LINDXAU[i];
+                    double *Uw = &U[rowUw * LDU];
+                    double *const UwEnd = Uw + range.end();
+                    Uw += range.begin();
+                    _m_prefetchw(Uw);
+                    _m_prefetchw(Uw + 8);
+                    _m_prefetchw(Uw + 16);
+                    Ar += range.begin() * LDA;
+                    do {
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 0] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 1] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 2] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 3] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 4] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 5] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 6] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 7] = *Ar; Ar += LDA;
+                        _mm_clflush(&Uw[0]);
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 8] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 9] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[10] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[11] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[12] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[13] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[14] = *Ar; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[15] = *Ar; Ar += LDA;
+                        _mm_clflush(&Uw[8]);
+                        Uw += 16;
+                    } while ((UwEnd - Uw) >= 16);
+                    for (;Uw < UwEnd; ++Uw) {
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 0] = *Ar; Ar += LDA;
+                    }
+                    _mm_clflush(&Uw[-1]);
+                } else {
+                    const size_t rowAw = -LINDXAU[i];
+                    double *Aw = &A[rowAw];
+                    size_t col = range.begin();
+                    Aw += col * LDA;
+                    Ar += col * LDA;
+                    col = range.end() - col;
+                    do {
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        col -= 16;
+                    } while (col >= 16);
+                    for (; col; --col) {
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T0); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                    }
+                }
+            }
+            const double *Ar = &A[LINDXA[M - 1]];
+            if (LINDXAU[M - 1] >= 0) {
+                const size_t rowUw = LINDXAU[M - 1];
+                double *Uw = &U[rowUw * LDU];
+                double *const UwEnd = Uw + range.end();
+                Uw += range.begin();
+                _m_prefetchw(Uw);
+                _m_prefetchw(Uw + 8);
+                _m_prefetchw(Uw + 16);
+                Ar += range.begin() * LDA;
+                do {
+                    Uw[ 0] = *Ar; Ar += LDA;
+                    Uw[ 1] = *Ar; Ar += LDA;
+                    Uw[ 2] = *Ar; Ar += LDA;
+                    Uw[ 3] = *Ar; Ar += LDA;
+                    Uw[ 4] = *Ar; Ar += LDA;
+                    Uw[ 5] = *Ar; Ar += LDA;
+                    Uw[ 6] = *Ar; Ar += LDA;
+                    Uw[ 7] = *Ar; Ar += LDA;
+                    _mm_clflush(&Uw[0]);
+                    Uw[ 8] = *Ar; Ar += LDA;
+                    Uw[ 9] = *Ar; Ar += LDA;
+                    Uw[10] = *Ar; Ar += LDA;
+                    Uw[11] = *Ar; Ar += LDA;
+                    Uw[12] = *Ar; Ar += LDA;
+                    Uw[13] = *Ar; Ar += LDA;
+                    Uw[14] = *Ar; Ar += LDA;
+                    Uw[15] = *Ar; Ar += LDA;
+                    _mm_clflush(&Uw[8]);
+                    Uw += 16;
+                } while ((UwEnd - Uw) >= 16);
+                for (;Uw < UwEnd; ++Uw) {
+                    Uw[ 0] = *Ar; Ar += LDA;
+                }
+                _mm_clflush(&Uw[-1]);
+            } else {
+                const size_t rowAw = -LINDXAU[M - 1];
+                double *Aw = &A[rowAw];
+                size_t col = range.begin();
+                Aw += col * LDA;
+                Ar += col * LDA;
+                for (; col < range.end(); ++col) {
+                    *Aw = *Ar;
+                    Aw += LDA;
+                    Ar += LDA;
+                }
+            }
+        }
+};
 
 extern "C" void HPL_dlaswp01T
 (
@@ -454,117 +582,10 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
-/*
- * .. Local Variables ..
- */
-   double                     * a0, * a1;
-   const int                  incA = (int)( (unsigned int)(LDA) <<
-                                            HPL_LASWP01T_LOG2_DEPTH ),
-                              incU = ( 1 << HPL_LASWP01T_LOG2_DEPTH );
-   int                        nu, nr;
-   register int               i, j;
-/* ..
- * .. Executable Statements ..
- */
-   if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP01T_LOG2_DEPTH ) <<
-                            HPL_LASWP01T_LOG2_DEPTH ) );
-
-   for( j = 0; j < nu; j += HPL_LASWP01T_DEPTH, A += incA, U += incU )
-   {
-      for( i = 0; i < M; i++ )
-      {
-         a0 = A + (size_t)(LINDXA[i]);
-
-         if( LINDXAU[i] >= 0 )
-         {
-            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
-
-            a1[ 0] = *a0; a0 += LDA;
-#if ( HPL_LASWP01T_DEPTH >  1 )
-            a1[ 1] = *a0; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  2 )
-            a1[ 2] = *a0; a0 += LDA; a1[ 3] = *a0; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  4 )
-            a1[ 4] = *a0; a0 += LDA; a1[ 5] = *a0; a0 += LDA;
-            a1[ 6] = *a0; a0 += LDA; a1[ 7] = *a0; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  8 )
-            a1[ 8] = *a0; a0 += LDA; a1[ 9] = *a0; a0 += LDA;
-            a1[10] = *a0; a0 += LDA; a1[11] = *a0; a0 += LDA;
-            a1[12] = *a0; a0 += LDA; a1[13] = *a0; a0 += LDA;
-            a1[14] = *a0; a0 += LDA; a1[15] = *a0; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH > 16 )
-            a1[16] = *a0; a0 += LDA; a1[17] = *a0; a0 += LDA;
-            a1[18] = *a0; a0 += LDA; a1[19] = *a0; a0 += LDA;
-            a1[20] = *a0; a0 += LDA; a1[21] = *a0; a0 += LDA;
-            a1[22] = *a0; a0 += LDA; a1[23] = *a0; a0 += LDA;
-            a1[24] = *a0; a0 += LDA; a1[25] = *a0; a0 += LDA;
-            a1[26] = *a0; a0 += LDA; a1[27] = *a0; a0 += LDA;
-            a1[28] = *a0; a0 += LDA; a1[29] = *a0; a0 += LDA;
-            a1[30] = *a0; a0 += LDA; a1[31] = *a0; a0 += LDA;
-#endif
-         }
-         else
-         {
-            a1 = A - (size_t)(LINDXAU[i]);
-
-            *a1 = *a0; a1 += LDA; a0 += LDA;
-#if ( HPL_LASWP01T_DEPTH >  1 )
-            *a1 = *a0; a1 += LDA; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  2 )
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  4 )
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH >  8 )
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-#endif
-#if ( HPL_LASWP01T_DEPTH > 16 )
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
-#endif
-         }
-      }
-   }
-
-   if( nr > 0 )
-   {
-      for( i = 0; i < M; i++ )
-      {
-         a0 = A + (size_t)(LINDXA[i]);
-
-         if( LINDXAU[i] >= 0 )
-         {
-            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
-            for( j = 0; j < nr; j++, a0 += LDA ) { a1[j] = *a0; }
-         }
-         else
-         {
-            a1 = A - (size_t)(LINDXAU[i]);
-            for( j = 0; j < nr; j++, a1 += LDA, a0 += LDA ) { *a1 = *a0; }
-         }
-      }
-   }
-/*
- * End of HPL_dlaswp01T
- */
+    tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
+            dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
+            tbb::simple_partitioner());
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
