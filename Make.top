@@ -47,7 +47,12 @@
 arch             = UNKNOWN
 #
 TOPdir       := $(CURDIR)
+# check if we have a non-default setup file
+ifeq ($(strip $(wildcard Make.$(arch))),)
 include setup/Make.$(arch)
+else
+include Make.$(arch)
+endif
 #
 ## build ###############################################################
 #
@@ -191,9 +196,17 @@ clean_guard_tst  :
 #
 ## misc ################################################################
 #
+# allow override file
+ifeq ($(strip $(wildcard Make.$(arch))),)
 leaf             :
 	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
 	- ( $(CD) $(le)/$(arch) ; \
             $(LN_S) $(TOPdir)/setup/Make.$(arch) Make.inc )
+else
+leaf             :
+	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
+	- ( $(CD) $(le)/$(arch) ; \
+            $(LN_S) $(TOPdir)/Make.$(arch) Make.inc )
+endif
 #
 ########################################################################

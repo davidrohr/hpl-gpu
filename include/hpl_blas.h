@@ -159,6 +159,7 @@ STDC_ARGS(
  * HPL C BLAS macro definition
  * ---------------------------------------------------------------------
  */
+#ifdef NO_TRACE_CALLS
 #define    HPL_dswap           cblas_dswap
 #define    HPL_dcopy           cblas_dcopy
 #define    HPL_daxpy           cblas_daxpy
@@ -171,6 +172,7 @@ STDC_ARGS(
 
 #define    HPL_dgemm           cblas_dgemm
 #define    HPL_dtrsm           cblas_dtrsm
+#endif
 
 #endif
 
@@ -478,7 +480,7 @@ STDC_ARGS(
  * HPL BLAS Function prototypes
  * ---------------------------------------------------------------------
  */
-#ifndef HPL_CALL_CBLAS
+#if defined(HPL_NO_CALL_CBLAS) || defined(TRACE_CALLS)
 
 int                              HPL_idamax
 STDC_ARGS( (

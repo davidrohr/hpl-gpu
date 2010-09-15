@@ -44,6 +44,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
+
+#include "util_timer.h"
+#include "util_trace.h"
+
 /*
  * Define default value for unrolling factor
  */
@@ -94,6 +98,10 @@ extern "C" void HPL_dlaswp10N
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
 /*
  * .. Local Variables ..
  */
@@ -166,6 +174,12 @@ extern "C" void HPL_dlaswp10N
          { r = a0[i]; a0[i] = a1[i]; a1[i] = r; }
       }
    }
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DLASWP10N,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dlaswp10N
  */

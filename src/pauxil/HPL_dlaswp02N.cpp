@@ -46,6 +46,8 @@
  */ 
 
 #include <cstddef>
+#include "util_timer.h"
+#include "util_trace.h"
 
 /*
  * Define default value for unrolling factor
@@ -119,6 +121,10 @@ extern "C" void HPL_dlaswp02N
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
 /*
  * .. Local Variables ..
  */
@@ -184,6 +190,12 @@ extern "C" void HPL_dlaswp02N
          for( j = 0; j < nr; j++, a0 += LDA ) { w0[j] = *a0; }
       }
    }
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DLASWP02N,M=%i,N=%i,LDA=%i,LDW=%i,TIME=%lu\n", M, N, LDA, LDW, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dlaswp02N
  */

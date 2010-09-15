@@ -49,6 +49,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifndef HPL_dswap
 
 #ifdef STDC_HEADERS
@@ -106,6 +109,11 @@ void HPL_dswap
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 #ifdef HPL_CALL_CBLAS
    cblas_dswap( N, X, INCX, Y, INCY );
 #endif
@@ -149,6 +157,13 @@ void HPL_dswap
 #endif
    F77dswap( &F77N, X, &F77incx, Y, &F77incy );
 #endif
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DSWAP,N=%i,INCX=%i,INCY=%i,TIME=%lu\n", N, INCX, INCY, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dswap
  */

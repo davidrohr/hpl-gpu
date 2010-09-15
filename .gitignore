@@ -5,7 +5,8 @@
 # Ignore build directories
 /bin/
 /lib/
-/**/**/**/
+/src/**/**/
+/testing/**/**/
 
 *.o
 libgoto2*.a

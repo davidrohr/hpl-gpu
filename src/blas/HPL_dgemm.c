@@ -409,10 +409,10 @@ void HPL_dgemm
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_CALLS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
-#endif /* TRACE_DGEMM */
+#endif /* TRACE_CALLS */
 
 #ifdef HPL_CALL_CBLAS
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
@@ -522,12 +522,13 @@ void HPL_dgemm
    }
 #endif
 
-#ifdef TRACE_DGEMM
+#ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "%i,%i,%i,%i,%i,%i,%i,%i,%i,%llu\n",ORDER, TRANSA, TRANSB, M, N, K, LDA, LDB, LDC, tr_diff );
-#endif /* TRACE_DGEMM */
+   fprintf( trace_dgemm, "DGEMM,ORDER=%i,TRANSA=%i,TRANSB=%i,M=%i,N=%i,K=%i,ALPHA=%3.1f,LDA=%i,LDB=%i,BETA=%3.1f,LDC=%i,TIME=%lu\n",
+            ORDER, TRANSA, TRANSB, M, N, K, ALPHA, LDA, LDB, BETA, LDC, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dgemm
  */
