@@ -28,7 +28,7 @@ class PermutationHelper
 
         void resize(size_t size);
         inline void ensureSize(size_t size) {
-            if (size > m_size) {
+            if (__builtin_expect(size > m_size, 0)) {
                 resize(size);
             }
         }
