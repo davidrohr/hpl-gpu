@@ -1,10 +1,138 @@
-#include "../HPL_dlaswp01T.cpp"
 #include "../HPL_dlaswp00N.cpp"
+#include "../permutationhelper.h"
 #include "../permutationhelper.cpp"
 #include "matrix.h"
 #include <mm3dnow.h>
 #include <emmintrin.h>
 #include <tbb/parallel_for.h>
+
+#ifndef HPL_LASWP01T_LOG2_DEPTH
+#define    HPL_LASWP01T_LOG2_DEPTH   5
+#endif
+#ifndef HPL_LASWP01T_DEPTH
+#define    HPL_LASWP01T_DEPTH        (1 << HPL_LASWP01T_LOG2_DEPTH)
+#endif
+
+extern "C" void HPL_dlaswp01T
+(
+   const int                        M,
+   const int                        N,
+   double *                         A,
+   const int                        LDA,
+   double *                         U,
+   const int                        LDU,
+   const int *                      LINDXA,
+   const int *                      LINDXAU
+)
+{
+   double                     * a0, * a1;
+   const int                  incA = (int)( (unsigned int)(LDA) <<
+                                            HPL_LASWP01T_LOG2_DEPTH ),
+                              incU = ( 1 << HPL_LASWP01T_LOG2_DEPTH );
+   int                        nu, nr;
+   register int               i, j;
+/* ..
+ * .. Executable Statements ..
+ */
+   if( ( M <= 0 ) || ( N <= 0 ) ) return;
+
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP01T_LOG2_DEPTH ) <<
+                            HPL_LASWP01T_LOG2_DEPTH ) );
+
+   for( j = 0; j < nu; j += HPL_LASWP01T_DEPTH, A += incA, U += incU )
+   {
+      for( i = 0; i < M; i++ )
+      {
+         a0 = A + (size_t)(LINDXA[i]);
+
+         if( LINDXAU[i] >= 0 )
+         {
+            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
+
+            a1[ 0] = *a0; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  1 )
+            a1[ 1] = *a0; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  2 )
+            a1[ 2] = *a0; a0 += LDA; a1[ 3] = *a0; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  4 )
+            a1[ 4] = *a0; a0 += LDA; a1[ 5] = *a0; a0 += LDA;
+            a1[ 6] = *a0; a0 += LDA; a1[ 7] = *a0; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  8 )
+            a1[ 8] = *a0; a0 += LDA; a1[ 9] = *a0; a0 += LDA;
+            a1[10] = *a0; a0 += LDA; a1[11] = *a0; a0 += LDA;
+            a1[12] = *a0; a0 += LDA; a1[13] = *a0; a0 += LDA;
+            a1[14] = *a0; a0 += LDA; a1[15] = *a0; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH > 16 )
+            a1[16] = *a0; a0 += LDA; a1[17] = *a0; a0 += LDA;
+            a1[18] = *a0; a0 += LDA; a1[19] = *a0; a0 += LDA;
+            a1[20] = *a0; a0 += LDA; a1[21] = *a0; a0 += LDA;
+            a1[22] = *a0; a0 += LDA; a1[23] = *a0; a0 += LDA;
+            a1[24] = *a0; a0 += LDA; a1[25] = *a0; a0 += LDA;
+            a1[26] = *a0; a0 += LDA; a1[27] = *a0; a0 += LDA;
+            a1[28] = *a0; a0 += LDA; a1[29] = *a0; a0 += LDA;
+            a1[30] = *a0; a0 += LDA; a1[31] = *a0; a0 += LDA;
+#endif
+         }
+         else
+         {
+            a1 = A - (size_t)(LINDXAU[i]);
+
+            *a1 = *a0; a1 += LDA; a0 += LDA;
+#if ( HPL_LASWP01T_DEPTH >  1 )
+            *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  2 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  4 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH >  8 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+#if ( HPL_LASWP01T_DEPTH > 16 )
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+            *a1 = *a0; a1 += LDA; a0 += LDA; *a1 = *a0; a1 += LDA; a0 += LDA;
+#endif
+         }
+      }
+   }
+
+   if( nr > 0 )
+   {
+      for( i = 0; i < M; i++ )
+      {
+         a0 = A + (size_t)(LINDXA[i]);
+
+         if( LINDXAU[i] >= 0 )
+         {
+            a1 = U + (size_t)(LINDXAU[i]) * (size_t)(LDU);
+            for( j = 0; j < nr; j++, a0 += LDA ) { a1[j] = *a0; }
+         }
+         else
+         {
+            a1 = A - (size_t)(LINDXAU[i]);
+            for( j = 0; j < nr; j++, a1 += LDA, a0 += LDA ) { *a1 = *a0; }
+         }
+      }
+   }
+/*
+ * End of HPL_dlaswp01T
+ */
 
 /*
  * Purpose
@@ -64,6 +192,12 @@
  * ---------------------------------------------------------------------
  */
 
+class dlaswp01T_task_U : public tbb::task
+{
+    private:
+    public:
+};
+
 class dlaswp01T_impl
 {
     private:
@@ -81,14 +215,14 @@ class dlaswp01T_impl
 
         void operator()(const tbb::blocked_range<size_t> &range) const
         {
-            if (range.end() - range.begin() < 16) {
-                fprintf(stderr, "range too small: %ld\n", range.end() - range.begin());
-                abort();
-            }
-            if (range.end() - range.begin() > 32) {
-                fprintf(stderr, "range too large: %ld\n", range.end() - range.begin());
-                abort();
-            }
+//X             if (range.end() - range.begin() < 16) {
+//X                 fprintf(stderr, "range too small: %ld\n", range.end() - range.begin());
+//X                 abort();
+//X             }
+//X             if (range.end() - range.begin() > 32) {
+//X                 fprintf(stderr, "range too large: %ld\n", range.end() - range.begin());
+//X                 abort();
+//X             }
             for (size_t i = 0; i < M - 1; ++i) {
                 const double *Ar = &A[LINDXA[i]];
                 const ptrdiff_t ArNext = &A[LINDXA[i + 1]] - Ar;
@@ -213,7 +347,27 @@ extern "C" void dlaswp01T(const int M, const int N, double *A, const unsigned in
         return;
     }
 
-    tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 32),
+#if 0
+    // The idea is to create a list of tasks that operate on an area of memory such that no cache
+    // line (64B == 8 doubles) which is written will be read/written by another task. If possible the granularity
+    // should even be on page size (4096B == 512 doubles) to optimize the TLB misses.
+    PermutationHelper &perm = PermutationHelper::instance();
+    perm.ensureSize(M);
+    int pi = 0;
+    int pir = M - 1;
+    for (int i = 0; i < M; ++i) {
+        if (LINDXAU[i] >= 0) {
+            perm[pi].a = i;
+            perm[pi].b = LINDXAU[i];
+            ++pi;
+        } else {
+            perm[pir].a = i;
+            perm[pir].b = -LINDXAU[i];
+            --pir;
+        }
+    }
+#endif
+    tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
             dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
             tbb::simple_partitioner());
     return;
