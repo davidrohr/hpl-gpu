@@ -50,9 +50,11 @@
 /*
  * Define default value for unrolling factor
  */
-#ifndef HPL_LASWP01T_DEPTH
-#define    HPL_LASWP01T_DEPTH       32
+#ifndef HPL_LASWP01T_LOG2_DEPTH
 #define    HPL_LASWP01T_LOG2_DEPTH   5
+#endif
+#ifndef HPL_LASWP01T_DEPTH
+#define    HPL_LASWP01T_DEPTH        (1 << HPL_LASWP01T_LOG2_DEPTH)
 #endif
 
 extern "C" void HPL_dlaswp01T
