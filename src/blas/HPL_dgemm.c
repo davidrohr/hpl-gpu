@@ -415,8 +415,9 @@ void HPL_dgemm
 #endif /* TRACE_CALLS */
 
 #ifdef HPL_CALL_CBLAS
-#ifdef HPL_CALL_CALDGEM
-   TODO implement, but this is only needed if we want to trace
+#ifdef HPL_CALL_CALDGEMM
+   CALDGEMM_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+                   BETA, C, LDC );
 #else
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                 BETA, C, LDC );

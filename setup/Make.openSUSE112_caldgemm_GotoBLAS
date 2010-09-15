@@ -155,7 +155,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
@@ -176,7 +176,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -ltbb -lmpi -lgfortran -Wl,-rpath=$(T
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_DETAILED_TIMING -DHPL_TRACE_DGEMM
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
