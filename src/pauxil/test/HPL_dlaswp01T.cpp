@@ -587,14 +587,18 @@ int main(int argc, char **argv)
     }
     TimeStampCounter tsc;
     tsc.start();
-        dlaswp01T(nRows, nCols, m2.at(0, 0), m2.LDA(), u2.at(0, 0), u2.LDA(), readRowsInA, writeRowsInUA);
+    HPL_dlaswp01T_new(nRows, nCols, m2.at(0, 0), m2.LDA(), u2.at(0, 0), u2.LDA(), readRowsInA, writeRowsInUA);
     tsc.stop();
     printf("new: %10lld cycles\n", tsc.cycles());
     tsc.start();
-    HPL_dlaswp01T(nRows, nCols, m1.at(0, 0), m1.LDA(), u1.at(0, 0), u1.LDA(), readRowsInA, writeRowsInUA);
+    HPL_dlaswp01T_old(nRows, nCols, m1.at(0, 0), m1.LDA(), u1.at(0, 0), u1.LDA(), readRowsInA, writeRowsInUA);
     tsc.stop();
     printf("old: %10lld cycles\n", tsc.cycles());
     COMPARE(m1, m2);
     COMPARE(u1, u2);
+    tsc.start();
+    HPL_dlaswp01T    (nRows, nCols, m2.at(0, 0), m2.LDA(), u2.at(0, 0), u2.LDA(), readRowsInA, writeRowsInUA);
+    tsc.stop();
+    printf("cur: %10lld cycles\n", tsc.cycles());
     return 0;
 }
