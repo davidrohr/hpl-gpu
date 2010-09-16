@@ -1,4 +1,5 @@
 #include "../HPL_dlaswp00N.cpp"
+#include "../HPL_dlaswp01T.cpp"
 #include "../permutationhelper.h"
 #include "../permutationhelper.cpp"
 #include "matrix.h"
@@ -13,7 +14,7 @@
 #define    HPL_LASWP01T_DEPTH        (1 << HPL_LASWP01T_LOG2_DEPTH)
 #endif
 
-extern "C" void HPL_dlaswp01T
+extern "C" void HPL_dlaswp01T_old
 (
    const int                        M,
    const int                        N,
@@ -198,7 +199,7 @@ class dlaswp01T_task_U : public tbb::task
     public:
 };
 
-class dlaswp01T_impl
+class dlaswp01T_impl_new
 {
     private:
         const size_t M, LDA, LDU;
@@ -208,7 +209,7 @@ class dlaswp01T_impl
         const int *const __restrict__ LINDXAU;
 
     public:
-        dlaswp01T_impl(const int _M, double *_A, const unsigned int _LDA,
+        dlaswp01T_impl_new(const int _M, double *_A, const unsigned int _LDA,
                 double *_U, const unsigned int _LDU, const int *_LINDXA, const int *_LINDXAU)
             : M(_M), LDA(_LDA), LDU(_LDU), A(_A), U(_U), LINDXA(_LINDXA), LINDXAU(_LINDXAU)
         {}
@@ -340,7 +341,7 @@ class dlaswp01T_impl
             }
         }
 };
-extern "C" void dlaswp01T(const int M, const int N, double *A, const unsigned int LDA,
+extern "C" void HPL_dlaswp01T_new(const int M, const int N, double *A, const unsigned int LDA,
         double *U, const unsigned int LDU, const int *LINDXA, const int *LINDXAU)
 {
     if( N <= 0 ) {
@@ -368,7 +369,7 @@ extern "C" void dlaswp01T(const int M, const int N, double *A, const unsigned in
     }
 #endif
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
-            dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
+            dlaswp01T_impl_new(M, A, LDA, U, LDU, LINDXA, LINDXAU),
             tbb::simple_partitioner());
     return;
 #if 0
