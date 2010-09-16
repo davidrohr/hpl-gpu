@@ -131,9 +131,7 @@ extern "C" void HPL_dlaswp01T_old
          }
       }
    }
-/*
- * End of HPL_dlaswp01T
- */
+}
 
 /*
  * Purpose
