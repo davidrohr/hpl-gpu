@@ -342,7 +342,28 @@ class dlaswp01T_impl_new
 extern "C" void HPL_dlaswp01T_new(const int M, const int N, double *A, const unsigned int LDA,
         double *U, const unsigned int LDU, const int *LINDXA, const int *LINDXAU)
 {
-    if( N <= 0 ) {
+    if( N < 16 ) {
+        if (N <= 0) {
+            return;
+        }
+
+        for (int i = 0; i < M; ++i) {
+            const double *Ar = &A[LINDXA[i]];
+            if (LINDXAU[i] >= 0) {
+                double *Uw = &U[LINDXAU[i] * static_cast<size_t>(LDU)];
+                for (int col = 0; col < N; ++col) {
+                    Uw[col] = *Ar;
+                    Ar += LDA;
+                }
+            } else {
+                double *Aw = &A[-LINDXAU[i]];
+                for (int col = 0; col < N; ++col) {
+                    *Aw = *Ar;
+                    Ar += LDA;
+                    Aw += LDA;
+                }
+            }
+        }
         return;
     }
 

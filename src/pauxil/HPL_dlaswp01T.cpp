@@ -583,6 +583,31 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
 
+    if( N < 16 ) {
+        if (N <= 0) {
+            return;
+        }
+
+        for (int i = 0; i < M; ++i) {
+            const double *Ar = &A[LINDXA[i]];
+            if (LINDXAU[i] >= 0) {
+                double *Uw = &U[LINDXAU[i] * static_cast<size_t>(LDU)];
+                for (int col = 0; col < N; ++col) {
+                    Uw[col] = *Ar;
+                    Ar += LDA;
+                }
+            } else {
+                double *Aw = &A[-LINDXAU[i]];
+                for (int col = 0; col < N; ++col) {
+                    *Aw = *Ar;
+                    Ar += LDA;
+                    Aw += LDA;
+                }
+            }
+        }
+        return;
+    }
+
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
             dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
             tbb::simple_partitioner());
