@@ -591,6 +591,6 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP00N,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+   fprintf( trace_dgemm, "DLASWP01T,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
 #endif /* TRACE_CALLS */
 } 
