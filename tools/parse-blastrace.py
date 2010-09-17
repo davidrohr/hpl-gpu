@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 
+#
+# The source code is property of the Frankfurt Institute for Advanced Studies
+# (FIAS). None of the material may be copied, reproduced, distributed,
+# republished, downloaded, displayed, posted or transmitted in any form or by
+# any means, including, but not limited to, electronic, mechanical,
+# photocopying, recording, or otherwise, without the prior written permission
+# of FIAS.
+#
+# Authors:
+# David Rohr (drohr@jwdt.org)
+# Matthias Bach (bach@compeng.uni-frankfurt.de)
+# Matthias Kretz (kretz@compeng.uni-frankfurt.de)
+# Jörg Bornschein (bornschein@fias.uni-frankfurt.de)
+# 
+
 from __future__ import division
 
 import sys
