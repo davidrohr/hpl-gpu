@@ -25,7 +25,7 @@ PermutationHelper *__restrict__ PermutationHelper::s_instance = 0;
 
 PermutationHelper::~PermutationHelper()
 {
-    delete[] m_data;
+    free(m_data);
 }
 
 void PermutationHelper::resize(size_t size)
