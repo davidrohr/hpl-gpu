@@ -458,7 +458,7 @@ class dlaswp06T_impl
         }
 };
 
-extern "C" void HPL_dlaswp06T_new(const int M, const int N, double *A,
+extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
         const int LDA, double *U, const int LDU, const int *LINDXA)
 {
 #ifdef TRACE_CALLS
