@@ -110,8 +110,9 @@ GOTOdir      = $(TOPdir)/GotoBLAS2
 GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(TOPdir)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
+CALDGEMMutil  = $(CALDGEMMdir)/calutil.o
 LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
-LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
+LAlib        = $(CALDGEMMlib) $(CALDGEMMutil) $(GOTOlib) -laticalrt -laticalcl
 
 .DEFAULT_GOAL := all
 
@@ -121,7 +122,10 @@ $(GOTOlib): $(GOTOdir)/*.h $(GOTOdir)/*.c $(GOTOdir)/interface/* $(GOTOdir)/kern
 $(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il
 	pushd $(CALDGEMMdir); $(MAKE); popd
 
-build_src: $(GOTOlib) $(CALDGEMMlib)
+$(CALDGEMMutil): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il
+	pushd $(CALDGEMMdir); $(MAKE); popd
+
+build_src: $(GOTOlib) $(CALDGEMMlib) $(CALDGEMMutil)
 
 #
 # ----------------------------------------------------------------------
@@ -200,8 +204,12 @@ HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CAL
 CC           = gcc
 CXX          = g++
 CCNOOPT      = $(HPL_DEFS)
-CCFLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -funroll-loops -march=barcelona
-#CCFLAGS      = $(HPL_DEFS) -O0 -g -lgfortran
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -Wall -Wimplicit \
+                -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
+                -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow
+CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
+CCFLAGS      = $(_FLAGS) -std=gnu99
 #
 # On some platforms,  it is necessary  to use the Fortran linker to find
 # the Fortran internals used in the BLAS library.
