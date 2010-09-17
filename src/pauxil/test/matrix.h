@@ -1,19 +1,13 @@
-/*  This file is part of the Vc library.
-
+/*
     Copyright (C) 2010 Matthias Kretz <kretz@kde.org>
+    Copyright (C) 2010 Frankfurt Institute for Advanced Studies (FIAS)
 
-    Vc is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of
-    the License, or (at your option) any later version.
-
-    Vc is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with Vc.  If not, see <http://www.gnu.org/licenses/>.
+    The source code is property of the Frankfurt Institute for Advanced Studies
+    (FIAS). None of the material may be copied, reproduced, distributed,
+    republished, downloaded, displayed, posted or transmitted in any form or by
+    any means, including, but not limited to, electronic, mechanical,
+    photocopying, recording, or otherwise, without the prior written permission
+    of FIAS.
 
 */
 
