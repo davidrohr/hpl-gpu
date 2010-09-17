@@ -1,4 +1,19 @@
 /* 
+ * This is a modified version of the High Performance Computing Linpack
+ * Benchmark (HPL). All code not contained in the original HPL version
+ * 2.0 is property of the Frankfurt Institute for Advanced Studies
+ * (FIAS). None of the material may be copied, reproduced, distributed,
+ * republished, downloaded, displayed, posted or transmitted in any form
+ * or by any means, including, but not limited to, electronic,
+ * mechanical, photocopying, recording, or otherwise, without the prior
+ * written permission of FIAS. For those parts contained in the
+ * unmodified version of the HPL the below copyright notice applies.
+ * 
+ * Authors:
+ * David Rohr (drohr@jwdt.org)
+ * Matthias Bach (bach@compeng.uni-frankfurt.de)
+ * Matthias Kretz (kretz@compeng.uni-frankfurt.de)
+ * 
  * -- High Performance Computing Linpack Benchmark (HPL)                
  *    HPL - 2.0 - September 10, 2008                          
  *    Antoine P. Petitet                                                
@@ -44,22 +59,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
+
+#include <cstddef>
 #include "util_timer.h"
 #include "util_trace.h"
+
 /*
  * Define default value for unrolling factor
  */
-#ifndef HPL_LASWP04N_DEPTH
-#define    HPL_LASWP04N_DEPTH       32
-#define    HPL_LASWP04N_LOG2_DEPTH   5
+#ifndef HPL_LASWP04T_DEPTH
+#define    HPL_LASWP04T_DEPTH       32
+#define    HPL_LASWP04T_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp04N
+extern "C" void HPL_dlaswp04T
 (
    const int                        M0,
    const int                        M1,
@@ -74,59 +87,44 @@ void HPL_dlaswp04N
    const int *                      LINDXA,
    const int *                      LINDXAU
 )
-#else
-void HPL_dlaswp04N
-( M0, M1, N, U, LDU, A, LDA, W0, W, LDW, LINDXA, LINDXAU )
-   const int                        M0;
-   const int                        M1;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   double *                         A;
-   const int                        LDA;
-   const double *                   W0;
-   const double *                   W;
-   const int                        LDW;
-   const int *                      LINDXA;
-   const int *                      LINDXAU;
-#endif
 {
 /* 
  * Purpose
  * =======
  *
- * HPL_dlaswp04N copies M0 rows of U into A and replaces those rows of U
- * with columns of W. In addition M1 - M0 columns of  W  are copied into
- * rows of U.
+ * HPL_dlaswp04T copies M0 columns of U into rows of A and replaces those
+ * columns of U with columns of W. In addition M1 - M0 columns of W  are
+ * copied into U.
  *
  * Arguments
  * =========
  *
  * M0      (local input)                 const int
- *         On entry, M0 specifies the number of rows of U that should be
- *         copied into  A  and replaced by columns of  W.  M0 must be at
+ *         On entry, M0 specifies the number of columns of U that should
+ *         be copied into A and replaced by columns of W.  M0 must be at
  *         least zero.
  *
  * M1      (local input)                 const int
- *         On entry, M1 specifies the number of columns of W that should
- *         be copied into rows of U. M1 must be at least zero.
+ *         On entry, M1 specifies  the number of columnns of W that will
+ *         be copied into U. M1 must be at least zero.
  *
  * N       (local input)                 const int
- *         On entry, N specifies the length of the rows of U that should
- *         be copied into A. N must be at least zero.
+ *         On entry,  N  specifies the length of the columns of  U  that
+ *         will be copied into rows of A. N must be at least zero.
  *
  * U       (local input/output)          double *
- *         On entry,  U  points to  an array of dimension (LDU,N).  This
- *         array contains the rows that are to be copied into A.
+ *         On entry,  U  points  to an array of dimension (LDU,*).  This
+ *         array contains the columns that are to be copied into rows of
+ *         A.
  *
  * LDU     (local input)                 const int
  *         On entry, LDU specifies the leading dimension of the array U.
- *         LDU must be at least MAX(1,M1).
+ *         LDU must be at least MAX(1,N).
  *
  * A       (local output)                double *
  *         On entry, A points to an array of dimension (LDA,N). On exit,
  *         the  rows of this array specified by  LINDXA  are replaced by
- *         rows of U indicated by LINDXAU.
+ *         columns of U indicated by LINDXAU.
  *
  * LDA     (local input)                 const int
  *         On entry, LDA specifies the leading dimension of the array A.
@@ -140,7 +138,7 @@ void HPL_dlaswp04N
  * W       (local input)                 const double *
  *         On entry, W  is an array of size (LDW,M0+M1),  that  contains
  *         data to be copied into U.  For i in [M0..M0+M1),  the entries
- *         W(:,i) are copied into the row W0(i*LDW) of U.
+ *         W(:,i) are copied into the column W0(i*LDW) of U.
  *
  * LDW     (local input)                 const int
  *         On entry, LDW specifies the leading dimension of the array W.
@@ -148,12 +146,12 @@ void HPL_dlaswp04N
  *
  * LINDXA  (local input)                 const int *
  *         On entry, LINDXA  is an array of dimension  M0 containing the
- *         local row indexes A into which rows of U are copied.
+ *         local row indexes A into which columns of U are copied.
  *
  * LINDXAU (local input)                 const int *
  *         On entry, LINDXAU  is an array of dimension M0 that  contains
- *         the local  row indexes of  U that should be copied into A and
- *         replaced by the columns of W.
+ *         the  local column indexes of  U  that should be copied into A
+ *         and replaced by the columns of W.
  *
  * ---------------------------------------------------------------------
  */ 
@@ -166,10 +164,9 @@ void HPL_dlaswp04N
  */
    const double               * w = W, * w0;
    double                     * a0, * u0;
-   const int                  incA = (int)( (unsigned int)(LDA) << 
-                                            HPL_LASWP04N_LOG2_DEPTH ),
-                              incU = (int)( (unsigned int)(LDU) <<
-                                            HPL_LASWP04N_LOG2_DEPTH );
+   const int                  incA = (int)( (unsigned int)(LDA) <<
+                                            HPL_LASWP04T_LOG2_DEPTH ),
+                              incU = (   1 << HPL_LASWP04T_LOG2_DEPTH );
    int                        nr, nu;
    register int               i, j;
 /* ..
@@ -177,121 +174,106 @@ void HPL_dlaswp04N
  */
    if( ( ( M0 <= 0 ) && ( M1 <= 0 ) ) || ( N <= 0 ) ) return;
 
-   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP04N_LOG2_DEPTH ) <<
-                          HPL_LASWP04N_LOG2_DEPTH ) );
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP04T_LOG2_DEPTH ) <<
+                          HPL_LASWP04T_LOG2_DEPTH ) );
 
-   for( j = 0; j < nu; j += HPL_LASWP04N_DEPTH, A += incA, U += incU,
-        w += HPL_LASWP04N_DEPTH )
+   for( j = 0; j < nu; j += HPL_LASWP04T_DEPTH, A += incA, U += incU,
+        w += HPL_LASWP04T_DEPTH )
    {
-      for( i =  0; i < M0; i++ )
+      for( i = 0; i < M0; i++ )
       {
-         a0 = A + (size_t)(LINDXA[i]);
-         u0 = U + (size_t)(LINDXAU[i]);
-         w0 = w + (size_t)(i) * (size_t)(LDW);
+         a0 = A + LINDXA[i]; u0 = U + LINDXAU[i] * LDU; w0 = w + i * LDW;
 
-         *a0 = *u0; *u0 = w0[ 0]; a0 += LDA; u0 += LDU;
-#if ( HPL_LASWP04N_DEPTH >  1 )
-         *a0 = *u0; *u0 = w0[ 1]; a0 += LDA; u0 += LDU;
+         *a0 = u0[ 0]; u0[ 0] = w0[ 0]; a0 += LDA;
+#if ( HPL_LASWP04T_DEPTH >  1 )
+         *a0 = u0[ 1]; u0[ 1] = w0[ 1]; a0 += LDA;
 #endif
-#if ( HPL_LASWP04N_DEPTH >  2 )
-         *a0 = *u0; *u0 = w0[ 2]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[ 3]; a0 += LDA; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  2 )
+         *a0 = u0[ 2]; u0[ 2] = w0[ 2]; a0 += LDA;
+         *a0 = u0[ 3]; u0[ 3] = w0[ 3]; a0 += LDA;
 #endif
-#if ( HPL_LASWP04N_DEPTH >  4 )
-         *a0 = *u0; *u0 = w0[ 4]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[ 5]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[ 6]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[ 7]; a0 += LDA; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  4 )
+         *a0 = u0[ 4]; u0[ 4] = w0[ 4]; a0 += LDA;
+         *a0 = u0[ 5]; u0[ 5] = w0[ 5]; a0 += LDA;
+         *a0 = u0[ 6]; u0[ 6] = w0[ 6]; a0 += LDA;
+         *a0 = u0[ 7]; u0[ 7] = w0[ 7]; a0 += LDA;
 #endif
-#if ( HPL_LASWP04N_DEPTH >  8 )
-         *a0 = *u0; *u0 = w0[ 8]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[ 9]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[10]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[11]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[12]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[13]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[14]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[15]; a0 += LDA; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  8 )
+         *a0 = u0[ 8]; u0[ 8] = w0[ 8]; a0 += LDA;
+         *a0 = u0[ 9]; u0[ 9] = w0[ 9]; a0 += LDA;
+         *a0 = u0[10]; u0[10] = w0[10]; a0 += LDA;
+         *a0 = u0[11]; u0[11] = w0[11]; a0 += LDA;
+         *a0 = u0[12]; u0[12] = w0[12]; a0 += LDA;
+         *a0 = u0[13]; u0[13] = w0[13]; a0 += LDA;
+         *a0 = u0[14]; u0[14] = w0[14]; a0 += LDA;
+         *a0 = u0[15]; u0[15] = w0[15]; a0 += LDA;
 #endif
-#if ( HPL_LASWP04N_DEPTH > 16 )
-         *a0 = *u0; *u0 = w0[16]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[17]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[18]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[19]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[20]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[21]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[22]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[23]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[24]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[25]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[26]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[27]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[28]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[29]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[30]; a0 += LDA; u0 += LDU;
-         *a0 = *u0; *u0 = w0[31]; a0 += LDA; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH > 16 )
+         *a0 = u0[16]; u0[16] = w0[16]; a0 += LDA;
+         *a0 = u0[17]; u0[17] = w0[17]; a0 += LDA;
+         *a0 = u0[18]; u0[18] = w0[18]; a0 += LDA;
+         *a0 = u0[19]; u0[19] = w0[19]; a0 += LDA;
+         *a0 = u0[20]; u0[20] = w0[20]; a0 += LDA;
+         *a0 = u0[21]; u0[21] = w0[21]; a0 += LDA;
+         *a0 = u0[22]; u0[22] = w0[22]; a0 += LDA;
+         *a0 = u0[23]; u0[23] = w0[23]; a0 += LDA;
+         *a0 = u0[24]; u0[24] = w0[24]; a0 += LDA;
+         *a0 = u0[25]; u0[25] = w0[25]; a0 += LDA;
+         *a0 = u0[26]; u0[26] = w0[26]; a0 += LDA;
+         *a0 = u0[27]; u0[27] = w0[27]; a0 += LDA;
+         *a0 = u0[28]; u0[28] = w0[28]; a0 += LDA;
+         *a0 = u0[29]; u0[29] = w0[29]; a0 += LDA;
+         *a0 = u0[30]; u0[30] = w0[30]; a0 += LDA;
+         *a0 = u0[31]; u0[31] = w0[31]; a0 += LDA;
 #endif
       }
-
       for( i = M0; i < M1; i++ )
       {
-         u0 = U + (size_t)(*(W0+(size_t)(i)*(size_t)(LDW)));
-         w0 = w + (size_t)(i) * (size_t)(LDW);
+         u0 = U + (int)(*(W0+i*LDW)) * LDU; w0 = w + i * LDW;
 
-         *u0 = w0[ 0]; u0 += LDU;
-#if ( HPL_LASWP04N_DEPTH >  1 )
-         *u0 = w0[ 1]; u0 += LDU;
+         u0[ 0] = w0[ 0];
+#if ( HPL_LASWP04T_DEPTH >  1 )
+         u0[ 1] = w0[ 1];
 #endif
-#if ( HPL_LASWP04N_DEPTH >  2 )
-         *u0 = w0[ 2]; u0 += LDU; *u0 = w0[ 3]; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  2 )
+         u0[ 2] = w0[ 2]; u0[ 3] = w0[ 3];
 #endif
-#if ( HPL_LASWP04N_DEPTH >  4 )
-         *u0 = w0[ 4]; u0 += LDU; *u0 = w0[ 5]; u0 += LDU;
-         *u0 = w0[ 6]; u0 += LDU; *u0 = w0[ 7]; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  4 )
+         u0[ 4] = w0[ 4]; u0[ 5] = w0[ 5]; u0[ 6] = w0[ 6]; u0[ 7] = w0[ 7];
 #endif
-#if ( HPL_LASWP04N_DEPTH >  8 )
-         *u0 = w0[ 8]; u0 += LDU; *u0 = w0[ 9]; u0 += LDU;
-         *u0 = w0[10]; u0 += LDU; *u0 = w0[11]; u0 += LDU;
-         *u0 = w0[12]; u0 += LDU; *u0 = w0[13]; u0 += LDU;
-         *u0 = w0[14]; u0 += LDU; *u0 = w0[15]; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH >  8 )
+         u0[ 8] = w0[ 8]; u0[ 9] = w0[ 9]; u0[10] = w0[10]; u0[11] = w0[11];
+         u0[12] = w0[12]; u0[13] = w0[13]; u0[14] = w0[14]; u0[15] = w0[15];
 #endif
-#if ( HPL_LASWP04N_DEPTH > 16 )
-         *u0 = w0[16]; u0 += LDU; *u0 = w0[17]; u0 += LDU;
-         *u0 = w0[18]; u0 += LDU; *u0 = w0[19]; u0 += LDU;
-         *u0 = w0[20]; u0 += LDU; *u0 = w0[21]; u0 += LDU;
-         *u0 = w0[22]; u0 += LDU; *u0 = w0[23]; u0 += LDU;
-         *u0 = w0[24]; u0 += LDU; *u0 = w0[25]; u0 += LDU;
-         *u0 = w0[26]; u0 += LDU; *u0 = w0[27]; u0 += LDU;
-         *u0 = w0[28]; u0 += LDU; *u0 = w0[29]; u0 += LDU;
-         *u0 = w0[30]; u0 += LDU; *u0 = w0[31]; u0 += LDU;
+#if ( HPL_LASWP04T_DEPTH > 16 )
+         u0[16] = w0[16]; u0[17] = w0[17]; u0[18] = w0[18]; u0[19] = w0[19];
+         u0[20] = w0[20]; u0[21] = w0[21]; u0[22] = w0[22]; u0[23] = w0[23];
+         u0[24] = w0[24]; u0[25] = w0[25]; u0[26] = w0[26]; u0[27] = w0[27];
+         u0[28] = w0[28]; u0[29] = w0[29]; u0[30] = w0[30]; u0[31] = w0[31];
 #endif
       }
    }
 
-   if( nr )
+   if( nr > 0 )
    {
       for( i = 0; i < M0; i++ )
       {
-         a0 = A + (size_t)(LINDXA[i]);
-         u0 = U + (size_t)(LINDXAU[i]);
-         w0 = w + (size_t)(i) * (size_t)(LDW);
-         for( j = 0; j < nr; j++, a0 += LDA, u0 += LDU )
-         { *a0 = *u0; *u0 = w0[j]; }
+         a0 = A + LINDXA[i]; u0 = U + LINDXAU[i] * LDU; w0 = w + i * LDW;
+         for( j = 0; j < nr; j++, a0 += LDA ) { *a0 = u0[j]; u0[j] = w0[j]; }
       }
       for( i = M0; i < M1; i++ )
       {
-         u0 = U + (size_t)(*(W0+(size_t)(i)*(size_t)(LDW)));
-         w0 = w + (size_t)(i) * (size_t)(LDW);
-         for( j = 0; j < nr; j++, u0 += LDU ) { *u0 = w0[j]; }
+         u0 = U + (int)(*(W0+i*LDW)) * LDU; w0 = w + i * LDW;
+         for( j = 0; j < nr; j++ ) { u0[j] = w0[j]; }
       }
    }
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP04N,M0=%i,M1=%i,N=%i,LDU=%i,LDA=%i,LDW=%i,TIME=%lu\n", M0, M1, N, LDU, LDA, LDW, tr_diff );
+   fprintf( trace_dgemm, "DLASWP04T,M0=%i,M1=%i,N=%i,LDU=%i,LDA=%i,LDW=%i,TIME=%lu\n", M0, M1, N, LDU, LDA, LDW, tr_diff );
 #endif /* TRACE_CALLS */
 /*
- * End of HPL_dlaswp04N
+ * End of HPL_dlaswp04T
  */
 } 
