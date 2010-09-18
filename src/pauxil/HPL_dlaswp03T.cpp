@@ -1,4 +1,19 @@
 /* 
+ * This is a modified version of the High Performance Computing Linpack
+ * Benchmark (HPL). All code not contained in the original HPL version
+ * 2.0 is property of the Frankfurt Institute for Advanced Studies
+ * (FIAS). None of the material may be copied, reproduced, distributed,
+ * republished, downloaded, displayed, posted or transmitted in any form
+ * or by any means, including, but not limited to, electronic,
+ * mechanical, photocopying, recording, or otherwise, without the prior
+ * written permission of FIAS. For those parts contained in the
+ * unmodified version of the HPL the below copyright notice applies.
+ * 
+ * Authors:
+ * David Rohr (drohr@jwdt.org)
+ * Matthias Bach (bach@compeng.uni-frankfurt.de)
+ * Matthias Kretz (kretz@compeng.uni-frankfurt.de)
+ * 
  * -- High Performance Computing Linpack Benchmark (HPL)                
  *    HPL - 2.0 - September 10, 2008                          
  *    Antoine P. Petitet                                                
@@ -44,12 +59,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
+
+#include <cstddef>
 #include "util_timer.h"
 #include "util_trace.h"
+
 /*
  * Define default value for unrolling factor
  */
@@ -58,8 +72,7 @@
 #define    HPL_LASWP03T_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp03T
+extern "C" void HPL_dlaswp03T
 (
    const int                        M,
    const int                        N,
@@ -69,17 +82,6 @@ void HPL_dlaswp03T
    const double *                   W,
    const int                        LDW
 )
-#else
-void HPL_dlaswp03T
-( M, N, U, LDU, W0, W, LDW )
-   const int                        M;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   const double *                   W0;
-   const double *                   W;
-   const int                        LDW;
-#endif
 {
 /* 
  * Purpose

@@ -59,87 +59,150 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
 
-#ifdef STDC_HEADERS
-void HPL_dlaprnt
+#include <cstddef>
+#include "util_timer.h"
+#include "util_trace.h"
+
+/*
+ * Define default value for unrolling factor
+ */
+#ifndef HPL_LASWP05N_DEPTH
+#define    HPL_LASWP05N_DEPTH       32
+#define    HPL_LASWP05N_LOG2_DEPTH   5
+#endif
+
+extern "C" void HPL_dlaswp05N
 (
    const int                        M,
    const int                        N,
    double *                         A,
-   const int                        IA,
-   const int                        JA,
    const int                        LDA,
-   const char *                     CMATNM
+   const double *                   U,
+   const int                        LDU,
+   const int *                      LINDXA,
+   const int *                      LINDXAU
 )
-#else
-void HPL_dlaprnt
-( M, N, A, IA, JA, LDA, CMATNM )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        IA;
-   const int                        JA;
-   const int                        LDA;
-   const char *                     CMATNM;
-#endif
 {
 /* 
  * Purpose
  * =======
  *
- * HPL_dlaprnt prints to standard error an M-by-N matrix A.
- * 
+ * HPL_dlaswp05N copies rows of  U of global offset LINDXAU into rows of
+ * A at positions indicated by LINDXA.
  *
  * Arguments
  * =========
  *
  * M       (local input)                 const int
- *         On entry,  M  specifies the number of rows of A. M must be at
- *         least zero.
+ *         On entry, M  specifies the number of rows of U that should be
+ *         copied into A. M must be at least zero.
  *
  * N       (local input)                 const int
- *         On entry,  N  specifies the number of columns of A. N must be
- *         at least zero.
+ *         On entry, N specifies the length of the rows of U that should
+ *         be copied into A. N must be at least zero.
  *
- * A       (local input)                 double *
- *         On entry, A  points to an array of dimension (LDA,N).
- *
- * IA      (local input)                 const int
- *         On entry, IA specifies the starting row index to be printed.
- *
- * JA      (local input)                 const int
- *         On entry,  JA  specifies  the  starting  column index  to be
- *         printed.
+ * A       (local output)                double *
+ *         On entry, A points to an array of dimension (LDA,N). On exit,
+ *         the  rows of this array specified by  LINDXA  are replaced by
+ *         rows of U indicated by LINDXAU.
  *
  * LDA     (local input)                 const int
  *         On entry, LDA specifies the leading dimension of the array A.
- *         LDA must be at least max(1,M).
+ *         LDA must be at least MAX(1,M).
  *
- * CMATNM  (local input)                 const char *
- *         On entry, CMATNM is the name of the matrix to be printed.
+ * U       (local input/output)          const double *
+ *         On entry,  U  points to an array of dimension  (LDU,N).  This
+ *         array contains the rows that are to be copied into A.
+ *
+ * LDU     (local input)                 const int
+ *         On entry, LDU specifies the leading dimension of the array U.
+ *         LDU must be at least MAX(1,M).
+ *
+ * LINDXA  (local input)                 const int *
+ *         On entry, LINDXA is an array of dimension M that contains the
+ *         local row indexes of A that should be copied from U.
+ *
+ * LINDXAU (local input)                 const int *
+ *         On entry, LINDXAU  is an array of dimension  M that  contains
+ *         the local row indexes of U that should be copied in A.
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
 /*
  * .. Local Variables ..
  */
-   int                        i, j;
+   const double               * U0 = U, * u0;
+   double                     * a0;
+   const int                  incA = (int)( (unsigned int)(LDA) <<
+                                            HPL_LASWP05N_LOG2_DEPTH ),
+                              incU = (int)( (unsigned int)(LDU) <<
+                                            HPL_LASWP05N_LOG2_DEPTH );
+   int                        nr, nu;
+   register int               i, j;
 /* ..
  * .. Executable Statements ..
  */
-   for( j = 0; j < N; j++ )
+   if( ( M <= 0 ) || ( N <= 0 ) ) return;
+
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP05N_LOG2_DEPTH ) <<
+                            HPL_LASWP05N_LOG2_DEPTH ) );
+
+   for( j = 0; j < nu; j += HPL_LASWP05N_DEPTH, A += incA, U0 += incU )
    {
       for( i = 0; i < M; i++ )
       {
-         HPL_fprintf( stderr, "%s(%6d,%6d)=%30.18f\n", CMATNM, IA+i,
-                      JA+j, *(Mptr( A, i, j, LDA )) );
+         a0 = A + (size_t)(LINDXA[i]); u0 = U0 + (size_t)(LINDXAU[i]);
+
+         *a0 = *u0; a0 += LDA; u0 += LDU;
+#if ( HPL_LASWP05N_DEPTH >  1 )
+         *a0 = *u0; a0 += LDA; u0 += LDU;
+#endif
+#if ( HPL_LASWP05N_DEPTH >  2 )
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+#endif
+#if ( HPL_LASWP05N_DEPTH >  4 )
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+#endif
+#if ( HPL_LASWP05N_DEPTH >  8 )
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+#endif
+#if ( HPL_LASWP05N_DEPTH > 16 )
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+         *a0 = *u0; a0 += LDA; u0 += LDU; *a0 = *u0; a0 += LDA; u0 += LDU;
+#endif
       }
    }
+
+   if( nr )
+   {
+      for( i = 0; i < M; i++ )
+      {
+         a0 = A + (size_t)(LINDXA[i]); u0 = U0 + (size_t)(LINDXAU[i]);
+         for( j = 0; j < nr; j++, a0 += LDA, u0 += LDU ) { *a0 = *u0; }
+      }
+   }
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   fprintf( trace_dgemm, "DLASWP05N,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu\n", M, N, LDA, LDU, tr_diff );
+#endif /* TRACE_CALLS */
 /*
- * End of HPL_dlaprnt
+ * End of HPL_dlaswp05N
  */
 }

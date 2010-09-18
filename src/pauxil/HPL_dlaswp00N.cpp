@@ -1,57 +1,19 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.0 - September 10, 2008                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
- * Redistribution  and  use in  source and binary forms, with or without
- * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
- * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
- * 2. Redistributions in binary form must reproduce  the above copyright
- * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
- * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
- * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
- * 4. The name of the  University,  the name of the  Laboratory,  or the
- * names  of  its  contributors  may  not  be used to endorse or promote
- * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
- * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE UNIVERSITY
- * OR  CONTRIBUTORS  BE  LIABLE FOR ANY  DIRECT,  INDIRECT,  INCIDENTAL,
- * SPECIAL,  EXEMPLARY,  OR  CONSEQUENTIAL DAMAGES  (INCLUDING,  BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- * ---------------------------------------------------------------------
- */ 
 /*
- * Include files
- */
+    Copyright (C) 2010 Matthias Kretz <kretz@kde.org>
+    Copyright (C) 2010 Frankfurt Institute for Advanced Studies (FIAS)
+
+    The source code is property of the Frankfurt Institute for Advanced Studies
+    (FIAS). None of the material may be copied, reproduced, distributed,
+    republished, downloaded, displayed, posted or transmitted in any form or by
+    any means, including, but not limited to, electronic, mechanical,
+    photocopying, recording, or otherwise, without the prior written permission
+    of FIAS.
+
+*/
 
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
-//#include <xmmintrin.h>
-//#include <ammintrin.h>
+#include "permutationhelper.h"
 #include <mm3dnow.h>
 #include <iostream>
 #include <cstdlib>
@@ -61,18 +23,8 @@
 
 namespace
 {
-    struct Perm { int a, b; };
-    static Perm *__restrict__ g_perm = 0;
-
-    struct HPL_init_dlaswp00N_Perm
-    {
-        HPL_init_dlaswp00N_Perm() { g_perm = new Perm[1024]; }
-        ~HPL_init_dlaswp00N_Perm() { delete[] g_perm; }
-    };
-
     int HPL_init_dlaswp00N()
     {
-        static HPL_init_dlaswp00N_Perm x;
         const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         int num_threads = tbb::task_scheduler_init::default_num_threads();
         if (num_threads_string) {
@@ -98,10 +50,10 @@ namespace
     {
         private:
             double *__restrict__ const A;
-            const Perm *__restrict__ const perm;
+            const PermutationHelper &__restrict__ perm;
             const int LDA, permSize;
         public:
-            inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const Perm *_perm)
+            inline HPL_dlaswp00N_impl(double *_A, const int _LDA, const int _permSize, const PermutationHelper &_perm)
                 : A(_A), perm(_perm), LDA(_LDA), permSize(_permSize)
             {}
 
@@ -110,11 +62,10 @@ namespace
                     double *__restrict__ col = &A[colIndex * LDA];
                     int i = 0;
                     for (; i < permSize - 8; i += 2) {
-                        const Perm *__restrict__ const p = &perm[i];
-                        _m_prefetchw(&col[p[8].a]);
-                        _m_prefetchw(&col[p[8].b]);
-                        swap(col[p[0].a], col[p[0].b]);
-                        swap(col[p[1].a], col[p[1].b]);
+                        //_m_prefetchw(&col[p[8].a]);
+                        //_m_prefetchw(&col[p[8].b]);
+                        swap(col[perm[i + 0].a], col[perm[i + 0].b]);
+                        swap(col[perm[i + 1].a], col[perm[i + 1].b]);
                     }
                     for (; i < permSize; ++i) {
                         const int rowIndex = perm[i].a;
@@ -126,32 +77,6 @@ namespace
     };
 }
 
-/**
- * Performs a series of local row interchanges on a matrix A.
- * One row interchange is initiated for rows 0 through M-1 of A.
- *
- * \param M
- *         On entry, M specifies the number of rows of the array A to be
- *         interchanged. M must be at least zero.
- *
- * \param N
- *         On entry, N  specifies  the number of columns of the array A.
- *         N must be at least zero.
- *
- * \param A
- *         On entry, A  points to an array of dimension (LDA,N) to which
- *         the row interchanges will be  applied.  On exit, the permuted
- *         matrix.
- *
- * \param LDA
- *         On entry, LDA specifies the leading dimension of the array A.
- *         LDA must be at least MAX(1,M).
- *
- * \param IPIV
- *         On entry,  IPIV  is  an  array of size  M  that  contains the
- *         pivoting  information.  For  k  in [0..M),  IPIV[k]=IROFF + l
- *         implies that local rows k and l are to be interchanged.
- */
 extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, const int LDA, const int *__restrict__ IPIV)
 {
 #ifdef TRACE_CALLS
@@ -199,12 +124,8 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
         return;
     }
 
-    if (M > 1024) {
-        std::cerr << "maximum block size is hard-coded to 1024\n";
-        abort();
-    }
-
-    Perm *__restrict__ const perm = g_perm;
+    PermutationHelper &perm = PermutationHelper::instance();
+    perm.ensureSize(M);
     int permSize = 0;
     for (int rowIndex = 0; rowIndex < M; ++rowIndex) {
         const int otherRow = IPIV[rowIndex];

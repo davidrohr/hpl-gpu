@@ -1,4 +1,19 @@
 /* 
+ * This is a modified version of the High Performance Computing Linpack
+ * Benchmark (HPL). All code not contained in the original HPL version
+ * 2.0 is property of the Frankfurt Institute for Advanced Studies
+ * (FIAS). None of the material may be copied, reproduced, distributed,
+ * republished, downloaded, displayed, posted or transmitted in any form
+ * or by any means, including, but not limited to, electronic,
+ * mechanical, photocopying, recording, or otherwise, without the prior
+ * written permission of FIAS. For those parts contained in the
+ * unmodified version of the HPL the below copyright notice applies.
+ * 
+ * Authors:
+ * David Rohr (drohr@jwdt.org)
+ * Matthias Bach (bach@compeng.uni-frankfurt.de)
+ * Matthias Kretz (kretz@compeng.uni-frankfurt.de)
+ * 
  * -- High Performance Computing Linpack Benchmark (HPL)                
  *    HPL - 2.0 - September 10, 2008                          
  *    Antoine P. Petitet                                                
@@ -44,98 +59,80 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-/*
- * Include files
- */
-#include "hpl.h"
+
+#include <cstddef>
 #include "util_timer.h"
 #include "util_trace.h"
+
 /*
  * Define default value for unrolling factor
  */
-#ifndef HPL_LASWP01N_DEPTH
-#define    HPL_LASWP01N_DEPTH      32
-#define    HPL_LASWP01N_LOG2_DEPTH  5
+#ifndef HPL_LASWP02N_DEPTH
+#define    HPL_LASWP02N_DEPTH       32
+#define    HPL_LASWP02N_LOG2_DEPTH   5
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlaswp01N
+extern "C" void HPL_dlaswp02N
 (
    const int                        M,
    const int                        N,
-   double *                         A,
+   const double *                   A,
    const int                        LDA,
-   double *                         U,
-   const int                        LDU,
+   double *                         W0,
+   double *                         W,
+   const int                        LDW,
    const int *                      LINDXA,
    const int *                      LINDXAU
 )
-#else
-void HPL_dlaswp01N
-( M, N, A, LDA, U, LDU, LINDXA, LINDXAU )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        LDA;
-   double *                         U;
-   const int                        LDU;
-   const int *                      LINDXA;
-   const int *                      LINDXAU;
-#endif
 {
 /* 
  * Purpose
  * =======
  *
- * HPL_dlaswp01N copies  scattered rows  of  A  into itself  and into an
- * array  U.  The row offsets in  A  of the source rows are specified by
- * LINDXA.  The  destination of those rows are specified by  LINDXAU.  A
- * positive value of  LINDXAU indicates that the array destination is U,
- * and A otherwise.
+ * HPL_dlaswp02N packs scattered rows of an array  A  into workspace  W.
+ * The row offsets in A are specified by LINDXA.
  *
  * Arguments
  * =========
  *
  * M       (local input)                 const int
  *         On entry, M  specifies the number of rows of A that should be
- *         moved within A or copied into U. M must be at least zero.
+ *         copied into W. M must be at least zero.
  *
  * N       (local input)                 const int
  *         On entry, N  specifies the length of rows of A that should be
- *         moved within A or copied into U. N must be at least zero.
+ *         copied into W. N must be at least zero.
  *
- * A       (local input/output)          double *
+ * A       (local input)                 const double *
  *         On entry, A points to an array of dimension (LDA,N). The rows
- *         of this array specified by LINDXA should be moved within A or
- *         copied into U.
+ *         of this array specified by LINDXA should be copied into W.
  *
  * LDA     (local input)                 const int
  *         On entry, LDA specifies the leading dimension of the array A.
  *         LDA must be at least MAX(1,M).
  *
- * U       (local input/output)          double *
- *         On entry, U points to an array of dimension (LDU,N). The rows
- *         of A specified by LINDXA are be copied within this array U at
- *         the positions indicated by positive values of LINDXAU.
+ * W0      (local input/output)          double *
+ *         On exit,  W0  is  an array of size (M-1)*LDW+1, that contains
+ *         the destination offset  in U where the columns of W should be
+ *         copied.
  *
- * LDU     (local input)                 const int
- *         On entry, LDU specifies the leading dimension of the array U.
- *         LDU must be at least MAX(1,M).
+ * W       (local output)                double *
+ *         On entry, W  is an array of size (LDW,M). On exit, W contains
+ *         the  rows LINDXA[i] for i in [0..M) of A stored  contiguously
+ *         in W(:,i).
+ *
+ * LDW     (local input)                 const int
+ *         On entry, LDW specifies the leading dimension of the array W.
+ *         LDW must be at least MAX(1,N+1).
  *
  * LINDXA  (local input)                 const int *
  *         On entry, LINDXA is an array of dimension M that contains the
- *         local  row indexes  of  A  that should be moved within  A  or
- *         or copied into U.
+ *         local row indexes of A that should be copied into W.
  *
  * LINDXAU (local input)                 const int *
- *         On entry, LINDXAU  is an array of dimension  M that  contains
- *         the local  row indexes of  U  where the rows of  A  should be
- *         copied at. This array also contains the  local row offsets in
- *         A where some of the rows of A should be moved to.  A positive
- *         value of  LINDXAU[i]  indicates that the row  LINDXA[i]  of A
- *         should be copied into U at the position LINDXAU[i]; otherwise
- *         the row  LINDXA[i]  of  A  should be moved  at  the  position
- *         -LINDXAU[i] within A.
+ *         On entry, LINDXAU  is an array of dimension M  that  contains
+ *         the local  row indexes of  U that should be copied into A and
+ *         replaced by the rows of W.
  *
  * ---------------------------------------------------------------------
  */ 
@@ -146,76 +143,75 @@ void HPL_dlaswp01N
 /*
  * .. Local Variables ..
  */
-   double                     * a0, * a1;
+   const double               * A0 = A, * a0;
+   double                     * w0;
    const int                  incA = (int)( (unsigned int)(LDA) <<
-                                            HPL_LASWP01N_LOG2_DEPTH ),
-                              incU = (int)( (unsigned int)(LDU) <<
-                                            HPL_LASWP01N_LOG2_DEPTH );
-   int                        lda1, nu, nr;
+                                            HPL_LASWP02N_LOG2_DEPTH );
+   int                        nr, nu;
    register int               i, j;
 /* ..
  * .. Executable Statements ..
  */
    if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP01N_LOG2_DEPTH ) <<
-                            HPL_LASWP01N_LOG2_DEPTH ) );
+   for( i = 0; i < M; i++ ) 
+      *(W0+(size_t)(i)*(size_t)(LDW)) = (double)(LINDXAU[i]);
 
-   for( j = 0; j < nu; j += HPL_LASWP01N_DEPTH, A += incA, U += incU )
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP02N_LOG2_DEPTH ) <<
+                          HPL_LASWP02N_LOG2_DEPTH ) );
+
+   for( j = 0; j < nu;
+        j += HPL_LASWP02N_DEPTH, A0 += incA, W += HPL_LASWP02N_DEPTH )
    {
       for( i = 0; i < M; i++ )
       {
-         a0 = A + (size_t)(LINDXA[i]);
-         if( LINDXAU[i] >= 0 ) { a1 = U + (size_t)(LINDXAU[i]); lda1 = LDU; }
-         else                  { a1 = A - (size_t)(LINDXAU[i]); lda1 = LDA; }
+         a0 = A0 + (size_t)(LINDXA[i]); w0 = W + (size_t)(i) * (size_t)(LDW);
 
-         *a1 = *a0; a1 += lda1; a0 += LDA;
-#if ( HPL_LASWP01N_DEPTH >  1 )
-         *a1 = *a0; a1 += lda1; a0 += LDA;
+         w0[ 0] = *a0; a0 += LDA;
+#if ( HPL_LASWP02N_DEPTH >  1 )
+         w0[ 1] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  2 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP02N_DEPTH >  2 )
+         w0[ 2] = *a0; a0 += LDA; w0[ 3] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  4 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP02N_DEPTH >  4 )
+         w0[ 4] = *a0; a0 += LDA; w0[ 5] = *a0; a0 += LDA;
+         w0[ 6] = *a0; a0 += LDA; w0[ 7] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH >  8 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP02N_DEPTH >  8 )
+         w0[ 8] = *a0; a0 += LDA; w0[ 9] = *a0; a0 += LDA;
+         w0[10] = *a0; a0 += LDA; w0[11] = *a0; a0 += LDA;
+         w0[12] = *a0; a0 += LDA; w0[13] = *a0; a0 += LDA;
+         w0[14] = *a0; a0 += LDA; w0[15] = *a0; a0 += LDA;
 #endif
-#if ( HPL_LASWP01N_DEPTH > 16 )
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
-         *a1 = *a0; a1 += lda1; a0 += LDA; *a1 = *a0; a1 += lda1; a0 += LDA;
+#if ( HPL_LASWP02N_DEPTH > 16 )
+         w0[16] = *a0; a0 += LDA; w0[17] = *a0; a0 += LDA;
+         w0[18] = *a0; a0 += LDA; w0[19] = *a0; a0 += LDA;
+         w0[20] = *a0; a0 += LDA; w0[21] = *a0; a0 += LDA;
+         w0[22] = *a0; a0 += LDA; w0[23] = *a0; a0 += LDA;
+         w0[24] = *a0; a0 += LDA; w0[25] = *a0; a0 += LDA;
+         w0[26] = *a0; a0 += LDA; w0[27] = *a0; a0 += LDA;
+         w0[28] = *a0; a0 += LDA; w0[29] = *a0; a0 += LDA;
+         w0[30] = *a0; a0 += LDA; w0[31] = *a0; a0 += LDA;
 #endif
       }
    }
 
-   if( nr )
+   if( nr > 0 )
    {
       for( i = 0; i < M; i++ )
       {
-         a0 = A + (size_t)(LINDXA[i]);
-         if( LINDXAU[i] >= 0 ) { a1 = U + (size_t)(LINDXAU[i]); lda1 = LDU; }
-         else                  { a1 = A - (size_t)(LINDXAU[i]); lda1 = LDA; }
-         for( j = 0; j < nr; j++, a1 += lda1, a0 += LDA ) { *a1 = *a0; }
+         a0 = A0 + (size_t)(LINDXA[i]); w0 = W + (size_t)(i) * (size_t)(LDW);
+         for( j = 0; j < nr; j++, a0 += LDA ) { w0[j] = *a0; }
       }
    }
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP01N,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu\n", M, N, LDA, LDU, tr_diff );
+   fprintf( trace_dgemm, "DLASWP02N,M=%i,N=%i,LDA=%i,LDW=%i,TIME=%lu\n", M, N, LDA, LDW, tr_diff );
 #endif /* TRACE_CALLS */
 /*
- * End of HPL_dlaswp01N
+ * End of HPL_dlaswp02N
  */
 } 
