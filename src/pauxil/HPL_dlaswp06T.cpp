@@ -466,12 +466,16 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
 
+#ifdef USE_ORIGINAL_LASWP
+#include "HPL_dlaswp06T.c"
+#else
     if (M <= 0 || N <= 0) {
         return;
     }
 
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 32),
             dlaswp06T_impl(M, A, LDA, U, LDU, LINDXA));
+#endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();

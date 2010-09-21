@@ -84,6 +84,9 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
 
+#ifdef USE_ORIGINAL_LASWP
+#include "HPL_dlaswp00N.c"
+#else
     // A is stored as
     // r0c0 r1c0 r2c0 ... rM-1c0 ... rLDA-1c0 r0c1
     // M   : #rows
@@ -142,6 +145,7 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, chunksize),
             HPL_dlaswp00N_impl(A, LDA, permSize, perm)
             );
+#endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();

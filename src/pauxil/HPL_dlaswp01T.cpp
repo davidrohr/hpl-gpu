@@ -492,6 +492,9 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
 
+#ifdef USE_ORIGINAL_LASWP
+#include "HPL_dlaswp01T.c"
+#else
     if( N < 16 ) {
         if (N <= 0) {
             return;
@@ -520,6 +523,7 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
     tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
             dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
             tbb::simple_partitioner());
+#endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
