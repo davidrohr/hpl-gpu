@@ -481,6 +481,7 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu\n", M, N, LDA, LDU, tr_diff );
+   fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff,
+           0.004 * sizeof(double) * M * N / tr_diff );
 #endif /* TRACE_CALLS */
 }

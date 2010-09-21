@@ -517,18 +517,18 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
                 }
             }
         }
-        return;
+    } else {
+        tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
+                dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
+                tbb::simple_partitioner());
     }
-
-    tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
-            dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
-            tbb::simple_partitioner());
 #endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP01T,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+   fprintf( trace_dgemm, "DLASWP01T,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, tr_diff,
+           0.002 * sizeof(double) * M * N / tr_diff );
 #endif /* TRACE_CALLS */
 } 
