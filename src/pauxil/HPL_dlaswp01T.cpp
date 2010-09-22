@@ -528,7 +528,15 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP01T,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, tr_diff,
+   fprintf( trace_dgemm, "DLASWP01T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff,
            0.002 * sizeof(double) * M * N / tr_diff );
+#ifdef TRACE_PERMDATA
+   char filename[256];
+   snprintf(filename, 256, "dlaswp01T.%04d.%05d.%05d.%05d.dat", M, N, LDA, LDU);
+   FILE *permdata = fopen(filename, "w");
+   fwrite(LINDXA, sizeof(LINDXA[0]), M, permdata);
+   fwrite(LINDXAU, sizeof(LINDXAU[0]), M, permdata);
+   fclose(permdata);
+#endif
 #endif /* TRACE_CALLS */
 } 

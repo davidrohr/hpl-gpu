@@ -483,5 +483,12 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
 
    fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff,
            0.004 * sizeof(double) * M * N / tr_diff );
+#ifdef TRACE_PERMDATA
+   char filename[256];
+   snprintf(filename, 256, "dlaswp06T.%04d.%05d.%05d.%05d.dat", M, N, LDA, LDU);
+   FILE *permdata = fopen(filename, "w");
+   fwrite(LINDXA, sizeof(LINDXA[0]), M, permdata);
+   fclose(permdata);
+#endif
 #endif /* TRACE_CALLS */
 }

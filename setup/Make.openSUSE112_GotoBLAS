@@ -175,6 +175,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization
 # -DUSE_ORIGINAL_LASWP   use original laswp implementation
+# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
