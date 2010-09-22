@@ -56,7 +56,6 @@ class dlaswp01T_impl
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 5] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 6] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 7] = *Ar; Ar += LDA;
-                        _mm_clflush(&Uw[0]);
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 8] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 9] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[10] = *Ar; Ar += LDA;
@@ -65,13 +64,11 @@ class dlaswp01T_impl
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[13] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[14] = *Ar; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[15] = *Ar; Ar += LDA;
-                        _mm_clflush(&Uw[8]);
                         Uw += 16;
                     } while ((UwEnd - Uw) >= 16);
                     for (;Uw < UwEnd; ++Uw) {
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T0); Uw[ 0] = *Ar; Ar += LDA;
                     }
-                    _mm_clflush(&Uw[-1]);
                 } else {
                     const size_t rowAw = -LINDXAU[i];
                     double *Aw = &A[rowAw];
@@ -122,7 +119,6 @@ class dlaswp01T_impl
                     Uw[ 5] = *Ar; Ar += LDA;
                     Uw[ 6] = *Ar; Ar += LDA;
                     Uw[ 7] = *Ar; Ar += LDA;
-                    _mm_clflush(&Uw[0]);
                     Uw[ 8] = *Ar; Ar += LDA;
                     Uw[ 9] = *Ar; Ar += LDA;
                     Uw[10] = *Ar; Ar += LDA;
@@ -131,13 +127,11 @@ class dlaswp01T_impl
                     Uw[13] = *Ar; Ar += LDA;
                     Uw[14] = *Ar; Ar += LDA;
                     Uw[15] = *Ar; Ar += LDA;
-                    _mm_clflush(&Uw[8]);
                     Uw += 16;
                 } while ((UwEnd - Uw) >= 16);
                 for (;Uw < UwEnd; ++Uw) {
                     Uw[ 0] = *Ar; Ar += LDA;
                 }
-                _mm_clflush(&Uw[-1]);
             } else {
                 const size_t rowAw = -LINDXAU[M - 1];
                 double *Aw = &A[rowAw];
