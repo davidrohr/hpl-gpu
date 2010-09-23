@@ -222,7 +222,7 @@ void HPL_pdpanel_init
    {                                     /* space for L1, DPIV, DINFO */
       lwork = ALGO->align + ( PANEL->len = JB * JB + JB + 1 );
       if( nprow > 1 )                                 /* space for U */
-      { nu = nq - JB; lwork += JB * Mmax( 0, nu ); }
+      { nu = nq - JB; lwork += JB * Mmax( 0, nu ) + ALGO->align; }
 
       if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) * 
                                            sizeof( double ) ) ) )
@@ -239,7 +239,7 @@ void HPL_pdpanel_init
       PANEL->L1    = (double *)HPL_PTR( PANEL->WORK, dalign );
       PANEL->DPIV  = PANEL->L1    + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;       *(PANEL->DINFO) = 0.0;
-      PANEL->U     = ( nprow > 1 ? PANEL->DINFO + 1: NULL );
+      PANEL->U     = ( nprow > 1 ? HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
    }
    else
    {                                        /* space for L2, L1, DPIV */
@@ -253,7 +253,7 @@ void HPL_pdpanel_init
       if( nprow > 1 )                                 /* space for U */
       { 
          nu = ( mycol == icurcol ? nq - JB : nq );
-         lwork += JB * Mmax( 0, nu );
+         lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 
       if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) *
@@ -286,7 +286,7 @@ void HPL_pdpanel_init
 #endif
       PANEL->DPIV  = PANEL->L1   + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;     *(PANEL->DINFO) = 0.0;
-      PANEL->U     = ( nprow > 1 ? PANEL->DINFO + 1 : NULL );
+      PANEL->U     = ( nprow > 1 ? HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
    }
 #ifdef HPL_CALL_VSIPL
    PANEL->Ablock  = A->block;
