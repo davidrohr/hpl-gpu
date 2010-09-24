@@ -489,8 +489,8 @@ HPL_dlaswp01T(  512,     1, 40960,     1) 10444 cycles
 #ifdef USE_ORIGINAL_LASWP
 #include "HPL_dlaswp01T.c"
 #else
-    if( N < 16 ) {
-        if (N <= 0) {
+    if(__builtin_expect(N < 16, 0)) {
+        if (__builtin_expect(N <= 0, 0)) {
             return;
         }
 
