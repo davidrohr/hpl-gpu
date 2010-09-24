@@ -109,8 +109,6 @@ typedef struct HPL_S_palg
    HPL_T_FACT          rfact;               /* recursive fact variant */
    HPL_T_PFA_FUN       pffun;              /* panel fact function ptr */
    HPL_T_RFA_FUN       rffun;          /* recursive fact function ptr */
-   HPL_T_SWAP          fswap;                   /* Swapping algorithm */
-   int                 fsthr;                   /* Swapping threshold */
    int                 equil;                        /* Equilibration */
    int                 align;              /* data alignment constant */
 } HPL_T_palg;

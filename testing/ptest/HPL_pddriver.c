@@ -115,10 +115,9 @@ int main( ARGC, ARGV )
                               inbm, indh, indv, ipfa, ipq, irfa, itop,
                               mycol, myrow, ns, nbs, nbms, ndhs, ndvs,
                               npcol, npfs, npqs, nprow, nrfs, ntps, 
-                              rank, size, tswap;
+                              rank, size;
    HPL_T_ORDER                pmapping;
    HPL_T_FACT                 rpfa;
-   HPL_T_SWAP                 fswap;
 
    int run;
 /* ..
@@ -155,8 +154,6 @@ int main( ARGC, ARGV )
  * 0            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM)
  * 1            # of lookahead depth
  * 0            DEPTHs (>=0)
- * 2            SWAP (0=bin-exch,1=long,2=mix)
- * 4            swapping threshold
  * 0            L1 in (0=transposed,1=no-transposed) form
  * 0            U  in (0=transposed,1=no-transposed) form
  * 1            Equilibration (0=no,1=yes)
@@ -164,7 +161,7 @@ int main( ARGC, ARGV )
  */
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
-               &ntps, topval, &ndhs, ndhval, &fswap, &tswap, &L1notran,
+               &ntps, topval, &ndhs, ndhval, &L1notran,
                &Unotran, &equil, &align );
 /*
  * Loop over different process grids - Define process grid. Go to bottom
@@ -213,7 +210,6 @@ int main( ARGC, ARGV )
               else if( rpfa == HPL_CROUT   ) algo.rffun = HPL_pdrpancrT;
               else                           algo.rffun = HPL_pdrpanrlT;
 
-              algo.fswap = fswap; algo.fsthr = tswap;
               algo.equil = equil; algo.align = align;
 
               ++run;

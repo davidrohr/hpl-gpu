@@ -144,8 +144,6 @@ STDC_ARGS( (
    HPL_T_TOP *,
    int *,
    int *,
-   HPL_T_SWAP *,
-   int *,
    int *,
    int *,
    int *,
