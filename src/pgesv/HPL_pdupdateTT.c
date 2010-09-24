@@ -119,9 +119,6 @@ void HPL_pdupdateTT
    int                       * ipiv;
    int                       curr, i, iroff, jb, lda, ldl2, mp, n, nb,
                              nq0, nn, test;
-   static int                tswap = 0;
-   static HPL_T_SWAP         fswap = HPL_NO_SWP;
-#define LDU                  n
 /* ..
  * .. Executable Statements ..
  */
@@ -145,6 +142,8 @@ void HPL_pdupdateTT
 #endif
       return;
    }
+   const int LDU = n;// + (n & 1);
+   if (LDU & 1) { fprintf(stderr, "%s LDU=%d, PANEL->nq=%d, NN=%d\n", __func__, LDU, PANEL->nq, NN); }
 /*
  * Enable/disable the column panel probing mechanism
  */
@@ -270,17 +269,7 @@ void HPL_pdupdateTT
    }
    else                        /* nprow > 1 ... */
    {
-/*
- * Selection of the swapping algorithm - swap:broadcast U.
- */
-      if( fswap == HPL_NO_SWP )
-      { fswap = PANEL->algo->fswap; tswap = PANEL->algo->fsthr; }
-
-      if( (   fswap == HPL_SWAP01 ) ||
-          ( ( fswap == HPL_SW_MIX ) && ( n > tswap ) ) )
-      { HPL_pdlaswp01T( PBCST, &test, PANEL, n ); }
-      else
-      { HPL_pdlaswp00T( PBCST, &test, PANEL, n ); }
+      HPL_pdlaswp01T( PBCST, &test, PANEL, n );
 /*
  * Compute redundantly row block of U and update trailing submatrix
  */

@@ -73,7 +73,7 @@ INCdep           = \
 #
 HPL_pgeobj       = \
    HPL_pipid.o            HPL_plindx0.o          HPL_pdlaswp00N.o       \
-   HPL_pdlaswp00T.o       HPL_perm.o             HPL_logsort.o          \
+                          HPL_perm.o             HPL_logsort.o          \
    HPL_plindx10.o         HPL_plindx1.o          HPL_spreadN.o          \
    HPL_spreadT.o          HPL_rollN.o            HPL_rollT.o            \
    HPL_equil.o            HPL_pdlaswp01N.o       HPL_pdlaswp01T.o       \
@@ -99,8 +99,6 @@ HPL_plindx0.o          : ../HPL_plindx0.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_plindx0.c
 HPL_pdlaswp00N.o       : ../HPL_pdlaswp00N.c       $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdlaswp00N.c
-HPL_pdlaswp00T.o       : ../HPL_pdlaswp00T.c       $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdlaswp00T.c
 HPL_perm.o             : ../HPL_perm.c             $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_perm.c
 HPL_logsort.o          : ../HPL_logsort.c          $(INCdep)
