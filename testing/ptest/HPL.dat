@@ -23,5 +23,4 @@ HPL.out      output file name (if any)
 0            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM)
 1            # of lookahead depth
 0            DEPTHs (>=0)
-1            Equilibration (0=no,1=yes)
 8            memory alignment in double (> 0)

@@ -87,7 +87,6 @@ void HPL_pdinfo
    HPL_T_TOP *                      TP,
    int *                            NDHS,
    int *                            DH,
-   int *                            EQUIL,
    int *                            ALIGN
 )
 {
@@ -213,11 +212,6 @@ void HPL_pdinfo
  *         exit, the first NDHS entries of this array contain the values
  *         of lookahead depths to run the code with.  Such a value is at
  *         least 0 (no-lookahead) or greater than zero.
- *
- * EQUIL   (global output)               int *
- *         On exit,  EQUIL  specifies  whether  equilibration during the
- *         swap-broadcast  of  the  panel of rows  should  be  performed
- *         (EQUIL=1) or not (EQUIL=0).
  *
  * ALIGN   (global output)               int *
  *         On exit,  ALIGN  specifies the alignment  of  the dynamically
@@ -526,12 +520,6 @@ void HPL_pdinfo
          }
       }
 /*
- * Equilibration (0=no, 1=yes)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *EQUIL = atoi( num );
-      if( ( *EQUIL != 0 ) && ( *EQUIL != 1 ) ) *EQUIL = 1;
-/*
  * Memory alignment in bytes (> 0) (ALIGN)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
@@ -569,23 +557,23 @@ label_error:
 /*
  * Broadcast array sizes
  */
-   iwork = (int *)malloc( (size_t)(12) * sizeof( int ) );
+   iwork = (int *)malloc( (size_t)(11) * sizeof( int ) );
    if( rank == 0 )
    {
       iwork[ 0] = *NS;      iwork[ 1] = *NBS;
       iwork[ 2] = ( *PMAPPIN == HPL_ROW_MAJOR ? 0 : 1 );
       iwork[ 3] = *NPQS;    iwork[ 4] = *NPFS;     iwork[ 5] = *NBMS;
       iwork[ 6] = *NDVS;    iwork[ 7] = *NRFS;     iwork[ 8] = *NTPS;
-      iwork[ 9] = *NDHS;    iwork[10] = *EQUIL;    iwork[11] = *ALIGN;
+      iwork[ 9] = *NDHS;    iwork[10] = *ALIGN;
    }
-   (void) HPL_broadcast( (void *)iwork, 12, HPL_INT, 0, MPI_COMM_WORLD );
+   (void) HPL_broadcast( (void *)iwork, 11, HPL_INT, 0, MPI_COMM_WORLD );
    if( rank != 0 )
    {
       *NS       = iwork[ 0]; *NBS   = iwork[ 1];
       *PMAPPIN  = ( iwork[ 2] == 0 ?  HPL_ROW_MAJOR : HPL_COLUMN_MAJOR );
       *NPQS     = iwork[ 3]; *NPFS  = iwork[ 4]; *NBMS     = iwork[ 5];
       *NDVS     = iwork[ 6]; *NRFS  = iwork[ 7]; *NTPS     = iwork[ 8];
-      *NDHS     = iwork[ 9]; *EQUIL = iwork[10]; *ALIGN    = iwork[11];
+      *NDHS     = iwork[ 9]; *ALIGN    = iwork[10];
    }
    if( iwork ) free( iwork );
 /*
@@ -995,10 +983,11 @@ label_error:
  * Equilibration
  */
       HPL_fprintf( TEST->outfp,       "\nEQUIL  :" );
-      if(      *EQUIL != 0 )
-         HPL_fprintf( TEST->outfp, " yes" );
-      else
-         HPL_fprintf( TEST->outfp, " no" );
+#ifndef NO_EQUILIBRATION
+      HPL_fprintf( TEST->outfp, " yes" );
+#else
+      HPL_fprintf( TEST->outfp, " no" );
+#endif
 /*
  * Alignment
  */

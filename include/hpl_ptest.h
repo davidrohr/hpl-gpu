@@ -144,7 +144,6 @@ STDC_ARGS( (
    HPL_T_TOP *,
    int *,
    int *,
-   int *,
    int *
 ) );
 void                             HPL_pdtest
