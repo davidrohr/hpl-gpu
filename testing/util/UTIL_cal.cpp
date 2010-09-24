@@ -29,8 +29,8 @@ void CALDGEMM_Init()
 	cal_info.Quiet = CAL_FALSE;
 	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
-	cal_info.Height = 4096;
-	cal_info.AutoHeight = CAL_FALSE;
+	//cal_info.Height = 4096;
+	//cal_info.AutoHeight = CAL_TRUE;
 	//cal_info.Iterations = 1;
 	//cal_info.DstMemory = 'c';
 	//cal_info.VerboseTiming = CAL_FALSE;
