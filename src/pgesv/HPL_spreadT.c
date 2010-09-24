@@ -168,7 +168,9 @@ void HPL_spreadT
 /*
  * .. Local Variables ..
  */
+#if 0
    MPI_Datatype              type;
+#endif
    MPI_Status                status;
    MPI_Comm                  comm;
    unsigned int              ip2=1, mask=1, mydist, mydist2;
@@ -207,7 +209,7 @@ void HPL_spreadT
 
                if( mydist & ip2 )
                {
-#if 1
+#if 0
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -230,14 +232,14 @@ void HPL_spreadT
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm, &status );
 #endif
                }
                else if( partner < nprow )
                {
-#if 1
+#if 0
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -259,7 +261,7 @@ void HPL_spreadT
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm );
 #endif
@@ -306,7 +308,7 @@ void HPL_spreadT
 
                if( mydist & ip2 )
                {
-#if 1
+#if 0
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -329,14 +331,14 @@ void HPL_spreadT
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm, &status );
 #endif
                }
                else if( partner < nprow )
                {
-#if 1
+#if 0
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -359,7 +361,7 @@ void HPL_spreadT
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm );
 #endif

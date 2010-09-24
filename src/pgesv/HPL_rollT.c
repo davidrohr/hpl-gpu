@@ -152,7 +152,7 @@ void HPL_rollT
 /*
  * .. Local Variables ..
  */
-#if 1
+#if 0
    MPI_Datatype               type[2];
 #endif
    MPI_Status                 status;
@@ -197,7 +197,7 @@ void HPL_rollT
  
       if( lengthR > 0 )
       {
-#if 1
+#if 0
          if( ierr == MPI_SUCCESS )
          {
             if( LDU == N )
@@ -224,7 +224,7 @@ void HPL_rollT
  
       if( lengthS > 0 )
       {
-#if 1
+#if 0
          if( ierr == MPI_SUCCESS )
          {
             if( LDU == N )
@@ -255,7 +255,7 @@ void HPL_rollT
       {
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Wait( &request, &status );
-#if 1
+#if 0
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Type_free( &type[I_RECV] );
 #endif
