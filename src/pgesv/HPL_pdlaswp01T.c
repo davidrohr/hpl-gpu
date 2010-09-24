@@ -141,7 +141,6 @@ void HPL_pdlaswp01T
    HPL_ptimer( HPL_TIMING_LASWP );
 #endif
    const int LDU = n + (n & 1);
-   if (LDU & 1) { fprintf(stderr, "%s %d\n", __func__, LDU); }
 
    /* Retrieve parameters from the PANEL data structure */
    nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;
