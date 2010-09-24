@@ -636,9 +636,6 @@ label_error:
          HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
                     "Illegal input in file HPL.dat. Exiting ..." );
       MPI_Finalize();
-#ifdef HPL_CALL_VSIPL
-      (void) vsip_finalize( NULL );
-#endif
       exit( 1 );
    }
 /*
@@ -1087,7 +1084,11 @@ label_error:
  */
       HPL_fprintf( TEST->outfp,       "\nL1     :" );
       if(      *L1NOTRAN != 0 )
-         HPL_fprintf( TEST->outfp, " no-transposed form" );
+      {
+         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
+                    "no-transposed form of L1 is not supported" );
+         error = 1; goto label_error;
+      }
       else
          HPL_fprintf( TEST->outfp, " transposed form" );
 /*
@@ -1095,7 +1096,11 @@ label_error:
  */
       HPL_fprintf( TEST->outfp,       "\nU      :" );
       if(      *UNOTRAN != 0 )
-         HPL_fprintf( TEST->outfp, " no-transposed form" );
+      {
+         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
+                    "no-transposed form of U is not supported" );
+         error = 1; goto label_error;
+      }
       else
          HPL_fprintf( TEST->outfp, " transposed form" );
 /*

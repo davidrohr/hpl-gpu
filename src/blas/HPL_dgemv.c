@@ -69,69 +69,6 @@
 
 #ifndef HPL_dgemv
 
-#ifdef HPL_CALL_VSIPL
-
-#ifdef STDC_HEADERS
-static void HPL_dgemv0
-(
-   const enum HPL_TRANS       TRANS,
-   const int                  M,
-   const int                  N,
-   const double               ALPHA,
-   const double               * A,
-   const int                  LDA,
-   const double               * X,
-   const int                  INCX,
-   const double               BETA,
-   double                     * Y,
-   const int                  INCY
-)
-#else
-static void HPL_dgemv0( TRANS, M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY )
-   const enum HPL_TRANS       TRANS;
-   const int                  INCX, INCY, LDA, M, N;
-   const double               ALPHA, BETA;
-   const double               * A, * X;
-   double                     * Y;
-#endif
-{
-/*
- * .. Local Variables ..
- */
-   int                        i, iaij, ix, iy, j, jaj, jx, jy;
-   register double            t0;
-/* ..
- * .. Executable Statements ..
- */
-   if( ( M == 0 ) || ( N == 0 ) ||
-       ( ( ALPHA == HPL_rzero ) && ( BETA == HPL_rone  ) ) ) return;
- 
-   if( ALPHA == HPL_rzero ) { HPL_dscal( M, BETA, Y, INCY ); return; }
- 
-   if( TRANS == HplNoTrans )
-   {
-      HPL_dscal( M, BETA, Y, INCY );
-      for( j = 0, jaj  = 0, jx = 0; j < N; j++, jaj += LDA, jx += INCX )
-      {
-         t0 = ALPHA * X[jx];
-         for( i = 0, iaij = jaj, iy = 0; i < M; i++, iaij += 1, iy += INCY )
-         { Y[iy] += A[iaij] * t0; }
-      }
-   }
-   else
-   {
-      for( j = 0, jaj  = 0, jy  = 0; j < N; j++, jaj += LDA, jy += INCY )
-      {
-         t0 = HPL_rzero;
-         for( i = 0, iaij = jaj, ix = 0; i < M; i++, iaij += 1, ix += INCX )
-         { t0 += A[iaij] * X[ix]; }
-         if( BETA == HPL_rzero ) Y[jy] = ALPHA * t0;
-         else                    Y[jy] = BETA * Y[jy] + ALPHA * t0;
-      }
-   }
-}
-#endif
-
 #ifdef STDC_HEADERS
 void HPL_dgemv
 (
@@ -249,17 +186,6 @@ void HPL_dgemv
 
 #ifdef HPL_CALL_CBLAS
    cblas_dgemv( ORDER, TRANS, M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY );
-#endif
-#ifdef HPL_CALL_VSIPL
-   if( ORDER == HplColumnMajor )
-   {
-      HPL_dgemv0( TRANS, M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY );
-   }
-   else
-   {
-      HPL_dgemv0( ( TRANS == HplNoTrans ? HplTrans : HplNoTrans ),
-                  N, M, ALPHA, A, LDA, X, INCX, BETA, Y, INCY );
-   }
 #endif
 #ifdef HPL_CALL_FBLAS
    double                    alpha = ALPHA, beta = BETA;

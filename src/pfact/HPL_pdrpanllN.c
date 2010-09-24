@@ -137,9 +137,6 @@ void HPL_pdrpanllN
  * .. Local Variables ..
  */
    double                     * A, * Aptr, * L1, * L1ptr;
-#ifdef HPL_CALL_VSIPL
-   vsip_mview_d               * Av0, * Lv0, * Av1, * Av2, * Lv1;
-#endif
    int                        curr, ii, ioff, jb, jj, lda, m, n, n0, nb,
                               nbdiv, nbmin;
 /* ..
@@ -184,58 +181,10 @@ void HPL_pdrpanllN
       HPL_dtrsm( HplColumnMajor, HplLeft, HplLower, HplNoTrans, HplUnit,
                  jj, jb, HPL_rone, L1ptr, n0, Mptr( L1ptr, 0, jj, n0 ),
                  n0 );
-#ifdef HPL_CALL_VSIPL
-/*
- * Admit the blocks
- */
-      (void) vsip_blockadmit_d( PANEL->Ablock,  VSIP_TRUE );
-      (void) vsip_blockadmit_d( PANEL->L1block, VSIP_TRUE );
-/*
- * Create the matrix views
- */
-      Av0 = vsip_mbind_d( PANEL->Ablock,  0, 1, lda, lda, PANEL->pmat->nq );
-      Lv0 = vsip_mbind_d( PANEL->L1block, 0, 1,  n0,  n0, n0              );
-/*
- * Create the matrix subviews
- */
-      if( curr != 0 )
-      {
-         Av1 = vsip_msubview_d( Av0, PANEL->ii+ICOFF+ii, PANEL->jj+ICOFF,
-                                m, jj );
-         Av2 = vsip_msubview_d( Av0, PANEL->ii+ICOFF+ii, PANEL->jj+ioff,
-                                m, jj );
-      }
-      else
-      {
-         Av1 = vsip_msubview_d( Av0, PANEL->ii+ii, PANEL->jj+ICOFF, m,  jj );
-         Av2 = vsip_msubview_d( Av0, PANEL->ii+ii, PANEL->jj+ioff,  m,  jj );
-      }
-      Lv1 = vsip_msubview_d( Lv0, ICOFF, ioff, jj, jb );
-
-      vsip_gemp_d( -HPL_rone, Av1, VSIP_MAT_NTRANS, Lv1, VSIP_MAT_NTRANS,
-                   HPL_rone, Av2 );
-/*
- * Destroy the matrix subviews
- */
-      (void) vsip_mdestroy_d( Lv1 ); 
-      (void) vsip_mdestroy_d( Av2 );
-      (void) vsip_mdestroy_d( Av1 );
-/*
- * Release the blocks
- */
-      (void) vsip_blockrelease_d( vsip_mgetblock_d( Lv0 ), VSIP_TRUE );
-      (void) vsip_blockrelease_d( vsip_mgetblock_d( Av0 ), VSIP_TRUE );
-/*
- * Destroy the matrix views
- */
-      (void) vsip_mdestroy_d( Lv0 );
-      (void) vsip_mdestroy_d( Av0 );
-#else
       HPL_dgemm( HplColumnMajor, HplNoTrans, HplNoTrans, m, jb,
                  jj, -HPL_rone, Mptr( Aptr, ii, 0, lda ), lda,
                  Mptr( L1ptr, 0, jj, n0 ), n0, HPL_rone,
                  Mptr( Aptr, ii, jj, lda ), lda );
-#endif
       HPL_pdrpanllN( PANEL, m, jb, ioff, WORK );
 /*
  * Copy back upper part of A in current process row - Go the next block

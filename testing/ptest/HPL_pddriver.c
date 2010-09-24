@@ -126,9 +126,6 @@ int main( ARGC, ARGV )
  * .. Executable Statements ..
  */
    MPI_Init( &ARGC, &ARGV );
-#ifdef HPL_CALL_VSIPL
-   vsip_init((void*)0);
-#endif
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Init();
 #endif
@@ -314,9 +311,6 @@ label_end_of_npqs: ;
    }
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Shutdown();
-#endif
-#ifdef HPL_CALL_VSIPL
-   vsip_finalize((void*)0);
 #endif
    MPI_Finalize();
    exit( 0 );

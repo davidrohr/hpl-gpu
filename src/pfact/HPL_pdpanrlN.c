@@ -147,9 +147,6 @@ void HPL_pdpanrlN
  * .. Local Variables ..
  */
    double                     * A, * Acur, * Anxt;
-#ifdef HPL_CALL_VSIPL
-   vsip_mview_d               * Av0, * Av1, * Xv1, * Yv0, * Yv1;
-#endif
    int                        Mm1, Nm1, curr, ii, iip1, jj, lda, m=M;
 /* ..
  * .. Executable Statements ..
@@ -163,18 +160,6 @@ void HPL_pdpanrlN
    Nm1  = N - 1; jj = ICOFF;
    if( curr != 0 ) { ii = ICOFF; iip1 = ii+1; Mm1 = m-1; }
    else            { ii = 0;     iip1 = ii;   Mm1 = m;   }
-#ifdef HPL_CALL_VSIPL
-/*
- * Admit the blocks
- */
-   (void) vsip_blockadmit_d(  PANEL->Ablock,  VSIP_TRUE );
-   (void) vsip_blockadmit_d(  PANEL->L1block, VSIP_TRUE );
-/*
- * Create the matrix views
- */
-   Av0 = vsip_mbind_d( PANEL->Ablock,  0, 1, lda,       lda, PANEL->pmat->nq );
-   Yv0 = vsip_mbind_d( PANEL->L1block, 0, 1, PANEL->jb, PANEL->jb, PANEL->jb );
-#endif
 /*
  * Find local absolute value max in first column - initialize WORK[0:3]
  */
@@ -198,32 +183,9 @@ void HPL_pdpanrlN
          HPL_dscal( Mm1, HPL_rone / WORK[0], Acur, 1 );
       HPL_daxpy( Mm1, -WORK[4+jj+1], Acur, 1, Anxt, 1 );
       HPL_dlocmax( PANEL, Mm1, iip1, jj+1, WORK );
-#ifdef HPL_CALL_VSIPL
-      if( Nm1 > 1 )
-      {
-/*
- * Create the matrix subviews
- */
-         Av1 = vsip_msubview_d( Av0, PANEL->ii+iip1, PANEL->jj+jj+2,
-                                Mm1, Nm1-1 );
-         Xv1 = vsip_msubview_d( Av0, PANEL->ii+iip1, PANEL->jj+jj,
-                                Mm1, 1   );
-         Yv1 = vsip_msubview_d( Yv0, jj, jj+2, 1, Nm1-1 );
-
-         vsip_gemp_d( -HPL_rone, Xv1, VSIP_MAT_NTRANS, Yv1, VSIP_MAT_NTRANS,
-                      HPL_rone, Av1 );
-/*
- * Destroy the matrix subviews
- */
-         (void) vsip_mdestroy_d( Yv1 );
-         (void) vsip_mdestroy_d( Xv1 );
-         (void) vsip_mdestroy_d( Av1 );
-      }
-#else
       if( Nm1 > 1 )
          HPL_dger( HplColumnMajor, Mm1, Nm1-1, -HPL_rone, Acur, 1,
                    WORK+4+jj+2, 1, Mptr( Anxt, 0, 1, lda ), lda );
-#endif
 /*
  * Same thing as above but with worse data access on y (A += x * y^T)
  *
@@ -244,18 +206,6 @@ void HPL_pdpanrlN
    HPL_dlocswpN( PANEL,    ii, jj, WORK );
    if( WORK[0] != HPL_rzero )
       HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 );
-#ifdef HPL_CALL_VSIPL
-/*
- * Release the blocks
- */
-   (void) vsip_blockrelease_d( vsip_mgetblock_d( Yv0 ), VSIP_TRUE );
-   (void) vsip_blockrelease_d( vsip_mgetblock_d( Av0 ), VSIP_TRUE );
-/*
- * Destroy the matrix views
- */
-   (void) vsip_mdestroy_d( Yv0 );
-   (void) vsip_mdestroy_d( Av0 );
-#endif
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer( HPL_TIMING_PFACT );
 #endif

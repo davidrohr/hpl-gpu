@@ -257,7 +257,6 @@ STDC_ARGS( (
    HPL_T_panel *,
    int *,
    HPL_T_panel *,
-   const enum HPL_TRANS,
    const int,
    double *,
    const int,

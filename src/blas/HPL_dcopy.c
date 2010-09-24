@@ -130,49 +130,6 @@ void HPL_dcopy
 #ifdef HPL_CALL_CBLAS
    cblas_dcopy( N, X, INCX, Y, INCY );
 #endif
-#ifdef HPL_CALL_VSIPL
-   register double           x0, x1, x2, x3, x4, x5, x6, x7;
-   const double              * StX;
-   register int              i;
-   int                       nu;
-   const int                 incX2 = 2 * INCX, incY2 = 2 * INCY,
-                             incX3 = 3 * INCX, incY3 = 3 * INCY,
-                             incX4 = 4 * INCX, incY4 = 4 * INCY,
-                             incX5 = 5 * INCX, incY5 = 5 * INCY,
-                             incX6 = 6 * INCX, incY6 = 6 * INCY,
-                             incX7 = 7 * INCX, incY7 = 7 * INCY,
-                             incX8 = 8 * INCX, incY8 = 8 * INCY;
-
-   if( N > 0 )
-   {
-      if( ( nu = ( N >> 3 ) << 3 ) != 0 )
-      {
-         StX = X + nu * INCX;
- 
-         do
-         {
-            x0 = (*X);     x4 = X[incX4]; x1 = X[INCX ]; x5 = X[incX5];
-            x2 = X[incX2]; x6 = X[incX6]; x3 = X[incX3]; x7 = X[incX7];
- 
-            *Y       = x0; Y[incY4] = x4; Y[INCY ] = x1; Y[incY5] = x5;
-            Y[incY2] = x2; Y[incY6] = x6; Y[incY3] = x3; Y[incY7] = x7;
- 
-            X  += incX8;
-            Y  += incY8;
- 
-         } while( X != StX );
-      }
- 
-      for( i = N - nu; i != 0; i-- )
-      {
-         x0  = (*X);
-         *Y  = x0;
- 
-         X  += INCX;
-         Y  += INCY;
-      }
-   }
-#endif
 #ifdef HPL_CALL_FBLAS
 #ifdef HPL_USE_F77_INTEGER_DEF
    const F77_INTEGER         F77N = N, F77incx = INCX, F77incy = INCY;

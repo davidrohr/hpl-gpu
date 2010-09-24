@@ -1,19 +1,4 @@
 /* 
- * This is a modified version of the High Performance Computing Linpack
- * Benchmark (HPL). All code not contained in the original HPL version
- * 2.0 is property of the Frankfurt Institute for Advanced Studies
- * (FIAS). None of the material may be copied, reproduced, distributed,
- * republished, downloaded, displayed, posted or transmitted in any form
- * or by any means, including, but not limited to, electronic,
- * mechanical, photocopying, recording, or otherwise, without the prior
- * written permission of FIAS. For those parts contained in the
- * unmodified version of the HPL the below copyright notice applies.
- * 
- * Authors:
- * David Rohr (drohr@jwdt.org)
- * Matthias Bach (bach@compeng.uni-frankfurt.de)
- * Matthias Kretz (kretz@compeng.uni-frankfurt.de)
- * 
  * -- High Performance Computing Linpack Benchmark (HPL)                
  *    HPL - 2.0 - September 10, 2008                          
  *    Antoine P. Petitet                                                
@@ -59,45 +44,91 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  * ---------------------------------------------------------------------
  */ 
-#include "hpl.h"
-
-#ifdef STDC_HEADERS
-int HPL_pdpanel_free
-(
-   HPL_T_panel *                    PANEL
-)
-#else
-int HPL_pdpanel_free
-( PANEL )
-   HPL_T_panel *                    PANEL;
+/*
+ * Define default value for unrolling factor
+ */
+#ifndef HPL_LASWP06T_DEPTH
+#define    HPL_LASWP06T_DEPTH       32
+#define    HPL_LASWP06T_LOG2_DEPTH   5
 #endif
-{
-/* 
- * Purpose
- * =======
- *
- * HPL_pdpanel_free deallocates  the panel resources  and  stores the error
- * code returned by the panel factorization.
- *
- * Arguments
- * =========
- *
- * PANEL   (local input/output)          HPL_T_panel *
- *         On entry,  PANEL  points  to  the  panel data  structure from
- *         which the resources should be deallocated.
- *
- * ---------------------------------------------------------------------
- */ 
+
+/*
+ * .. Local Variables ..
+ */
+   double                     r;
+   double                     * U0 = U, * a0, * u0;
+   const int                  incA = (int)( (unsigned int)(LDA) <<
+                                            HPL_LASWP06T_LOG2_DEPTH ),
+                              incU = ( 1 << HPL_LASWP06T_LOG2_DEPTH );
+   int                        nr, nu;
+   register int               i, j;
 /* ..
  * .. Executable Statements ..
  */
-   if( PANEL->pmat->info == 0 ) PANEL->pmat->info = *(PANEL->DINFO);
+   if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-   if( PANEL->WORK  ) free( PANEL->WORK  );
-   if( PANEL->IWORK ) free( PANEL->IWORK );
+   nr = N - ( nu = (int)( ( (unsigned int)(N) >> HPL_LASWP06T_LOG2_DEPTH ) <<
+                            HPL_LASWP06T_LOG2_DEPTH ) );
 
-   return( MPI_SUCCESS );
-/*
- * End of HPL_pdpanel_free
- */
-}
+   for( j = 0; j < nu; j += HPL_LASWP06T_DEPTH, A += incA, U0 += incU )
+   {
+      for( i = 0; i < M; i++ )
+      {
+         a0 = A  + (size_t)(LINDXA[i]);
+         u0 = U0 + (size_t)(i) * (size_t)(LDU);
+
+         r = *a0; *a0 = u0[ 0]; u0[ 0] = r; a0 += LDA;
+#if ( HPL_LASWP06T_DEPTH >  1 )
+         r = *a0; *a0 = u0[ 1]; u0[ 1] = r; a0 += LDA;
+#endif
+#if ( HPL_LASWP06T_DEPTH >  2 )
+         r = *a0; *a0 = u0[ 2]; u0[ 2] = r; a0 += LDA;
+         r = *a0; *a0 = u0[ 3]; u0[ 3] = r; a0 += LDA;
+#endif
+#if ( HPL_LASWP06T_DEPTH >  4 )
+         r = *a0; *a0 = u0[ 4]; u0[ 4] = r; a0 += LDA;
+         r = *a0; *a0 = u0[ 5]; u0[ 5] = r; a0 += LDA;
+         r = *a0; *a0 = u0[ 6]; u0[ 6] = r; a0 += LDA;
+         r = *a0; *a0 = u0[ 7]; u0[ 7] = r; a0 += LDA;
+#endif
+#if ( HPL_LASWP06T_DEPTH >  8 )
+         r = *a0; *a0 = u0[ 8]; u0[ 8] = r; a0 += LDA;
+         r = *a0; *a0 = u0[ 9]; u0[ 9] = r; a0 += LDA;
+         r = *a0; *a0 = u0[10]; u0[10] = r; a0 += LDA;
+         r = *a0; *a0 = u0[11]; u0[11] = r; a0 += LDA;
+         r = *a0; *a0 = u0[12]; u0[12] = r; a0 += LDA;
+         r = *a0; *a0 = u0[13]; u0[13] = r; a0 += LDA;
+         r = *a0; *a0 = u0[14]; u0[14] = r; a0 += LDA;
+         r = *a0; *a0 = u0[15]; u0[15] = r; a0 += LDA;
+#endif
+#if ( HPL_LASWP06T_DEPTH > 16 )
+         r = *a0; *a0 = u0[16]; u0[16] = r; a0 += LDA;
+         r = *a0; *a0 = u0[17]; u0[17] = r; a0 += LDA;
+         r = *a0; *a0 = u0[18]; u0[18] = r; a0 += LDA;
+         r = *a0; *a0 = u0[19]; u0[19] = r; a0 += LDA;
+         r = *a0; *a0 = u0[20]; u0[20] = r; a0 += LDA;
+         r = *a0; *a0 = u0[21]; u0[21] = r; a0 += LDA;
+         r = *a0; *a0 = u0[22]; u0[22] = r; a0 += LDA;
+         r = *a0; *a0 = u0[23]; u0[23] = r; a0 += LDA;
+         r = *a0; *a0 = u0[24]; u0[24] = r; a0 += LDA;
+         r = *a0; *a0 = u0[25]; u0[25] = r; a0 += LDA;
+         r = *a0; *a0 = u0[26]; u0[26] = r; a0 += LDA;
+         r = *a0; *a0 = u0[27]; u0[27] = r; a0 += LDA;
+         r = *a0; *a0 = u0[28]; u0[28] = r; a0 += LDA;
+         r = *a0; *a0 = u0[29]; u0[29] = r; a0 += LDA;
+         r = *a0; *a0 = u0[30]; u0[30] = r; a0 += LDA;
+         r = *a0; *a0 = u0[31]; u0[31] = r; a0 += LDA;
+#endif
+      }
+   }
+
+   if( nr > 0 )
+   {
+      for( i = 0; i < M; i++ )
+      {
+         a0 = A  + (size_t)(LINDXA[i]);
+         u0 = U0 + (size_t)(i) * (size_t)(LDU);
+         for( j = 0; j < nr; j++, a0 += LDA )
+         { r = *a0; *a0 = u0[j]; u0[j] = r; }
+      }
+   }
