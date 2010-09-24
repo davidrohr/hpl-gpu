@@ -89,7 +89,7 @@ UTIL_timer.o            : ../UTIL_timer.c            $(INCdep)
 UTIL_trace.o    : ../UTIL_trace.c    $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../UTIL_trace.c
 UTIL_cal.o    : ../UTIL_cal.cpp    $(INCdep)
-	$(CXX) -o $@ -c $(CCFLAGS)  ../UTIL_cal.cpp
+	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_cal.cpp
 #
 # ######################################################################
 #
