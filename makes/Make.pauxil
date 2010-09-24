@@ -73,11 +73,8 @@ INCdep           = \
 HPL_pauobj       = \
    HPL_indxg2l.o          HPL_indxg2lp.o         HPL_indxg2p.o          \
    HPL_indxl2g.o          HPL_infog2l.o          HPL_numroc.o           \
-   HPL_numrocI.o          HPL_dlaswp00N.o        HPL_dlaswp10N.o        \
-   HPL_dlaswp01N.o        HPL_dlaswp01T.o        HPL_dlaswp02N.o        \
-   HPL_dlaswp03N.o        HPL_dlaswp03T.o        HPL_dlaswp04N.o        \
-   HPL_dlaswp04T.o        HPL_dlaswp05N.o        HPL_dlaswp05T.o        \
-   HPL_dlaswp06N.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
+   HPL_numrocI.o          HPL_dlaswp10N.o        \
+   HPL_dlaswp01T.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
    HPL_pabort.o           HPL_pdlaprnt.o         HPL_pdlamch.o          \
    HPL_pdlange.o          permutationhelper.o
 #
@@ -110,29 +107,9 @@ HPL_numrocI.o          : ../HPL_numrocI.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_numrocI.c
 permutationhelper.o    : ../permutationhelper.cpp  $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS) $<
-HPL_dlaswp00N.o        : ../HPL_dlaswp00N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS) $<
 HPL_dlaswp10N.o        : ../HPL_dlaswp10N.cpp      $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp01N.o        : ../HPL_dlaswp01N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
 HPL_dlaswp01T.o        : ../HPL_dlaswp01T.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp02N.o        : ../HPL_dlaswp02N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp03N.o        : ../HPL_dlaswp03N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp03T.o        : ../HPL_dlaswp03T.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp04N.o        : ../HPL_dlaswp04N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp04T.o        : ../HPL_dlaswp04T.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp05N.o        : ../HPL_dlaswp05N.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp05T.o        : ../HPL_dlaswp05T.cpp      $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  $<
-HPL_dlaswp06N.o        : ../HPL_dlaswp06N.cpp      $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  $<
 HPL_dlaswp06T.o        : ../HPL_dlaswp06T.cpp      $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  $<
