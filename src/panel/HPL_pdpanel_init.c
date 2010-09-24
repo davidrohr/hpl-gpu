@@ -288,25 +288,6 @@ void HPL_pdpanel_init
       PANEL->DINFO = PANEL->DPIV + JB;     *(PANEL->DINFO) = 0.0;
       PANEL->U     = ( nprow > 1 ? HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
    }
-#ifdef HPL_CALL_VSIPL
-   PANEL->Ablock  = A->block;
-/*
- * Create blocks and bind them to the data pointers
- */
-   PANEL->L1block = vsip_blockbind_d( (vsip_scalar_d *)(PANEL->L1),
-                                      (vsip_length)(JB*JB), VSIP_MEM_NONE );
-   PANEL->L2block = vsip_blockbind_d( (vsip_scalar_d *)(PANEL->L2),
-                                      (vsip_length)(PANEL->ldl2*JB),
-                                      VSIP_MEM_NONE );
-   if( nprow > 1 )
-   { 
-      nu = ( mycol == icurcol ? nq - JB : nq );
-      PANEL->Ublock = vsip_blockbind_d( (vsip_scalar_d *)(PANEL->U),
-                                        (vsip_length)(JB * Mmax( 0, nu )),
-                                        VSIP_MEM_NONE );
-   }
-   else { PANEL->Ublock = A->block; }
-#endif
 /*
  * If nprow is 1, we just allocate an array of JB integers for the swap.
  * When nprow > 1, we allocate the space for the index arrays immediate-

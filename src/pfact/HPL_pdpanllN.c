@@ -147,9 +147,6 @@ void HPL_pdpanllN
  * .. Local Variables ..
  */
    double                     * A, * L1, * L1ptr;
-#ifdef HPL_CALL_VSIPL
-   vsip_mview_d               * Av0, * Av1, * Yv1, * Xv0, * Xv1;
-#endif
    int                        Mm1, Nm1, curr, ii, iip1, jj, kk, lda,
                               m=M, n0;
 /* ..
@@ -165,18 +162,6 @@ void HPL_pdpanllN
    Nm1 = N - 1; jj = ICOFF;
    if( curr != 0 ) { ii = ICOFF; iip1 = ii+1; Mm1 = m-1; }
    else            { ii = 0;     iip1 = ii;   Mm1 = m;   }
-#ifdef HPL_CALL_VSIPL
-/*
- * Admit the blocks
- */
-   (void) vsip_blockadmit_d( PANEL->Ablock,  VSIP_TRUE );
-   (void) vsip_blockadmit_d( PANEL->L1block, VSIP_TRUE );
-/*
- * Create the matrix views
- */
-   Av0 = vsip_mbind_d( PANEL->Ablock,  0, 1, lda,       lda, PANEL->pmat->nq );
-   Xv0 = vsip_mbind_d( PANEL->L1block, 0, 1, PANEL->jb, PANEL->jb, PANEL->jb );
-#endif
 /*
  * Find local absolute value max in first column and initialize WORK[0:3]
  */
@@ -201,27 +186,9 @@ void HPL_pdpanllN
  */ 
       if( WORK[0] != HPL_rzero )
          HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 );
-#ifdef HPL_CALL_VSIPL
-/*
- * Create the matrix subviews
- */
-      Av1 = vsip_msubview_d( Av0, PANEL->ii+iip1, PANEL->jj+ICOFF, Mm1, kk );
-      Xv1 = vsip_msubview_d( Xv0, ICOFF,        jj+1,              kk,   1 );
-      Yv1 = vsip_msubview_d( Av0, PANEL->ii+iip1, PANEL->jj+jj+1,  Mm1,  1 );
-
-      vsip_gemp_d( -HPL_rone, Av1, VSIP_MAT_NTRANS, Xv1, VSIP_MAT_NTRANS,
-                   HPL_rone, Yv1 );
-/*
- * Destroy the matrix subviews
- */
-      (void) vsip_mdestroy_d( Yv1 );
-      (void) vsip_mdestroy_d( Xv1 );
-      (void) vsip_mdestroy_d( Av1 );
-#else
       HPL_dgemv( HplColumnMajor, HplNoTrans, Mm1, kk,  -HPL_rone,
                  Mptr( A, iip1, ICOFF, lda ), lda, L1ptr, 1,
                  HPL_rone, Mptr( A, iip1, jj+1, lda ),  1 );
-#endif
       HPL_dlocmax( PANEL, Mm1, iip1, jj+1, WORK );
       if( curr != 0 )
       {
@@ -238,18 +205,6 @@ void HPL_pdpanllN
    HPL_dlocswpN( PANEL,    ii, jj, WORK );
    if( WORK[0] != HPL_rzero )
       HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 );
-#ifdef HPL_CALL_VSIPL
-/*
- * Release the blocks
- */
-   (void) vsip_blockrelease_d( vsip_mgetblock_d( Xv0 ), VSIP_TRUE );
-   (void) vsip_blockrelease_d( vsip_mgetblock_d( Av0 ), VSIP_TRUE );
-/*
- * Destroy the matrix views
- */
-   (void) vsip_mdestroy_d( Xv0 );
-   (void) vsip_mdestroy_d( Av0 );
-#endif
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer( HPL_TIMING_PFACT );
 #endif

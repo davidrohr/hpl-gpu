@@ -167,31 +167,6 @@ void HPL_dger
 #ifdef HPL_CALL_CBLAS
    cblas_dger( ORDER, M, N, ALPHA, X, INCX, Y, INCY, A, LDA );
 #endif
-#ifdef HPL_CALL_VSIPL
-   register double           t0;
-   int                       i, iaij, ix, iy, j, jaj, jx, jy;
-
-   if( ( M == 0 ) || ( N == 0 ) || ( ALPHA == HPL_rzero ) ) return;
- 
-   if( ORDER == HplColumnMajor )
-   {
-      for( j = 0, jaj = 0, jy = 0; j < N; j++, jaj += LDA, jy += INCY )
-      {
-         t0 = ALPHA * Y[jy];
-         for( i = 0, iaij = jaj, ix = 0; i < M; i++, iaij += 1, ix += INCX )
-         { A[iaij] += X[ix] * t0; }
-      }
-   }
-   else
-   {
-      for( j = 0, jaj = 0, jx = 0; j < M; j++, jaj += LDA, jx += INCX )
-      {
-         t0 = ALPHA * X[jx];
-         for( i = 0, iaij = jaj, iy = 0; i < N; i++, iaij += 1, iy += INCY )
-         { A[iaij] += Y[iy] * t0; }
-      }
-   }
-#endif
 #ifdef HPL_CALL_FBLAS
    double                    alpha = ALPHA;
 #ifdef HPL_USE_F77_INTEGER_DEF

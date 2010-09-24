@@ -125,9 +125,6 @@ int main( ARGC, ARGV )
  * .. Executable Statements ..
  */
    MPI_Init( &ARGC, &ARGV );
-#ifdef HPL_CALL_VSIPL
-   vsip_init((void*)0);
-#endif
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
@@ -308,9 +305,6 @@ label_end_of_npqs: ;
       if( ( test.outfp != stdout ) && ( test.outfp != stderr ) )
          (void) fclose( test.outfp );
    }
-#ifdef HPL_CALL_VSIPL
-   vsip_finalize((void*)0);
-#endif
    MPI_Finalize();
    exit( 0 );
 
