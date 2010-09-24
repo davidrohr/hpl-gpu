@@ -72,11 +72,11 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_pgeobj       = \
-   HPL_pipid.o            HPL_plindx0.o          HPL_pdlaswp00N.o       \
+   HPL_pipid.o            HPL_plindx0.o          \
                           HPL_perm.o             HPL_logsort.o          \
    HPL_plindx10.o         HPL_plindx1.o          HPL_spreadN.o          \
    HPL_spreadT.o          HPL_rollN.o            HPL_rollT.o            \
-   HPL_equil.o            HPL_pdlaswp01N.o       HPL_pdlaswp01T.o       \
+   HPL_equil.o                                   HPL_pdlaswp01T.o       \
    HPL_pdupdateTT.o       HPL_pdtrsv.o           HPL_pdgesv0.o          \
    HPL_pdgesvK1.o         HPL_pdgesvK2.o         HPL_pdgesv.o
 #
@@ -97,8 +97,6 @@ HPL_pipid.o            : ../HPL_pipid.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pipid.c
 HPL_plindx0.o          : ../HPL_plindx0.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_plindx0.c
-HPL_pdlaswp00N.o       : ../HPL_pdlaswp00N.c       $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdlaswp00N.c
 HPL_perm.o             : ../HPL_perm.c             $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_perm.c
 HPL_logsort.o          : ../HPL_logsort.c          $(INCdep)
@@ -117,8 +115,6 @@ HPL_rollT.o            : ../HPL_rollT.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_rollT.c
 HPL_equil.o            : ../HPL_equil.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_equil.c
-HPL_pdlaswp01N.o       : ../HPL_pdlaswp01N.c       $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdlaswp01N.c
 HPL_pdlaswp01T.o       : ../HPL_pdlaswp01T.c       $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdlaswp01T.c
 HPL_pdupdateTT.o       : ../HPL_pdupdateTT.c       $(INCdep)
