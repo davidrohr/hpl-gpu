@@ -176,6 +176,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 #                        be relevant for optimization
 # -DUSE_ORIGINAL_LASWP   use original laswp implementation
 # -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
+# -DNO_EQUILIBRATION     disable Equilibration (hardcoded instead of runtime parameter)
 #
 # By default HPL will:
 #    *) not copy L before broadcast,

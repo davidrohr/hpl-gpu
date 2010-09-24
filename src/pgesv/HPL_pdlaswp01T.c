@@ -125,108 +125,75 @@ void HPL_pdlaswp01T
  *         the current position. NN must be at least zero.
  *
  * ---------------------------------------------------------------------
- */ 
-/*
- * .. Local Variables ..
  */
+
    double                    * A, * U;
    int                       * ipID, * iplen, * ipmap, * ipmapm1,
                              * iwork, * lindxA = NULL, * lindxAU,
                              * permU;
-   static int                equil=-1;
    int                       icurrow, * iflag, * ipA, * ipl, jb, k,
                              lda, myrow, n, nprow;
-#define LDU                  n
-/* ..
- * .. Executable Statements ..
- */
+
    n = PANEL->n; n = Mmin( NN, n ); jb = PANEL->jb;
-/*
- * Quick return if there is nothing to do
- */
+   /* Quick return if there is nothing to do */
    if( ( n <= 0 ) || ( jb <= 0 ) ) return;
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer( HPL_TIMING_LASWP );
 #endif
-/*
- * Decide whether equilibration should be performed or not
- */
-   if( equil == -1 ) equil = PANEL->algo->equil;
-/*
- * Retrieve parameters from the PANEL data structure
- */
+   const int LDU = n + (n & 1);
+   if (LDU & 1) { fprintf(stderr, "%s %d\n", __func__, LDU); }
+
+   /* Retrieve parameters from the PANEL data structure */
    nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;
    A     = PANEL->A;   U       = PANEL->U;     iflag  = PANEL->IWORK;
    lda   = PANEL->lda; icurrow = PANEL->prow;
-/*
- * Compute ipID (if not already done for this panel). lindxA and lindxAU
- * are of length at most 2*jb - iplen is of size nprow+1, ipmap, ipmapm1
- * are of size nprow,  permU is of length jb, and  this function needs a 
- * workspace of size max( 2 * jb (plindx1), nprow+1(equil)): 
- * 1(iflag) + 1(ipl) + 1(ipA) + 9*jb + 3*nprow + 1 + MAX(2*jb,nprow+1)
- * i.e. 4 + 9*jb + 3*nprow + max(2*jb, nprow+1);
- */
+
+   /* Compute ipID (if not already done for this panel). lindxA and lindxAU
+    * are of length at most 2*jb - iplen is of size nprow+1, ipmap, ipmapm1
+    * are of size nprow,  permU is of length jb, and  this function needs a 
+    * workspace of size max( 2 * jb (plindx1), nprow+1(equil)): 
+    * 1(iflag) + 1(ipl) + 1(ipA) + 9*jb + 3*nprow + 1 + MAX(2*jb,nprow+1)
+    * i.e. 4 + 9*jb + 3*nprow + max(2*jb, nprow+1); */
    k = (int)((unsigned int)(jb) << 1);  ipl = iflag + 1; ipID = ipl + 1;
    ipA     = ipID + ((unsigned int)(k) << 1); lindxA = ipA + 1;
    lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
    ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
 
-   if( *iflag == -1 )    /* no index arrays have been computed so far */
-   {
+   if (__builtin_expect(*iflag, 1) == 1) {
+#ifndef NO_EQUILIBRATION
+       /* we were called before: only re-compute IPLEN, IPMAP */
+       HPL_plindx10( PANEL, *ipl, ipID, iplen, ipmap, ipmapm1 );
+#endif
+   } else { /* no index arrays have been computed so far */
       HPL_pipid(   PANEL,  ipl, ipID );
       HPL_plindx1( PANEL, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
                    ipmap, ipmapm1, permU, iwork );
       *iflag = 1;
    }
-   else if( *iflag == 0 ) /* HPL_pdlaswp00T called before: reuse ipID */
-   {
-      HPL_plindx1( PANEL, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
-                   ipmap, ipmapm1, permU, iwork );
-      *iflag = 1;
+
+   /* Copy into U the rows to be spread (local to icurrow) */
+   if( myrow == icurrow ) {
+       HPL_dlaswp01T( *ipA, n, A, lda, U, LDU, lindxA, lindxAU );
    }
-   else if( ( *iflag == 1 ) && ( equil != 0 ) )
-   {   /* HPL_pdlaswp01T was call before only re-compute IPLEN, IPMAP */
-      HPL_plindx10( PANEL, *ipl, ipID, iplen, ipmap, ipmapm1 );
-      *iflag = 1;
-   }
-/*
- * Copy into U the rows to be spread (local to icurrow)
- */
-   if( myrow == icurrow )
-   { HPL_dlaswp01T( *ipA, n, A, lda, U, LDU, lindxA, lindxAU ); }
-/*
- * Spread U - optionally probe for column panel
- */
-   HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, n, U, LDU, 0, iplen,
-                ipmap, ipmapm1 );
-/*
- * Local exchange (everywhere but in process row icurrow)
- */
-   if( myrow != icurrow )
-   {
+
+   /* Spread U - optionally probe for column panel */
+   HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, n, U, LDU, 0, iplen, ipmap, ipmapm1 );
+
+   /* Local exchange (everywhere but in process row icurrow) */
+   if( myrow != icurrow ) {
       k = ipmapm1[myrow];
-      HPL_dlaswp06T( iplen[k+1]-iplen[k], n, A, lda, Mptr( U, 0,
-                     iplen[k], LDU ), LDU, lindxA );
+      HPL_dlaswp06T( iplen[k+1]-iplen[k], n, A, lda, Mptr( U, 0, iplen[k], LDU ), LDU, lindxA );
    }
-/*
- * Equilibration
- */
-   if( equil != 0 )
-      HPL_equil( PBCST, IFLAG, PANEL, HplTrans, n, U, LDU, iplen, ipmap,
-                 ipmapm1, iwork );
-/*
- * Rolling phase
- */
+#ifndef NO_EQUILIBRATION
+   /* Equilibration */
+   HPL_equil( PBCST, IFLAG, PANEL, n, U, LDU, iplen, ipmap, ipmapm1, iwork );
+#endif
+   /* Rolling phase */
    HPL_rollT( PBCST, IFLAG, PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
-/*
- * Permute U in every process row
- */
+   /* Permute U in every process row */
    HPL_dlaswp10N( n, jb, U, LDU, permU );
 
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer( HPL_TIMING_LASWP );
 #endif
-/*
- * End of HPL_pdlaswp01T
- */
 }
