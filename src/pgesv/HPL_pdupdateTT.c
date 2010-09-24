@@ -142,7 +142,7 @@ void HPL_pdupdateTT
 #endif
       return;
    }
-   const int LDU = n;// + (n & 1);
+   const int LDU = n + (n & 1);
    if (LDU & 1) { fprintf(stderr, "%s LDU=%d, PANEL->nq=%d, NN=%d\n", __func__, LDU, PANEL->nq, NN); }
 /*
  * Enable/disable the column panel probing mechanism

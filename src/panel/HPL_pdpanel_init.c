@@ -253,6 +253,7 @@ void HPL_pdpanel_init
       if( nprow > 1 )                                 /* space for U */
       { 
          nu = ( mycol == icurcol ? nq - JB : nq );
+         nu += nu & 1; /* allocate a little more space to allow even LDU */
          lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 
@@ -286,7 +287,9 @@ void HPL_pdpanel_init
 #endif
       PANEL->DPIV  = PANEL->L1   + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;     *(PANEL->DINFO) = 0.0;
-      PANEL->U     = ( nprow > 1 ? HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
+      if (nprow > 1) {
+          PANEL->U     = HPL_PTR( (PANEL->DINFO + 1), dalign );
+      }
    }
 /*
  * If nprow is 1, we just allocate an array of JB integers for the swap.
