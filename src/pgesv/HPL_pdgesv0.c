@@ -110,7 +110,6 @@ void HPL_pdgesv0
  * .. Local Variables ..
  */
    HPL_T_panel                * * panel = NULL;
-   HPL_T_UPD_FUN              HPL_pdupdate;
    int                        N, j, jb, n, nb, tag=MSGID_BEGIN_FACT,
                               test=HPL_KEEP_TESTING;
 /* ..
@@ -118,7 +117,7 @@ void HPL_pdgesv0
  */
    if( ( N = A->n ) <= 0 ) return;
 
-   HPL_pdupdate = ALGO->upfun; nb = A->nb;
+   nb = A->nb;
 /*
  * Allocate a panel list of length 1 - Allocate panel[0] resources
  */
@@ -148,7 +147,7 @@ void HPL_pdgesv0
       { (void) HPL_bcast(       panel[0], &test ); }
       while( test != HPL_SUCCESS );
       (void) HPL_bwait(         panel[0] );
-      HPL_pdupdate( NULL, NULL, panel[0], -1 );
+      HPL_pdupdateTT( NULL, NULL, panel[0], -1 );
 /*
  * Update message id for next factorization
  */
