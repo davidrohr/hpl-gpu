@@ -111,7 +111,7 @@ int main( ARGC, ARGV )
    HPL_T_grid                 grid;
    HPL_T_palg                 algo;
    HPL_T_test                 test;
-   int                        L1notran, Unotran, align, equil, in, inb,
+   int                        align, equil, in, inb,
                               inbm, indh, indv, ipfa, ipq, irfa, itop,
                               mycol, myrow, ns, nbs, nbms, ndhs, ndvs,
                               npcol, npfs, npqs, nprow, nrfs, ntps, 
@@ -161,8 +161,7 @@ int main( ARGC, ARGV )
  */
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
-               &ntps, topval, &ndhs, ndhval, &L1notran,
-               &Unotran, &equil, &align );
+               &ntps, topval, &ndhs, ndhval, &equil, &align );
 /*
  * Loop over different process grids - Define process grid. Go to bottom
  * of process grid loop if this case does not use my process.

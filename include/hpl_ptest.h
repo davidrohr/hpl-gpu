@@ -145,8 +145,6 @@ STDC_ARGS( (
    int *,
    int *,
    int *,
-   int *,
-   int *,
    int *
 ) );
 void                             HPL_pdtest

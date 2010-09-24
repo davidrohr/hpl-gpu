@@ -87,8 +87,6 @@ void HPL_pdinfo
    HPL_T_TOP *                      TP,
    int *                            NDHS,
    int *                            DH,
-   int *                            L1NOTRAN,
-   int *                            UNOTRAN,
    int *                            EQUIL,
    int *                            ALIGN
 )
@@ -215,16 +213,6 @@ void HPL_pdinfo
  *         exit, the first NDHS entries of this array contain the values
  *         of lookahead depths to run the code with.  Such a value is at
  *         least 0 (no-lookahead) or greater than zero.
- *
- * L1NOTRA (global output)               int *
- *         On exit, L1NOTRAN specifies whether the upper triangle of the
- *         panels of columns  should  be stored  in  no-transposed  form
- *         (L1NOTRAN=1) or in transposed form (L1NOTRAN=0).
- *
- * UNOTRAN (global output)               int *
- *         On exit, UNOTRAN  specifies whether the panels of rows should
- *         be stored in  no-transposed form  (UNOTRAN=1)  or  transposed
- *         form (UNOTRAN=0) during their broadcast.
  *
  * EQUIL   (global output)               int *
  *         On exit,  EQUIL  specifies  whether  equilibration during the
@@ -538,18 +526,6 @@ void HPL_pdinfo
          }
       }
 /*
- * L1 in (no-)transposed form (0 or 1)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *L1NOTRAN = atoi( num );
-      if( ( *L1NOTRAN != 0 ) && ( *L1NOTRAN != 1 ) ) *L1NOTRAN = 0; 
-/*
- * U  in (no-)transposed form (0 or 1)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *UNOTRAN = atoi( num );
-      if( ( *UNOTRAN != 0 ) && ( *UNOTRAN != 1 ) ) *UNOTRAN = 0;
-/*
  * Equilibration (0=no, 1=yes)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
@@ -593,25 +569,23 @@ label_error:
 /*
  * Broadcast array sizes
  */
-   iwork = (int *)malloc( (size_t)(14) * sizeof( int ) );
+   iwork = (int *)malloc( (size_t)(12) * sizeof( int ) );
    if( rank == 0 )
    {
       iwork[ 0] = *NS;      iwork[ 1] = *NBS;
       iwork[ 2] = ( *PMAPPIN == HPL_ROW_MAJOR ? 0 : 1 );
       iwork[ 3] = *NPQS;    iwork[ 4] = *NPFS;     iwork[ 5] = *NBMS;
       iwork[ 6] = *NDVS;    iwork[ 7] = *NRFS;     iwork[ 8] = *NTPS;
-      iwork[ 9] = *NDHS;    iwork[10] = *L1NOTRAN;
-      iwork[11] = *UNOTRAN; iwork[12] = *EQUIL;    iwork[13] = *ALIGN;
+      iwork[ 9] = *NDHS;    iwork[10] = *EQUIL;    iwork[11] = *ALIGN;
    }
-   (void) HPL_broadcast( (void *)iwork, 14, HPL_INT, 0, MPI_COMM_WORLD );
+   (void) HPL_broadcast( (void *)iwork, 12, HPL_INT, 0, MPI_COMM_WORLD );
    if( rank != 0 )
    {
       *NS       = iwork[ 0]; *NBS   = iwork[ 1];
       *PMAPPIN  = ( iwork[ 2] == 0 ?  HPL_ROW_MAJOR : HPL_COLUMN_MAJOR );
       *NPQS     = iwork[ 3]; *NPFS  = iwork[ 4]; *NBMS     = iwork[ 5];
       *NDVS     = iwork[ 6]; *NRFS  = iwork[ 7]; *NTPS     = iwork[ 8];
-      *NDHS     = iwork[ 9]; *L1NOTRAN = iwork[10];
-      *UNOTRAN  = iwork[11]; *EQUIL = iwork[12]; *ALIGN    = iwork[13];
+      *NDHS     = iwork[ 9]; *EQUIL = iwork[10]; *ALIGN    = iwork[11];
    }
    if( iwork ) free( iwork );
 /*
@@ -1011,26 +985,12 @@ label_error:
  * L1 storage form
  */
       HPL_fprintf( TEST->outfp,       "\nL1     :" );
-      if(      *L1NOTRAN != 0 )
-      {
-         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                    "no-transposed form of L1 is not supported" );
-         error = 1; goto label_error;
-      }
-      else
-         HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp, " transposed form" );
 /*
  * U  storage form
  */
       HPL_fprintf( TEST->outfp,       "\nU      :" );
-      if(      *UNOTRAN != 0 )
-      {
-         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                    "no-transposed form of U is not supported" );
-         error = 1; goto label_error;
-      }
-      else
-         HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp, " transposed form" );
 /*
  * Equilibration
  */
