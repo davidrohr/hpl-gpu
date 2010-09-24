@@ -168,9 +168,7 @@ void HPL_spreadT
 /*
  * .. Local Variables ..
  */
-#if 0
    MPI_Datatype              type;
-#endif
    MPI_Status                status;
    MPI_Comm                  comm;
    unsigned int              ip2=1, mask=1, mydist, mydist2;
@@ -209,7 +207,7 @@ void HPL_spreadT
 
                if( mydist & ip2 )
                {
-#if 0
+#if 1
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -239,7 +237,7 @@ void HPL_spreadT
                }
                else if( partner < nprow )
                {
-#if 0
+#if 1
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -308,7 +306,7 @@ void HPL_spreadT
 
                if( mydist & ip2 )
                {
-#if 0
+#if 1
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -338,7 +336,7 @@ void HPL_spreadT
                }
                else if( partner < nprow )
                {
-#if 0
+#if 1
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
