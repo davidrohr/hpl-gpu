@@ -110,7 +110,6 @@ void HPL_pdgesvK2
  * .. Local Variables ..
  */
    HPL_T_panel                * p, * * panel = NULL;
-   HPL_T_UPD_FUN              HPL_pdupdate; 
    int                        N, depth, icurcol=0, j, jb, jj=0, jstart,
                               k, mycol, n, nb, nn, npcol, nq,
                               tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
@@ -118,7 +117,7 @@ void HPL_pdgesvK2
  * .. Executable Statements ..
  */
    mycol = GRID->mycol; npcol        = GRID->npcol;
-   depth = ALGO->depth; HPL_pdupdate = ALGO->upfun;
+   depth = ALGO->depth;
    N     = A->n;        nb           = A->nb;
 
    if( N <= 0 ) return;
@@ -170,7 +169,7 @@ void HPL_pdgesvK2
       if( k < depth - 1 )
       {
          nn = HPL_numrocI( jstart-j, j, nb, nb, mycol, 0, npcol );
-         HPL_pdupdate( NULL, NULL, panel[k], nn );
+         HPL_pdupdateTT( NULL, NULL, panel[k], nn );
       }
    }
 /*
@@ -190,13 +189,13 @@ void HPL_pdgesvK2
       {
          nn = HPL_numrocI( jb, j, nb, nb, mycol, 0, npcol );
          for( k = 0; k < depth; k++ )   /* partial updates 0..depth-1 */
-            (void) HPL_pdupdate( NULL, NULL, panel[k], nn );
+            (void) HPL_pdupdateTT( NULL, NULL, panel[k], nn );
          HPL_pdfact(       panel[depth] );    /* factor current panel */
       }
       else { nn = 0; }
           /* Finish the latest update and broadcast the current panel */
       (void) HPL_binit( panel[depth] );
-      HPL_pdupdate( panel[depth], &test, panel[0], nq-nn );
+      HPL_pdupdateTT( panel[depth], &test, panel[0], nq-nn );
       (void) HPL_bwait( panel[depth] );
 /*
  * Circular  of the panel pointers:
@@ -217,7 +216,7 @@ void HPL_pdgesvK2
    nn = HPL_numrocI( 1, N, nb, nb, mycol, 0, npcol );
    for( k = 0; k < depth; k++ )
    {
-      (void) HPL_pdupdate( NULL, NULL, panel[k], nn );
+      (void) HPL_pdupdateTT( NULL, NULL, panel[k], nn );
       (void) HPL_pdpanel_disp(  &panel[k] );
    }
    (void) HPL_pdpanel_disp( &panel[depth] );

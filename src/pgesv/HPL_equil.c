@@ -64,13 +64,11 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_equil
 (
    HPL_T_panel *                    PBCST,
    int *                            IFLAG,
    HPL_T_panel *                    PANEL,
-   const enum HPL_TRANS             TRANS,
    const int                        N,
    double *                         U,
    const int                        LDU,
@@ -79,21 +77,6 @@ void HPL_equil
    const int *                      IPMAPM1,
    int *                            IWORK
 )
-#else
-void HPL_equil
-( PBCST, IFLAG, PANEL, TRANS, N, U, LDU, IPLEN, IPMAP, IPMAPM1, IWORK )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const enum HPL_TRANS             TRANS;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   int *                            IPLEN;
-   const int *                      IPMAP;
-   const int *                      IPMAPM1;
-   int *                            IWORK;
-#endif
 {
 /* 
  * Purpose
@@ -120,10 +103,6 @@ void HPL_equil
  * PANEL   (local input/output)          HPL_T_panel *
  *         On entry,  PANEL  points to the data structure containing the
  *         panel (to be equilibrated) information.
- *
- * TRANS   (global input)                const enum HPL_TRANS
- *         On entry, TRANS specifies whether  U  is stored in transposed
- *         or non-transposed form.
  *
  * N       (local input)                 const int
  *         On entry, N  specifies the number of rows or columns of  U. N
@@ -227,33 +206,16 @@ void HPL_equil
 /*
  * Equilibration phase
  */
-         if( TRANS == HplNoTrans )
+         if( left  )
          {
-            if( left  )
-            {
-               HPL_spreadN( PBCST, IFLAG, PANEL, HplLeft,  N, U, LDU,
-                            iprow, IWORK, IPMAP, IPMAPM1 );
-            }
-
-            if( right )
-            {
-               HPL_spreadN( PBCST, IFLAG, PANEL, HplRight, N, U, LDU,
-                            iprow, IWORK, IPMAP, IPMAPM1 );
-            }
+             HPL_spreadT( PBCST, IFLAG, PANEL, HplLeft,  N, U, LDU,
+                     iprow, IWORK, IPMAP, IPMAPM1 );
          }
-         else
-         {
-            if( left  )
-            {
-               HPL_spreadT( PBCST, IFLAG, PANEL, HplLeft,  N, U, LDU,
-                            iprow, IWORK, IPMAP, IPMAPM1 );
-            }
 
-            if( right )
-            {
-               HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, N, U, LDU,
-                            iprow, IWORK, IPMAP, IPMAPM1 );
-            }
+         if( right )
+         {
+             HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, N, U, LDU,
+                     iprow, IWORK, IPMAP, IPMAPM1 );
          }
       }
    }

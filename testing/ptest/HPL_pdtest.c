@@ -199,11 +199,6 @@ void HPL_pdtest
                                ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, HPL_ISEED );
-#ifdef HPL_CALL_VSIPL
-   mat.block = vsip_blockbind_d( (vsip_scalar_d *)(mat.A),
-                                 (vsip_length)(mat.ld * mat.nq),
-                                 VSIP_MEM_NONE );
-#endif
 /*
  * Solve linear system
  */
@@ -211,10 +206,6 @@ void HPL_pdtest
    HPL_ptimer( 0 );
    HPL_pdgesv( GRID, ALGO, &mat );
    HPL_ptimer( 0 );
-#ifdef HPL_CALL_VSIPL
-   (void) vsip_blockrelease_d( mat.block, VSIP_TRUE ); 
-   vsip_blockdestroy_d( mat.block );
-#endif
 /*
  * Gather max of all CPU and WALL clock timings and print timing results
  */

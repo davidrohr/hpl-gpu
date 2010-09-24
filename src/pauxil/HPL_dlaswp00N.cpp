@@ -84,6 +84,9 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
    tr_start = util_getTimestamp();
 #endif /* TRACE_CALLS */
 
+#ifdef USE_ORIGINAL_LASWP
+#include "HPL_dlaswp00N.c"
+#else
     // A is stored as
     // r0c0 r1c0 r2c0 ... rM-1c0 ... rLDA-1c0 r0c1
     // M   : #rows
@@ -121,32 +124,33 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
                 }
             }
         }
-        return;
-    }
-
-    PermutationHelper &perm = PermutationHelper::instance();
-    perm.ensureSize(M);
-    int permSize = 0;
-    for (int rowIndex = 0; rowIndex < M; ++rowIndex) {
-        const int otherRow = IPIV[rowIndex];
-        if (otherRow != rowIndex) {
-            perm[permSize].a = rowIndex;
-            perm[permSize].b = otherRow;
-            ++permSize;
+    } else {
+        PermutationHelper &perm = PermutationHelper::instance();
+        perm.ensureSize(M);
+        int permSize = 0;
+        for (int rowIndex = 0; rowIndex < M; ++rowIndex) {
+            const int otherRow = IPIV[rowIndex];
+            if (otherRow != rowIndex) {
+                perm[permSize].a = rowIndex;
+                perm[permSize].b = otherRow;
+                ++permSize;
+            }
         }
+
+        // number of columns to process per thread: should result in worksets of 64 kB == L1d
+        const unsigned int chunksize = max(1lu, 64 * 1024 / sizeof(double) / permSize);
+
+        tbb::parallel_for (tbb::blocked_range<size_t>(0, N, chunksize),
+                HPL_dlaswp00N_impl(A, LDA, permSize, perm)
+                );
     }
-
-    // number of columns to process per thread: should result in worksets of 64 kB == L1d
-    const unsigned int chunksize = max(1lu, 64 * 1024 / sizeof(double) / permSize);
-
-    tbb::parallel_for (tbb::blocked_range<size_t>(0, N, chunksize),
-            HPL_dlaswp00N_impl(A, LDA, permSize, perm)
-            );
+#endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP00N,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+   fprintf( trace_dgemm, "DLASWP00N,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT≅%.2fGB/s\n", M, N, LDA, tr_diff,
+           0.004 * sizeof(double) * M * N / tr_diff );
 #endif /* TRACE_CALLS */
 }

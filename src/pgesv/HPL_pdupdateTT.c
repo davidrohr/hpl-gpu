@@ -117,14 +117,8 @@ void HPL_pdupdateTT
  */
    double                    * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
    int                       * ipiv;
-#ifdef HPL_CALL_VSIPL
-   vsip_mview_d              * Av0, * Av1, * Lv0, * Lv1, * Uv0, * Uv1;
-#endif
    int                       curr, i, iroff, jb, lda, ldl2, mp, n, nb,
                              nq0, nn, test;
-   static int                tswap = 0;
-   static HPL_T_SWAP         fswap = HPL_NO_SWP;
-#define LDU                  n
 /* ..
  * .. Executable Statements ..
  */
@@ -148,6 +142,7 @@ void HPL_pdupdateTT
 #endif
       return;
    }
+   const int LDU = n + (n & 1);
 /*
  * Enable/disable the column panel probing mechanism
  */
@@ -273,17 +268,7 @@ void HPL_pdupdateTT
    }
    else                        /* nprow > 1 ... */
    {
-/*
- * Selection of the swapping algorithm - swap:broadcast U.
- */
-      if( fswap == HPL_NO_SWP )
-      { fswap = PANEL->algo->fswap; tswap = PANEL->algo->fsthr; }
-
-      if( (   fswap == HPL_SWAP01 ) ||
-          ( ( fswap == HPL_SW_MIX ) && ( n > tswap ) ) )
-      { HPL_pdlaswp01T( PBCST, &test, PANEL, n ); }
-      else
-      { HPL_pdlaswp00T( PBCST, &test, PANEL, n ); }
+      HPL_pdlaswp01T( PBCST, &test, PANEL, n );
 /*
  * Compute redundantly row block of U and update trailing submatrix
  */
@@ -291,24 +276,6 @@ void HPL_pdupdateTT
       Aptr = PANEL->A; L2ptr = PANEL->L2;  L1ptr = PANEL->L1;
       Uptr = PANEL->U; ldl2 = PANEL->ldl2;
       mp   = PANEL->mp - ( curr != 0 ? jb : 0 );
-#ifdef HPL_CALL_VSIPL
-/*
- * Admit the blocks
- */
-      (void) vsip_blockadmit_d(  PANEL->Ablock,  VSIP_TRUE );
-      (void) vsip_blockadmit_d(  PANEL->L2block, VSIP_TRUE );
-      (void) vsip_blockadmit_d(  PANEL->Ublock,  VSIP_TRUE );
-/*
- * Create the matrix views
- */
-      Av0 = vsip_mbind_d( PANEL->Ablock,  0, 1, lda,  lda,  PANEL->pmat->nq );
-      Lv0 = vsip_mbind_d( PANEL->L2block, 0, 1, ldl2, ldl2,              jb );
-      Uv0 = vsip_mbind_d( PANEL->Ublock,  0, 1, LDU,  LDU,               jb );
-/*
- * Create the matrix subviews
- */
-      Lv1 = vsip_msubview_d( Lv0, 0, 0, mp, jb );
-#endif
 /*
  * Broadcast has not occured yet, spliting the computational part
  */
@@ -321,48 +288,16 @@ void HPL_pdupdateTT
 
          if( curr != 0 )
          {
-#ifdef HPL_CALL_VSIPL
-/*
- * Create the matrix subviews
- */
-            Uv1 = vsip_msubview_d( Uv0, nq0,          0,             nn, jb );
-            Av1 = vsip_msubview_d( Av0, PANEL->ii+jb, PANEL->jj+nq0, mp, nn );
-
-            vsip_gemp_d( -HPL_rone, Lv1, VSIP_MAT_NTRANS, Uv1, VSIP_MAT_TRANS,
-                         HPL_rone, Av1 );
-/*
- * Destroy the matrix subviews
- */
-            (void) vsip_mdestroy_d( Av1 );
-            (void) vsip_mdestroy_d( Uv1 );
-#else
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Mptr( Aptr, jb, 0, lda ), lda );
-#endif
             HPL_dlatcpy( jb, nn, Uptr, LDU, Aptr, lda );
          }
          else
          {
-#ifdef HPL_CALL_VSIPL
-/*
- * Create the matrix subviews
- */
-            Uv1 = vsip_msubview_d( Uv0, nq0,          0,             nn, jb );
-            Av1 = vsip_msubview_d( Av0, PANEL->ii,    PANEL->jj+nq0, mp, nn );
-
-            vsip_gemp_d( -HPL_rone, Lv1, VSIP_MAT_NTRANS, Uv1, VSIP_MAT_TRANS,
-                         HPL_rone, Av1 );
-/*
- * Destroy the matrix subviews
- */
-            (void) vsip_mdestroy_d( Av1 );
-            (void) vsip_mdestroy_d( Uv1 );
-#else
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Aptr, lda );
-#endif
          }
          Uptr = Mptr( Uptr, nn, 0, LDU );
          Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn;
@@ -379,68 +314,18 @@ void HPL_pdupdateTT
 
          if( curr != 0 )
          {
-#ifdef HPL_CALL_VSIPL
-/*
- * Create the matrix subviews
- */
-            Uv1 = vsip_msubview_d( Uv0, nq0,          0,             nn, jb );
-            Av1 = vsip_msubview_d( Av0, PANEL->ii+jb, PANEL->jj+nq0, mp, nn );
-
-            vsip_gemp_d( -HPL_rone, Lv1, VSIP_MAT_NTRANS, Uv1, VSIP_MAT_TRANS,
-                         HPL_rone, Av1 );
-/*
- * Destroy the matrix subviews
- */
-            (void) vsip_mdestroy_d( Av1 );
-            (void) vsip_mdestroy_d( Uv1 );
-#else
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Mptr( Aptr, jb, 0, lda ), lda );
-#endif
             HPL_dlatcpy( jb, nn, Uptr, LDU, Aptr, lda );
          }
          else
          {
-#ifdef HPL_CALL_VSIPL
-/*
- * Create the matrix subviews
- */
-            Uv1 = vsip_msubview_d( Uv0, nq0,          0,             nn, jb );
-            Av1 = vsip_msubview_d( Av0, PANEL->ii,    PANEL->jj+nq0, mp, nn );
-
-            vsip_gemp_d( -HPL_rone, Lv1, VSIP_MAT_NTRANS, Uv1, VSIP_MAT_TRANS,
-                         HPL_rone, Av1 );
-/*
- * Destroy the matrix subviews
- */
-            (void) vsip_mdestroy_d( Av1 );
-            (void) vsip_mdestroy_d( Uv1 );
-#else
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Aptr, lda );
-#endif
          }
       }
-#ifdef HPL_CALL_VSIPL
-/*
- * Destroy the matrix subviews
- */
-      (void) vsip_mdestroy_d( Lv1 );
-/*
- * Release the blocks
- */
-      (void) vsip_blockrelease_d( vsip_mgetblock_d( Uv0 ), VSIP_TRUE );
-      (void) vsip_blockrelease_d( vsip_mgetblock_d( Lv0 ), VSIP_TRUE );
-      (void) vsip_blockrelease_d( vsip_mgetblock_d( Av0 ), VSIP_TRUE );
-/*
- * Destroy the matrix views
- */
-      (void) vsip_mdestroy_d( Uv0 );
-      (void) vsip_mdestroy_d( Lv0 );
-      (void) vsip_mdestroy_d( Av0 );
-#endif
    }
 
    PANEL->A = Mptr( PANEL->A, 0, n, lda ); PANEL->nq -= n; PANEL->jj += n;

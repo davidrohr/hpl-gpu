@@ -126,9 +126,6 @@ int main( ARGC, ARGV )
  * .. Executable Statements ..
  */
    MPI_Init( &ARGC, &ARGV );
-#ifdef HPL_CALL_VSIPL
-   vsip_init((void*)0);
-#endif
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Init();
 #endif
@@ -211,34 +208,14 @@ int main( ARGC, ARGV )
 
               algo.pfact = rpfa = pfaval[ipfa];
 
-              if( L1notran != 0 )
-              {
-                 if( rpfa == HPL_LEFT_LOOKING ) algo.pffun = HPL_pdpanllN;
-                 else if( rpfa == HPL_CROUT   ) algo.pffun = HPL_pdpancrN;
-                 else                           algo.pffun = HPL_pdpanrlN;
+              if( rpfa == HPL_LEFT_LOOKING ) algo.pffun = HPL_pdpanllT;
+              else if( rpfa == HPL_CROUT   ) algo.pffun = HPL_pdpancrT;
+              else                           algo.pffun = HPL_pdpanrlT;
 
-                 algo.rfact = rpfa = rfaval[irfa];
-                 if( rpfa == HPL_LEFT_LOOKING ) algo.rffun = HPL_pdrpanllN;
-                 else if( rpfa == HPL_CROUT   ) algo.rffun = HPL_pdrpancrN;
-                 else                           algo.rffun = HPL_pdrpanrlN;
-
-                 if( Unotran != 0 ) algo.upfun = HPL_pdupdateNN;
-                 else               algo.upfun = HPL_pdupdateNT;
-              }
-              else
-              {
-                 if( rpfa == HPL_LEFT_LOOKING ) algo.pffun = HPL_pdpanllT;
-                 else if( rpfa == HPL_CROUT   ) algo.pffun = HPL_pdpancrT;
-                 else                           algo.pffun = HPL_pdpanrlT;
-
-                 algo.rfact = rpfa = rfaval[irfa];
-                 if( rpfa == HPL_LEFT_LOOKING ) algo.rffun = HPL_pdrpanllT;
-                 else if( rpfa == HPL_CROUT   ) algo.rffun = HPL_pdrpancrT;
-                 else                           algo.rffun = HPL_pdrpanrlT;
-
-                 if( Unotran != 0 ) algo.upfun = HPL_pdupdateTN;
-                 else               algo.upfun = HPL_pdupdateTT;
-              }
+              algo.rfact = rpfa = rfaval[irfa];
+              if( rpfa == HPL_LEFT_LOOKING ) algo.rffun = HPL_pdrpanllT;
+              else if( rpfa == HPL_CROUT   ) algo.rffun = HPL_pdrpancrT;
+              else                           algo.rffun = HPL_pdrpanrlT;
 
               algo.fswap = fswap; algo.fsthr = tswap;
               algo.equil = equil; algo.align = align;
@@ -314,9 +291,6 @@ label_end_of_npqs: ;
    }
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Shutdown();
-#endif
-#ifdef HPL_CALL_VSIPL
-   vsip_finalize((void*)0);
 #endif
    MPI_Finalize();
    exit( 0 );
