@@ -14,6 +14,10 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <mm3dnow.h>
+#include <mmintrin.h>
+#include <emmintrin.h>
+
 namespace
 {
     void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
