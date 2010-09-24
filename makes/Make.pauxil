@@ -76,7 +76,7 @@ HPL_pauobj       = \
    HPL_numrocI.o          HPL_dlaswp00N.o        HPL_dlaswp10N.o        \
    HPL_dlaswp01T.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
    HPL_pabort.o           HPL_pdlaprnt.o         HPL_pdlamch.o          \
-   HPL_pdlange.o          permutationhelper.o
+   HPL_pdlange.o          permutationhelper.o    laswp_globals.o
 #
 ## Targets #############################################################
 #
@@ -108,6 +108,8 @@ HPL_numrocI.o          : ../HPL_numrocI.c          $(INCdep)
 permutationhelper.o    : ../permutationhelper.cpp  $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS) $<
 HPL_dlaswp00N.o        : ../HPL_dlaswp00N.cpp      $(INCdep)
+	$(CXX) -o $@ -c $(CXXFLAGS) $<
+laswp_globals.o    : ../laswp_globals.cpp  $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS) $<
 HPL_dlaswp10N.o        : ../HPL_dlaswp10N.cpp      $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  $<

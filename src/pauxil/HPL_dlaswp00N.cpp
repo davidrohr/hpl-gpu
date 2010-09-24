@@ -23,19 +23,6 @@
 
 namespace
 {
-    int HPL_init_dlaswp00N()
-    {
-        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
-        int num_threads = tbb::task_scheduler_init::default_num_threads();
-        if (num_threads_string) {
-            num_threads = atoi(num_threads_string);
-        }
-        static tbb::task_scheduler_init init(num_threads);
-        return 0;
-    }
-
-    int _HPL_init_dlaswp00N = HPL_init_dlaswp00N();
-
     template<typename T>
         static inline void swap(__restrict__ T &a, __restrict__ T &b)
         {
