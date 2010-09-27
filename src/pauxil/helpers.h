@@ -20,7 +20,7 @@
 
 namespace
 {
-    void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
+    static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
     {
         // use general purpose registers:
         //*dst = *src;
