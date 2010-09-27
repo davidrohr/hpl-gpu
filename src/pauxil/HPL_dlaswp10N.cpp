@@ -24,6 +24,10 @@ extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
    int realN = 0;
 #endif /* TRACE_CALLS */
 
+#ifdef USE_ORIGINAL_LASWP
+   realN = N;
+#include "HPL_dlaswp10N.c"
+#else
    if (M <= 0) {
        return;
    }
@@ -74,6 +78,7 @@ extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
            }
        }
    }
+#endif
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
