@@ -15,7 +15,7 @@
 #include "util_timer.h"
 #include "util_trace.h"
 #include <tbb/parallel_for.h>
-#include <mm3dnow.h>
+#include "helpers.h"
 
 /*
  * Trace:
@@ -341,17 +341,6 @@ HPL_dlaswp06T: 108769729258
 HPL_dlaswp06T: 106189048145
 HPL_dlaswp06T: 111609275039
  */
-
-namespace
-{
-    template<typename T>
-    static inline void swap(T &a, T &b)
-    {
-        T tmp = a;
-        a = b;
-        b = tmp;
-    }
-} // namespace
 
 class dlaswp06T_impl
 {

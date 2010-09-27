@@ -17,22 +17,13 @@
 #include <mm3dnow.h>
 #include <iostream>
 #include <cstdlib>
+#include "helpers.h"
 
 #include "util_timer.h"
 #include "util_trace.h"
 
 namespace
 {
-    template<typename T>
-        static inline void swap(__restrict__ T &a, __restrict__ T &b)
-        {
-            register T tmp = a;
-            a = b;
-            b = tmp;
-        }
-
-    template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
-
     class HPL_dlaswp00N_impl
     {
         private:
