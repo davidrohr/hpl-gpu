@@ -62,140 +62,78 @@
 
 #include "util_timer.h"
 #include "util_trace.h"
+#include "helpers.h"
 
-/*
- * Define default value for unrolling factor
- */
-#ifndef HPL_LASWP10N_DEPTH
-#define    HPL_LASWP10N_DEPTH       32
-#define    HPL_LASWP10N_LOG2_DEPTH   5
-#endif
-
-extern "C" void HPL_dlaswp10N
-(
-   const int                        M,
-   const int                        N,
-   double *                         A,
-   const int                        LDA,
-   const int *                      IPIV
-)
+extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
+        const int LDA, const int *IPIV)
 {
-/* 
- * Purpose
- * =======
- *
- * HPL_dlaswp10N performs a sequence  of  local column interchanges on a
- * matrix A.  One column interchange is initiated  for columns 0 through
- * N-1 of A.
- *
- * Arguments
- * =========
- *
- * M       (local input)                 const int
- *         __arg0__
- *
- * N       (local input)                 const int
- *         On entry,  M  specifies  the number of rows of the array A. M
- *         must be at least zero.
- *
- * A       (local input/output)          double *
- *         On entry, N specifies the number of columns of the array A. N
- *         must be at least zero.
- *
- * LDA     (local input)                 const int
- *         On entry, A  points to an  array of  dimension (LDA,N).  This
- *         array contains the columns onto which the interchanges should
- *         be applied. On exit, A contains the permuted matrix.
- *
- * IPIV    (local input)                 const int *
- *         On entry, LDA specifies the leading dimension of the array A.
- *         LDA must be at least MAX(1,M).
- *
- * ---------------------------------------------------------------------
- */ 
 #ifdef TRACE_CALLS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
+   int realN = 0;
 #endif /* TRACE_CALLS */
-/*
- * .. Local Variables ..
- */
-   double                     r;
-   double                     * a0, * a1;
-   const int                  incA = ( 1 << HPL_LASWP10N_LOG2_DEPTH );
-   int                        jp, mr, mu;
-   register int               i, j;
-/* ..
- * .. Executable Statements ..
- */
+
    if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-   mr = M - ( mu = (int)( ( (unsigned int)(M) >> HPL_LASWP10N_LOG2_DEPTH )
-                            << HPL_LASWP10N_LOG2_DEPTH ) );
+   const int mu = M & ~15u;
+   const int mr = M - mu;
 
-   for( j = 0; j < N; j++ )
-   {
-      if( j != ( jp = IPIV[j] ) )
-      {
-         a0 = A + j * LDA; a1 = A + jp * LDA;
+   for(int j = 0; j < N; j++ ) {
+       const int jp = IPIV[j];
+       if( j != jp ) {
+#ifdef TRACE_CALLS
+           ++realN;
+#endif
+           double *__restrict__ a0 = A + j * LDA;
+           double *__restrict__ a1 = A + jp * LDA;
 
-         for( i = 0; i < mu; i += incA, a0 += incA, a1 += incA )
-         {
-            r = *a0;    *a0    = *a1;    *a1    = r;
-#if ( HPL_LASWP10N_DEPTH >  1 )
-            r = a0[ 1]; a0[ 1] = a1[ 1]; a1[ 1] = r;
-#endif
-#if ( HPL_LASWP10N_DEPTH >  2 )
-            r = a0[ 2]; a0[ 2] = a1[ 2]; a1[ 2] = r;
-            r = a0[ 3]; a0[ 3] = a1[ 3]; a1[ 3] = r;
-#endif
-#if ( HPL_LASWP10N_DEPTH >  4 )
-            r = a0[ 4]; a0[ 4] = a1[ 4]; a1[ 4] = r;
-            r = a0[ 5]; a0[ 5] = a1[ 5]; a1[ 5] = r;
-            r = a0[ 6]; a0[ 6] = a1[ 6]; a1[ 6] = r;
-            r = a0[ 7]; a0[ 7] = a1[ 7]; a1[ 7] = r;
-#endif
-#if ( HPL_LASWP10N_DEPTH >  8 )
-            r = a0[ 8]; a0[ 8] = a1[ 8]; a1[ 8] = r;
-            r = a0[ 9]; a0[ 9] = a1[ 9]; a1[ 9] = r;
-            r = a0[10]; a0[10] = a1[10]; a1[10] = r;
-            r = a0[11]; a0[11] = a1[11]; a1[11] = r;
-            r = a0[12]; a0[12] = a1[12]; a1[12] = r;
-            r = a0[13]; a0[13] = a1[13]; a1[13] = r;
-            r = a0[14]; a0[14] = a1[14]; a1[14] = r;
-            r = a0[15]; a0[15] = a1[15]; a1[15] = r;
-#endif
-#if ( HPL_LASWP10N_DEPTH > 16 )
-            r = a0[16]; a0[16] = a1[16]; a1[16] = r;
-            r = a0[17]; a0[17] = a1[17]; a1[17] = r;
-            r = a0[18]; a0[18] = a1[18]; a1[18] = r;
-            r = a0[19]; a0[19] = a1[19]; a1[19] = r;
-            r = a0[20]; a0[20] = a1[20]; a1[20] = r;
-            r = a0[21]; a0[21] = a1[21]; a1[21] = r;
-            r = a0[22]; a0[22] = a1[22]; a1[22] = r;
-            r = a0[23]; a0[23] = a1[23]; a1[23] = r;
-            r = a0[24]; a0[24] = a1[24]; a1[24] = r;
-            r = a0[25]; a0[25] = a1[25]; a1[25] = r;
-            r = a0[26]; a0[26] = a1[26]; a1[26] = r;
-            r = a0[27]; a0[27] = a1[27]; a1[27] = r;
-            r = a0[28]; a0[28] = a1[28]; a1[28] = r;
-            r = a0[29]; a0[29] = a1[29]; a1[29] = r;
-            r = a0[30]; a0[30] = a1[30]; a1[30] = r;
-            r = a0[31]; a0[31] = a1[31]; a1[31] = r;
-#endif
-         }
+           _mm_prefetch(&a0[ 0], _MM_HINT_NTA);
+           _mm_prefetch(&a1[ 0], _MM_HINT_NTA);
+           _mm_prefetch(&a0[ 8], _MM_HINT_NTA);
+           _mm_prefetch(&a1[ 8], _MM_HINT_NTA);
+           _mm_prefetch(&a0[16], _MM_HINT_NTA);
+           _mm_prefetch(&a1[16], _MM_HINT_NTA);
+           _mm_prefetch(&a0[24], _MM_HINT_NTA);
+           _mm_prefetch(&a1[24], _MM_HINT_NTA);
+           if ((a0 - static_cast<double *>(0)) & 1) {
+               swap(a0[0], a1[0]);
+               ++a0;
+               ++a1;
+           }
+           // If LDA is odd life sucks
+           for(int i = 0; i < mu; i += 16, a0 += 16, a1 += 16 ) {
+               _mm_prefetch(&a0[32], _MM_HINT_NTA);
+               _mm_prefetch(&a1[32], _MM_HINT_NTA);
+               swapSSE(a0[ 0], a1[ 0]);
+               swapSSE(a0[ 2], a1[ 2]);
+               swapSSE(a0[ 4], a1[ 4]);
+               swapSSE(a0[ 6], a1[ 6]);
+               _mm_prefetch(&a0[40], _MM_HINT_NTA);
+               _mm_prefetch(&a1[40], _MM_HINT_NTA);
+               swapSSE(a0[ 8], a1[ 8]);
+               swapSSE(a0[10], a1[10]);
+               swapSSE(a0[12], a1[12]);
+               swapSSE(a0[14], a1[14]);
+           }
 
-         for( i = 0; i < mr; i++ )
-         { r = a0[i]; a0[i] = a1[i]; a1[i] = r; }
-      }
+           for(int i = 0; i < mr; i++ ) {
+               swap(a0[i], a1[i]);
+           }
+       }
    }
+
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP10N,M=%i,N=%i,LDA=%i,TIME=%lu\n", M, N, LDA, tr_diff );
+   fprintf( trace_dgemm, "DLASWP10N,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, tr_diff,
+           0.004 * sizeof(double) * M * realN / tr_diff);
+#ifdef TRACE_PERMDATA
+   char filename[256];
+   snprintf(filename, 256, "dlaswp10N.%04d.%05d.%05d.dat", M, N, LDA);
+   FILE *permdata = fopen(filename, "w");
+   fwrite(IPIV, sizeof(IPIV[0]), N, permdata);
+   fclose(permdata);
+#endif
 #endif /* TRACE_CALLS */
-/*
- * End of HPL_dlaswp10N
- */
 }
