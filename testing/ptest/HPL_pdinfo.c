@@ -993,6 +993,11 @@ label_error:
  */
       HPL_fprintf( TEST->outfp,       "\nALIGN  : %d double precision words",
                    *ALIGN );
+/*
+ * Seed
+ */
+      HPL_fprintf( TEST->outfp,       "\nSEED   :%8d",
+                   HPL_ISEED );
 
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
