@@ -115,7 +115,7 @@ int main( ARGC, ARGV )
                               inbm, indh, indv, ipfa, ipq, irfa, itop,
                               mycol, myrow, ns, nbs, nbms, ndhs, ndvs,
                               npcol, npfs, npqs, nprow, nrfs, ntps, 
-                              rank, size;
+                              rank, size, seed;
    HPL_T_ORDER                pmapping;
    HPL_T_FACT                 rpfa;
 
@@ -161,7 +161,7 @@ int main( ARGC, ARGV )
  */
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
-               &ntps, topval, &ndhs, ndhval, &align );
+               &ntps, topval, &ndhs, ndhval, &align, &seed );
 /*
  * Loop over different process grids - Define process grid. Go to bottom
  * of process grid loop if this case does not use my process.
@@ -216,7 +216,7 @@ int main( ARGC, ARGV )
               trace_dgemm = openTraceFile( "trace_dgemm", run, rank );
 #endif
 
-              HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb] );
+              HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
 
 #ifdef TRACE_CALLS
               fclose( trace_dgemm );

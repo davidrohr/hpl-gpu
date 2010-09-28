@@ -24,3 +24,4 @@ HPL.out      output file name (if any)
 1            # of lookahead depth
 0            DEPTHs (>=0)
 8            memory alignment in double (> 0)
+100          Seed for the matrix generation

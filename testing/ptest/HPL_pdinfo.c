@@ -87,7 +87,8 @@ void HPL_pdinfo
    HPL_T_TOP *                      TP,
    int *                            NDHS,
    int *                            DH,
-   int *                            ALIGN
+   int *                            ALIGN,
+   int *                            SEED
 )
 {
 /* 
@@ -217,6 +218,10 @@ void HPL_pdinfo
  *         On exit,  ALIGN  specifies the alignment  of  the dynamically
  *         allocated buffers in double precision words. ALIGN is greater
  *         than zero.
+ *
+ * SEED    (global output)               int *
+ *         On exit,  SEED specifies the seed to be used for matrix
+ *         generation. SEED is greater than zero.
  *
  * ---------------------------------------------------------------------
  */ 
@@ -526,6 +531,12 @@ void HPL_pdinfo
       (void) sscanf( line, "%s", num ); *ALIGN = atoi( num );
       if( *ALIGN <= 0 ) *ALIGN = 4;
 /*
+ * Matrix seed (> 0) (SEED)
+ */
+      (void) fgets( line, HPL_LINE_MAX - 2, infp );
+      (void) sscanf( line, "%s", num ); *SEED = atoi( num );
+      if( *SEED <= 0 ) *SEED = HPL_IDEFSEED;
+/*
  * Close input file
  */
 label_error:
@@ -557,23 +568,23 @@ label_error:
 /*
  * Broadcast array sizes
  */
-   iwork = (int *)malloc( (size_t)(11) * sizeof( int ) );
+   iwork = (int *)malloc( (size_t)(12) * sizeof( int ) );
    if( rank == 0 )
    {
       iwork[ 0] = *NS;      iwork[ 1] = *NBS;
       iwork[ 2] = ( *PMAPPIN == HPL_ROW_MAJOR ? 0 : 1 );
       iwork[ 3] = *NPQS;    iwork[ 4] = *NPFS;     iwork[ 5] = *NBMS;
       iwork[ 6] = *NDVS;    iwork[ 7] = *NRFS;     iwork[ 8] = *NTPS;
-      iwork[ 9] = *NDHS;    iwork[10] = *ALIGN;
+      iwork[ 9] = *NDHS;    iwork[10] = *ALIGN;    iwork[11] = *SEED;
    }
-   (void) HPL_broadcast( (void *)iwork, 11, HPL_INT, 0, MPI_COMM_WORLD );
+   (void) HPL_broadcast( (void *)iwork, 12, HPL_INT, 0, MPI_COMM_WORLD );
    if( rank != 0 )
    {
       *NS       = iwork[ 0]; *NBS   = iwork[ 1];
       *PMAPPIN  = ( iwork[ 2] == 0 ?  HPL_ROW_MAJOR : HPL_COLUMN_MAJOR );
       *NPQS     = iwork[ 3]; *NPFS  = iwork[ 4]; *NBMS     = iwork[ 5];
       *NDVS     = iwork[ 6]; *NRFS  = iwork[ 7]; *NTPS     = iwork[ 8];
-      *NDHS     = iwork[ 9]; *ALIGN    = iwork[10];
+      *NDHS     = iwork[ 9]; *ALIGN = iwork[10]; *SEED     = iwork[11];
    }
    if( iwork ) free( iwork );
 /*
@@ -997,7 +1008,7 @@ label_error:
  * Seed
  */
       HPL_fprintf( TEST->outfp,       "\nSEED   :%8d",
-                   HPL_ISEED );
+                   *SEED );
 
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
