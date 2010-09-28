@@ -71,7 +71,8 @@ void HPL_pdtest
    HPL_T_grid *                     GRID,
    HPL_T_palg *                     ALGO,
    const int                        N,
-   const int                        NB
+   const int                        NB,
+   const int                        SEED
 )
 #else
 void HPL_pdtest
@@ -81,6 +82,7 @@ void HPL_pdtest
    HPL_T_palg *                     ALGO;
    const int                        N;
    const int                        NB;
+   const int                        SEED;
 #endif
 {
 /* 
@@ -128,6 +130,10 @@ void HPL_pdtest
  * NB      (global input)                const int
  *         On entry,  NB specifies the blocking factor used to partition
  *         and distribute the matrix A. NB must be larger than one.
+ *
+ * SEED    (global input)                const int
+ *         On entry, SEED specifies the seed to be used for matrix
+ *         generation. SEED is greater than zero.
  *
  * ---------------------------------------------------------------------
  */ 
@@ -198,7 +204,7 @@ void HPL_pdtest
    mat.A  = (double *)HPL_PTR( vptr,
                                ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
-   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, HPL_ISEED );
+   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 /*
  * Solve linear system
  */
@@ -351,7 +357,7 @@ void HPL_pdtest
  * Check computation, re-generate [ A | b ], compute norm 1 and inf of A and x,
  * and norm inf of b - A x. Display residual checks.
  */
-   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, HPL_ISEED );
+   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );
    AnormI = HPL_pdlange( GRID, HPL_NORM_I, N, N, NB, mat.A, mat.ld );
 /*

@@ -207,7 +207,7 @@ CCFLAGS      = $(_FLAGS) -std=gnu99
 # the Fortran internals used in the BLAS library.
 #
 LINKER       = gcc
-LINKFLAGS    = $(CCFLAGS)
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
 #
 ARCHIVER     = ar
 ARFLAGS      = r
