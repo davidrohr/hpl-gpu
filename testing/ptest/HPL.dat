@@ -5,7 +5,7 @@ HPL.out      output file name (if any)
 1            # of problems sizes (N)
 8000         Ns
 1            # of NBs
-512          NBs
+1024         NBs
 0            PMAP process mapping (0=Row-,1=Column-major)
 1            # of process grids (P x Q)
 2 2 4        Ps
