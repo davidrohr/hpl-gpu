@@ -12,11 +12,19 @@
 */
 
 #include <tbb/task_scheduler_init.h>
+#include <tbb/parallel_for.h>
 #include <cstdlib>
 #include <cstdio>
+#include <sched.h>
 
 namespace
 {
+    class HPL_init_laswp_foo
+    {
+        public:
+            void operator()(const tbb::blocked_range<size_t> &) const {}
+    };
+
     int HPL_init_laswp()
     {
         const char *num_threads_string = getenv("LASWP_NUM_THREADS");
@@ -27,7 +35,22 @@ namespace
         } else {
             fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
         }
+
+        // before we init TBB we must make sure that we are not pinned to a CPU
+        cpu_set_t oldmask;
+        sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
+        cpu_set_t fullMask;
+        CPU_ZERO(&fullMask);
+        for (int i = 0; i < 24; ++i) {
+            CPU_SET(i, &fullMask);
+        }
+        sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
+
         static tbb::task_scheduler_init init(num_threads);
+        tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
+
+        sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
+
         return 0;
     }
 
