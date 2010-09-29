@@ -288,7 +288,7 @@ void HPL_pdpanel_init
       PANEL->DPIV  = PANEL->L1   + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;     *(PANEL->DINFO) = 0.0;
       if (nprow > 1) {
-          PANEL->U     = HPL_PTR( (PANEL->DINFO + 1), dalign );
+          PANEL->U     = (double *)HPL_PTR( (PANEL->DINFO + 1), dalign );
       }
    }
 /*

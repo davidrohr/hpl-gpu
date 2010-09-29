@@ -100,7 +100,7 @@ typedef struct HPL_S_test
  */
 #define    HPL_LINE_MAX         256
 #define    HPL_MAX_PARAM         20
-#define    HPL_ISEED            100
+#define    HPL_IDEFSEED         100              /* the default seed */
 /*
  * ---------------------------------------------------------------------
  * global timers for timing analysis only
@@ -144,10 +144,6 @@ STDC_ARGS( (
    HPL_T_TOP *,
    int *,
    int *,
-   HPL_T_SWAP *,
-   int *,
-   int *,
-   int *,
    int *,
    int *
 ) );
@@ -156,6 +152,7 @@ STDC_ARGS( (
    HPL_T_test *,
    HPL_T_grid *,
    HPL_T_palg *,
+   const int,
    const int,
    const int
 ) );
