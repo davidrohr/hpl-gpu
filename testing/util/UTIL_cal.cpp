@@ -26,7 +26,11 @@ void CALDGEMM_Init()
 	//cal_info.Pin = -3;
 	//cal_info.Verify = CAL_FALSE;
 	//cal_info.Disassemble = CAL_FALSE;
+#ifdef TRACE_CALLS
 	cal_info.Quiet = CAL_FALSE;
+#else
+	cal_info.Quiet = CAL_TRUE;
+#endif
 	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
 	//cal_info.Height = 4096;
