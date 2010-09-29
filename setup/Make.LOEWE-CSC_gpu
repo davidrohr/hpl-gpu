@@ -111,7 +111,7 @@ GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(TOPdir)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
 CALDGEMMutil  = $(CALDGEMMdir)/calutil.o
-LAinc        = -I$(CALDGEMMdir) -I/home/fias/ati-stream-sdk-v2.2-lnx64/include -I$(GOTOdir)
+LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
 LAlib        = $(CALDGEMMlib) $(CALDGEMMutil) $(GOTOlib) -laticalrt -laticalcl
 
 .DEFAULT_GOAL := all
