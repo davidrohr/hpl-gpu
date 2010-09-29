@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdinfo
 (
    HPL_T_test *                     TEST,
@@ -88,44 +87,9 @@ void HPL_pdinfo
    HPL_T_TOP *                      TP,
    int *                            NDHS,
    int *                            DH,
-   HPL_T_SWAP *                     FSWAP,
-   int *                            TSWAP,
-   int *                            L1NOTRAN,
-   int *                            UNOTRAN,
-   int *                            EQUIL,
-   int *                            ALIGN
+   int *                            ALIGN,
+   int *                            SEED
 )
-#else
-void HPL_pdinfo
-( TEST, NS, N, NBS, NB, PMAPPIN, NPQS, P, Q, NPFS, PF, NBMS, NBM, NDVS, NDV, NRFS, RF, NTPS, TP, NDHS, DH, FSWAP, TSWAP, L1NOTRAN, UNOTRAN, EQUIL, ALIGN )
-   HPL_T_test *                     TEST;
-   int *                            NS;
-   int *                            N;
-   int *                            NBS;
-   int *                            NB;
-   HPL_T_ORDER *                    PMAPPIN;
-   int *                            NPQS;
-   int *                            P;
-   int *                            Q;
-   int *                            NPFS;
-   HPL_T_FACT *                     PF;
-   int *                            NBMS;
-   int *                            NBM;
-   int *                            NDVS;
-   int *                            NDV;
-   int *                            NRFS;
-   HPL_T_FACT *                     RF;
-   int *                            NTPS;
-   HPL_T_TOP *                      TP;
-   int *                            NDHS;
-   int *                            DH;
-   HPL_T_SWAP *                     FSWAP;
-   int *                            TSWAP;
-   int *                            L1NOTRAN;
-   int *                            UNOTRAN;
-   int *                            EQUIL;
-   int *                            ALIGN;
-#endif
 {
 /* 
  * Purpose
@@ -250,33 +214,14 @@ void HPL_pdinfo
  *         of lookahead depths to run the code with.  Such a value is at
  *         least 0 (no-lookahead) or greater than zero.
  *
- * FSWAP   (global output)               HPL_T_SWAP *
- *         On exit, FSWAP specifies the swapping algorithm to be used in
- *         all tests.
- *
- * TSWAP   (global output)               int *
- *         On exit,  TSWAP  specifies the swapping threshold as a number
- *         of columns when the mixed swapping algorithm was chosen.
- *
- * L1NOTRA (global output)               int *
- *         On exit, L1NOTRAN specifies whether the upper triangle of the
- *         panels of columns  should  be stored  in  no-transposed  form
- *         (L1NOTRAN=1) or in transposed form (L1NOTRAN=0).
- *
- * UNOTRAN (global output)               int *
- *         On exit, UNOTRAN  specifies whether the panels of rows should
- *         be stored in  no-transposed form  (UNOTRAN=1)  or  transposed
- *         form (UNOTRAN=0) during their broadcast.
- *
- * EQUIL   (global output)               int *
- *         On exit,  EQUIL  specifies  whether  equilibration during the
- *         swap-broadcast  of  the  panel of rows  should  be  performed
- *         (EQUIL=1) or not (EQUIL=0).
- *
  * ALIGN   (global output)               int *
  *         On exit,  ALIGN  specifies the alignment  of  the dynamically
  *         allocated buffers in double precision words. ALIGN is greater
  *         than zero.
+ *
+ * SEED    (global output)               int *
+ *         On exit,  SEED specifies the seed to be used for matrix
+ *         generation. SEED is greater than zero.
  *
  * ---------------------------------------------------------------------
  */ 
@@ -580,44 +525,17 @@ void HPL_pdinfo
          }
       }
 /*
- * Swapping algorithm (0,1 or 2) (FSWAP)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); j = atoi( num );
-      if(      j == 0 ) *FSWAP = HPL_SWAP00;
-      else if( j == 1 ) *FSWAP = HPL_SWAP01;
-      else if( j == 2 ) *FSWAP = HPL_SW_MIX;
-      else              *FSWAP = HPL_SWAP01;
-/*
- * Swapping threshold (>=0) (TSWAP)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *TSWAP = atoi( num );
-      if( *TSWAP <= 0 ) *TSWAP = 0;
-/*
- * L1 in (no-)transposed form (0 or 1)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *L1NOTRAN = atoi( num );
-      if( ( *L1NOTRAN != 0 ) && ( *L1NOTRAN != 1 ) ) *L1NOTRAN = 0; 
-/*
- * U  in (no-)transposed form (0 or 1)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *UNOTRAN = atoi( num );
-      if( ( *UNOTRAN != 0 ) && ( *UNOTRAN != 1 ) ) *UNOTRAN = 0;
-/*
- * Equilibration (0=no, 1=yes)
- */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp );
-      (void) sscanf( line, "%s", num ); *EQUIL = atoi( num );
-      if( ( *EQUIL != 0 ) && ( *EQUIL != 1 ) ) *EQUIL = 1;
-/*
  * Memory alignment in bytes (> 0) (ALIGN)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
       (void) sscanf( line, "%s", num ); *ALIGN = atoi( num );
       if( *ALIGN <= 0 ) *ALIGN = 4;
+/*
+ * Matrix seed (> 0) (SEED)
+ */
+      (void) fgets( line, HPL_LINE_MAX - 2, infp );
+      (void) sscanf( line, "%s", num ); *SEED = atoi( num );
+      if( *SEED <= 0 ) *SEED = HPL_IDEFSEED;
 /*
  * Close input file
  */
@@ -650,32 +568,30 @@ label_error:
 /*
  * Broadcast array sizes
  */
-   iwork = (int *)malloc( (size_t)(15) * sizeof( int ) );
+   iwork = (int *)malloc( (size_t)(12) * sizeof( int ) );
    if( rank == 0 )
    {
       iwork[ 0] = *NS;      iwork[ 1] = *NBS;
       iwork[ 2] = ( *PMAPPIN == HPL_ROW_MAJOR ? 0 : 1 );
       iwork[ 3] = *NPQS;    iwork[ 4] = *NPFS;     iwork[ 5] = *NBMS;
       iwork[ 6] = *NDVS;    iwork[ 7] = *NRFS;     iwork[ 8] = *NTPS;
-      iwork[ 9] = *NDHS;    iwork[10] = *TSWAP;    iwork[11] = *L1NOTRAN;
-      iwork[12] = *UNOTRAN; iwork[13] = *EQUIL;    iwork[14] = *ALIGN;
+      iwork[ 9] = *NDHS;    iwork[10] = *ALIGN;    iwork[11] = *SEED;
    }
-   (void) HPL_broadcast( (void *)iwork, 15, HPL_INT, 0, MPI_COMM_WORLD );
+   (void) HPL_broadcast( (void *)iwork, 12, HPL_INT, 0, MPI_COMM_WORLD );
    if( rank != 0 )
    {
       *NS       = iwork[ 0]; *NBS   = iwork[ 1];
       *PMAPPIN  = ( iwork[ 2] == 0 ?  HPL_ROW_MAJOR : HPL_COLUMN_MAJOR );
       *NPQS     = iwork[ 3]; *NPFS  = iwork[ 4]; *NBMS     = iwork[ 5];
       *NDVS     = iwork[ 6]; *NRFS  = iwork[ 7]; *NTPS     = iwork[ 8];
-      *NDHS     = iwork[ 9]; *TSWAP = iwork[10]; *L1NOTRAN = iwork[11];
-      *UNOTRAN  = iwork[12]; *EQUIL = iwork[13]; *ALIGN    = iwork[14];
+      *NDHS     = iwork[ 9]; *ALIGN = iwork[10]; *SEED     = iwork[11];
    }
    if( iwork ) free( iwork );
 /*
  * Pack information arrays and broadcast
  */
    lwork = (*NS) + (*NBS) + 2 * (*NPQS) + (*NPFS) + (*NBMS) + 
-           (*NDVS) + (*NRFS) + (*NTPS) + (*NDHS) + 1;
+           (*NDVS) + (*NRFS) + (*NTPS) + (*NDHS);
    iwork = (int *)malloc( (size_t)(lwork) * sizeof( int ) );
    if( rank == 0 )
    {
@@ -711,11 +627,6 @@ label_error:
          j++;
       }
       for( i = 0; i < *NDHS; i++ ) { iwork[j] = DH[i]; j++; }
-
-      if(      *FSWAP == HPL_SWAP00 ) iwork[j] = 0;
-      else if( *FSWAP == HPL_SWAP01 ) iwork[j] = 1;
-      else if( *FSWAP == HPL_SW_MIX ) iwork[j] = 2;
-      j++;
    }
    (void) HPL_broadcast( (void*)iwork, lwork, HPL_INT, 0,
                          MPI_COMM_WORLD );
@@ -754,11 +665,6 @@ label_error:
          j++;
       }
       for( i = 0; i < *NDHS; i++ ) { DH[i] = iwork[j]; j++; }
-
-      if(      iwork[j] == 0 ) *FSWAP = HPL_SWAP00;
-      else if( iwork[j] == 1 ) *FSWAP = HPL_SWAP01;
-      else if( iwork[j] == 2 ) *FSWAP = HPL_SW_MIX;
-      j++;
    }
    if( iwork ) free( iwork );
 /*
@@ -1073,49 +979,36 @@ label_error:
  * Swapping algorithm
  */
       HPL_fprintf( TEST->outfp,       "\nSWAP   :" );
-      if(      *FSWAP == HPL_SWAP00 )
-         HPL_fprintf( TEST->outfp, " Binary-exchange" );
-      else if( *FSWAP == HPL_SWAP01 )
-         HPL_fprintf( TEST->outfp, " Spread-roll (long)" );
-      else if( *FSWAP == HPL_SW_MIX )
-         HPL_fprintf( TEST->outfp, " Mix (threshold = %d)", *TSWAP );
+      HPL_fprintf( TEST->outfp, " Spread-roll (long)" );
 /*
  * L1 storage form
  */
       HPL_fprintf( TEST->outfp,       "\nL1     :" );
-      if(      *L1NOTRAN != 0 )
-      {
-         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                    "no-transposed form of L1 is not supported" );
-         error = 1; goto label_error;
-      }
-      else
-         HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp, " transposed form" );
 /*
  * U  storage form
  */
       HPL_fprintf( TEST->outfp,       "\nU      :" );
-      if(      *UNOTRAN != 0 )
-      {
-         HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                    "no-transposed form of U is not supported" );
-         error = 1; goto label_error;
-      }
-      else
-         HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp, " transposed form" );
 /*
  * Equilibration
  */
       HPL_fprintf( TEST->outfp,       "\nEQUIL  :" );
-      if(      *EQUIL != 0 )
-         HPL_fprintf( TEST->outfp, " yes" );
-      else
-         HPL_fprintf( TEST->outfp, " no" );
+#ifndef NO_EQUILIBRATION
+      HPL_fprintf( TEST->outfp, " yes" );
+#else
+      HPL_fprintf( TEST->outfp, " no" );
+#endif
 /*
  * Alignment
  */
       HPL_fprintf( TEST->outfp,       "\nALIGN  : %d double precision words",
                    *ALIGN );
+/*
+ * Seed
+ */
+      HPL_fprintf( TEST->outfp,       "\nSEED   :%8d",
+                   *SEED );
 
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
