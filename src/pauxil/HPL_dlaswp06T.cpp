@@ -133,6 +133,8 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
 #ifdef TRACE_CALLS
    uint64_t tr_start, tr_end, tr_diff;
    tr_start = util_getTimestamp();
+   struct timespec cputime0, cputime1;
+   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cputime0);
 #endif /* TRACE_CALLS */
 
 #ifdef USE_ORIGINAL_LASWP
@@ -148,9 +150,11 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
 
 #ifdef TRACE_CALLS
    tr_end = util_getTimestamp();
+   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cputime1);
+   const uint64_t cputime = cputime1.tv_sec * 10000000ull + cputime1.tv_nsec / 1000ull - cputime0.tv_sec * 10000000ull - cputime0.tv_nsec / 1000ull;
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
-   fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff,
+   fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,CPU=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff, cputime,
            0.004 * sizeof(double) * M * N / tr_diff );
 #ifdef TRACE_PERMDATA
    char filename[256];
