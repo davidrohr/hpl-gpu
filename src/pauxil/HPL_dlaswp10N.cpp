@@ -25,7 +25,9 @@ extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
 #endif /* TRACE_CALLS */
 
 #ifdef USE_ORIGINAL_LASWP
+#ifdef TRACE_CALLS
    realN = N;
+#endif
 #include "HPL_dlaswp10N.c"
 #else
    if (M <= 0) {

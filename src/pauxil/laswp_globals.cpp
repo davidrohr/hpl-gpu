@@ -11,6 +11,8 @@
 
 */
 
+#ifndef USE_ORIGINAL_LASWP
+
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
 #include <cstdlib>
@@ -56,3 +58,5 @@ namespace
 
     int _HPL_init_laswp = HPL_init_laswp();
 }
+
+#endif

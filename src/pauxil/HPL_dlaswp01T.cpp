@@ -14,9 +14,13 @@
 #include <cstddef>
 #include "util_timer.h"
 #include "util_trace.h"
+
+#ifndef USE_ORIGINAL_LASWP
 #include <tbb/parallel_for.h>
 #include "helpers.h"
+#endif
 
+#ifndef USE_ORIGINAL_LASWP
 class dlaswp01T_impl
 {
     private:
@@ -170,6 +174,7 @@ class dlaswp01T_impl
             }
         }
 };
+#endif /* USE_ORIGINAL_LASWP */
 
 extern "C" void HPL_dlaswp01T(const int M, const int N, double *A, const int LDA,
         double *U, const int LDU, const int *LINDXA, const int *LINDXAU)
