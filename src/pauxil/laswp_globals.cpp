@@ -46,6 +46,11 @@ namespace
         for (int i = 0; i < 24; ++i) {
             CPU_SET(i, &fullMask);
         }
+        if (CPU_COUNT(&oldmask) == 1
+                && std::getenv("LASWP_PIN_WORKER_THREADS")
+                && std::strcmp("1", std::getenv("LASWP_PIN_WORKER_THREADS")) == 0) {
+            CPU_XOR(&fullMask, &fullMask, &oldmask);
+        }
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
 
         static tbb::task_scheduler_init init(num_threads);
