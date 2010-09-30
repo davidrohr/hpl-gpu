@@ -43,7 +43,7 @@ namespace
         sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
         cpu_set_t fullMask;
         CPU_ZERO(&fullMask);
-        for (int i = 0; i < 24; ++i) {
+        for (int i = 0; i < 64; ++i) {
             CPU_SET(i, &fullMask);
         }
         if (CPU_COUNT(&oldmask) == 1
@@ -52,10 +52,13 @@ namespace
             CPU_XOR(&fullMask, &fullMask, &oldmask);
         }
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
+        sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
 
+        fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
         static tbb::task_scheduler_init init(num_threads);
         tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
 
+        fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
         sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 
         return 0;
