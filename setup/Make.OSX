@@ -76,7 +76,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = openSUSE112_GotoBLAS
+ARCH         = OSX
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -95,9 +95,9 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /usr/mpi/gcc/openmpi-1.4.1
+MPdir        = /usr
 MPinc        = $(MPdir)/include
-MPlib        = -L$(MPdir)/lib64 -lmpi
+MPlib        = -L$(MPdir)/lib -lmpi
 #
 # ----------------------------------------------------------------------
 # - Linear Algebra library (BLAS or VSIPL) -----------------------------
@@ -113,7 +113,7 @@ LAlib        = $(LAdir)/libgoto2.a
 .DEFAULT_GOAL := all
 
 $(LAlib): $(LAdir)/*.h $(LAdir)/*.c $(LAdir)/interface/* $(LAdir)/kernel/x86_64/* $(LAdir)/driver/*/*
-	pushd $(LAdir); $(MAKE); popd
+	pushd $(LAdir); $(MAKE); ranlib libgoto2.a; popd
 
 build_src: $(LAlib)
 
@@ -164,7 +164,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(MPinc)
-HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -lmpi -L/opt/local/lib/gcc45/ -lgfortran
 #
 # - Compile time options -----------------------------------------------
 #
@@ -186,16 +186,16 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DUSE_ORIGINAL_LASWP -DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DUSE_ORIGINAL_LASWP # -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
 # ----------------------------------------------------------------------
 #
-CC           = gcc
-CXX          = g++
+CC           = gcc-mp-4.5
+CXX          = g++-mp-4.5
 CCNOOPT      = $(HPL_DEFS)
-_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -Wall -Wimplicit \
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=core2 -Wall -Wimplicit \
                 -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
                 -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
                 -Wno-unused-function -pedantic -Wno-long-long -Wshadow
@@ -205,8 +205,8 @@ CCFLAGS      = $(_FLAGS) -std=gnu99
 # On some platforms,  it is necessary  to use the Fortran linker to find
 # the Fortran internals used in the BLAS library.
 #
-LINKER       = gcc
-LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
+LINKER       = ranlib $(HPLlib); g++-mp-4.5
+LINKFLAGS    = $(CCFLAGS)
 #
 ARCHIVER     = ar
 ARFLAGS      = r

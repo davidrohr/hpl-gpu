@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim: set fileencoding=utf-8 :
 
 #
 # The source code is property of the Frankfurt Institute for Advanced Studies

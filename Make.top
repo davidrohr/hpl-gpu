@@ -149,6 +149,7 @@ clean_src        :
 	- ( $(CD) src/pauxil/$(arch);       $(MAKE) clean )
 	- ( $(CD) src/pfact/$(arch);        $(MAKE) clean )
 	- ( $(CD) src/pgesv/$(arch);        $(MAKE) clean )
+	- $(RM) lib/$(arch)/libhpl.a
 #
 clean_tst        :
 	- ( $(CD) testing/matgen/$(arch);   $(MAKE) clean )

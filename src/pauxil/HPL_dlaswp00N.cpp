@@ -17,35 +17,13 @@
 #include <mm3dnow.h>
 #include <iostream>
 #include <cstdlib>
+#include "helpers.h"
 
 #include "util_timer.h"
 #include "util_trace.h"
 
 namespace
 {
-    int HPL_init_dlaswp00N()
-    {
-        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
-        int num_threads = tbb::task_scheduler_init::default_num_threads();
-        if (num_threads_string) {
-            num_threads = atoi(num_threads_string);
-        }
-        static tbb::task_scheduler_init init(num_threads);
-        return 0;
-    }
-
-    int _HPL_init_dlaswp00N = HPL_init_dlaswp00N();
-
-    template<typename T>
-        static inline void swap(__restrict__ T &a, __restrict__ T &b)
-        {
-            register T tmp = a;
-            a = b;
-            b = tmp;
-        }
-
-    template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
-
     class HPL_dlaswp00N_impl
     {
         private:

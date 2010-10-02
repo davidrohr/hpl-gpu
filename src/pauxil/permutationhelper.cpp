@@ -11,6 +11,8 @@
 
 */
 
+#ifndef HPL_USE_ORIGINAL_LASWP
+
 #include "permutationhelper.h"
 
 #include <cstdlib>
@@ -49,5 +51,7 @@ namespace
 {
     int init = PermutationHelper::_init();
 } // namespace 
+
+#endif
 
 // vim: sw=4 sts=4 et tw=100

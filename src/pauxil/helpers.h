@@ -20,7 +20,7 @@
 
 namespace
 {
-    void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
+    static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
     {
         // use general purpose registers:
         //*dst = *src;
@@ -47,6 +47,22 @@ namespace
         DoublesInCacheline = CachelineSize / sizeof(double)
     };
 
+    template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
+
+    template<typename T> static inline void swap(__restrict__ T &a, __restrict__ T &b)
+    {
+        register T tmp = a;
+        a = b;
+        b = tmp;
+    }
+
+    static inline void swapSSE(double &__restrict__ a, double &__restrict__ b)
+    {
+        const __m128d va = _mm_load_pd(&a);
+        const __m128d vb = _mm_load_pd(&b);
+        _mm_store_pd(&a, vb);
+        _mm_store_pd(&b, va);
+    }
 } // anonymous namespace
 
 #endif // HELPERS_H
