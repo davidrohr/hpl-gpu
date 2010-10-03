@@ -204,7 +204,20 @@ void HPL_pdtest
    mat.A  = (double *)HPL_PTR( vptr,
                                ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
+#ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
+#else
+   size_t fastrand_num = SEED;
+   const size_t fastrand_mul = 84937482743;
+   const size_t fastrand_add = 138493846343;
+   const size_t fastrand_mod = 538948374763;
+   fot (long long int i = 0;i < (size_t) (mat.ld + 1) * (size_t)(mat.nq) + (size_t) ALGO->align;i++)
+   {
+	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
+	mat.A[i] = HPL_rand();//(double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+   }
+#endif
+   
 /*
  * Solve linear system
  */
