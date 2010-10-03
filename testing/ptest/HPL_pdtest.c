@@ -187,7 +187,10 @@ void HPL_pdtest
    vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
                            (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
                          sizeof(double) );
+                         
+#ifdef HPL_PAGELOCKED_MEM
    if (mlock(vptr, ((size_t) ALGO->align + (size_t) (mat.ld + 1) * (size_t) (mat.nq)) * sizeof(double))) printf("Error locking memory\n");
+#endif
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
                           GRID->all_comm );

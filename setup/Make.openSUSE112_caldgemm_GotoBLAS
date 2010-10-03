@@ -185,6 +185,8 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization
+# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
