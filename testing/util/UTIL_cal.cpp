@@ -38,7 +38,7 @@ void CALDGEMM_Init()
 	//cal_info.Iterations = 1;
 	//cal_info.DstMemory = 'c';
 	//cal_info.VerboseTiming = CAL_FALSE;
-	cal_info.Debug = CAL_TRUE;
+	//cal_info.Debug = CAL_TRUE;
 	//cal_info.MultiThread = CAL_TRUE;
 	//cal_info.UseGPU = CAL_TRUE;
 	//cal_info.UseCPU = CAL_TRUE;
