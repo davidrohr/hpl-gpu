@@ -164,16 +164,18 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(MPinc)
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
-# -DHPL_CALL_VSIPL       call the vsip  library;
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization
+# -DUSE_ORIGINAL_LASWP   use original laswp implementation
+# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
+# -DNO_EQUILIBRATION     disable Equilibration (hardcoded instead of runtime parameter)
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
