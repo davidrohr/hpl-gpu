@@ -56,27 +56,27 @@ class dlaswp01T_impl
                     }
                     Ar += range.begin() * LDA;
                     do {
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 0], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 1], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 2], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 3], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 4], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 5], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 6], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 7], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 8], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[ 9], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[10], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[11], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[12], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[13], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[14], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(&Uw[15], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 0], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 1], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 2], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 3], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 4], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 5], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 6], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 7], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 8], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 9], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[10], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[11], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[12], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[13], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[14], Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[15], Ar); Ar += LDA;
                         Uw += 16;
                     } while ((UwEnd - Uw) >= 16);
                     for (;Uw < UwEnd; ++Uw) {
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1);
-                        streamingCopy(Uw, Ar);
+                        copy(Uw, Ar);
                         Ar += LDA;
                     }
                 } else {
@@ -106,7 +106,7 @@ class dlaswp01T_impl
                         col -= 16;
                     } while (col >= 16);
                     for (; col; --col) {
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); *Aw = *Ar; Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                     }
                 }
             }
@@ -121,26 +121,26 @@ class dlaswp01T_impl
                 _m_prefetchw(Uw + 16);
                 Ar += range.begin() * LDA;
                 do {
-                    streamingCopy(&Uw[ 0], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 1], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 2], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 3], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 4], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 5], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 6], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 7], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 8], Ar); Ar += LDA;
-                    streamingCopy(&Uw[ 9], Ar); Ar += LDA;
-                    streamingCopy(&Uw[10], Ar); Ar += LDA;
-                    streamingCopy(&Uw[11], Ar); Ar += LDA;
-                    streamingCopy(&Uw[12], Ar); Ar += LDA;
-                    streamingCopy(&Uw[13], Ar); Ar += LDA;
-                    streamingCopy(&Uw[14], Ar); Ar += LDA;
-                    streamingCopy(&Uw[15], Ar); Ar += LDA;
+                    copy(&Uw[ 0], Ar); Ar += LDA;
+                    copy(&Uw[ 1], Ar); Ar += LDA;
+                    copy(&Uw[ 2], Ar); Ar += LDA;
+                    copy(&Uw[ 3], Ar); Ar += LDA;
+                    copy(&Uw[ 4], Ar); Ar += LDA;
+                    copy(&Uw[ 5], Ar); Ar += LDA;
+                    copy(&Uw[ 6], Ar); Ar += LDA;
+                    copy(&Uw[ 7], Ar); Ar += LDA;
+                    copy(&Uw[ 8], Ar); Ar += LDA;
+                    copy(&Uw[ 9], Ar); Ar += LDA;
+                    copy(&Uw[10], Ar); Ar += LDA;
+                    copy(&Uw[11], Ar); Ar += LDA;
+                    copy(&Uw[12], Ar); Ar += LDA;
+                    copy(&Uw[13], Ar); Ar += LDA;
+                    copy(&Uw[14], Ar); Ar += LDA;
+                    copy(&Uw[15], Ar); Ar += LDA;
                     Uw += 16;
                 } while ((UwEnd - Uw) >= 16);
                 for (;Uw < UwEnd; ++Uw) {
-                    streamingCopy(Uw, Ar); Ar += LDA;
+                    copy(Uw, Ar); Ar += LDA;
                 }
             } else {
                 const size_t rowAw = -LINDXAU[M - 1];
