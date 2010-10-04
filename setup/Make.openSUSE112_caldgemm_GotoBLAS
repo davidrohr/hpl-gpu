@@ -187,6 +187,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortra
 #                        be relevant for optimization
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
+# -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
 #
 # By default HPL will:
 #    *) not copy L before broadcast,

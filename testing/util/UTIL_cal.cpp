@@ -82,7 +82,13 @@ void* CALDGEMM_alloc(size_t size)
 #else
     bool page_locked = false;
 #endif
-    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked, false));
+
+#ifdef HPL_HUGE_TABLES
+    bool huge_tables = true;
+#else
+    bool huge_tables = false;
+#endif
+    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked, huge_tables));
 }
 
 void CALDGEMM_free(void* ptr)
