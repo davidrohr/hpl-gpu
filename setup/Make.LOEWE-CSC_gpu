@@ -174,7 +174,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
-HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
@@ -215,7 +215,7 @@ CCFLAGS      = $(_FLAGS) -std=gnu99
 # the Fortran internals used in the BLAS library.
 #
 LINKER       = $(CXX)
-LINKFLAGS    = $(CCFLAGS)
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
 #
 ARCHIVER     = ar
 ARFLAGS      = r
