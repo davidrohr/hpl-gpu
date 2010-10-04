@@ -19,6 +19,8 @@
 #include <cstdio>
 #include <sched.h>
 
+#include "glibc_hacks.h"
+
 namespace
 {
     class HPL_init_laswp_foo
