@@ -52,7 +52,7 @@ namespace
 
     template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
 
-    template<typename T> static inline void swap(__restrict__ T &a, __restrict__ T &b)
+    template<typename T> static inline void swap(T &__restrict__ a, T &__restrict__ b)
     {
         register T tmp = a;
         a = b;
