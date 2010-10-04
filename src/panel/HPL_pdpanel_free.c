@@ -61,6 +61,9 @@
  */ 
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifdef STDC_HEADERS
 int HPL_pdpanel_free
 (
@@ -88,6 +91,11 @@ int HPL_pdpanel_free
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /* ..
  * .. Executable Statements ..
  */
@@ -95,6 +103,15 @@ int HPL_pdpanel_free
 
    if( PANEL->WORK  ) free( PANEL->WORK  );
    if( PANEL->IWORK ) free( PANEL->IWORK );
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "PDPANEL_FREE,TIME=%lu\n",
+               tr_diff );
+#endif /* TRACE_CALLS */
 
    return( MPI_SUCCESS );
 /*

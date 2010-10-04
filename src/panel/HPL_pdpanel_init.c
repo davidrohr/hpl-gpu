@@ -64,6 +64,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifdef HPL_NO_MPI_DATATYPE  /* The user insists to not use MPI types */
 #ifndef HPL_COPY_L       /* and also want to avoid the copy of L ... */
 #define HPL_COPY_L   /* well, sorry, can not do that: force the copy */
@@ -150,6 +153,11 @@ void HPL_pdpanel_init
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -341,6 +349,16 @@ void HPL_pdpanel_init
    { HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" ); }
                        /* Initialize the first entry of the workarray */
    *(PANEL->IWORK) = -1;
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "PDPANEL_INIT,M,N,JB,IA,JA,TAG,TIME=%lu\n",
+               M, N, JB, IA, JA, TAG, tr_diff );
+#endif /* TRACE_CALLS */
+
 /*
  * End of HPL_pdpanel_init
  */

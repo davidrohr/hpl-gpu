@@ -64,6 +64,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifdef STDC_HEADERS
 void HPL_min
 (
@@ -108,6 +111,11 @@ void HPL_min
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -127,6 +135,16 @@ void HPL_min
       double          * b = (double *)(INOUT);
       for( i = 0; i < N; i++ ) b[i] = Mmin( a[i], b[i] );
    }
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "MIN,N=%i,TIME=%lu\n",
+               N, tr_diff );
+#endif /* TRACE_CALLS */
+
 /*
  * End of HPL_min
  */
