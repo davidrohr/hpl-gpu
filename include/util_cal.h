@@ -29,6 +29,8 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
    const int,       const double,    const double *,  const int,
    const double *,  const int,       const double,    double *,
    const int );
+void* CALDGEMM_alloc(size_t size);
+void CALDGEMM_free(void* ptr);
 
 #ifdef __cplusplus
 }

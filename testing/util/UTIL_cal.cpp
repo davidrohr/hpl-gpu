@@ -74,3 +74,18 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 
 }
 
+void* CALDGEMM_alloc(size_t size)
+{
+    if (size % sizeof(double)) size += sizeof(double);
+#ifdef HPL_PAGELOCKED_MEM
+    bool page_locked = true;
+#else
+    bool page_locked = false;
+#endif
+    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked));
+}
+
+void CALDGEMM_free(void* ptr)
+{
+    cal_dgemm.FreeMemory((double*) ptr);
+}

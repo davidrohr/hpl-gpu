@@ -64,6 +64,7 @@
  */
 #include "hpl.h"
 #include <sys/mman.h>
+#include "util_cal.h"
 
 #ifdef STDC_HEADERS
 void HPL_pdtest
@@ -184,13 +185,13 @@ void HPL_pdtest
 /*
  * Allocate dynamic memory
  */
-   vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
+   /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
+                           (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
+                         sizeof(double) );*/
+   vptr = CALDGEMM_alloc( ( (size_t)(ALGO->align) + 
                            (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
                          sizeof(double) );
                          
-#ifdef HPL_PAGELOCKED_MEM
-   if (mlock(vptr, ((size_t) ALGO->align + (size_t) (mat.ld + 1) * (size_t) (mat.nq)) * sizeof(double))) printf("Error locking memory\n");
-#endif
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
                           GRID->all_comm );
@@ -359,7 +360,7 @@ void HPL_pdtest
  * Quick return, if I am not interested in checking the computations
  */
    if( TEST->thrsh <= HPL_rzero )
-   { (TEST->kpass)++; if( vptr ) free( vptr ); return; }
+   { (TEST->kpass)++; if( vptr ) CALDGEMM_free( vptr ); return; }
 /*
  * Check info returned by solve
  */
@@ -369,7 +370,7 @@ void HPL_pdtest
          HPL_pwarn( TEST->outfp, __LINE__, "HPL_pdtest", "%s %d, %s", 
                     "Error code returned by solve is", mat.info, "skip" );
       (TEST->kskip)++;
-      if( vptr ) free( vptr ); return;
+      if( vptr ) CALDGEMM_free( vptr ); return;
    }
 /*
  * Check computation, re-generate [ A | b ], compute norm 1 and inf of A and x,
@@ -469,7 +470,7 @@ void HPL_pdtest
          "||b||_oo . . . . . . . . . . . . . . . . . . . = ", BnormI );
       }
    }
-   if( vptr ) free( vptr );
+   if( vptr ) CALDGEMM_free( vptr );
 /*
  * End of HPL_pdtest
  */
