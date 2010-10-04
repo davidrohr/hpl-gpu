@@ -64,6 +64,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifdef STDC_HEADERS
 void HPL_plindx10
 (
@@ -134,6 +137,11 @@ void HPL_plindx10
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -164,6 +172,15 @@ void HPL_plindx10
  * (the inverse of IPMAP)
  */
    HPL_logsort( nprow, icurrow, IPLEN, IPMAP, IPMAPM1 );
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "PLINDX10,K=%i,TIME=%lu\n",
+               K, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_plindx10
  */

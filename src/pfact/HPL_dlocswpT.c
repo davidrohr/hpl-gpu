@@ -63,6 +63,9 @@
  * Include files
  */
 #include "hpl.h"
+
+#include "util_timer.h"
+#include "util_trace.h"
 /*
  * Define default value for unrolling factor
  */
@@ -123,6 +126,11 @@ void HPL_dlocswpT
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -415,6 +423,15 @@ void HPL_dlocswpT
       if( *(PANEL->DINFO) == 0.0 )
          *(PANEL->DINFO) = (double)(PANEL->ia + JJ + 1);
    }
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "DLOCSWPT,II=%i,JJ=%i,TIME=%lu\n",
+               II, JJ, tr_diff );
+#endif /* TRACE_CALLS */
 /*
  * End of HPL_dlocswpT
  */

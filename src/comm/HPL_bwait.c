@@ -64,6 +64,9 @@
  */
 #include "hpl.h"
 
+#include "util_timer.h"
+#include "util_trace.h"
+
 #ifdef STDC_HEADERS
 int HPL_bwait
 (
@@ -92,6 +95,11 @@ int HPL_bwait
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -117,6 +125,14 @@ int HPL_bwait
       default          : ierr = HPL_SUCCESS;
    }
  
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "BWAIT,TIME=%lu\n", tr_diff );
+#endif /* TRACE_CALLS */
+
    return( ierr );
 /*
  * End of HPL_bwait

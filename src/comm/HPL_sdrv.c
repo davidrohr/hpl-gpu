@@ -63,6 +63,9 @@
  * Include files
  */
 #include "hpl.h"
+
+#include "util_timer.h"
+#include "util_trace.h"
 /*
  * Do not use  MPI user-defined data types no matter what.  This routine
  * is used for small contiguous messages.
@@ -142,6 +145,11 @@ int HPL_sdrv
  *
  * ---------------------------------------------------------------------
  */ 
+#ifdef TRACE_CALLS
+   uint64_t tr_start, tr_end, tr_diff;
+   tr_start = util_getTimestamp();
+#endif /* TRACE_CALLS */
+
 /*
  * .. Local Variables ..
  */
@@ -246,6 +254,14 @@ int HPL_sdrv
 #endif
    }
    else { ierr = MPI_SUCCESS; }
+
+#ifdef TRACE_CALLS
+   tr_end = util_getTimestamp();
+   tr_diff = util_getTimeDifference( tr_start, tr_end );
+
+   if( trace_dgemm )
+      fprintf( trace_dgemm, "SDRV,TIME=%lu\n", tr_diff );
+#endif /* TRACE_CALLS */
 
    return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
 /*

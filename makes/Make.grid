@@ -64,7 +64,8 @@ include Make.inc
 # ######################################################################
 #
 INCdep           = \
-   $(INCdir)/hpl_misc.h  $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h
+   $(INCdir)/hpl_misc.h  $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h \
+   $(INCdir)/util_timer.h $(INCdir)/util_trace.h
 #
 ## Object files ########################################################
 #
