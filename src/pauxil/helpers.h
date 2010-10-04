@@ -17,29 +17,33 @@
 #include <mm3dnow.h>
 #include <mmintrin.h>
 #include <emmintrin.h>
+#include <tbb/tbb_stddef.h>
 
 namespace
 {
-    static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
+    static inline void copy(double *__restrict__ dst, const double *__restrict__ src)
     {
         // use general purpose registers:
         //*dst = *src;
-
-        // use general purpose registers + streaming stores:
-        //asm("movnti %0, (%1)"::"r"(*src), "r"(dst));
 
         // use MMX registers:
         //__m64 tmp;
         //asm("movq (%[src]), %[tmp]" : [tmp]"=y"(tmp) : [src]"r"(src));
         //asm("movq %[tmp], (%[dst])" :: [tmp]"y"(tmp), [dst]"r"(dst));
 
-        // use MMX registers + streaming stores:
-        //_mm_stream_pi(reinterpret_cast<__m64 *>(dst), _mm_cvtsi64_m64(*reinterpret_cast<const long long *>(src)));
-
         // use SSE registers:
         __m128 tmp;
         asm("movq (%[src]), %[tmp]" : [tmp]"=x"(tmp) : [src]"r"(src));
         asm("movq %[tmp], (%[dst])" :: [tmp]"x"(tmp), [dst]"r"(dst));
+    }
+
+    static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
+    {
+        // use general purpose registers + streaming stores:
+        //asm("movnti %0, (%1)"::"r"(*src), "r"(dst));
+
+        // use MMX registers + streaming stores:
+        _mm_stream_pi(reinterpret_cast<__m64 *>(dst), _mm_cvtsi64_m64(*reinterpret_cast<const long long *>(src)));
     }
 
     enum {
@@ -49,7 +53,7 @@ namespace
 
     template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
 
-    template<typename T> static inline void swap(__restrict__ T &a, __restrict__ T &b)
+    template<typename T> static inline void swap(T &__restrict__ a, T &__restrict__ b)
     {
         register T tmp = a;
         a = b;
@@ -63,6 +67,34 @@ namespace
         _mm_store_pd(&a, vb);
         _mm_store_pd(&b, va);
     }
+
+    template<size_t MultipleOf, size_t Blocksize>
+    class MyRange
+    {
+        public:
+            MyRange(size_t b, size_t n)
+                : m_begin(b), m_n(n)
+            {}
+
+            MyRange(MyRange<MultipleOf, Blocksize> &r, tbb::split)
+                : m_begin(r.m_begin),
+                m_n((r.m_n / 2) & ~(MultipleOf - 1))
+            {
+                r.m_begin += m_n;
+                r.m_n -= m_n;
+            }
+
+            bool empty() const { return m_n == 0; }
+            bool is_divisible() const { return m_n >= Blocksize; }
+
+            size_t N() const { return m_n; }
+            size_t begin() const { return m_begin; }
+
+        private:
+            size_t m_begin;
+            size_t m_n;
+    };
+
 } // anonymous namespace
 
 #endif // HELPERS_H
