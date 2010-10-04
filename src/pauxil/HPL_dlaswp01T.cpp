@@ -36,26 +36,27 @@ class dlaswp01T_impl
             : M(_M), LDA(_LDA), LDU(_LDU), A(_A), U(_U), LINDXA(_LINDXA), LINDXAU(_LINDXAU)
         {}
 
-        void operator()(const tbb::blocked_range<size_t> &range) const
+        void operator()(const MyRange<16, 64> &range) const
         {
-            const size_t N = range.end() - range.begin();
-
-            for (size_t i = 0; i < M - 1; ++i) {
-                const double *__restrict__ Ar = &A[LINDXA[i]];
-                const ptrdiff_t ArNext = &A[LINDXA[i + 1]] - Ar;
-                if (LINDXAU[i] >= 0) {
-                    const size_t rowUw = LINDXAU[i];
-                    double *__restrict__ Uw = &U[rowUw * LDU];
-                    double *__restrict__ const UwEnd = Uw + range.end();
-                    Uw += range.begin();
-                    // from the LINDXAU data I've seen it can be expected that:
-                    // rowUw == LINDXAU[i] => rowUw + 1 == LINDXAU[i + 1]
-                    for (size_t col = 0; col < N; col += 8) {
-                        _m_prefetchw(Uw + col);
-                        _m_prefetchw(Uw + LDU + col);
-                    }
-                    Ar += range.begin() * LDA;
-                    do {
+            const size_t begin = range.begin();
+            size_t N = range.N();
+            double *__restrict__ AA = &A[begin * LDA];
+            double *__restrict__ UU = &U[begin];
+            for (; N >= 16; AA += 16 * LDA, UU += 16, N -= 16) {
+                for (size_t i = 0; i < M; ++i) {
+                    const double *__restrict__ Ar = &AA[LINDXA[i]];
+                    const ptrdiff_t ArNext = &AA[LINDXA[(i + 1 == M) ? 0 : (i + 1)]] - Ar;
+                    if (LINDXAU[i] >= 0) {
+                        const size_t rowUw = LINDXAU[i];
+                        double *__restrict__ Uw = &UU[rowUw * LDU];
+                        _m_prefetchw(Uw + 0);
+                        _m_prefetchw(Uw + 8);
+                        _m_prefetchw(Uw + 15);
+                        // from the LINDXAU data I've seen it can be expected that:
+                        // rowUw == LINDXAU[i] => rowUw + 1 == LINDXAU[i + 1]
+                        _m_prefetchw(Uw + LDU + 0);
+                        _m_prefetchw(Uw + LDU + 8);
+                        _m_prefetchw(Uw + LDU + 15);
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 0], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 1], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[ 2], Ar); Ar += LDA;
@@ -71,105 +72,27 @@ class dlaswp01T_impl
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[12], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[13], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[14], Ar); Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[15], Ar); Ar += LDA;
-                        Uw += 16;
-                    } while ((UwEnd - Uw) >= 16);
-                    for (;Uw < UwEnd; ++Uw) {
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1);
-                        copy(Uw, Ar);
-                        Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[15], Ar);
+                    } else {
+                        const size_t rowAw = -LINDXAU[i];
+                        double *__restrict__ Aw = &AA[rowAw];
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar);
                     }
-                } else {
-                    const size_t rowAw = -LINDXAU[i];
-                    double *__restrict__ Aw = &A[rowAw];
-                    size_t col = range.begin();
-                    Aw += col * LDA;
-                    Ar += col * LDA;
-                    col = range.end() - col;
-                    do {
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                        col -= 16;
-                    } while (col >= 16);
-                    for (; col; --col) {
-                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    }
-                }
-            }
-            const double *__restrict__ Ar = &A[LINDXA[M - 1]];
-            if (LINDXAU[M - 1] >= 0) {
-                const size_t rowUw = LINDXAU[M - 1];
-                double *__restrict__ Uw = &U[rowUw * LDU];
-                double *__restrict__ const UwEnd = Uw + range.end();
-                Uw += range.begin();
-                _m_prefetchw(Uw);
-                _m_prefetchw(Uw + 8);
-                _m_prefetchw(Uw + 16);
-                Ar += range.begin() * LDA;
-                do {
-                    copy(&Uw[ 0], Ar); Ar += LDA;
-                    copy(&Uw[ 1], Ar); Ar += LDA;
-                    copy(&Uw[ 2], Ar); Ar += LDA;
-                    copy(&Uw[ 3], Ar); Ar += LDA;
-                    copy(&Uw[ 4], Ar); Ar += LDA;
-                    copy(&Uw[ 5], Ar); Ar += LDA;
-                    copy(&Uw[ 6], Ar); Ar += LDA;
-                    copy(&Uw[ 7], Ar); Ar += LDA;
-                    copy(&Uw[ 8], Ar); Ar += LDA;
-                    copy(&Uw[ 9], Ar); Ar += LDA;
-                    copy(&Uw[10], Ar); Ar += LDA;
-                    copy(&Uw[11], Ar); Ar += LDA;
-                    copy(&Uw[12], Ar); Ar += LDA;
-                    copy(&Uw[13], Ar); Ar += LDA;
-                    copy(&Uw[14], Ar); Ar += LDA;
-                    copy(&Uw[15], Ar); Ar += LDA;
-                    Uw += 16;
-                } while ((UwEnd - Uw) >= 16);
-                for (;Uw < UwEnd; ++Uw) {
-                    copy(Uw, Ar); Ar += LDA;
-                }
-            } else {
-                const size_t rowAw = -LINDXAU[M - 1];
-                double *__restrict__ Aw = &A[rowAw];
-                size_t col = range.begin();
-                Aw += col * LDA;
-                Ar += col * LDA;
-                col = range.end() - col;
-                do {
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
-                    col -= 16;
-                } while (col >= 16);
-                for (; col; --col) {
-                    streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                 }
             }
         }
@@ -189,33 +112,49 @@ extern "C" void HPL_dlaswp01T(const int M, const int N, double *A, const int LDA
 #ifdef USE_ORIGINAL_LASWP
 #include "HPL_dlaswp01T.c"
 #else
-    if(__builtin_expect(N < 16, 0)) {
-        if (__builtin_expect(N <= 0, 0)) {
-            return;
-        }
+    const size_t largeN = N & ~15;
+    const size_t smallN = N - largeN;
+    tbb::parallel_for (MyRange<16, 64>(0, largeN), dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU), tbb::auto_partitioner());
 
-        for (int i = 0; i < M; ++i) {
-            const double *Ar = &A[LINDXA[i]];
+    if (__builtin_expect(smallN > 0, 1)) {
+        for (int i = 0; i < M - 1; ++i) {
+            const double *__restrict__ Ar = &A[LINDXA[i] + largeN * LDA];
+            const ptrdiff_t ArNext = &A[LINDXA[i + 1] + largeN * LDA] - Ar;
             if (LINDXAU[i] >= 0) {
-                double *Uw = &U[LINDXAU[i] * static_cast<size_t>(LDU)];
-                for (int col = 0; col < N; ++col) {
-                    Uw[col] = *Ar;
+                double *__restrict__ Uw = &U[LINDXAU[i] * static_cast<size_t>(LDU) + largeN];
+                for (size_t col = 0; col < smallN; ++col) {
+                    _mm_prefetch(Ar + ArNext, _MM_HINT_T0);
+                    copy(&Uw[col], Ar);
                     Ar += LDA;
                 }
             } else {
-                double *Aw = &A[-LINDXAU[i]];
-                for (int col = 0; col < N; ++col) {
-                    *Aw = *Ar;
+                double *__restrict__ Aw = &A[-LINDXAU[i] + largeN * LDA];
+                for (size_t col = 0; col < smallN; ++col) {
+                    _mm_prefetch(Ar + ArNext, _MM_HINT_T0);
+                    streamingCopy(Aw, Ar);
                     Ar += LDA;
                     Aw += LDA;
                 }
             }
         }
-    } else {
-        tbb::parallel_for (tbb::blocked_range<size_t>(0, N, 48),
-                dlaswp01T_impl(M, A, LDA, U, LDU, LINDXA, LINDXAU),
-                tbb::simple_partitioner());
+        const double *__restrict__ Ar = &A[LINDXA[M - 1] + largeN * LDA];
+        if (LINDXAU[M - 1] >= 0) {
+            double *__restrict__ Uw = &U[LINDXAU[M - 1] * static_cast<size_t>(LDU) + largeN];
+            for (size_t col = 0; col < smallN; ++col) {
+                copy(&Uw[col], Ar);
+                Ar += LDA;
+            }
+        } else {
+            double *__restrict__ Aw = &A[-LINDXAU[M - 1] + largeN * LDA];
+            for (size_t col = 0; col < smallN; ++col) {
+                streamingCopy(Aw, Ar);
+                Ar += LDA;
+                Aw += LDA;
+            }
+        }
     }
+    _mm_sfence();
+
 #endif
 
 #ifdef TRACE_CALLS
