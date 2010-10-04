@@ -82,7 +82,7 @@ void* CALDGEMM_alloc(size_t size)
 #else
     bool page_locked = false;
 #endif
-    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked));
+    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked, false));
 }
 
 void CALDGEMM_free(void* ptr)
