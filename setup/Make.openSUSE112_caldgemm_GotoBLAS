@@ -119,10 +119,10 @@ LAlib        = $(CALDGEMMlib) $(CALDGEMMutil) $(GOTOlib) -laticalrt -laticalcl
 $(GOTOlib): $(GOTOdir)/*.h $(GOTOdir)/*.c $(GOTOdir)/interface/* $(GOTOdir)/kernel/x86_64/* $(GOTOdir)/driver/*/*
 	pushd $(GOTOdir); $(MAKE); popd
 
-$(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il
+$(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
 	pushd $(CALDGEMMdir); $(MAKE); popd
 
-$(CALDGEMMutil): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il
+$(CALDGEMMutil): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
 	pushd $(CALDGEMMdir); $(MAKE); popd
 
 build_src: $(GOTOlib) $(CALDGEMMlib) $(CALDGEMMutil)
