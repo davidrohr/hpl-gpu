@@ -98,15 +98,15 @@ FILE* openTraceFile( const char *basename, const int run, const int rank )
 
     char* filename = malloc( baseSize + 2 * rankSize + addSize );
     if( ! filename )
-        HPL_pabort( __LINE__, openTraceFile, "Failed to allocate mem for filename generation" );
+        HPL_pabort( __LINE__, "openTraceFile", "Failed to allocate mem for filename generation" );
 
     int printed = sprintf( filename, "%s.%.5d.%.5d.csv", basename, run, rank );
     if( ! printed )
-        HPL_pabort( __LINE__, openTraceFile, "Failed to generate filename" );
+        HPL_pabort( __LINE__, "openTraceFile", "Failed to generate filename" );
 
     res = fopen( filename, "w" );
     if( ! res )
-        HPL_pabort( __LINE__, openTraceFile, "Failed to open trace file" );
+        HPL_pabort( __LINE__, "openTraceFile", "Failed to open trace file" );
 
     free( filename );
 
