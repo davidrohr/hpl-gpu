@@ -47,7 +47,7 @@ class SetOfOps:
             self.ops[ func ] = Op( func, time );
 
     def __str__(self):
-        return "%d total invocations; %f ns total runtime" % (self.n_ops, self.time_total)
+        return "%d total invocations; %d ns total runtime" % (self.n_ops, self.time_total)
 
     def getOps(self):
         return self.ops.values()
@@ -87,9 +87,9 @@ if __name__ == "__main__":
     # all ops in all_ops
     print "== Total statistics =="
     print
-    print "  %d  function calls; %f ms total  runtime" % (all_ops.n_ops, all_ops.time_total/1000)
+    print "  %d  function calls; %f ms total  runtime" % (all_ops.n_ops, float(all_ops.time_total)/1000)
     print
     for op in all_ops.getOps():
         print "   %d calls to %s; %f ms function runtime (%4.1f %%)" % \
-            (op.total_calls, op.func, op.total_time/1000, 100*op.total_time/all_ops.time_total)
+            (op.total_calls, op.func, float(op.total_time)/1000, 100*float(op.total_time)/float(all_ops.time_total))
 
