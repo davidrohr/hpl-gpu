@@ -69,8 +69,12 @@ if __name__ == "__main__":
             op = {}
             op['FUNC'] = line[0]
             for kv in line[1:]:
-                key, val = kv.split("=")
-                op[key] = val
+                try: # workaround for broken trace files
+                    key, val = kv.split("=")
+                    op[key] = val
+                except ValueError:
+                    print "Trace output for op " + line[0] + " seems to be broken."
+                    pass
             all_ops.append(op)
 
     # all ops in all_ops
