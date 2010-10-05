@@ -355,7 +355,7 @@ void HPL_pdpanel_init
    tr_diff = util_getTimeDifference( tr_start, tr_end );
 
    if( trace_dgemm )
-      fprintf( trace_dgemm, "PDPANEL_INIT,M,N,JB,IA,JA,TAG,TIME=%lu\n",
+      fprintf( trace_dgemm, "PDPANEL_INIT,M=%i,N=%i,JB=%i,IA=%i,JA=%i,TAG=%i,TIME=%lu\n",
                M, N, JB, IA, JA, TAG, tr_diff );
 #endif /* TRACE_CALLS */
 
