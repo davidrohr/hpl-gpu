@@ -73,7 +73,13 @@ if __name__ == "__main__":
                     key, val = kv.split("=")
                     op[key] = val
                 except ValueError:
-                    print "Trace output for op " + line[0] + " seems to be broken."
+                    # handle throughput numbers and everything else that uses ≅.
+                    try:
+                        key, val = kv.split("≅")
+                        op[key] = val
+                    except ValueError:
+                        print "Trace output for op " + line[0] + " seems to be broken."
+                        pass
                     pass
             all_ops.append(op)
 
