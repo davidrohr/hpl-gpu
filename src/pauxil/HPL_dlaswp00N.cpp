@@ -57,10 +57,7 @@ namespace
 
 extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, const int LDA, const int *__restrict__ IPIV)
 {
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( DLASWP00N )
 
 #ifdef USE_ORIGINAL_LASWP
 #include "HPL_dlaswp00N.c"
@@ -124,11 +121,5 @@ extern "C" void HPL_dlaswp00N(const int M, const int N, double *__restrict__ A, 
     }
 #endif
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   fprintf( trace_dgemm, "DLASWP00N,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT≅%.2fGB/s\n", M, N, LDA, tr_diff,
-           0.004 * sizeof(double) * M * N / tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 }

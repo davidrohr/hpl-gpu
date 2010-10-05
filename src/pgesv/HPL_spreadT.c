@@ -168,10 +168,7 @@ void HPL_spreadT
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( SPREAD_T )
 
 /*
  * .. Local Variables ..
@@ -296,14 +293,7 @@ void HPL_spreadT
    if( ierr != MPI_SUCCESS )
    { HPL_pabort( __LINE__, "HPL_spreadT", "MPI call failed" ); }
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "SPREADT,SIDE=%i,N=%i,LDU=%i,SRCDIST=%i,TIME=%lu\n",
-               SIDE, N, LDU, SRCDIST, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_spreadT
  */

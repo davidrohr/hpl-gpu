@@ -152,10 +152,7 @@ void HPL_rollN
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( ROLLN )
 
 /*
  * .. Local Variables ..
@@ -243,14 +240,7 @@ void HPL_rollN
    if( ierr != MPI_SUCCESS )
    { HPL_pabort( __LINE__, "HPL_rollN", "MPI call failed" ); }
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "ROLLN,N=%i,LDU=%i,TIME=%lu\n",
-               N, LDU, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_rollN
  */

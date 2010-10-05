@@ -127,10 +127,7 @@ int HPL_send
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( SEND )
 
 /*
  * .. Local Variables ..
@@ -156,13 +153,7 @@ int HPL_send
    ierr = MPI_Send( (void *)(SBUF), SCOUNT, MPI_DOUBLE, DEST, STAG, COMM );
 #endif
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "SEND,TIME=%lu\n", tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
    return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) ); 
 /*

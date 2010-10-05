@@ -142,10 +142,7 @@ void HPL_dlacpy
  *
  * ---------------------------------------------------------------------
  */
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( DLACPY )
 
 /*
  * .. Local Variables ..
@@ -361,14 +358,7 @@ void HPL_dlacpy
    }
 #endif
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "DLACPY,M=%i,N=%i,LDA=%i,LDB=%i,TIME=%lu\n",
-                            M, N, LDA, LDB, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_dlacpy
  */

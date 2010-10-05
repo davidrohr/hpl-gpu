@@ -69,8 +69,18 @@ if __name__ == "__main__":
             op = {}
             op['FUNC'] = line[0]
             for kv in line[1:]:
-                key, val = kv.split("=")
-                op[key] = val
+                try: # workaround for broken trace files
+                    key, val = kv.split("=")
+                    op[key] = val
+                except ValueError:
+                    # handle throughput numbers and everything else that uses ≅.
+                    try:
+                        key, val = kv.split("≅")
+                        op[key] = val
+                    except ValueError:
+                        print "Trace output for op " + line[0] + " seems to be broken."
+                        pass
+                    pass
             all_ops.append(op)
 
     # all ops in all_ops
@@ -84,14 +94,19 @@ if __name__ == "__main__":
         print "   %d calls to %s; %f ms function runtime (%4.1f %%)" % \
             (f_ops.n_ops, func, f_ops.time_total/1000, 100*f_ops.time_total/all_ops.time_total)
         print
-        mnk_dict = f_ops.bin('N')       # Bin according to N
+        try:
+            mnk_dict = f_ops.bin('N')       # Bin according to N
 
-        # Sort bins according to aggregate runtime
-        sorted_mnk = sorted(mnk_dict, key=lambda k: mnk_dict[k].time_total, reverse=True)
-        for mnk in sorted_mnk[:10]:
-            ops = mnk_dict[mnk]      # All ops in this bin
-            percentage = 100*ops.time_total/all_ops.time_total
+            # Sort bins according to aggregate runtime
+            sorted_mnk = sorted(mnk_dict, key=lambda k: mnk_dict[k].time_total, reverse=True)
+            for mnk in sorted_mnk[:10]:
+                ops = mnk_dict[mnk]      # All ops in this bin
+                percentage = 100*ops.time_total/all_ops.time_total
 
-            print "      with N=%8s: %6d calls, %8.1f ms runtime (%4.1f %% of total)" % \
-                (mnk, ops.n_ops, ops.time_total/1000, percentage)
+                print "      with N=%8s: %6d calls, %8.1f ms runtime (%4.1f %% of total)" % \
+                    (mnk, ops.n_ops, ops.time_total/1000, percentage)
+        except KeyError:
+            # Handle functions that do not have a parameter N
+            # In that case we only care about the summary and not about the sub-binning
+            pass
 

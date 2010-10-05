@@ -122,10 +122,7 @@ void HPL_dcopy
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( DCOPY )
 
 #ifdef HPL_CALL_CBLAS
    cblas_dcopy( N, X, INCX, Y, INCY );
@@ -141,12 +138,7 @@ void HPL_dcopy
    F77dcopy( &F77N, X, &F77incx, Y, &F77incy );
 #endif
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   fprintf( trace_dgemm, "DCOPY,N=%i,INCX=%i,INCY=%i,TIME=%lu\n", N, INCX, INCY, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_dcopy
  */

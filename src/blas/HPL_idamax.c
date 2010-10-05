@@ -108,13 +108,12 @@ int HPL_idamax
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( IDAMAX )
+
+   int                       imax = 0;
 
 #ifdef HPL_CALL_CBLAS
-   return( (int)(cblas_idamax( N, X, INCX )) );
+   imax = cblas_idamax( N, X, INCX );
 #endif
 #ifdef HPL_CALL_FBLAS
 #ifdef HPL_USE_F77_INTEGER_DEF
@@ -123,18 +122,13 @@ int HPL_idamax
 #define F77N                 N
 #define F77incx              INCX
 #endif
-   int                       imax = 0;
 
    if( N > 0 ) imax = F77idamax( &F77N, X, &F77incx ) - 1;
-   return( imax );
 #endif
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
+END_TRACE
 
-   fprintf( trace_dgemm, "IDAMAX,N=%i,INCX=%i,TIME=%lu\n", N, INCX, tr_diff );
-#endif /* TRACE_CALLS */
+   return( imax );
 /*
  * End of HPL_idamax
  */

@@ -14,80 +14,113 @@
 #include "util_timer.h"
 #include "util_trace.h"
 #include "helpers.h"
+#include <tbb/parallel_for.h>
 
-extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
+typedef MyRange<16, 96> Range10N;
+
+class dlaswp10N_impl
+{
+    const size_t N, LDA;
+    double *__restrict__ const A;
+    const int *__restrict__ const IPIV;
+    public:
+        dlaswp10N_impl(size_t _N, double *_A, size_t _LDA, const int *_IPIV)
+            : N(_N), LDA(_LDA), A(_A), IPIV(_IPIV)
+        {}
+
+        void operator()(const Range10N &range) const
+        {
+            const size_t begin = range.begin();
+            const size_t M = range.N();
+
+            for (size_t i = 0; i < N; ++i ) {
+                const size_t ii = IPIV[i];
+                if (__builtin_expect(i != ii, 1)) {
+                    double *__restrict__ a0 = A + i  * LDA + begin;
+                    double *__restrict__ a1 = A + ii * LDA + begin;
+
+                    _m_prefetchw(&a0[ 0]);
+                    _m_prefetchw(&a1[ 0]);
+                    _m_prefetchw(&a0[ 8]);
+                    _m_prefetchw(&a1[ 8]);
+                    _m_prefetchw(&a0[16]);
+                    _m_prefetchw(&a1[16]);
+                    _m_prefetchw(&a0[24]);
+                    _m_prefetchw(&a1[24]);
+
+                    for (size_t j = M; j; j -= 16, a0 += 16, a1 += 16 ) {
+                        _m_prefetchw(&a0[32]);
+                        _m_prefetchw(&a1[32]);
+                        swapSSE(a0[ 0], a1[ 0]);
+                        swapSSE(a0[ 2], a1[ 2]);
+                        swapSSE(a0[ 4], a1[ 4]);
+                        swapSSE(a0[ 6], a1[ 6]);
+                        _m_prefetchw(&a0[40]);
+                        _m_prefetchw(&a1[40]);
+                        swapSSE(a0[ 8], a1[ 8]);
+                        swapSSE(a0[10], a1[10]);
+                        swapSSE(a0[12], a1[12]);
+                        swapSSE(a0[14], a1[14]);
+                    }
+                }
+            }
+        }
+};
+
+extern "C" void HPL_dlaswp10N(const int _M, const int N, double *A,
         const int LDA, const int *IPIV)
 {
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-   int realN = 0;
-#endif /* TRACE_CALLS */
+START_TRACE( DLASWP10N )
 
 #ifdef USE_ORIGINAL_LASWP
-#ifdef TRACE_CALLS
-   realN = N;
-#endif
 #include "HPL_dlaswp10N.c"
 #else
-   if (M <= 0) {
-       return;
-   }
+    // we require that LDA is even!
 
-   const int mu = M & ~15u;
-   const int mr = M - mu;
+    size_t M = _M;
 
-   for(int j = 0; j < N; j++ ) {
-       const int jp = IPIV[j];
-       if( j != jp ) {
-#ifdef TRACE_CALLS
-           ++realN;
-#endif
-           double *__restrict__ a0 = A + j * LDA;
-           double *__restrict__ a1 = A + jp * LDA;
+    if (__builtin_expect(M <= 0 || N <= 0, 0)) {
+        return;
+    }
 
-           _mm_prefetch(&a0[ 0], _MM_HINT_NTA);
-           _mm_prefetch(&a1[ 0], _MM_HINT_NTA);
-           _mm_prefetch(&a0[ 8], _MM_HINT_NTA);
-           _mm_prefetch(&a1[ 8], _MM_HINT_NTA);
-           _mm_prefetch(&a0[16], _MM_HINT_NTA);
-           _mm_prefetch(&a1[16], _MM_HINT_NTA);
-           _mm_prefetch(&a0[24], _MM_HINT_NTA);
-           _mm_prefetch(&a1[24], _MM_HINT_NTA);
-           if ((a0 - static_cast<double *>(0)) & 1) {
-               swap(a0[0], a1[0]);
-               ++a0;
-               ++a1;
-           }
-           // If LDA is odd life sucks
-           for(int i = 0; i < mu; i += 16, a0 += 16, a1 += 16 ) {
-               _mm_prefetch(&a0[32], _MM_HINT_NTA);
-               _mm_prefetch(&a1[32], _MM_HINT_NTA);
-               swapSSE(a0[ 0], a1[ 0]);
-               swapSSE(a0[ 2], a1[ 2]);
-               swapSSE(a0[ 4], a1[ 4]);
-               swapSSE(a0[ 6], a1[ 6]);
-               _mm_prefetch(&a0[40], _MM_HINT_NTA);
-               _mm_prefetch(&a1[40], _MM_HINT_NTA);
-               swapSSE(a0[ 8], a1[ 8]);
-               swapSSE(a0[10], a1[10]);
-               swapSSE(a0[12], a1[12]);
-               swapSSE(a0[14], a1[14]);
-           }
+    if (__builtin_expect((A - static_cast<double *>(0)) & 1, 0)) {
+        // A does not start on a 16 Byte boundary
 
-           for(int i = 0; i < mr; i++ ) {
-               swap(a0[i], a1[i]);
-           }
-       }
-   }
+        // TODO: should be started as a separate task
+        for (int i = 0; i < N; ++i) {
+            const int ii = IPIV[i];
+            if (__builtin_expect(i != ii, 1)) {
+                double *__restrict__ a0 = A + i * LDA;
+                double *__restrict__ a1 = A + ii * LDA;
+                swap(*a0, *a1);
+            }
+        }
+        A += 1; M -= 1;
+    }
+
+    if (M & 15) {
+        // TODO: should be started as a separate task
+        for (int i = 0; i < N; ++i) {
+            const int ii = IPIV[i];
+            if (__builtin_expect(i != ii, 1)) {
+                double *__restrict__ a0 = A + (M & ~15) + i * LDA;
+                double *__restrict__ a1 = A + (M & ~15) + ii * LDA;
+                size_t j;
+                for (j = 0; j < (M & 14); j += 2) {
+                    swapSSE(a0[j], a1[j]);
+                }
+                if (M & 1) {
+                    swap(a0[j], a1[j]);
+                }
+            }
+        }
+    }
+
+    tbb::parallel_for (Range10N(0, M & ~15), dlaswp10N_impl(N, A, LDA, IPIV));
 #endif
 
+END_TRACE
 #ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   fprintf( trace_dgemm, "DLASWP10N,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, tr_diff,
-           0.004 * sizeof(double) * M * realN / tr_diff);
 #ifdef TRACE_PERMDATA
    char filename[256];
    snprintf(filename, 256, "dlaswp10N.%04d.%05d.%05d.dat", M, N, LDA);
