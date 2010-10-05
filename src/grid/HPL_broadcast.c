@@ -116,10 +116,7 @@ int HPL_broadcast
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( BROADCAST )
 
 /*
  * .. Local Variables ..
@@ -163,14 +160,7 @@ int HPL_broadcast
       ip2 >>= 1;
    } while( ip2 );
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "BROADCAST,COUNT=%i,ROOT=%i,TIME=%lu\n",
-               COUNT, ROOT, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
    return( hplerr );
 /*

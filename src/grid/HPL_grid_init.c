@@ -125,10 +125,7 @@ int HPL_grid_init
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( GRID_INIT )
 
 /*
  * .. Local Variables ..
@@ -200,14 +197,7 @@ int HPL_grid_init
    ierr = MPI_Comm_split( GRID->all_comm, mycol, myrow, &(GRID->col_comm) );
    if( ierr != MPI_SUCCESS ) hplerr = ierr;
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "GRID_INIT,ORDER=%i,NPROW=%i,NPCLO=%i,TIME=%lu\n",
-               ORDER, NPROW, NPROW, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
    return( hplerr );
 /*

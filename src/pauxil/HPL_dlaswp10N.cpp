@@ -18,16 +18,9 @@
 extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
         const int LDA, const int *IPIV)
 {
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-   int realN = 0;
-#endif /* TRACE_CALLS */
+START_TRACE( HPL_DLASWP10N )
 
 #ifdef USE_ORIGINAL_LASWP
-#ifdef TRACE_CALLS
-   realN = N;
-#endif
 #include "HPL_dlaswp10N.c"
 #else
    if (M <= 0) {
@@ -40,9 +33,6 @@ extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
    for(int j = 0; j < N; j++ ) {
        const int jp = IPIV[j];
        if( j != jp ) {
-#ifdef TRACE_CALLS
-           ++realN;
-#endif
            double *__restrict__ a0 = A + j * LDA;
            double *__restrict__ a1 = A + jp * LDA;
 
@@ -82,12 +72,8 @@ extern "C" void HPL_dlaswp10N(const int M, const int N, double *A,
    }
 #endif
 
+END_TRACE
 #ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   fprintf( trace_dgemm, "DLASWP10N,M=%i,N=%i,LDA=%i,TIME=%lu,THRPT=%.2fGB/s\n", M, N, LDA, tr_diff,
-           0.004 * sizeof(double) * M * realN / tr_diff);
 #ifdef TRACE_PERMDATA
    char filename[256];
    snprintf(filename, 256, "dlaswp10N.%04d.%05d.%05d.dat", M, N, LDA);

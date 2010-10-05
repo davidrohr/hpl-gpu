@@ -95,10 +95,7 @@ int HPL_grid_exit
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( GRID_EXIT )
 
 /*
  * .. Local Variables ..
@@ -125,14 +122,7 @@ int HPL_grid_exit
    GRID->row_ip2 = GRID->row_hdim = GRID->row_ip2m1 = GRID->row_mask = -1;
    GRID->col_ip2 = GRID->col_hdim = GRID->col_ip2m1 = GRID->col_mask = -1;
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "GRID_EXIT,TIME=%lu\n",
-               tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
    return( hplerr );
 /*

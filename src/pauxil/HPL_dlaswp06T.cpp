@@ -130,12 +130,7 @@ class dlaswp06T_impl
 extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
         const int LDA, double *U, const int LDU, const int *LINDXA)
 {
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-   struct timespec cputime0, cputime1;
-   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cputime0);
-#endif /* TRACE_CALLS */
+START_TRACE( DLASWP06T )
 
 #ifdef USE_ORIGINAL_LASWP
 #include "HPL_dlaswp06T.c"
@@ -148,14 +143,8 @@ extern "C" void HPL_dlaswp06T(const int M, const int N, double *A,
             dlaswp06T_impl(M, A, LDA, U, LDU, LINDXA));
 #endif
 
+END_TRACE
 #ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cputime1);
-   const uint64_t cputime = cputime1.tv_sec * 10000000ull + cputime1.tv_nsec / 1000ull - cputime0.tv_sec * 10000000ull - cputime0.tv_nsec / 1000ull;
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   fprintf( trace_dgemm, "DLASWP06T,M=%i,N=%i,LDA=%i,LDU=%i,TIME=%lu,CPU=%lu,THRPT=%.2fGB/s\n", M, N, LDA, LDU, tr_diff, cputime,
-           0.004 * sizeof(double) * M * N / tr_diff );
 #ifdef TRACE_PERMDATA
    char filename[256];
    snprintf(filename, 256, "dlaswp06T.%04d.%05d.%05d.%05d.dat", M, N, LDA, LDU);
