@@ -13,7 +13,6 @@
 # David Rohr (drohr@jwdt.org)
 # Matthias Bach (bach@compeng.uni-frankfurt.de)
 # Matthias Kretz (kretz@compeng.uni-frankfurt.de)
-# Jörg Bornschein (bornschein@fias.uni-frankfurt.de)
 #
 
 from __future__ import division
@@ -21,36 +20,41 @@ from __future__ import division
 import sys
 import csv
 
-class Op:
-    def __init__(self, func, time):
-        self.func = func
-        self.total_calls = 1
-        self.total_time = time
+class Func:
+    def __init__(self, line):
+        self.name = line[0]
+        self.invocations = int(line[1])
+        self.walltime = int(line[2])
+        self.cputime = int(line[3])
 
-    def append(self, time):
-        self.total_calls += 1
-        self.total_time += time
+    def add(self, other):
+        self.invocations += other.invocations
+        self.walltime += other.walltime
+        self.cputime += other.cputime
 
-class SetOfOps:
+class AllFuncs:
     def __init__(self):
-        self.ops = {}
-        self.n_ops = 0
-        self.time_total = 0
+        self.funcs = {}
+        self.total_invocations = 0
+        self.total_walltime = 0
+        self.total_cputime = 0
 
-    def append(self, func, time):
-        """ Append a single Op operation. *op* must be a dict """
-        self.n_ops += 1
-        self.time_total += time
+    def append(self, func):
+        """ Add data of one function in one file """
+        self.total_invocations += func.invocations;
+        self.total_walltime += func.walltime;
+        self.total_cputime += func.cputime;
         try:
-            self.ops[ func ].append( time )
+            self.funcs[ func.name ].add( func )
         except KeyError:
-            self.ops[ func ] = Op( func, time );
+            self.funcs[ func.name ] = func;
 
     def __str__(self):
-        return "%d total invocations; %d ns total runtime" % (self.n_ops, self.time_total)
+        return "%d total invocatioms; %f s total runtime; %f s total cputime; cputime / walltime = %f %%" \
+            % (self.total_invocations, self.total_walltime / 1e6, self.total_cputime / 1e6, self.total_cputime / self.total_walltime * 100 )
 
-    def getOps(self):
-        return self.ops.values()
+    def getFuncs(self):
+        return self.funcs.values()
 
 
 if __name__ == "__main__":
@@ -60,36 +64,24 @@ if __name__ == "__main__":
         print "Please specify some input files generated using BLAS-trace code!"
         exit()
 
-    all_ops = SetOfOps()
+    all_funcs = AllFuncs();
+
     for filename in files:
-        print "Now parsing " + filename + "."
-        for line in csv.reader( open( filename ) ):
-            func = line[0]
-            time = -1
-            for kv in line[1:]:
-                try: # workaround for broken trace files
-                    key, val = kv.split("=")
-                except ValueError:
-                    # handle throughput numbers and everything else that uses ≅.
-                    try:
-                        key, val = kv.split("≅")
-                    except ValueError:
-                        print "Trace output for function " + func + " seems to be broken."
-                        continue
-                    continue
-                if key == 'TIME':
-                    time = int(val)
-            if time == -1:
-                print "Trace output for function " + func + " does not contain a TIME value."
-                continue
-            all_ops.append(func,time)
+        reader = csv.reader( open( filename, 'rb' ) )
+        reader.next() # skip header
+        for line in reader:
+            all_funcs.append(Func(line))
 
     # all ops in all_ops
+    print
     print "== Total statistics =="
     print
-    print "  %d  function calls; %f ms total  runtime" % (all_ops.n_ops, float(all_ops.time_total)/1000)
+    print all_funcs
     print
-    for op in all_ops.getOps():
-        print "   %d calls to %s; %f ms function runtime (%4.1f %%)" % \
-            (op.total_calls, op.func, float(op.total_time)/1000, 100*float(op.total_time)/float(all_ops.time_total))
+    print "== Function statistics =="
+    print
+    for func in sorted( all_funcs.getFuncs(), key=lambda entry: entry.walltime, reverse=True ):
+        print "%d calls to %s; %f ms function runtime (%4.1f %%); %f ms cputime (%4.1f %%)" % \
+            (func.invocations, func.name, func.walltime/1000, 100*func.walltime/all_funcs.total_walltime, \
+             func.cputime, 100*func.cputime/func.walltime)
 
