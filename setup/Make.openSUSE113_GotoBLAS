@@ -76,7 +76,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = LOEWE-CSC_cpu
+ARCH         = openSUSE112_GotoBLAS
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -95,7 +95,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /cm/shared/apps/openmpi/gcc/64/1.4.2
+MPdir        = /usr/lib64/mpi/gcc/openmpi
 MPinc        = $(MPdir)/include
 MPlib        = -L$(MPdir)/lib64 -lmpi
 #
@@ -186,7 +186,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DUSE_ORIGINAL_LASWP -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
@@ -206,7 +206,7 @@ CCFLAGS      = $(_FLAGS) -std=gnu99
 # the Fortran internals used in the BLAS library.
 #
 LINKER       = gcc
-LINKFLAGS    = $(CCFLAGS)
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
 #
 ARCHIVER     = ar
 ARFLAGS      = r
