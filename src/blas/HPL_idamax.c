@@ -110,8 +110,10 @@ int HPL_idamax
  */ 
 START_TRACE( IDAMAX )
 
+   int                       imax = 0;
+
 #ifdef HPL_CALL_CBLAS
-   return( (int)(cblas_idamax( N, X, INCX )) );
+   imax = cblas_idamax( N, X, INCX );
 #endif
 #ifdef HPL_CALL_FBLAS
 #ifdef HPL_USE_F77_INTEGER_DEF
@@ -120,13 +122,13 @@ START_TRACE( IDAMAX )
 #define F77N                 N
 #define F77incx              INCX
 #endif
-   int                       imax = 0;
 
    if( N > 0 ) imax = F77idamax( &F77N, X, &F77incx ) - 1;
-   return( imax );
 #endif
 
 END_TRACE
+
+   return( imax );
 /*
  * End of HPL_idamax
  */

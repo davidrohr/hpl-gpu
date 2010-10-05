@@ -125,8 +125,6 @@ int HPL_grid_init
  *
  * ---------------------------------------------------------------------
  */ 
-START_TRACE( GRID_INIT )
-
 /*
  * .. Local Variables ..
  */
@@ -196,8 +194,6 @@ START_TRACE( GRID_INIT )
 
    ierr = MPI_Comm_split( GRID->all_comm, mycol, myrow, &(GRID->col_comm) );
    if( ierr != MPI_SUCCESS ) hplerr = ierr;
-
-END_TRACE
 
    return( hplerr );
 /*
