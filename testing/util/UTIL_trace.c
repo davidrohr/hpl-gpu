@@ -43,6 +43,7 @@ void resetTraceCounters()
 		trace_counters_t * counter = &(counters[i]);
 		counter->walltime = 0;
 		counter->cputime = 0;
+		counter->invocations = 0;
 	}
 }
 
@@ -51,14 +52,14 @@ void writeTraceCounters( const char *basename, const int run, const int rank )
 	float ratio;
 	FILE* tracefile = openTraceFile( basename, run, rank );
 
-	fprintf( tracefile, "#FUNCTION NAME,WALLTIME,CPUTIME,RATIO CPU vs. WALL\n" );
+	fprintf( tracefile, "#FUNCTION NAME,INVOCATIONS,WALLTIME,CPUTIME,RATIO CPU vs. WALL\n" );
 
 	size_t i;
 	for( i = 0; i < used_counters; ++i )
 	{
 		trace_counters_t * counter = &(counters[i]);
 		ratio = (float) counter->cputime / (float) counter->walltime;
-		fprintf( tracefile, "%s,%lu,%lu,%.2f\n", counter->func_name, counter->walltime, counter->cputime, ratio );
+		fprintf( tracefile, "%s,%u,%lu,%lu,%.2f\n", counter->func_name, counter->invocations, counter->walltime, counter->cputime, ratio );
 	}
 
 	fclose( tracefile );
@@ -82,6 +83,7 @@ trace_counters_t * aquireTraceCounter()
 	new_counter->func_name = "";
 	new_counter->walltime = 0;
 	new_counter->cputime = 0;
+	new_counter->invocations = 0;
 
 	return new_counter;
 }

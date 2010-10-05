@@ -31,6 +31,7 @@ typedef struct trace_counters
 	uint64_t walltime;
 	uint64_t cputime;
 	char * func_name;
+	uint32_t invocations;
 } trace_counters_t;
 
 /**
@@ -80,6 +81,7 @@ clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_cpu);
 #define END_TRACE \
 end_wall = util_getTimestamp(); \
 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_cpu); \
+++(counter->invocations); \
 counter->walltime += util_getTimeDifference( start_wall, end_wall ); \
 counter->cputime += end_cpu.tv_sec * 1000000ull + end_cpu.tv_nsec / 1000ull - start_cpu.tv_sec * 1000000ull - start_cpu.tv_nsec / 1000ull;
 
