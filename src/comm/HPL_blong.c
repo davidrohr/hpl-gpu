@@ -178,6 +178,7 @@ int HPL_bcast_blong( PANEL, IFLAG )
    comm    = PANEL->grid->row_comm;  rank  = PANEL->grid->mycol;
    mask    = PANEL->grid->col_mask;  ip2   = PANEL->grid->col_ip2m1;
    root    = PANEL->pcol;            msgid = PANEL->msgid;
+   size = PANEL->grid->npcol;
    COUNT   = PANEL->len;             npm1  = size - 1;
    mydist2 = ( mydist = MModSub( rank, root, size ) ); indx = ip2;
    count   = COUNT / size; count = Mmax( count, 1 );

@@ -123,14 +123,14 @@ typedef void (*HPL_T_OP)
                                                 /* increment with mod */
 #define    MModInc(I, d)       if(++(I) == (d)) (I) = 0
                                                 /* decrement with mod */
-#define    MModDec(I, d)       if(--(I) == -1) (I) = (d)-1
+#define    MModDec(I, d)       (I) = ((I) == 0 ? (d) : (I)) - 1
                                                    /* positive modulo */
 #define    MPosMod(I, d)       ( (I) - ((I)/(d))*(d) )
                                                    /* add two numbers */
 #define    MModAdd(I1, I2, d) \
            ( ( (I1) + (I2) < (d) ) ? (I1) + (I2) : (I1) + (I2) - (d) )
                                                         /* add 1 to # */
-#define    MModAdd1(I, d) ( ((I) != (d)-1) ? (I) + 1 : 0 )
+#define    MModAdd1(I, d) ( ((I) + 1 == (d)) ? 0 : (I) + 1 )
                                               /* subtract two numbers */
 #define    MModSub(I1, I2, d) \
            ( ( (I1) < (I2) ) ? (d) + (I1) - (I2) : (I1) - (I2) )

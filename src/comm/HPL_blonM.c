@@ -194,6 +194,7 @@ int HPL_bcast_blonM( PANEL, IFLAG )
  */
    comm = PANEL->grid->row_comm; rank  = PANEL->grid->mycol;
    root = PANEL->pcol;           msgid = PANEL->msgid;
+   size = PANEL->grid->npcol;
    prev = MModSub1( rank, size );
  
    if( rank == root )
