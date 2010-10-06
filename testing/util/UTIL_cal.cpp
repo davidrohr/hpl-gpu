@@ -46,6 +46,7 @@ void CALDGEMM_Init()
 	//cal_info.DynamicSched = CAL_TRUE;
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
+	cal_info.NoPerformanceWarnings = CAL_FALSE;
 
 	cal_dgemm.InitCALDGEMM( &cal_info );
 }
