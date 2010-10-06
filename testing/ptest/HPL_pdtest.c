@@ -224,12 +224,12 @@ void HPL_pdtest
    }
 #endif
 
-    for (int nb = NB;nb < N;nb += NB)
+    /*for (int nb = NB;nb < N;nb += NB)
     {
 	CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, mat.A + nb * mat.ld, mat.ld, mat.A + nb, mat.ld, 0.5, mat.A + nb * (mat.ld + 1), mat.ld);
 	double* tmpptr = (double*) vptr;
         CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, tmpptr + nb * mat.ld, mat.ld, tmpptr + nb, mat.ld, 0.5, tmpptr + nb * (mat.ld + 1), mat.ld);
-    }
+    }*/
 
    
 /*
