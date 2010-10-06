@@ -161,6 +161,7 @@ int HPL_bcast_1ring( PANEL, IFLAG )
  */
    rank = PANEL->grid->mycol; comm  = PANEL->grid->row_comm;
    root = PANEL->pcol;        msgid = PANEL->msgid;
+   size = PANEL->grid->npcol;
 
    if( rank == root )
    {

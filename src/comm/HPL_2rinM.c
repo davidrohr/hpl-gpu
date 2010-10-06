@@ -161,6 +161,7 @@ int HPL_bcast_2rinM( PANEL, IFLAG )
  */
    rank = PANEL->grid->mycol;           comm  = PANEL->grid->row_comm;
    root = PANEL->pcol;                  msgid = PANEL->msgid;
+   size = PANEL->grid->npcol;
    next = MModAdd1( rank, size );       roo2  = ( ( size + 1 ) >> 1 );
    roo2 = MModAdd(  root, roo2, size );
  
