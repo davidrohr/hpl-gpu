@@ -217,14 +217,13 @@ int main( ARGC, ARGV )
 
               ++run;
 #ifdef TRACE_CALLS
-              trace_dgemm = openTraceFile( "trace_dgemm", run, rank );
+              resetTraceCounters();
 #endif
 
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
 
 #ifdef TRACE_CALLS
-              fclose( trace_dgemm );
-              trace_dgemm = 0;
+              writeTraceCounters( "trace_counters", run, rank );
 #endif
              }
             }
@@ -286,6 +285,9 @@ label_end_of_npqs: ;
    }
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Shutdown();
+#endif
+#ifdef TRACE_CALLS
+   releaseTraceCounters();
 #endif
    MPI_Finalize();
    exit( 0 );

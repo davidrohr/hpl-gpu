@@ -111,10 +111,7 @@ void HPL_sum
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( SUM )
 
 /*
  * .. Local Variables ..
@@ -136,14 +133,7 @@ void HPL_sum
       for( i = 0; i < N; i++ ) b[i] += a[i];
    }
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "SUM,N=%i,TIME=%lu\n",
-               N, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_sum
  */

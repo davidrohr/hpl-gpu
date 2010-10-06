@@ -237,10 +237,7 @@ void HPL_plindx0
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( PLINDX0 )
 
 /*
  * .. Local Variables ..
@@ -299,14 +296,7 @@ void HPL_plindx0
       }
    }
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "PLINDX0,K=%i,TIME=%lu\n",
-               K, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 /*
  * End of HPL_plindx0
  */

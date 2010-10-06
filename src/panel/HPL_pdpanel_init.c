@@ -153,10 +153,7 @@ void HPL_pdpanel_init
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( PDPANEL_INIT )
 
 /*
  * .. Local Variables ..
@@ -350,14 +347,7 @@ void HPL_pdpanel_init
                        /* Initialize the first entry of the workarray */
    *(PANEL->IWORK) = -1;
 
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "PDPANEL_INIT,M=%i,N=%i,JB=%i,IA=%i,JA=%i,TAG=%i,TIME=%lu\n",
-               M, N, JB, IA, JA, TAG, tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
 /*
  * End of HPL_pdpanel_init

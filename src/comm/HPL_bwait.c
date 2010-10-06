@@ -95,10 +95,7 @@ int HPL_bwait
  *
  * ---------------------------------------------------------------------
  */ 
-#ifdef TRACE_CALLS
-   uint64_t tr_start, tr_end, tr_diff;
-   tr_start = util_getTimestamp();
-#endif /* TRACE_CALLS */
+START_TRACE( BWAIT )
 
 /*
  * .. Local Variables ..
@@ -125,13 +122,7 @@ int HPL_bwait
       default          : ierr = HPL_SUCCESS;
    }
  
-#ifdef TRACE_CALLS
-   tr_end = util_getTimestamp();
-   tr_diff = util_getTimeDifference( tr_start, tr_end );
-
-   if( trace_dgemm )
-      fprintf( trace_dgemm, "BWAIT,TIME=%lu\n", tr_diff );
-#endif /* TRACE_CALLS */
+END_TRACE
 
    return( ierr );
 /*
