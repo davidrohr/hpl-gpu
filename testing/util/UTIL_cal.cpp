@@ -47,6 +47,7 @@ void CALDGEMM_Init()
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
 	cal_info.NoPerformanceWarnings = CAL_FALSE;
+	cal_info.KeepBuffersMapped = CAL_TRUE;
 
 	cal_dgemm.InitCALDGEMM( &cal_info );
 }
