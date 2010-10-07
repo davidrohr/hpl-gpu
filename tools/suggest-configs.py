@@ -81,7 +81,7 @@ class Configuration:
 
 def splitIn2Factors( n ):
 	factors = []
-	for p in range( 2, int( math.sqrt( n ) ) + 1 ):
+	for p in range( n < 4 and 1 or 2, int( math.sqrt( n ) ) + 1 ):
 		if n % p == 0:
 			factors.append( (p, n/p) )
 	return factors
