@@ -177,11 +177,12 @@ void HPL_pdtest
  */
  
 #ifdef DGEMM_HPL_TEST
+    {
     size_t n = 78000;
     size_t nb = 1024;
     size_t lda = n;
     if (lda % 8) lda += (8 - lda % 8);
-    printf("malloc %lld\n", n * lda * sizeof(double));
+    printf("malloc %lld\n", (size_t) n * lda * sizeof(double));
     double* m = CALDGEMM_alloc(n * lda * sizeof(double));
     printf("memset\n");fflush(stdout);
     memset(m, 0, n * lda * sizeof(double));
@@ -189,6 +190,7 @@ void HPL_pdtest
     CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n - nb, n - nb, nb, 0.5, m + nb * lda, lda, m + nb, lda, 0.5, m + nb * (lda + 1), lda);
     printf("free\n");
     CALDGEMM_free(m);
+    }
 #endif
  
    mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align;
