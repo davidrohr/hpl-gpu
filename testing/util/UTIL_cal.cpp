@@ -26,7 +26,7 @@ void CALDGEMM_Init()
 	//cal_info.Pin = -3;
 	//cal_info.Verify = CAL_FALSE;
 	//cal_info.Disassemble = CAL_FALSE;
-#ifdef TRACE_CALLS
+#if defined(TRACE_CALLS) | defined(HPL_GPU_NOT_QUIET)
 	cal_info.Quiet = CAL_FALSE;
 #else
 	cal_info.Quiet = CAL_TRUE;
