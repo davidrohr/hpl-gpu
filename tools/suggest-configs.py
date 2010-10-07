@@ -26,11 +26,11 @@
 # A few restrictions are applied:
 #
 # a) N % NB = 0
-# b) NB % 8 = 0 (Currently a Bug seems to require % 64)
-# c) (N / NB ) % Q = 0
+# b) NB % 64 = 0 (for caldgemm we currently require 64 - but 8 is the goal)
+# c1) (N / NB ) % Q = 0
 # c2) (N / NB) % P = 0
-# d) isOdd( N / 8 / Q  )
-# e) isOdd(NB / 8)
+# d) isOdd(N / 64 / Q) (should be 8 like in (b) )
+# e) isOdd(NB / 64) (should be 8 like in (b) )
 #
 # Not to forget about the physical limit  N <= sqrt( 0.8 * 64 Gi * P * Q / 8 )
 #
@@ -58,7 +58,7 @@ class Configuration:
 			return False
 
 		# b)
-		if self.nb % 8 != 0:
+		if self.nb % 64 != 0:
 			return False
 
 		# c1)
@@ -70,11 +70,11 @@ class Configuration:
 			return False
 
 		# d)
-		if ( self.n / 8 / self.q ) % 2 == 0:
+		if ( self.n / 64 / self.q ) % 2 == 0:
 			return False
 
 		# e)
-		if ( self.nb / 8 ) % 2 == 0:
+		if ( self.nb / 64 ) % 2 == 0:
 			return False
 
 		return True
