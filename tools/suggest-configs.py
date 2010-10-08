@@ -50,7 +50,15 @@ class Configuration:
 		self.nb = nb
 
 	def __str__( self ):
-		return "P x Q = %d x %d -- N = %d -- NB = %d" % ( self.p, self.q, self.n, self.nb )
+		return "P x Q = %d x %d -- N = %d -- NB = %d -- Buffer wastage ~ %d " % ( self.p, self.q, self.n, self.nb, self.wastage() )
+
+	def wastage( self ):
+		""" Calculate how much of the gpu buffer is wasted
+
+		    This is not an absolute number, it resembles the number of bytes wasted per line of the gpu buffer,
+		    therefore less is better. Ideal is one, as 0 (which would come out as 64 in this case) violates
+		    condition e """
+		return (64 - (self.nb % 64)) / 8;
 
 	def fullfillsRestrictions( self ):
 		# a)
@@ -124,7 +132,12 @@ if __name__ == "__main__":
 					configs.append( config )
 
 	# sort by N for output
-	for config in sorted( configs, key = lambda config: ( config.n, config.p, config.nb ), reverse=True ):
+	# We prefer, in that order
+	#  1) Large matrices
+	#  2) With many process rows (more quadratic)
+	#  3) That waste little GPU buffer
+	#  4) And have large blocks
+	for config in sorted( configs, key = lambda config: ( config.n, config.p, -config.wastage(), config.nb ), reverse=True ):
 		print config
 
 
