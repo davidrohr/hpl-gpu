@@ -115,6 +115,7 @@ void HPL_pdgesv0
 /* ..
  * .. Executable Statements ..
  */
+   fprintf(stderr, "Running pdgesv0\n");
    if( ( N = A->n ) <= 0 ) return;
 
    nb = A->nb;
