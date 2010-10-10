@@ -81,9 +81,6 @@
 #define STDC_ARGS(p)           ()
 #endif
 
-#ifdef HPL_CALL_VSIPL
-#include <vsip.h>
-#endif
 /*
  * ---------------------------------------------------------------------
  * #define macro constants

@@ -106,12 +106,6 @@ typedef struct HPL_S_panel
    int                 msgid;           /* message id for panel bcast */
    int                 ldl2;         /* local leading dim of array L2 */
    int                 len;      /* length of the buffer to broadcast */
-#ifdef HPL_CALL_VSIPL
-   vsip_block_d        * Ablock;                           /* A block */
-   vsip_block_d        * L1block;                         /* L1 block */
-   vsip_block_d        * L2block;                         /* L2 block */
-   vsip_block_d        * Ublock;                           /* U block */
-#endif
 } HPL_T_panel;
 
 /*

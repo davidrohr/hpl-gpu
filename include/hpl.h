@@ -81,10 +81,8 @@
 #define NO_TRACE_CALLS
 #endif
  
-#ifndef HPL_CALL_VSIPL          /* Call the Fortran 77 BLAS interface */
 #ifndef HPL_CALL_CBLAS                       /* there can be only one */
 #define HPL_CALL_FBLAS
-#endif
 #endif
 
 #ifdef HPL_CALL_CALBLAS                     /* CALBLAS requires CBLAS */

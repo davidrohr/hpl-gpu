@@ -114,9 +114,6 @@ typedef struct HPL_S_palg
 
 typedef struct HPL_S_pmat
 {
-#ifdef HPL_CALL_VSIPL
-   vsip_block_d        * block;
-#endif
    double              * A;            /* pointer to local piece of A */
    double              * X;             /* pointer to solution vector */
    int                 n;                      /* global problem size */
