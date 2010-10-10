@@ -335,12 +335,6 @@ STDC_ARGS( (
    HPL_T_palg *,
    HPL_T_pmat *
 ) );
-void                             HPL_pdgesvK1
-STDC_ARGS( (
-   HPL_T_grid *,
-   HPL_T_palg *,
-   HPL_T_pmat *
-) );
 void                             HPL_pdgesvK2
 STDC_ARGS( (
    HPL_T_grid *,

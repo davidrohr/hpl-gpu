@@ -79,7 +79,7 @@ HPL_pgeobj       = \
    HPL_spreadT.o          HPL_rollN.o            HPL_rollT.o            \
    HPL_equil.o                                   HPL_pdlaswp01T.o       \
    HPL_pdupdateTT.o       HPL_pdtrsv.o           HPL_pdgesv0.o          \
-   HPL_pdgesvK1.o         HPL_pdgesvK2.o         HPL_pdgesv.o
+   HPL_pdgesvK2.o         HPL_pdgesv.o
 #
 ## Targets #############################################################
 #
@@ -122,8 +122,6 @@ HPL_pdtrsv.o           : ../HPL_pdtrsv.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdtrsv.c
 HPL_pdgesv0.o          : ../HPL_pdgesv0.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdgesv0.c
-HPL_pdgesvK1.o         : ../HPL_pdgesvK1.c         $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdgesvK1.c
 HPL_pdgesvK2.o         : ../HPL_pdgesvK2.c         $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdgesvK2.c
 HPL_pdgesv.o           : ../HPL_pdgesv.c           $(INCdep)
