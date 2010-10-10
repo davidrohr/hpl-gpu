@@ -191,12 +191,16 @@ void HPL_pdupdateTT
          HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
          HPL_ptimer_detail( HPL_TIMING_LASWP );
 
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
          HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,
                     HplUnit, jb, nn, HPL_rone, L1ptr, jb, Aptr, lda );
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
+         HPL_ptimer_detail( HPL_TIMING_DGEMM );
          HPL_dgemm( HplColumnMajor, HplNoTrans, HplNoTrans, mp, nn,
                     jb, -HPL_rone, L2ptr, ldl2, Aptr, lda, HPL_rone,
                     Mptr( Aptr, jb, 0, lda ), lda );
+         HPL_ptimer_detail( HPL_TIMING_DGEMM );
       }
    }
    

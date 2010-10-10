@@ -73,8 +73,7 @@ static double      HPL_ptimer_cpusec   [HPL_NPTIMER],
                    HPL_ptimer_cpustart [HPL_NPTIMER],
                    HPL_ptimer_wallsec  [HPL_NPTIMER],
                    HPL_ptimer_wallstart[HPL_NPTIMER];
-/*
- * ---------------------------------------------------------------------
+/* * ---------------------------------------------------------------------
  * User callable functions
  * ---------------------------------------------------------------------
  */
@@ -141,6 +140,8 @@ void HPL_ptimer( I )
  *
  * ---------------------------------------------------------------------
  */ 
+  double cpu_tmp_time, wall_tmp_time;
+  char timer_name[256];
 /* ..
  * .. Executable Statements ..
  */
@@ -156,9 +157,25 @@ void HPL_ptimer( I )
    }
    else
    {
-      HPL_ptimer_cpusec   [I] += HPL_ptimer_cputime ()-HPL_ptimer_cpustart [I];
-      HPL_ptimer_wallsec  [I] += HPL_ptimer_walltime()-HPL_ptimer_wallstart[I];
+      cpu_tmp_time = HPL_ptimer_cputime ()-HPL_ptimer_cpustart [I];
+      wall_tmp_time = HPL_ptimer_walltime()-HPL_ptimer_wallstart[I];
+      HPL_ptimer_cpusec   [I] += cpu_tmp_time;
+      HPL_ptimer_wallsec  [I] += wall_tmp_time;
       HPL_ptimer_wallstart[I]  = HPL_PTIMER_STARTFLAG;
+      
+      switch(I)
+      {
+        case 11: sprintf(timer_name, "RPFACT");break;
+        case 12: sprintf(timer_name, "PFACT");break;
+        case 13: sprintf(timer_name, "MXSWP");break;
+        case 14: sprintf(timer_name, "UPDATE");break;
+        case 15: sprintf(timer_name, "LASWP");break;
+        case 16: sprintf(timer_name, "PTRSV");break;
+        case 17: sprintf(timer_name, "DGEMM");break;
+        case 18: sprintf(timer_name, "DTRSM");break;
+        default: sprintf(timer_name, "Unknown");break;
+      }
+      if (I != 13 && I != 12) printf("Timer %s (%d) CPU Time %2.5lf Wall Time %2.5lf\n", timer_name, I, cpu_tmp_time, wall_tmp_time);
    }
 /*
  * End of HPL_ptimer

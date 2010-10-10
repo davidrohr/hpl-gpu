@@ -115,6 +115,8 @@ typedef struct HPL_S_test
 #define    HPL_TIMING_UPDATE     14
 #define    HPL_TIMING_LASWP      15
 #define    HPL_TIMING_PTRSV      16
+#define    HPL_TIMING_DGEMM	 17
+#define    HPL_TIMING_DTRSM	 18
 #endif
 /*
  * ---------------------------------------------------------------------

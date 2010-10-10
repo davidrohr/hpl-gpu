@@ -186,12 +186,8 @@ void HPL_pdgesvK2
       HPL_pdupdateTT( panel[depth], &test, panel[0], nq-nn );
       (void) HPL_bwait( panel[depth] );
 
-/*
- * Circular  of the panel pointers:
- * xtmp = x[0]; for( k=0; k < depth; k++ ) x[k] = x[k+1]; x[d] = xtmp;
- *
- * Go to next process row and column - update the message ids for broadcast
- */
+      //Circular  of the panel pointers: * xtmp = x[0]; for( k=0; k < depth; k++ ) x[k] = x[k+1]; x[d] = xtmp;
+      //Go to next process row and column - update the message ids for broadcast
       p = panel[0]; for( k = 0; k < depth; k++ ) panel[k] = panel[k+1];
       panel[depth] = p;
 
