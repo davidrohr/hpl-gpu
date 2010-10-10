@@ -258,7 +258,10 @@ START_TRACE( PDPANEL_INIT )
       if( nprow > 1 )                                 /* space for U */
       { 
          nu = ( mycol == icurcol ? nq - JB : nq );
-         nu += nu & 1; /* allocate a little more space to allow even LDU */
+	 //fprintf(stderr, "Init %d ", nu);
+         if (nu % 8) nu += 8 - nu % 8;
+         if (nu % 16 == 0) nu += 8;
+         //fprintf(stderr, "%d\n", nu);
          lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 

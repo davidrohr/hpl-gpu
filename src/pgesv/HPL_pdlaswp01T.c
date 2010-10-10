@@ -140,7 +140,8 @@ void HPL_pdlaswp01T
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer( HPL_TIMING_LASWP );
 #endif
-   const int LDU = n + (n & 1);
+   const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
+   //fprintf(stderr, "LASWP %d %d\n", n, LDU);
 
    /* Retrieve parameters from the PANEL data structure */
    nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;

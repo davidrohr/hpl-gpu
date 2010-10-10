@@ -142,7 +142,8 @@ void HPL_pdupdateTT
 #endif
       return;
    }
-   const int LDU = n + (n & 1);
+   const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
+   //fprintf(stderr, "UPDATE %d %d\n", n, LDU);
 /*
  * Enable/disable the column panel probing mechanism
  */

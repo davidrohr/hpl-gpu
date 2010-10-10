@@ -194,6 +194,11 @@ void HPL_pdtest
 #endif
  
    mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align;
+   
+   //Make sure LDA is an uneven multiple of cache line size
+   if (mat.ld % 64) mat.ld += 64 - mat.ld % 64;
+   if (mat.ld % 128 == 0) mat.ld += 64;
+   
    do
    {
       ii = ( mat.ld += ALGO->align ); ip2 = 1;
