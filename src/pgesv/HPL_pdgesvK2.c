@@ -120,8 +120,7 @@ void HPL_pdgesvK2
 
    //Allocate a panel list of length depth + 1 (depth >= 1)
    panel = (HPL_T_panel **)malloc( (size_t)(depth+1) * sizeof( HPL_T_panel *) );
-   if( panel == NULL )
-   { HPL_pabort( __LINE__, "HPL_pdgesvK2", "Memory allocation failed" ); }
+   if( panel == NULL ) HPL_pabort( __LINE__, "HPL_pdgesvK2", "Memory allocation failed" );
 
    //Create and initialize the first depth panels
    nq = HPL_numroc( N+1, nb, nb, mycol, 0, npcol ); nn = N; jstart = 0;
@@ -151,7 +150,9 @@ void HPL_pdgesvK2
       HPL_pdfact(         panel[k] );
       (void) HPL_binit(   panel[k] );
       do
-      { (void) HPL_bcast( panel[k], &test ); }
+      {
+         (void) HPL_bcast( panel[k], &test );
+      }
       while( test != HPL_SUCCESS );
       (void) HPL_bwait(   panel[k] );
 
@@ -175,9 +176,11 @@ void HPL_pdgesvK2
       if( mycol == icurcol )
       {
          nn = HPL_numrocI( jb, j, nb, nb, mycol, 0, npcol );
-         for( k = 0; k < depth; k++ )   /* partial updates 0..depth-1 */
+         for( k = 0; k < depth; k++ )   //partial updates 0..depth-1
+         {
             (void) HPL_pdupdateTT( NULL, NULL, panel[k], nn );
-         HPL_pdfact(       panel[depth] );    /* factor current panel */
+         }
+         HPL_pdfact(       panel[depth] );    //factor current panel
       }
       else { nn = 0; }
 

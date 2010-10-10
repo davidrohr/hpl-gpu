@@ -173,6 +173,7 @@ void HPL_ptimer( I )
         case 16: sprintf(timer_name, "PTRSV");break;
         case 17: sprintf(timer_name, "DGEMM");break;
         case 18: sprintf(timer_name, "DTRSM");break;
+        case 19: sprintf(timer_name, "DLATCPY");break;
         default: sprintf(timer_name, "Unknown");break;
       }
       if (I != 13 && I != 12) printf("Timer %s (%d) CPU Time %2.5lf Wall Time %2.5lf\n", timer_name, I, cpu_tmp_time, wall_tmp_time);

@@ -226,21 +226,30 @@ void HPL_pdupdateTT
       {
          nn = n - nq0; nn = Mmin( nb, nn );
 
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
          HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
                     HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
          if( curr != 0 )
          {
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Mptr( Aptr, jb, 0, lda ), lda );
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
+
+            HPL_ptimer_detail( HPL_TIMING_DLATCPY );
             HPL_dlatcpy( jb, nn, Uptr, LDU, Aptr, lda );
+            HPL_ptimer_detail( HPL_TIMING_DLATCPY );
          }
          else
          {
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Aptr, lda );
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
          }
          Uptr = Mptr( Uptr, nn, 0, LDU );
          Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn;
@@ -251,21 +260,30 @@ void HPL_pdupdateTT
       //The panel has been forwarded at that point, finish the update
       if( ( nn = n - nq0 ) > 0 )
       {
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
          HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
                     HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+         HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
          if( curr != 0 )
          {
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Mptr( Aptr, jb, 0, lda ), lda );
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
+
+            HPL_ptimer_detail( HPL_TIMING_DLATCPY );
             HPL_dlatcpy( jb, nn, Uptr, LDU, Aptr, lda );
+            HPL_ptimer_detail( HPL_TIMING_DLATCPY );
          }
          else
          {
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
             HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
                        jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
                        Aptr, lda );
+            HPL_ptimer_detail( HPL_TIMING_DGEMM );
          }
       }
    }
@@ -275,4 +293,6 @@ void HPL_pdupdateTT
    //return the outcome of the probe  (should always be  HPL_SUCCESS,  the panel broadcast is enforced in that routine).
    if( PBCST != NULL ) *IFLAG = test;
    HPL_ptimer_detail( HPL_TIMING_UPDATE );
+   
+   printf("pdupdateTT ended\n");
 }
