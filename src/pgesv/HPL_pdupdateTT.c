@@ -112,23 +112,18 @@ void HPL_pdupdateTT
  *
  * ---------------------------------------------------------------------
  */ 
-/*
- * .. Local Variables ..
- */
+   //.. Local Variables ..
    double                    * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
    int                       * ipiv;
    int                       curr, i, iroff, jb, lda, ldl2, mp, n, nb,
                              nq0, nn, test;
-/* ..
- * .. Executable Statements ..
- */
+   //.. Executable Statements ..
    fprintf(stderr, "Running pdupdateTT\n");
    HPL_ptimer_detail( HPL_TIMING_UPDATE );
    nb = PANEL->nb; jb = PANEL->jb; n = PANEL->nq; lda = PANEL->lda;
    if( NN >= 0 ) n = Mmin( NN, n );
-/*
- * There is nothing to update, enforce the panel broadcast.
- */
+
+   //There is nothing to update, enforce the panel broadcast.
    if( ( n <= 0 ) || ( jb <= 0 ) )
    {
       if( PBCST != NULL )
@@ -141,9 +136,8 @@ void HPL_pdupdateTT
    }
    const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
    //fprintf(stderr, "UPDATE %d %d\n", n, LDU);
-/*
- * Enable/disable the column panel probing mechanism
- */
+
+   //Enable/disable the column panel probing mechanism
    (void) HPL_bcast( PBCST, &test );
 
 
@@ -151,9 +145,7 @@ void HPL_pdupdateTT
 
 
 
-/*
- * 1 x Q case
- */
+   //1 x Q case
    if( PANEL->grid->nprow == 1 )
    {
       Aptr = PANEL->A;       L2ptr = PANEL->L2;   L1ptr = PANEL->L1;
