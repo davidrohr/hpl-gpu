@@ -161,17 +161,13 @@ void HPL_pdupdateTT
       mp   = PANEL->mp - jb; iroff = PANEL->ii;   nq0   = 0; 
 
       for( i = 0; i < jb; i++ ) { ipiv[i] = (int)(dpiv[i]) - iroff; }
-/*
- * So far we have not updated anything -  test availability of the panel
- * to be forwarded - If detected forward it and finish the update in one
- * step.
- */
+
+      //So far we have not updated anything -  test availability of the panel to be forwarded - If detected forward it and finish the update in one step.
       while ( test == HPL_KEEP_TESTING )
       {
          nn = n - nq0; nn = Mmin( nb, nn );
-/*
- * Update nb columns at a time
- */
+
+         //Update nb columns at a time
          HPL_ptimer_detail( HPL_TIMING_LASWP );
          HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
          HPL_ptimer_detail( HPL_TIMING_LASWP );
@@ -187,9 +183,8 @@ void HPL_pdupdateTT
 
          (void) HPL_bcast( PBCST, &test ); 
       }
-/*
- * The panel has been forwarded at that point, finish the update
- */
+
+      //The panel has been forwarded at that point, finish the update
       if( ( nn = n - nq0 ) > 0 )
       {
          HPL_ptimer_detail( HPL_TIMING_LASWP );
@@ -215,16 +210,14 @@ void HPL_pdupdateTT
    else                        /* nprow > 1 ... */
    {
       HPL_pdlaswp01T( PBCST, &test, PANEL, n );
-/*
- * Compute redundantly row block of U and update trailing submatrix
- */
+
+      //Compute redundantly row block of U and update trailing submatrix
       nq0 = 0; curr = ( PANEL->grid->myrow == PANEL->prow ? 1 : 0 );
       Aptr = PANEL->A; L2ptr = PANEL->L2;  L1ptr = PANEL->L1;
       Uptr = PANEL->U; ldl2 = PANEL->ldl2;
       mp   = PANEL->mp - ( curr != 0 ? jb : 0 );
-/*
- * Broadcast has not occured yet, spliting the computational part
- */
+
+      //Broadcast has not occured yet, spliting the computational part
       while ( test == HPL_KEEP_TESTING )
       {
          nn = n - nq0; nn = Mmin( nb, nn );
@@ -250,9 +243,8 @@ void HPL_pdupdateTT
 
          (void) HPL_bcast( PBCST, &test ); 
       }
-/*
- * The panel has been forwarded at that point, finish the update
- */
+
+      //The panel has been forwarded at that point, finish the update
       if( ( nn = n - nq0 ) > 0 )
       {
          HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
@@ -275,13 +267,8 @@ void HPL_pdupdateTT
    }
 
    PANEL->A = Mptr( PANEL->A, 0, n, lda ); PANEL->nq -= n; PANEL->jj += n;
-/*
- * return the outcome of the probe  (should always be  HPL_SUCCESS,  the
- * panel broadcast is enforced in that routine).
- */
+
+   //return the outcome of the probe  (should always be  HPL_SUCCESS,  the panel broadcast is enforced in that routine).
    if( PBCST != NULL ) *IFLAG = test;
    HPL_ptimer_detail( HPL_TIMING_UPDATE );
-/*
- * End of HPL_pdupdateTT
- */
 }
