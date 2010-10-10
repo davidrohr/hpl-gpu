@@ -106,42 +106,32 @@ void HPL_pdgesv0
  *
  * ---------------------------------------------------------------------
  */ 
-/*
- * .. Local Variables ..
- */
+   //.. Local Variables ..
    HPL_T_panel                * * panel = NULL;
    int                        N, j, jb, n, nb, tag=MSGID_BEGIN_FACT,
                               test=HPL_KEEP_TESTING;
-/* ..
- * .. Executable Statements ..
- */
+   //.. Executable Statements ..
    fprintf(stderr, "Running pdgesv0\n");
    if( ( N = A->n ) <= 0 ) return;
 
    nb = A->nb;
-/*
- * Allocate a panel list of length 1 - Allocate panel[0] resources
- */
+   //Allocate a panel list of length 1 - Allocate panel[0] resources
    panel = (HPL_T_panel **)malloc( sizeof( HPL_T_panel * ) );
    if( panel == NULL )
    { HPL_pabort( __LINE__, "HPL_pdgesv0", "Memory allocation failed" ); }
 
    HPL_pdpanel_new( GRID, ALGO, N, N+1, Mmin( N, nb ), A, 0, 0, tag,
                     &panel[0] );
-/*
- * Loop over the columns of A
- */
+
+   //Loop over the columns of A
    for( j = 0; j < N; j += nb )
    {
       n = N - j; jb = Mmin( n, nb );
-/*
- * Release panel resources - re-initialize panel data structure
- */
+      //Release panel resources - re-initialize panel data structure
       (void) HPL_pdpanel_free( panel[0] );
       HPL_pdpanel_init( GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[0] );
-/*
- * Factor and broadcast current panel - update
- */
+
+      //Factor and broadcast current panel - update
       HPL_pdfact(               panel[0] );
       (void) HPL_binit(         panel[0] );
       do
@@ -149,18 +139,13 @@ void HPL_pdgesv0
       while( test != HPL_SUCCESS );
       (void) HPL_bwait(         panel[0] );
       HPL_pdupdateTT( NULL, NULL, panel[0], -1 );
-/*
- * Update message id for next factorization
- */
+
+      //Update message id for next factorization
       tag = MNxtMgid( tag, MSGID_BEGIN_FACT, MSGID_END_FACT );
    }
-/*
- * Release panel resources and panel list
- */
+
+   //Release panel resources and panel list
    (void) HPL_pdpanel_disp( &panel[0] );
 
    if( panel ) free( panel );
-/*
- * End of HPL_pdgesv0
- */
 }
