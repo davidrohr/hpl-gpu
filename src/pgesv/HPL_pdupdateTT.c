@@ -123,9 +123,7 @@ void HPL_pdupdateTT
  * .. Executable Statements ..
  */
    fprintf(stderr, "Running pdupdateTT\n");
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_UPDATE );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_UPDATE );
    nb = PANEL->nb; jb = PANEL->jb; n = PANEL->nq; lda = PANEL->lda;
    if( NN >= 0 ) n = Mmin( NN, n );
 /*
@@ -138,9 +136,7 @@ void HPL_pdupdateTT
          do { (void) HPL_bcast( PBCST, IFLAG ); }
          while( *IFLAG != HPL_SUCCESS );
       }
-#ifdef HPL_DETAILED_TIMING
-      HPL_ptimer( HPL_TIMING_UPDATE );
-#endif
+      HPL_ptimer_detail( HPL_TIMING_UPDATE );
       return;
    }
    const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
@@ -176,13 +172,10 @@ void HPL_pdupdateTT
 /*
  * Update nb columns at a time
  */
-#ifdef HPL_DETAILED_TIMING
-         HPL_ptimer( HPL_TIMING_LASWP );
+         HPL_ptimer_detail( HPL_TIMING_LASWP );
          HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
-         HPL_ptimer( HPL_TIMING_LASWP );
-#else
-         HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
-#endif
+         HPL_ptimer_detail( HPL_TIMING_LASWP );
+
          HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,
                     HplUnit, jb, nn, HPL_rone, L1ptr, jb, Aptr, lda );
 
@@ -199,13 +192,10 @@ void HPL_pdupdateTT
  */
       if( ( nn = n - nq0 ) > 0 )
       {
-#ifdef HPL_DETAILED_TIMING
-         HPL_ptimer( HPL_TIMING_LASWP );
+         HPL_ptimer_detail( HPL_TIMING_LASWP );
          HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
-         HPL_ptimer( HPL_TIMING_LASWP );
-#else
-         HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
-#endif
+         HPL_ptimer_detail( HPL_TIMING_LASWP );
+
          HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,
                     HplUnit, jb, nn, HPL_rone, L1ptr, jb, Aptr, lda );
 
@@ -290,9 +280,7 @@ void HPL_pdupdateTT
  * panel broadcast is enforced in that routine).
  */
    if( PBCST != NULL ) *IFLAG = test;
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_UPDATE );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_UPDATE );
 /*
  * End of HPL_pdupdateTT
  */

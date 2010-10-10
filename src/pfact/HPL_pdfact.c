@@ -129,9 +129,7 @@ void HPL_pdfact
    jb = PANEL->jb; PANEL->n -= jb; PANEL->ja += jb;
 
    if( ( PANEL->grid->mycol != PANEL->pcol ) || ( jb <= 0 ) ) return;
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_RPFACT );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_RPFACT );
    align = PANEL->algo->align;
    vptr  = (void *)malloc( ( (size_t)(align) + 
               (size_t)(((4+((unsigned int)(jb) << 1)) << 1) )) *
@@ -147,9 +145,7 @@ void HPL_pdfact
 
    PANEL->A   = Mptr( PANEL->A, 0, jb, PANEL->lda );
    PANEL->nq -= jb; PANEL->jj += jb;
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_RPFACT );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_RPFACT );
 /*
  * End of HPL_pdfact
  */

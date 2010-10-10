@@ -121,6 +121,12 @@
 #include "hpl_pmatgen.h"
 #include "hpl_ptest.h"
 
+#ifdef HPL_DETAILED_TIMING
+#define HPL_ptimer_detail(arg) HPL_ptimer(arg)
+#else
+#define HPL_ptimer_detail(arg)
+#endif
+
 #endif
 /*
  * End of hpl.h
