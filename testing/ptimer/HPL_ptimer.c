@@ -163,6 +163,7 @@ void HPL_ptimer( I )
       HPL_ptimer_wallsec  [I] += wall_tmp_time;
       HPL_ptimer_wallstart[I]  = HPL_PTIMER_STARTFLAG;
       
+#ifdef CALDGEMM_TEST
       switch(I)
       {
         case 11: sprintf(timer_name, "RPFACT");break;
@@ -177,6 +178,7 @@ void HPL_ptimer( I )
         default: sprintf(timer_name, "Unknown");break;
       }
       if (I != 13 && I != 12) printf("Timer %s (%d) CPU Time %2.5lf Wall Time %2.5lf\n", timer_name, I, cpu_tmp_time, wall_tmp_time);
+#endif
    }
 /*
  * End of HPL_ptimer

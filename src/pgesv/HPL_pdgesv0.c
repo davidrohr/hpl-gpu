@@ -111,7 +111,7 @@ void HPL_pdgesv0
    int                        N, j, jb, n, nb, tag=MSGID_BEGIN_FACT,
                               test=HPL_KEEP_TESTING;
    //.. Executable Statements ..
-   fprintf(stderr, "Running pdgesv0\n");
+   fprintfct(stderr, "Running pdgesv0\n");
    if( ( N = A->n ) <= 0 ) return;
 
    nb = A->nb;

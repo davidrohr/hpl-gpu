@@ -118,7 +118,7 @@ void HPL_pdupdateTT
    int                       curr, i, iroff, jb, lda, ldl2, mp, n, nb,
                              nq0, nn, test;
    //.. Executable Statements ..
-   fprintf(stderr, "Running pdupdateTT\n");
+   fprintfct(stderr, "Running pdupdateTT\n");
    HPL_ptimer_detail( HPL_TIMING_UPDATE );
    nb = PANEL->nb; jb = PANEL->jb; n = PANEL->nq; lda = PANEL->lda;
    if( NN >= 0 ) n = Mmin( NN, n );
@@ -289,5 +289,5 @@ void HPL_pdupdateTT
    if( PBCST != NULL ) *IFLAG = test;
    HPL_ptimer_detail( HPL_TIMING_UPDATE );
    
-   printf("pdupdateTT ended\n");
+   fprintfct(stderr, "pdupdateTT ended\n");
 }

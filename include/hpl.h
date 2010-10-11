@@ -125,6 +125,12 @@
 #define HPL_ptimer_detail(arg)
 #endif
 
+#ifdef CALDGEMM_TEST
+#define fprintfct fprintf
+#else
+#define fprintfct(...)
+#endif
+
 #endif
 /*
  * End of hpl.h
