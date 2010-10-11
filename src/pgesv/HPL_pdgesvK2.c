@@ -128,8 +128,7 @@ void HPL_pdgesvK2
    for( k = 0; k < depth; k++ )
    {
       jb = Mmin( nn, nb );
-      HPL_pdpanel_new( GRID, ALGO, nn, nn+1, jb, A, jstart, jstart,
-                       tag, &panel[k] );
+      HPL_pdpanel_new( GRID, ALGO, nn, nn+1, jb, A, jstart, jstart, tag, &panel[k] );
       nn -= jb; jstart += jb;
       if( mycol == icurcol ) { jj += jb; nq -= jb; }
       icurcol = MModAdd1( icurcol, npcol );

@@ -135,13 +135,13 @@ void HPL_pdlaswp01T
                              lda, myrow, n, nprow;
 
    n = PANEL->n; n = Mmin( NN, n ); jb = PANEL->jb;
-   /* Quick return if there is nothing to do */
+   //Quick return if there is nothing to do
    if( ( n <= 0 ) || ( jb <= 0 ) ) return;
    HPL_ptimer_detail( HPL_TIMING_LASWP );
    const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
    //fprintf(stderr, "LASWP %d %d\n", n, LDU);
 
-   /* Retrieve parameters from the PANEL data structure */
+   //Retrieve parameters from the PANEL data structure
    nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;
    A     = PANEL->A;   U       = PANEL->U;     iflag  = PANEL->IWORK;
    lda   = PANEL->lda; icurrow = PANEL->prow;
@@ -157,20 +157,24 @@ void HPL_pdlaswp01T
    lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
    ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
 
-   if (__builtin_expect(*iflag, 1) == 1) {
+   if (__builtin_expect(*iflag, 1) == 1)
+   {
 #ifndef NO_EQUILIBRATION
-       /* we were called before: only re-compute IPLEN, IPMAP */
+       //we were called before: only re-compute IPLEN, IPMAP 
        HPL_plindx10( PANEL, *ipl, ipID, iplen, ipmap, ipmapm1 );
 #endif
-   } else { /* no index arrays have been computed so far */
+   }
+   else
+   { // no index arrays have been computed so far
       HPL_pipid(   PANEL,  ipl, ipID );
       HPL_plindx1( PANEL, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
                    ipmap, ipmapm1, permU, iwork );
       *iflag = 1;
    }
 
-   /* Copy into U the rows to be spread (local to icurrow) */
-   if( myrow == icurrow ) {
+   //Copy into U the rows to be spread (local to icurrow)
+   if( myrow == icurrow )
+   {
        HPL_dlaswp01T( *ipA, n, A, lda, U, LDU, lindxA, lindxAU );
    }
 
@@ -178,7 +182,8 @@ void HPL_pdlaswp01T
    HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, n, U, LDU, 0, iplen, ipmap, ipmapm1 );
 
    /* Local exchange (everywhere but in process row icurrow) */
-   if( myrow != icurrow ) {
+   if( myrow != icurrow )
+   {
       k = ipmapm1[myrow];
       HPL_dlaswp06T( iplen[k+1]-iplen[k], n, A, lda, Mptr( U, 0, iplen[k], LDU ), LDU, lindxA );
    }

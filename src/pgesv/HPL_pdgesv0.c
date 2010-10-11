@@ -135,7 +135,9 @@ void HPL_pdgesv0
       HPL_pdfact(               panel[0] );
       (void) HPL_binit(         panel[0] );
       do
-      { (void) HPL_bcast(       panel[0], &test ); }
+      {
+		  (void) HPL_bcast(       panel[0], &test );
+	  }
       while( test != HPL_SUCCESS );
       (void) HPL_bwait(         panel[0] );
       HPL_pdupdateTT( NULL, NULL, panel[0], -1 );
