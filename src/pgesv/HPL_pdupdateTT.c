@@ -128,7 +128,10 @@ void HPL_pdupdateTT
    {
       if( PBCST != NULL )
       {
-         do { (void) HPL_bcast( PBCST, IFLAG ); }
+         do
+		 {
+			 (void) HPL_bcast( PBCST, IFLAG );
+		 }
          while( *IFLAG != HPL_SUCCESS );
       }
       HPL_ptimer_detail( HPL_TIMING_UPDATE );
