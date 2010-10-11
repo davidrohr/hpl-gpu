@@ -173,7 +173,7 @@ START_TRACE( SPREAD_T )
 /*
  * .. Local Variables ..
  */
-#if 1
+#ifndef HPL_SEND_U_PADDING
    MPI_Datatype              type;
 #endif
    MPI_Status                status;
@@ -214,7 +214,7 @@ START_TRACE( SPREAD_T )
 
                if( mydist & ip2 )
                {
-#if 1
+#ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -237,14 +237,14 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm, &status );
 #endif
                }
                else if( partner < nprow )
                {
-#if 1
+#ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -266,7 +266,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm );
 #endif
@@ -313,7 +313,7 @@ START_TRACE( SPREAD_T )
 
                if( mydist & ip2 )
                {
-#if 1
+#ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -336,14 +336,14 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm, &status );
 #endif
                }
                else if( partner < nprow )
                {
-#if 1
+#ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
                      if( LDU == N )
@@ -366,7 +366,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS )
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*N,
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm );
 #endif

@@ -157,7 +157,7 @@ START_TRACE( ROLLT )
 /*
  * .. Local Variables ..
  */
-#if 1
+#ifndef HPL_SEND_U_PADDING
    MPI_Datatype               type[2];
 #endif
 MPI_Status                 status;
@@ -202,7 +202,7 @@ MPI_Status                 status;
  
       if( lengthR > 0 )
       {
-#if 1
+#ifndef HPL_SEND_U_PADDING
          if( ierr == MPI_SUCCESS )
          {
             if( LDU == N )
@@ -229,7 +229,7 @@ MPI_Status                 status;
  
       if( lengthS > 0 )
       {
-#if 1
+#ifndef HPL_SEND_U_PADDING
          if( ierr == MPI_SUCCESS )
          {
             if( LDU == N )
@@ -260,7 +260,7 @@ MPI_Status                 status;
       {
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Wait( &request, &status );
-#if 1
+#ifndef HPL_SEND_U_PADDING
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Type_free( &type[I_RECV] );
 #endif
