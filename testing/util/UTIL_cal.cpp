@@ -46,8 +46,12 @@ void CALDGEMM_Init()
 	//cal_info.DynamicSched = CAL_TRUE;
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
-	cal_info.NoPerformanceWarnings = CAL_FALSE;
-	cal_info.KeepBuffersMapped = CAL_TRUE;
+	//cal_info.NoPerformanceWarnings = CAL_TRUE;
+	//cal_info.KeepBuffersMapped = CAL_TRUE;
+	
+#ifdef HACKED_ATI_PATH
+	cal_info.pPatchedAtiLibLDPath = HACKED_ATI_PATH;
+#endif
 
 	cal_dgemm.InitCALDGEMM( &cal_info );
 }
