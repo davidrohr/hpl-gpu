@@ -184,7 +184,13 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
-#                        be relevant for optimization
+#                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
+# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
+# -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
+# -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
+# -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
+# -DCALDGEMM_TEST        Activate Test Debug Code
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
