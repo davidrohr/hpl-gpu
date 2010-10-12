@@ -220,6 +220,10 @@ int main( ARGC, ARGV )
               resetTraceCounters();
 #endif
 
+#ifdef CALDGEMM_TEST
+              fprintfct(stderr, "NBMIN %d PFACT %d RFACT %d\n", algo.nbmin, algo.pfact, algo.rfact);
+#endif
+
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
 
 #ifdef TRACE_CALLS
