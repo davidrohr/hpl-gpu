@@ -28,8 +28,10 @@ void CALDGEMM_Init()
 	//cal_info.Disassemble = CAL_FALSE;
 #if defined(TRACE_CALLS) | defined(HPL_GPU_NOT_QUIET)
 	cal_info.Quiet = CAL_FALSE;
+	cal_info.TabularTiming = CAL_TRUE;
 #else
 	cal_info.Quiet = CAL_TRUE;
+	cal_info.TabularTiming = CAL_FALSE;
 #endif
 	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
