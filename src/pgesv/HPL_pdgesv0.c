@@ -120,6 +120,7 @@ void HPL_pdgesv0(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 
 		//Factor and broadcast current panel - update
 		HPL_pdfact(               panel[0] );
+		HPL_ptimer_detail( HPL_TIMING_BCAST );
 		(void) HPL_binit(         panel[0] );
 		do
 		{
@@ -127,6 +128,7 @@ void HPL_pdgesv0(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		}
 		while( test != HPL_SUCCESS );
 		(void) HPL_bwait(         panel[0] );
+		HPL_ptimer_detail( HPL_TIMING_BCAST );
 		HPL_pdupdateTT( NULL, NULL, panel[0], -1 );
 
 		//Update message id for next factorization

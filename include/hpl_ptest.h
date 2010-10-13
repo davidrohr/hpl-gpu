@@ -118,6 +118,8 @@ typedef struct HPL_S_test
 #define    HPL_TIMING_DGEMM	 17
 #define    HPL_TIMING_DTRSM	 18
 #define    HPL_TIMING_DLATCPY	 19
+#define    HPL_TIMING_BCAST	 20
+#define    HPL_TIMING_BCASTUPD	 21
 #endif
 /*
  * ---------------------------------------------------------------------

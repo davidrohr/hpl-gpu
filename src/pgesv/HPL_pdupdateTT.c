@@ -126,7 +126,9 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 	//fprintf(stderr, "UPDATE %d %d\n", n, LDU);
 
 	//Enable/disable the column panel probing mechanism
+	HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 	(void) HPL_bcast( PBCST, &test );
+	HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 
 
 
@@ -145,6 +147,7 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		//So far we have not updated anything -  test availability of the panel to be forwarded - If detected forward it and finish the update in one step.
 		while ( test == HPL_KEEP_TESTING )
 		{
+			fprintfct(stderr, "Updating NB columns\n");
 			nn = n - nq0; nn = Mmin( nb, nn );
 
 			//Update nb columns at a time
@@ -161,12 +164,15 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 
 			Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn; 
 
+			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 			(void) HPL_bcast( PBCST, &test ); 
+			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 		}
 
 		//The panel has been forwarded at that point, finish the update
 		if( ( nn = n - nq0 ) > 0 )
 		{
+			fprintfct(stderr, "Updating remaining columns\n");
 			HPL_ptimer_detail( HPL_TIMING_LASWP );
 			HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
 			HPL_ptimer_detail( HPL_TIMING_LASWP );
@@ -204,6 +210,7 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		//Broadcast has not occured yet, spliting the computational part
 		while ( test == HPL_KEEP_TESTING )
 		{
+			fprintfct(stderr, "Updating NB columns\n");
 			nn = n - nq0; nn = Mmin( nb, nn );
 
 			HPL_ptimer_detail( HPL_TIMING_DTRSM );
@@ -234,12 +241,15 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 			Uptr = Mptr( Uptr, nn, 0, LDU );
 			Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn;
 
+			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 			(void) HPL_bcast( PBCST, &test ); 
+			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
 		}
 
 		//The panel has been forwarded at that point, finish the update
 		if( ( nn = n - nq0 ) > 0 )
 		{
+			fprintfct(stderr, "Updating remaining columns\n");
 			HPL_ptimer_detail( HPL_TIMING_DTRSM );
 			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
 				HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr, LDU );

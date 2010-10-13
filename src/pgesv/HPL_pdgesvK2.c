@@ -134,12 +134,14 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Initialize the lookahead - Factor jstart columns: panel[0..depth-1]
 	for( k = 0, j = 0; k < depth; k++ )
 	{
+		fprintfct(stderr, "Initilializing Lookahead %d\n", k);
 		jb = jstart - j;
 		jb = Mmin( jb, nb );
 		j += jb;
 
 		//Factor and broadcast k-th panel
 		HPL_pdfact(         panel[k] );
+		HPL_ptimer_detail( HPL_TIMING_BCAST );
 		(void) HPL_binit(   panel[k] );
 		do
 		{
@@ -147,6 +149,7 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		}
 		while( test != HPL_SUCCESS );
 		(void) HPL_bwait(   panel[k] );
+		HPL_ptimer_detail( HPL_TIMING_BCAST );
 
 		//Partial update of the depth-k-1 panels in front of me
 		if( k < depth - 1 )
@@ -156,6 +159,7 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		}
 	}
 
+	fprintfct(stderr, "Lookahead Initialized %d\n", k);
 	//Main loop over the remaining columns of A
 	for( j = jstart; j < N; j += nb )
 	{
