@@ -123,17 +123,6 @@ START_TRACE( DAXPY )
 #ifdef HPL_CALL_CBLAS
    cblas_daxpy( N, ALPHA, X, INCX, Y, INCY );
 #endif
-#ifdef HPL_CALL_FBLAS
-   double                    alpha = ALPHA;
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77N = N, F77incx = INCX, F77incy = INCY;
-#else
-#define F77N                 N
-#define F77incx              INCX
-#define F77incy              INCY
-#endif
-   F77daxpy( &F77N, &alpha, X, &F77incx, Y, &F77incy );
-#endif
 
 END_TRACE
 /*

@@ -82,7 +82,7 @@
 #endif
 
 #ifndef HPL_CALL_CBLAS                       /* there can be only one */
-#define HPL_CALL_FBLAS
+#error BLAS Library required
 #endif
 
 #ifdef HPL_CALL_CALBLAS                     /* CALBLAS requires CBLAS */

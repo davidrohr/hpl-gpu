@@ -163,66 +163,6 @@ START_TRACE( DTRSV )
 #ifdef HPL_CALL_CBLAS
    cblas_dtrsv( ORDER, UPLO, TRANS, DIAG, N, A, LDA, X, INCX );
 #endif
-#ifdef HPL_CALL_FBLAS
-#ifdef StringSunStyle
-#ifdef HPL_USE_F77_INTEGER_DEF
-   F77_INTEGER               IONE = 1;
-#else
-   int                       IONE = 1;
-#endif
-#endif
-#ifdef StringStructVal
-   F77_CHAR                  fuplo, ftran, fdiag;
-#endif
-#ifdef StringStructPtr
-   F77_CHAR                  fuplo, ftran, fdiag;
-#endif
-#ifdef StringCrayStyle
-   F77_CHAR                  fuplo, ftran, fdiag;
-#endif
- 
-#ifdef HPL_USE_F77_INTEGER_DEF 
-   const F77_INTEGER         F77N = N, F77lda = LDA, F77incx = INCX;
-#else
-#define F77N              N
-#define F77lda            LDA
-#define F77incx           INCX
-#endif
-   char                      cuplo, ctran, cdiag;
-
-   if( ORDER == HplColumnMajor )
-   {
-      cuplo = ( UPLO  == HplUpper   ? 'U' : 'L' );
-      ctran = ( TRANS == HplNoTrans ? 'N' : 'T' );
-   }
-   else
-   {
-      cuplo = ( UPLO  == HplUpper   ? 'L' : 'U' );
-      ctran = ( TRANS == HplNoTrans ? 'T' : 'N' );
-   }
-   cdiag = ( DIAG == HplNonUnit ? 'N' : 'U' );
-
-#ifdef StringSunStyle
-   F77dtrsv( &cuplo, &ctran, &cdiag, &F77N, A, &F77lda, X, &F77incx,
-             IONE, IONE, IONE );
-#endif
-#ifdef StringCrayStyle
-   ftran = HPL_C2F_CHAR( ctran ); fdiag = HPL_C2F_CHAR( cdiag );
-   fuplo = HPL_C2F_CHAR( cuplo );
-   F77dtrsv( fuplo,  ftran,  fdiag,  &F77N, A, &F77lda, X, &F77incx );
-#endif
-#ifdef StringStructVal
-   fuplo.len = 1; fuplo.cp = &cuplo; ftran.len = 1; ftran.cp = &ctran;
-   fdiag.len = 1; fdiag.cp = &cdiag;
-   F77dtrsv( fuplo,  ftran,  fdiag,  &F77N, A, &F77lda, X, &F77incx );
-#endif
-#ifdef StringStructPtr
-   fuplo.len = 1; fuplo.cp = &cuplo; ftran.len = 1; ftran.cp = &ctran;
-   fdiag.len = 1; fdiag.cp = &cdiag;
-   F77dtrsv( &fuplo, &ftran, &fdiag, &F77N, A, &F77lda, X, &F77incx );
-#endif
-
-#endif
 
 END_TRACE
 /*

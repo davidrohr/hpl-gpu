@@ -149,24 +149,6 @@ START_TRACE( DGER )
 #ifdef HPL_CALL_CBLAS
    cblas_dger( ORDER, M, N, ALPHA, X, INCX, Y, INCY, A, LDA );
 #endif
-#ifdef HPL_CALL_FBLAS
-   double                    alpha = ALPHA;
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77M    = M,   F77N    = N,
-                             F77lda  = LDA, F77incx = INCX, F77incy = INCY;
-#else
-#define F77M                 M
-#define F77N                 N
-#define F77lda               LDA
-#define F77incx              INCX
-#define F77incy              INCY
-#endif
-
-   if( ORDER == HplColumnMajor )
-   {  F77dger( &F77M, &F77N, &alpha, X, &F77incx, Y, &F77incy, A, &F77lda ); }
-   else
-   {  F77dger( &F77N, &F77M, &alpha, Y, &F77incy, X, &F77incx, A, &F77lda ); }
-#endif
 
 END_TRACE
 /*
