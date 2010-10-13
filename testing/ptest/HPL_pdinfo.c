@@ -384,7 +384,12 @@ void HPL_pdinfo
  * Checking threshold value (TEST->thrsh)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
+#ifdef HPL_FASTINIT
+      TEST->thrsh = -1;
+#else
       (void) sscanf( line, "%s", num ); TEST->thrsh = atof( num );
+#endif
+
 /*
  * Panel factorization algorithm (PF)
  */
