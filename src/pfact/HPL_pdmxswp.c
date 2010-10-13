@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdmxswp
 (
    HPL_T_panel *                    PANEL,
@@ -73,15 +72,6 @@ void HPL_pdmxswp
    const int                        JJ,
    double *                         WORK
 )
-#else
-void HPL_pdmxswp
-( PANEL, M, II, JJ, WORK )
-   HPL_T_panel *                    PANEL;
-   const int                        M;
-   const int                        II;
-   const int                        JJ;
-   double *                         WORK;
-#endif
 {
 /* 
  * Purpose

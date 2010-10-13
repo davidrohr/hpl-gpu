@@ -70,7 +70,6 @@
 #define   I_SEND    0
 #define   I_RECV    1
 
-#ifdef STDC_HEADERS
 void HPL_rollT
 (
    HPL_T_panel *                    PBCST,
@@ -83,19 +82,6 @@ void HPL_rollT
    const int *                      IPMAP,
    const int *                      IPMAPM1
 )
-#else
-void HPL_rollT
-( PBCST, IFLAG, PANEL, N, U, LDU, IPLEN, IPMAP, IPMAPM1 )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   const int *                      IPLEN;
-   const int *                      IPMAP;
-   const int *                      IPMAPM1;
-#endif
 {
 /* 
  * Purpose

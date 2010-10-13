@@ -64,20 +64,12 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdgesv0
 (
    HPL_T_grid *                     GRID,
    HPL_T_palg *                     ALGO,
    HPL_T_pmat *                     A
 )
-#else
-void HPL_pdgesv0
-( GRID, ALGO, A )
-   HPL_T_grid *                     GRID;
-   HPL_T_palg *                     ALGO;
-   HPL_T_pmat *                     A;
-#endif
 {
 /* 
  * Purpose

@@ -64,16 +64,10 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_copyL
 (
    HPL_T_panel *                    PANEL
 )
-#else
-void HPL_copyL
-( PANEL )
-   HPL_T_panel *                    PANEL;
-#endif
 {
 /* 
  * Purpose

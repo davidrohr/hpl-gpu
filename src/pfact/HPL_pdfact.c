@@ -64,16 +64,10 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdfact
 (
    HPL_T_panel *                    PANEL
 )
-#else
-void HPL_pdfact
-( PANEL )
-   HPL_T_panel *                    PANEL;
-#endif
 {
 /* 
  * Purpose

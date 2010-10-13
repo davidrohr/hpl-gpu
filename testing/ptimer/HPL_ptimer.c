@@ -77,11 +77,7 @@ static double      HPL_ptimer_cpusec   [HPL_NPTIMER],
  * User callable functions
  * ---------------------------------------------------------------------
  */
-#ifdef STDC_HEADERS
 void HPL_ptimer_boot( void )
-#else
-void HPL_ptimer_boot()
-#endif
 {
 /*
  * HPL_ptimer_boot (re)sets all timers to 0, and enables HPL_ptimer.
@@ -105,12 +101,7 @@ void HPL_ptimer_boot()
  */
 }
 
-#ifdef STDC_HEADERS
 void HPL_ptimer( const int I )
-#else
-void HPL_ptimer( I )
-   const int                  I;
-#endif
 {
 /* 
  * Purpose
@@ -185,11 +176,7 @@ void HPL_ptimer( I )
  */
 } 
 
-#ifdef STDC_HEADERS
 void HPL_ptimer_enable( void )
-#else
-void HPL_ptimer_enable()
-#endif
 {
 /*
  * HPL_ptimer_enable sets it so calls to HPL_ptimer are not ignored.
@@ -204,11 +191,8 @@ void HPL_ptimer_enable()
  */
 } 
 
-#ifdef STDC_HEADERS
 void HPL_ptimer_disable( void )
-#else
-void HPL_ptimer_disable()
-#endif
+
 {
 /*
  * HPL_ptimer_disable sets it so calls to HPL_ptimer are ignored.
@@ -223,17 +207,11 @@ void HPL_ptimer_disable()
  */
 } 
 
-#ifdef STDC_HEADERS
 double HPL_ptimer_inquire
 (
    const HPL_T_PTIME          TMTYPE,
    const int                  I
 )
-#else
-double HPL_ptimer_inquire( TMTYPE, I )
-   const int                  I;
-   const HPL_T_PTIME          TMTYPE;
-#endif
 {
 /*
  * Purpose
@@ -287,7 +265,6 @@ double HPL_ptimer_inquire( TMTYPE, I )
  */
 }
 
-#ifdef STDC_HEADERS
 void HPL_ptimer_combine
 (
    MPI_Comm                   COMM,
@@ -297,14 +274,6 @@ void HPL_ptimer_combine
    const int                  IBEG,
    double                     * TIMES
 )
-#else
-void HPL_ptimer_combine( COMM, OPE, TMTYPE, N, IBEG, TIMES )
-   const int                  IBEG, N;
-   const HPL_T_PTIME_OP       OPE;
-   const HPL_T_PTIME          TMTYPE;
-   MPI_Comm                   COMM;
-   double                     * TIMES;
-#endif
 {
 /*
  * Purpose

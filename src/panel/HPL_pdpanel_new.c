@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdpanel_new
 (
    HPL_T_grid *                     GRID,
@@ -78,20 +77,6 @@ void HPL_pdpanel_new
    const int                        TAG,
    HPL_T_panel * *                  PANEL
 )
-#else
-void HPL_pdpanel_new
-( GRID, ALGO, M, N, JB, A, IA, JA, TAG, PANEL )
-   HPL_T_grid *                     GRID;
-   HPL_T_palg *                     ALGO;
-   const int                        M;
-   const int                        N;
-   const int                        JB;
-   HPL_T_pmat *                     A;
-   const int                        IA;
-   const int                        JA;
-   const int                        TAG;
-   HPL_T_panel * *                  PANEL;
-#endif
 {
 /* 
  * Purpose

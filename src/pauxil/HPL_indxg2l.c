@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_indxg2l
 (
    const int                        IG,
@@ -73,15 +72,6 @@ int HPL_indxg2l
    const int                        SRCPROC,
    const int                        NPROCS
 )
-#else
-int HPL_indxg2l
-( IG, INB, NB, SRCPROC, NPROCS )
-   const int                        IG;
-   const int                        INB;
-   const int                        NB;
-   const int                        SRCPROC;
-   const int                        NPROCS;
-#endif
 {
 /* 
  * Purpose

@@ -64,18 +64,11 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 double HPL_pdlamch
 (
    MPI_Comm                         COMM,
    const HPL_T_MACH                 CMACH
 )
-#else
-double HPL_pdlamch
-( COMM, CMACH )
-   MPI_Comm                         COMM;
-   const HPL_T_MACH                 CMACH;
-#endif
 {
 /* 
  * Purpose

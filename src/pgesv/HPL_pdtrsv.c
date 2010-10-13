@@ -64,18 +64,11 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdtrsv
 (
    HPL_T_grid *                     GRID,
    HPL_T_pmat *                     AMAT
 )
-#else
-void HPL_pdtrsv
-( GRID, AMAT )
-   HPL_T_grid *                     GRID;
-   HPL_T_pmat *                     AMAT;
-#endif
 {
 /* 
  * Purpose

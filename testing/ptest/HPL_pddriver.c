@@ -66,23 +66,11 @@
 #include "util_trace.h"
 #include "util_cal.h"
 
-#ifdef STDC_HEADERS
 int main
 (
    int                        ARGC,
    char                       * * ARGV
 )
-#else
-int main( ARGC, ARGV )
-/*
- * .. Scalar Arguments ..
- */
-   int                        ARGC;
-/*
- * .. Array Arguments ..
- */
-   char                       * * ARGV;
-#endif
 {
 /* 
  * Purpose

@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdmatgen
 (
    const HPL_T_grid *               GRID,
@@ -75,17 +74,6 @@ void HPL_pdmatgen
    const int                        LDA,
    const int                        ISEED
 )
-#else
-void HPL_pdmatgen
-( GRID, M, N, NB, A, LDA, ISEED )
-   const HPL_T_grid *               GRID;
-   const int                        M;
-   const int                        N;
-   const int                        NB;
-   double *                         A;
-   const int                        LDA;
-   const int                        ISEED;
-#endif
 {
 /* 
  * Purpose

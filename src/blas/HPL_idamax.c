@@ -69,20 +69,12 @@
 
 #ifndef HPL_idamax
 
-#ifdef STDC_HEADERS
 int HPL_idamax
 (
    const int                        N,
    const double *                   X,
    const int                        INCX
 )
-#else
-int HPL_idamax
-( N, X, INCX )
-   const int                        N;
-   const double *                   X;
-   const int                        INCX;
-#endif 
 {
 /* 
  * Purpose

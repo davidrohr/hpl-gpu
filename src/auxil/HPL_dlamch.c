@@ -89,16 +89,10 @@ static double   HPL_dipow
 STDC_ARGS(
 (  const double,    const int ) );
 
-#ifdef STDC_HEADERS
 double HPL_dlamch
 (
    const HPL_T_MACH                 CMACH
 )
-#else
-double HPL_dlamch
-( CMACH )
-   const HPL_T_MACH                 CMACH;
-#endif
 {
 /* 
  * Purpose
@@ -205,7 +199,6 @@ double HPL_dlamch
  */
 }
 
-#ifdef STDC_HEADERS
 static void HPL_dlamc1
 (
    int                        * BETA,
@@ -213,14 +206,6 @@ static void HPL_dlamc1
    int                        * RND,
    int                        * IEEE1
 )
-#else
-static void HPL_dlamc1
-( BETA, T, RND, IEEE1 )
-/*
- * .. Scalar Arguments ..
- */
-   int                        * BETA, * IEEE1, * RND, * T;
-#endif
 {
 /*
  * Purpose
@@ -340,7 +325,6 @@ static void HPL_dlamc1
    *BETA  = lbeta; *T = lt; *RND = lrnd; *IEEE1 = lieee1;
 } 
 
-#ifdef STDC_HEADERS
 static void HPL_dlamc2
 (
    int                        * BETA, 
@@ -352,14 +336,6 @@ static void HPL_dlamc2
    int                        * EMAX,
    double                     * RMAX
 )
-#else
-static void HPL_dlamc2( BETA, T, RND, EPS, EMIN, RMIN, EMAX, RMAX )
-/*
- * .. Scalar Arguments ..
- */
-   int                        * BETA, * EMAX, * EMIN, * RND, * T;
-   double                     * EPS, * RMAX, * RMIN;
-#endif
 {
 /*
  * Purpose
@@ -588,15 +564,7 @@ static void HPL_dlamc2( BETA, T, RND, EPS, EMIN, RMIN, EMAX, RMAX )
    *EMIN = lemin; *RMIN = lrmin; *EMAX = lemax; *RMAX = lrmax;
 } 
 
-#ifdef STDC_HEADERS
 static double HPL_dlamc3( const double A, const double B )
-#else
-static double HPL_dlamc3( A, B )
-/*
- * .. Scalar Arguments ..
- */
-   const double               A, B;
-#endif
 {
 /*
  * Purpose
@@ -626,22 +594,12 @@ static double HPL_dlamc3( A, B )
    return( A + B );
 } 
 
-#ifdef STDC_HEADERS
 static void HPL_dlamc4
 (
    int                        * EMIN,
    const double               START,
    const int                  BASE
 )
-#else
-static void HPL_dlamc4( EMIN, START, BASE )
-/*
- * .. Scalar Arguments ..
- */
-   int                        * EMIN;
-   const int                  BASE;
-   const double               START;
-#endif
 {
 /*
  * Purpose
@@ -695,7 +653,6 @@ static void HPL_dlamc4( EMIN, START, BASE )
    } while( ( c1 == a ) && ( c2 == a ) &&  ( d1 == a ) && ( d2 == a ) );
 } 
 
-#ifdef STDC_HEADERS
 static void HPL_dlamc5
 (
    const int                  BETA,
@@ -705,15 +662,6 @@ static void HPL_dlamc5
    int                        * EMAX,
    double                     * RMAX
 )
-#else
-static void HPL_dlamc5( BETA, P, EMIN, IEEE, EMAX, RMAX )
-/*
- * .. Scalar Arguments ..
- */
-   const int                  BETA, EMIN, IEEE, P; 
-   int                        * EMAX;
-   double                     * RMAX;
-#endif
 {
 /*
  * Purpose
@@ -843,20 +791,11 @@ l_10:
  */
 } 
 
-#ifdef STDC_HEADERS
 static double HPL_dipow
 (
    const double               X,
    const int                  N
 )
-#else
-static double HPL_dipow( X, N )
-/*
- * .. Scalar Arguments ..
- */
-   const int                  N;
-   const double               X;
-#endif
 {
 /*
  * Purpose

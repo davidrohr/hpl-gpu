@@ -69,7 +69,6 @@
 
 #ifndef HPL_dger
 
-#ifdef STDC_HEADERS
 void HPL_dger
 (
    const enum HPL_ORDER             ORDER,
@@ -83,20 +82,6 @@ void HPL_dger
    double *                         A,
    const int                        LDA
 )
-#else
-void HPL_dger
-( ORDER, M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
-   const enum HPL_ORDER             ORDER;
-   const int                        M;
-   const int                        N;
-   const double                     ALPHA;
-   const double *                   X;
-   const int                        INCX;
-   double *                         Y;
-   const int                        INCY;
-   double *                         A;
-   const int                        LDA;
-#endif
 {
 /* 
  * Purpose

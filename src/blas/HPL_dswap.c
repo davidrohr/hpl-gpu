@@ -69,7 +69,6 @@
 
 #ifndef HPL_dswap
 
-#ifdef STDC_HEADERS
 void HPL_dswap
 (
    const int                        N,
@@ -78,15 +77,6 @@ void HPL_dswap
    double *                         Y,
    const int                        INCY
 )
-#else
-void HPL_dswap
-( N, X, INCX, Y, INCY )
-   const int                        N;
-   double *                         X;
-   const int                        INCX;
-   double *                         Y;
-   const int                        INCY;
-#endif
 {
 /* 
  * Purpose

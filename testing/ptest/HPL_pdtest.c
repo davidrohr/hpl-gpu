@@ -66,7 +66,6 @@
 #include <sys/mman.h>
 #include "util_cal.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdtest
 (
    HPL_T_test *                     TEST,
@@ -76,16 +75,6 @@ void HPL_pdtest
    const int                        NB,
    const int                        SEED
 )
-#else
-void HPL_pdtest
-( TEST, GRID, ALGO, N, NB )
-   HPL_T_test *                     TEST;
-   HPL_T_grid *                     GRID;
-   HPL_T_palg *                     ALGO;
-   const int                        N;
-   const int                        NB;
-   const int                        SEED;
-#endif
 {
 /* 
  * Purpose

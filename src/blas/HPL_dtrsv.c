@@ -69,7 +69,6 @@
 
 #ifndef HPL_dtrsv
 
-#ifdef STDC_HEADERS
 void HPL_dtrsv
 (
    const enum HPL_ORDER             ORDER,
@@ -82,19 +81,6 @@ void HPL_dtrsv
    double *                         X,
    const int                        INCX
 )
-#else
-void HPL_dtrsv
-( ORDER, UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
-   const enum HPL_ORDER             ORDER;
-   const enum HPL_UPLO              UPLO;
-   const enum HPL_TRANS             TRANS;
-   const enum HPL_DIAG              DIAG;
-   const int                        N;
-   const double *                   A;
-   const int                        LDA;
-   double *                         X;
-   const int                        INCX;
-#endif
 {
 /* 
  * Purpose

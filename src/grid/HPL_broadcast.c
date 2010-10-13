@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_broadcast
 (
    void *                           BUFFER,
@@ -76,15 +75,6 @@ int HPL_broadcast
    const int                        ROOT,
    MPI_Comm                         COMM
 )
-#else
-int HPL_broadcast
-( BUFFER, COUNT, DTYPE, ROOT, COMM )
-   void *                           BUFFER;
-   const int                        COUNT;
-   const HPL_T_TYPE                 DTYPE;
-   const int                        ROOT;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

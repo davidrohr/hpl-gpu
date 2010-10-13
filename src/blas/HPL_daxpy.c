@@ -69,7 +69,6 @@
 
 #ifndef HPL_daxpy
 
-#ifdef STDC_HEADERS
 void HPL_daxpy
 (
    const int                        N,
@@ -79,16 +78,6 @@ void HPL_daxpy
    double *                         Y,
    const int                        INCY
 )
-#else
-void HPL_daxpy
-( N, ALPHA, X, INCX, Y, INCY )
-   const int                        N;
-   const double                     ALPHA;
-   const double *                   X;
-   const int                        INCX;
-   double *                         Y;
-   const int                        INCY;
-#endif
 {
 /* 
  * Purpose

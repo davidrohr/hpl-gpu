@@ -67,18 +67,11 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_bcast
 (
    HPL_T_panel *                    PANEL,
    int *                            IFLAG
 )
-#else
-int HPL_bcast
-( PANEL, IFLAG )
-   HPL_T_panel *                    PANEL;
-   int *                            IFLAG;
-#endif
 {
 /* 
  * Purpose

@@ -74,7 +74,6 @@
 #undef HPL_USE_MPI_DATATYPE
 #endif
 
-#ifdef STDC_HEADERS
 int HPL_recv
 (
    double *                         RBUF,
@@ -83,15 +82,6 @@ int HPL_recv
    int                              RTAG,
    MPI_Comm                         COMM
 )
-#else
-int HPL_recv
-( RBUF, RCOUNT, SRC, RTAG, COMM )
-   double *                         RBUF;
-   int                              RCOUNT;
-   int                              SRC;
-   int                              RTAG;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

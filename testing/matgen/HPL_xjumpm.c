@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_xjumpm
 (
    const int                        JUMPM,
@@ -75,17 +74,6 @@ void HPL_xjumpm
    int *                            IAM,
    int *                            ICM
 )
-#else
-void HPL_xjumpm
-( JUMPM, MULT, IADD, IRANN, IRANM, IAM, ICM )
-   const int                        JUMPM;
-   int *                            MULT;
-   int *                            IADD;
-   int *                            IRANN;
-   int *                            IRANM;
-   int *                            IAM;
-   int *                            ICM;
-#endif
 {
 /* 
  * Purpose

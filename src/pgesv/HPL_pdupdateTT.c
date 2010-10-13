@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdupdateTT
 (
    HPL_T_panel *                    PBCST,
@@ -72,14 +71,6 @@ void HPL_pdupdateTT
    HPL_T_panel *                    PANEL,
    const int                        NN
 )
-#else
-void HPL_pdupdateTT
-( PBCST, IFLAG, PANEL, NN )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const int                        NN;
-#endif
 {
 /* 
  * Purpose

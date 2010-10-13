@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pwarn
 (
    FILE *                           STREAM,
@@ -73,10 +72,6 @@ void HPL_pwarn
    const char *                     FORM,
    ...                              
 )
-#else
-void HPL_pwarn( va_alist )
-va_dcl
-#endif
 {
 /* 
  * Purpose
@@ -116,23 +111,10 @@ va_dcl
    va_list                    argptr;
    int                        rank;
    char                       cline[128];
-#ifndef STDC_HEADERS
-   FILE                       * STREAM;
-   int                        LINE;
-   char                       * FORM, * SRNAME;
-#endif
 /* ..
  * .. Executable Statements ..
  */
-#ifdef STDC_HEADERS
    va_start( argptr, FORM );
-#else
-   va_start( argptr );
-   STREAM = va_arg( argptr, FILE * );
-   LINE   = va_arg( argptr, int    );
-   SRNAME = va_arg( argptr, char * );
-   FORM   = va_arg( argptr, char * );
-#endif
    (void) vsprintf( cline, FORM, argptr );
    va_end( argptr ); 
 

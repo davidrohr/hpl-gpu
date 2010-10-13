@@ -69,7 +69,6 @@
 
 #ifndef HPL_dscal
 
-#ifdef STDC_HEADERS
 void HPL_dscal
 (
    const int                        N,
@@ -77,14 +76,6 @@ void HPL_dscal
    double *                         X,
    const int                        INCX
 )
-#else
-void HPL_dscal
-( N, ALPHA, X, INCX )
-   const int                        N;
-   const double                     ALPHA;
-   double *                         X;
-   const int                        INCX;
-#endif
 {
 /* 
  * Purpose

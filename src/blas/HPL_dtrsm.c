@@ -69,7 +69,6 @@
 
 #ifndef HPL_dtrsm
 
-#ifdef STDC_HEADERS
 void HPL_dtrsm
 (
    const enum HPL_ORDER             ORDER,
@@ -85,22 +84,6 @@ void HPL_dtrsm
    double *                         B,
    const int                        LDB
 )
-#else
-void HPL_dtrsm
-( ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB )
-   const enum HPL_ORDER             ORDER;
-   const enum HPL_SIDE              SIDE;
-   const enum HPL_UPLO              UPLO;
-   const enum HPL_TRANS             TRANS;
-   const enum HPL_DIAG              DIAG;
-   const int                        M;
-   const int                        N;
-   const double                     ALPHA;
-   const double *                   A;
-   const int                        LDA;
-   double *                         B;
-   const int                        LDB;
-#endif
 {
 /* 
  * Purpose

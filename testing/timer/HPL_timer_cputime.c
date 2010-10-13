@@ -86,11 +86,7 @@
  
 #include <time.h>
 
-#ifdef STDC_HEADERS
 double HPL_timer_cputime( void )
-#else
-double HPL_timer_cputime()
-#endif
 {
    static double              cps = CLOCKS_PER_SEC;
    double                     d;
@@ -108,11 +104,7 @@ double HPL_timer_cputime()
 #include <sys/times.h>
 #include <unistd.h>
 
-#ifdef STDC_HEADERS
 double HPL_timer_cputime( void )
-#else
-double HPL_timer_cputime()
-#endif
 {
    clock_t                    t1;
    struct tms                 ts;
@@ -129,30 +121,13 @@ double HPL_timer_cputime()
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#ifdef STDC_HEADERS
 double HPL_timer_cputime( void )
-#else
-double HPL_timer_cputime()
-#endif
 {
    struct rusage              ruse;
    (void) getrusage( RUSAGE_SELF, &ruse );
    return( (double)( ruse.ru_utime.tv_sec  ) +
            ( (double)( ruse.ru_utime.tv_usec ) / 1000000.0 ) );
 }
-
-/* 
-#else
-
-#ifdef STDC_HEADERS
-double HPL_timer_cputime( void )
-#else
-double HPL_timer_cputime()
-#endif
-{
-   return( HPL_TIMER_ERROR );
-}
-*/
 
 #endif
 /*

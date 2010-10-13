@@ -69,7 +69,6 @@
 
 #ifndef HPL_dgemm
 
-#ifdef STDC_HEADERS
 void HPL_dgemm
 (
    const enum HPL_ORDER             ORDER,
@@ -87,24 +86,6 @@ void HPL_dgemm
    double *                         C,
    const int                        LDC
 )
-#else
-void HPL_dgemm
-( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB, BETA, C, LDC )
-   const enum HPL_ORDER             ORDER;
-   const enum HPL_TRANS             TRANSA;
-   const enum HPL_TRANS             TRANSB;
-   const int                        M;
-   const int                        N;
-   const int                        K;
-   const double                     ALPHA;
-   const double *                   A;
-   const int                        LDA;
-   const double *                   B;
-   const int                        LDB;
-   const double                     BETA;
-   double *                         C;
-   const int                        LDC;
-#endif
 {
 /* 
  * Purpose

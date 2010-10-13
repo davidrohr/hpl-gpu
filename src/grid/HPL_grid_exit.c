@@ -67,16 +67,10 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_grid_exit
 (
    HPL_T_grid *                     GRID
 )
-#else
-int HPL_grid_exit
-( GRID )
-   HPL_T_grid *                     GRID;
-#endif
 {
 /* 
  * Purpose

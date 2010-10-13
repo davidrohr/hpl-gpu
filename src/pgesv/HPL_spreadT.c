@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 void HPL_spreadT
 (
    HPL_T_panel *                    PBCST,
@@ -82,21 +81,6 @@ void HPL_spreadT
    const int *                      IPMAP,
    const int *                      IPMAPM1
 )
-#else
-void HPL_spreadT
-( PBCST, IFLAG, PANEL, SIDE, N, U, LDU, SRCDIST, IPLEN, IPMAP, IPMAPM1 )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const enum HPL_SIDE              SIDE;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   const int                        SRCDIST;
-   const int *                      IPLEN;
-   const int *                      IPMAP;
-   const int *                      IPMAPM1;
-#endif
 {
 /* 
  * Purpose

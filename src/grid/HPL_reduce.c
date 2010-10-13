@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_reduce
 (
    void *                           BUFFER,
@@ -77,16 +76,6 @@ int HPL_reduce
    const int                        ROOT,
    MPI_Comm                         COMM
 )
-#else
-int HPL_reduce
-( BUFFER, COUNT, DTYPE, OP, ROOT, COMM )
-   void *                           BUFFER;
-   const int                        COUNT;
-   const HPL_T_TYPE                 DTYPE;
-   const HPL_T_OP                   OP;
-   const int                        ROOT;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

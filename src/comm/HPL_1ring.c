@@ -70,15 +70,7 @@
 #endif
 #endif
 
-#ifdef STDC_HEADERS
-int HPL_binit_1ring
-(
-   HPL_T_panel *              PANEL
-)
-#else
-int HPL_binit_1ring( PANEL )
-   HPL_T_panel *              PANEL;
-#endif
+int HPL_binit_1ring(HPL_T_panel* PANEL)
 {
 #ifdef HPL_USE_MPI_DATATYPE
 /*
@@ -128,17 +120,11 @@ int HPL_binit_1ring( PANEL )
 
 #endif
 
-#ifdef STDC_HEADERS
 int HPL_bcast_1ring
 (
    HPL_T_panel                * PANEL,
    int                        * IFLAG
 )
-#else
-int HPL_bcast_1ring( PANEL, IFLAG )
-   HPL_T_panel                * PANEL;
-   int                        * IFLAG;
-#endif
 {
 /*
  * .. Local Variables ..
@@ -199,15 +185,10 @@ int HPL_bcast_1ring( PANEL, IFLAG )
    return( *IFLAG );
 }
 
-#ifdef STDC_HEADERS
 int HPL_bwait_1ring
 (
    HPL_T_panel *              PANEL
 )
-#else
-int HPL_bwait_1ring( PANEL )
-   HPL_T_panel *              PANEL;
-#endif
 {
 #ifdef HPL_USE_MPI_DATATYPE
 /*

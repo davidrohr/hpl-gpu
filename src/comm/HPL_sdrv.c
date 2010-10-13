@@ -74,7 +74,6 @@
 #undef HPL_USE_MPI_DATATYPE
 #endif
 
-#ifdef STDC_HEADERS
 int HPL_sdrv
 (
    double *                         SBUF,
@@ -86,18 +85,6 @@ int HPL_sdrv
    int                              PARTNER,
    MPI_Comm                         COMM
 )
-#else
-int HPL_sdrv
-( SBUF, SCOUNT, STAG, RBUF, RCOUNT, RTAG, PARTNER, COMM )
-   double *                         SBUF;
-   int                              SCOUNT;
-   int                              STAG;
-   double *                         RBUF;
-   int                              RCOUNT;
-   int                              RTAG;
-   int                              PARTNER;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

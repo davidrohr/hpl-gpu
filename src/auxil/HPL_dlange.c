@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 double HPL_dlange
 (
    const HPL_T_NORM                 NORM,
@@ -73,15 +72,6 @@ double HPL_dlange
    const double *                   A,
    const int                        LDA
 )
-#else
-double HPL_dlange
-( NORM, M, N, A, LDA )
-   const HPL_T_NORM                 NORM;
-   const int                        M;
-   const int                        N;
-   const double *                   A;
-   const int                        LDA;
-#endif
 {
 /* 
  * Purpose

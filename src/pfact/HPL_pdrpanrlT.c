@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdrpanrlT
 (
    HPL_T_panel *                    PANEL,
@@ -73,15 +72,6 @@ void HPL_pdrpanrlT
    const int                        ICOFF,
    double *                         WORK
 )
-#else
-void HPL_pdrpanrlT
-( PANEL, M, N, ICOFF, WORK )
-   HPL_T_panel *                    PANEL;
-   const int                        M;
-   const int                        N;
-   const int                        ICOFF;
-   double *                         WORK;
-#endif
 {
 /* 
  * Purpose

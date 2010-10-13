@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_perm
 (
    const int                        N,
@@ -72,14 +71,6 @@ void HPL_perm
    int *                            LINDXAU,
    int *                            IWORK
 )
-#else
-void HPL_perm
-( N, LINDXA, LINDXAU, IWORK )
-   const int                        N;
-   int *                            LINDXA;
-   int *                            LINDXAU;
-   int *                            IWORK;
-#endif
 {
 /* 
  * Purpose

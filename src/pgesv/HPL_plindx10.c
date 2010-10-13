@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 void HPL_plindx10
 (
    HPL_T_panel *                    PANEL,
@@ -77,16 +76,6 @@ void HPL_plindx10
    int *                            IPMAP,
    int *                            IPMAPM1
 )
-#else
-void HPL_plindx10
-( PANEL, K, IPID, IPLEN, IPMAP, IPMAPM1 )
-   HPL_T_panel *                    PANEL;
-   const int                        K;
-   const int *                      IPID;
-   int *                            IPLEN;
-   int *                            IPMAP;
-   int *                            IPMAPM1;
-#endif
 {
 /* 
  * Purpose

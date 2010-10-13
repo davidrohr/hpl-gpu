@@ -69,7 +69,6 @@
 
 #ifndef HPL_dcopy
 
-#ifdef STDC_HEADERS
 void HPL_dcopy
 (
    const int                        N,
@@ -78,15 +77,6 @@ void HPL_dcopy
    double *                         Y,
    const int                        INCY
 )
-#else
-void HPL_dcopy
-( N, X, INCX, Y, INCY )
-   const int                        N;
-   const double *                   X;
-   const int                        INCX;
-   double *                         Y;
-   const int                        INCY;
-#endif
 {
 /* 
  * Purpose

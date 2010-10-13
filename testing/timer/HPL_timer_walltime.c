@@ -77,11 +77,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#ifdef STDC_HEADERS
 double HPL_timer_walltime( void )
-#else
-double HPL_timer_walltime()
-#endif
 {
    struct timeval             tp;
    static long                start=0, startu;

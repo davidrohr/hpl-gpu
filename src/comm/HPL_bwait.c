@@ -67,16 +67,10 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_bwait
 (
    HPL_T_panel *                    PANEL
 )
-#else
-int HPL_bwait
-( PANEL )
-   HPL_T_panel *                    PANEL;
-#endif
 {
 /* 
  * Purpose
