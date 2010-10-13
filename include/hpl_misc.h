@@ -70,7 +70,6 @@
 #include <string.h>
 
 #include <stdarg.h>
-#define STDC_ARGS(p)           p
 
 /*
  * ---------------------------------------------------------------------

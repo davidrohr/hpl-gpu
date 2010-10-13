@@ -117,58 +117,24 @@ enum HPL_SIDE
  * CBLAS Function prototypes
  * ---------------------------------------------------------------------
  */
-CBLAS_INDEX       cblas_idamax
-STDC_ARGS(
-(  const int,       const double *,  const int ) );
-void              cblas_dswap
-STDC_ARGS(
-(  const int,       double *,        const int,       double *,
-   const int ) );
-void              cblas_dcopy
-STDC_ARGS(
-(  const int,       const double *,  const int,       double *,
-   const int ) );
-void              cblas_daxpy
-STDC_ARGS(
-(  const int,       const double,    const double *,  const int,
-   double *,        const int ) );
-void              cblas_dscal
-STDC_ARGS(
-(  const int,       const double,    double *,        const int ) );
+CBLAS_INDEX cblas_idamax(  const int,       const double *,  const int );
+void cblas_dswap (  const int,       double *,        const int,       double *,   const int );
+void cblas_dcopy (  const int,       const double *,  const int,       double *,   const int );
+void cblas_daxpy (  const int,       const double,    const double *,  const int,   double *,        const int );
+void cblas_dscal (  const int,       const double,    double *,        const int );
 
-void              cblas_dgemv
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
-   const int,       const int,       const double,    const double *,
-   const int,       const double *,  const int,       const double,
-   double *,        const int ) );
+void cblas_dgemv (  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE, const int,       const int,       const double,    const double *,
+   const int,       const double *,  const int,       const double,   double *,        const int );
 
-void              cblas_dger
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const int,       const int,
-   const double,    const double *,  const int,       const double *,
-   const int,       double *,        const int ) );
-void              cblas_dtrsv
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_UPLO,
-   const enum CBLAS_TRANSPOSE,       const enum CBLAS_DIAG,
-   const int,       const double *,  const int,       double *,
-   const int ) );
+void cblas_dger (  const enum CBLAS_ORDER,           const int,       const int,   const double,    const double *,  const int,       const double *,
+   const int,       double *,        const int );
+void cblas_dtrsv (  const enum CBLAS_ORDER,           const enum CBLAS_UPLO,   const enum CBLAS_TRANSPOSE,       const enum CBLAS_DIAG,
+   const int,       const double *,  const int,       double *,   const int );
 
-void              cblas_dgemm
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
-   const enum CBLAS_TRANSPOSE,       const int,       const int,
-   const int,       const double,    const double *,  const int,
-   const double *,  const int,       const double,    double *,
-   const int ) );
-void              cblas_dtrsm
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,
-   const enum CBLAS_UPLO,            const enum CBLAS_TRANSPOSE,
-   const enum CBLAS_DIAG,            const int,       const int,
-   const double,    const double *,  const int,       double *,
-   const int ) );
+void cblas_dgemm (  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,   const enum CBLAS_TRANSPOSE,       const int,       const int,
+   const int,       const double,    const double *,  const int,   const double *,  const int,       const double,    double *,   const int );
+void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   const enum CBLAS_UPLO,            const enum CBLAS_TRANSPOSE,
+   const enum CBLAS_DIAG,            const int,       const int,    const double,    const double *,  const int,       double *,   const int );
 /*
  * ---------------------------------------------------------------------
  * HPL C BLAS macro definition
@@ -501,116 +467,20 @@ STDC_ARGS(
  */
 #if defined(HPL_NO_CALL_CBLAS) || defined(TRACE_CALLS)
 
-int                              HPL_idamax
-STDC_ARGS( (
-   const int,
-   const double *,
-   const int
-) );
-void                             HPL_daxpy
-STDC_ARGS( (
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dcopy
-STDC_ARGS( (
-   const int,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dscal
-STDC_ARGS( (
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dswap
-STDC_ARGS( (
-   const int,
-   double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dgemv
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_TRANS,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   const double *,
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dger
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dtrsv
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_UPLO,
-   const enum HPL_TRANS,
-   const enum HPL_DIAG,
-   const int,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dgemm
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_TRANS,
-   const enum HPL_TRANS,
-   const int,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   const double *,
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dtrsm
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_SIDE,
-   const enum HPL_UPLO,
-   const enum HPL_TRANS,
-   const enum HPL_DIAG,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
+int HPL_idamax(   const int,   const double *,   const int);
+void HPL_daxpy(   const int,   const double,   const double *,   const int,   double *,   const int );
+void HPL_dcopy(   const int,   const double *,   const int,   double *,   const int );
+void HPL_dscal(   const int,   const double,   double *,   const int );
+void HPL_dswap(   const int,   double *,   const int,   double *,   const int );
+void HPL_dgemv(   const enum HPL_ORDER,   const enum HPL_TRANS,   const int,   const int,   const double,   const double *,   const int,   const double *,   const int,
+   const double,   double *,   const int );
+void HPL_dger(   const enum HPL_ORDER,   const int,   const int,   const double,   const double *,   const int,   double *,   const int,   double *,   const int );
+void HPL_dtrsv(   const enum HPL_ORDER,   const enum HPL_UPLO,   const enum HPL_TRANS,   const enum HPL_DIAG,   const int,   const double *,   const int,   double *,
+   const int );
+void HPL_dgemm(   const enum HPL_ORDER,   const enum HPL_TRANS,   const enum HPL_TRANS,   const int,   const int,   const int,   const double,   const double *,
+   const int,   const double *,   const int,   const double,   double *,   const int );
+void HPL_dtrsm(   const enum HPL_ORDER,   const enum HPL_SIDE,   const enum HPL_UPLO,   const enum HPL_TRANS,   const enum HPL_DIAG,   const int,   const int,
+   const double,   const double *,   const int,   double *,   const int );
 
 #endif
 

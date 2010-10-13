@@ -90,20 +90,15 @@ HPL_T_PTIME_OP;
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-double          HPL_ptimer_cputime   STDC_ARGS(     ( void      ) );
-double          HPL_ptimer_walltime  STDC_ARGS(     ( void      ) );
+double          HPL_ptimer_cputime   ( void      );
+double          HPL_ptimer_walltime  ( void      );
 
-void            HPL_ptimer           STDC_ARGS(     ( const int ) );
-void            HPL_ptimer_boot      STDC_ARGS(     ( void      ) );
-void            HPL_ptimer_combine
-STDC_ARGS(
-(  MPI_Comm comm,   const HPL_T_PTIME_OP,             const HPL_T_PTIME,
-   const int,       const int,       double * ) );
-void            HPL_ptimer_disable   STDC_ARGS(     ( void      ) );
-void            HPL_ptimer_enable    STDC_ARGS(     ( void      ) );
-double          HPL_ptimer_inquire
-STDC_ARGS(
-(  const HPL_T_PTIME,                const int ) );
+void            HPL_ptimer           ( const int );
+void            HPL_ptimer_boot      ( void      );
+void            HPL_ptimer_combine   ( MPI_Comm comm, const HPL_T_PTIME_OP, const HPL_T_PTIME, const int, const int, double * );
+void            HPL_ptimer_disable   ( void      );
+void            HPL_ptimer_enable    ( void      );
+double          HPL_ptimer_inquire   ( const HPL_T_PTIME, const int );
 
 #endif
 /*

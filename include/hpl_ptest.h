@@ -84,13 +84,13 @@
  */
 typedef struct HPL_S_test
 {
-   double              epsil;                      /* epsilon machine */
-   double              thrsh;                            /* threshold */
-   FILE *              outfp;       /* output stream (only in proc 0) */
-   int                 kfail;                    /* # of tests failed */
-   int                 kpass;                    /* # of tests passed */
-   int                 kskip;                   /* # of tests skipped */
-   int                 ktest;                /* total number of tests */
+	double              epsil;                      /* epsilon machine */
+	double              thrsh;                            /* threshold */
+	FILE *              outfp;       /* output stream (only in proc 0) */
+	int                 kfail;                    /* # of tests failed */
+	int                 kpass;                    /* # of tests passed */
+	int                 kskip;                   /* # of tests skipped */
+	int                 ktest;                /* total number of tests */
 } HPL_T_test;
 
 /*
@@ -124,41 +124,9 @@ typedef struct HPL_S_test
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-void                             HPL_pdinfo
-STDC_ARGS( (
-   HPL_T_test *,
-   int *,
-   int *,
-   int *,
-   int *,
-   HPL_T_ORDER *,
-   int *,
-   int *,
-   int *,
-   int *,
-   HPL_T_FACT *,
-   int *,
-   int *,
-   int *,
-   int *,
-   int *,
-   HPL_T_FACT *,
-   int *,
-   HPL_T_TOP *,
-   int *,
-   int *,
-   int *,
-   int *
-) );
-void                             HPL_pdtest
-STDC_ARGS( (
-   HPL_T_test *,
-   HPL_T_grid *,
-   HPL_T_palg *,
-   const int,
-   const int,
-   const int
-) );
+void HPL_pdinfo( HPL_T_test *, int *, int *, int *, int *, HPL_T_ORDER *, int *, int *, int *, int *, HPL_T_FACT *, int *, int *, int *, int *, int *,
+   HPL_T_FACT *, int *, HPL_T_TOP *, int *, int *, int *, int * );
+void HPL_pdtest( HPL_T_test *, HPL_T_grid *, HPL_T_palg *, const int, const int, const int );
 
 #endif
 /*
