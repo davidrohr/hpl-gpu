@@ -91,7 +91,7 @@ void HPL_ladd( int *, int *, int * );
 void HPL_xjumpm( const int, int *, int *, int *, int *, int *, int * );
 void HPL_setran( const int, int *);
 void HPL_jumpit( int *, int *, int *, int * );
-double HPL_rand STDC_ARGS( ( void ) );
+double HPL_rand ( void );
 
 #endif
 /*
