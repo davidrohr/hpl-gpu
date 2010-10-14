@@ -114,7 +114,11 @@ int main
  */
    MPI_Init( &ARGC, &ARGV );
 #ifdef HPL_CALL_CALDGEMM
-   CALDGEMM_Init();
+   if (CALDGEMM_Init())
+   {
+	printf("Error initializing CALDGEMM, abborting run\n");
+	return(1);
+   }
 #endif
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );

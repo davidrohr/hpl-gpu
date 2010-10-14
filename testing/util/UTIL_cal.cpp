@@ -18,10 +18,16 @@
 
 #include "util_cal.h"
 
+extern "C"
+{
+    extern void HPL_CALLDGEMM_wrapper_factorize();
+    extern void HPL_CALLDGEMM_wrapper_broadcast();
+}
+
 static caldgemm::SampleInfo cal_info;
 static caldgemm cal_dgemm;
 
-void CALDGEMM_Init()
+int CALDGEMM_Init()
 {
 	//cal_info.Pin = -3;
 	//cal_info.Verify = CAL_TRUE;
@@ -50,8 +56,11 @@ void CALDGEMM_Init()
 	//cal_info.DumpMatrix = CAL_FALSE;
 	cal_info.NoPerformanceWarnings = CAL_FALSE;
 	cal_info.KeepBuffersMapped = CAL_TRUE;
+	
+	cal_info.linpack_factorize_function = HPL_CALLDGEMM_wrapper_factorize;
+	cal_info.linpack_broadcast_function = HPL_CALLDGEMM_wrapper_broadcast;
 
-	cal_dgemm.InitCALDGEMM( &cal_info );
+	return(cal_dgemm.InitCALDGEMM( &cal_info ));
 }
 
 void CALDGEMM_Shutdown()
