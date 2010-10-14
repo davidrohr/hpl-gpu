@@ -522,10 +522,10 @@ void HPL_pdinfo
       {
          (void) sscanf( lineptr, "%s", num );
          lineptr += strlen( num ) + 1;
-         if( ( DH[ i ] = atoi( num ) ) < 0 )
+         if( ( DH[ i ] = atoi( num ) ) < 0  || DH[i] > 1 )
          {
             HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                       "Value of DEPTH less than 0" );
+                       "Value of DEPTH less than 0 or greater than 1" );
             error = 1; goto label_error;
          }
       }

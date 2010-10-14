@@ -67,10 +67,7 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-int HPL_bwait
-(
-   HPL_T_panel *                    PANEL
-)
+int HPL_bwait(HPL_T_panel* PANEL)
 {
 /* 
  * Purpose

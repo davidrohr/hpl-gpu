@@ -185,10 +185,7 @@ int HPL_bcast_1ring
    return( *IFLAG );
 }
 
-int HPL_bwait_1ring
-(
-   HPL_T_panel *              PANEL
-)
+int HPL_bwait_1ring(HPL_T_panel* PANEL)
 {
 #ifdef HPL_USE_MPI_DATATYPE
 /*
