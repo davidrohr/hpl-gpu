@@ -149,8 +149,6 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		}
 	}
 
-	PANEL->A = Mptr( PANEL->A, 0, n, lda ); PANEL->nq -= n; PANEL->jj += n;
-
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 
 	fprintfct(stderr, "pdupdateTT ended\n");
