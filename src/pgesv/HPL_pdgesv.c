@@ -64,12 +64,7 @@
  */
 #include "hpl.h"
 
-void HPL_pdgesv
-(
-   HPL_T_grid *                     GRID,
-   HPL_T_palg *                     ALGO,
-   HPL_T_pmat *                     A
-)
+void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 /* 
  * Purpose
@@ -77,9 +72,9 @@ void HPL_pdgesv
  *
  * HPL_pdgesv factors a N+1-by-N matrix using LU factorization with row
  * partial pivoting.  The main algorithm  is the "right looking" variant
- * with  or  without look-ahead.  The  lower  triangular  factor is left
- * unpivoted and the pivots are not returned. The right hand side is the
- * N+1 column of the coefficient matrix.
+ * with look-ahead.  The  lower  triangular factor is left unpivoted and
+ * the pivots are not returned. The right hand side is the N+1 column of
+ * the coefficient matrix.
  *
  * Arguments
  * =========
@@ -98,26 +93,96 @@ void HPL_pdgesv
  *
  * ---------------------------------------------------------------------
  */ 
-/* ..
- * .. Executable Statements ..
- */
-   if( A->n <= 0 ) return;
+	//.. Local Variables ..
+	HPL_T_panel *p, **panel = NULL;
+	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
+	//.. Executable Statements ..
+	if( A->n <= 0 ) return;
+	A->info = 0;
+	
+	mycol = GRID->mycol;
+	npcol = GRID->npcol;
+	depth = ALGO->depth;
+	N = A->n;
+	nb = A->nb;
 
-   A->info = 0;
+	//Allocate a panel list of length depth + 1 (depth >= 1)
+	panel = (HPL_T_panel **)malloc((size_t)(depth+1) * sizeof(HPL_T_panel *));
+	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
-   if( ( ALGO->depth == 0 ) || ( GRID->npcol == 1 ) )
-   {
-      HPL_pdgesvK2(  GRID, ALGO, A );
-   }
-   else
-   {
-      HPL_pdgesvK2( GRID, ALGO, A );
-   }
-/*
- * Solve upper triangular system
- */
-   if( A->info == 0 ) HPL_pdtrsv( GRID, A );
-/*
- * End of HPL_pdgesv
- */
+	//Create and initialize the lookahead panel
+	nq = HPL_numroc(N+1, nb, nb, mycol, 0, npcol);
+	nn = N;
+
+	if (depth)
+	{
+		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[0]);
+	}
+
+	//Create main panel
+	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth]);
+	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
+
+	//Main loop over the columns of A
+	for(j = 0; j < N; j += nb)
+	{
+		n = N - j;
+		jb = Mmin(n, nb);
+
+		//Initialize current panel
+		(void) HPL_pdpanel_free(panel[depth]);
+		HPL_pdpanel_init(GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth]);
+
+		if(mycol == icurcol)
+		{
+			HPL_pdfact(panel[depth]);    //factor current panel
+			nn = HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol);
+		}
+		else
+		{
+			nn = 0;
+		}
+
+		HPL_ptimer_detail(HPL_TIMING_BCAST);
+		(void) HPL_binit(panel[depth]);
+		do
+		{
+			(void) HPL_bcast(panel[depth], &test);
+		}
+		while(test != HPL_SUCCESS);
+		(void) HPL_bwait(panel[depth]);
+		HPL_ptimer_detail(HPL_TIMING_BCAST);
+
+		//Finish the latest update and broadcast the current panel
+		HPL_pdupdateTT(NULL, NULL, panel[depth], nq-nn);
+
+		//Circular of the panel pointers: * xtmp = x[0]; for(k=0; k < depth; k++) x[k] = x[k+1]; x[d] = xtmp;
+		//Go to next process row and column - update the message ids for broadcast
+		if (depth)
+		{
+			p = panel[0];
+			panel[0] = panel[1];
+			panel[1] = p;
+		}
+
+		if(mycol == icurcol)
+		{
+			nq -= jb;
+		}
+		icurcol = MModAdd1(icurcol, npcol);
+		tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
+	}
+
+	//Clean-up: Release panels and panel list
+	if(depth)
+	{
+		(void) HPL_pdpanel_disp( &panel[0]);
+	}
+	(void) HPL_pdpanel_disp(&panel[depth]);
+
+	if(panel) free(panel);
+	
+	//Solve upper triangular system
+	if( A->info == 0 ) HPL_pdtrsv( GRID, A );
 }
+

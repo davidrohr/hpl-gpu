@@ -165,8 +165,6 @@ void HPL_pdlaswp01T( HPL_T_panel *, int *, HPL_T_panel *, const int );
 
 void HPL_pdupdateTT( HPL_T_panel *, int *, HPL_T_panel *, const int );
 
-void HPL_pdgesv0( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
-void HPL_pdgesvK2( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
 void HPL_pdgesv( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
  
 void HPL_pdtrsv( HPL_T_grid *, HPL_T_pmat * );
