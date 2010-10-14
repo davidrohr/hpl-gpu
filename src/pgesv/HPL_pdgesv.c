@@ -107,7 +107,7 @@ void HPL_pdgesv
 
    if( ( ALGO->depth == 0 ) || ( GRID->npcol == 1 ) )
    {
-      HPL_pdgesv0(  GRID, ALGO, A );
+      HPL_pdgesvK2(  GRID, ALGO, A );
    }
    else
    {

@@ -94,10 +94,8 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
  * ---------------------------------------------------------------------
  */ 
 	//.. Local Variables ..
-	HPL_T_panel                * p, * * panel = NULL;
-	int                        N, depth, icurcol=0, j, jb, jj=0, jstart,
-		k, mycol, n, nb, nn, npcol, nq,
-		tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
+	HPL_T_panel *p, **panel = NULL;
+	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
 	//.. Executable Statements ..
 	mycol = GRID->mycol;
 	npcol = GRID->npcol;
@@ -105,60 +103,59 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	N = A->n;
 	nb = A->nb;
 
-	if( N <= 0 ) return;
+	if(N <= 0) return;
 
 	//Allocate a panel list of length depth + 1 (depth >= 1)
-	panel = (HPL_T_panel **)malloc( (size_t)(depth+1) * sizeof( HPL_T_panel *) );
-	if( panel == NULL ) HPL_pabort( __LINE__, "HPL_pdgesvK2", "Memory allocation failed" );
+	panel = (HPL_T_panel **)malloc((size_t)(depth+1) * sizeof(HPL_T_panel *));
+	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
-	nq = HPL_numroc( N+1, nb, nb, mycol, 0, npcol );
+	nq = HPL_numroc(N+1, nb, nb, mycol, 0, npcol);
 	nn = N;
-	jstart = 0;
 
 	if (depth)
 	{
-		HPL_pdpanel_new( GRID, ALGO, nn, nn+1, Mmin( nn, nb ), A, jstart, jstart, tag, &panel[0] );
+		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[0]);
 	}
 
 	//Create main panel
-	HPL_pdpanel_new( GRID, ALGO, nn, nn+1, Mmin( nn, nb ), A, jstart, jstart, tag, &panel[depth] );
-	tag = MNxtMgid( tag, MSGID_BEGIN_FACT, MSGID_END_FACT );
+	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth]);
+	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 
-	//Main loop over the remaining columns of A
-	for( j = jstart; j < N; j += nb )
+	//Main loop over the columns of A
+	for(j = 0; j < N; j += nb)
 	{
 		n = N - j;
-		jb = Mmin( n, nb );
+		jb = Mmin(n, nb);
 
 		//Initialize current panel
-		(void) HPL_pdpanel_free( panel[depth] );
-		HPL_pdpanel_init( GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth] );
+		(void) HPL_pdpanel_free(panel[depth]);
+		HPL_pdpanel_init(GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth]);
 
-		if( mycol == icurcol )
+		if(mycol == icurcol)
 		{
-			nn = HPL_numrocI( jb, j, nb, nb, mycol, 0, npcol );
-			HPL_pdfact( panel[depth] );    //factor current panel
+			HPL_pdfact(panel[depth]);    //factor current panel
+			nn = HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol);
 		}
 		else
 		{
 			nn = 0;
 		}
 
-		HPL_ptimer_detail( HPL_TIMING_BCAST );
-		(void) HPL_binit(         panel[depth] );
+		HPL_ptimer_detail(HPL_TIMING_BCAST);
+		(void) HPL_binit(panel[depth]);
 		do
 		{
-			(void) HPL_bcast(       panel[depth], &test );
+			(void) HPL_bcast(panel[depth], &test);
 		}
-		while( test != HPL_SUCCESS );
-		(void) HPL_bwait(         panel[depth] );
-		HPL_ptimer_detail( HPL_TIMING_BCAST );
+		while(test != HPL_SUCCESS);
+		(void) HPL_bwait(panel[depth]);
+		HPL_ptimer_detail(HPL_TIMING_BCAST);
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT( NULL, NULL, panel[depth], nq-nn );
+		HPL_pdupdateTT(NULL, NULL, panel[depth], nq-nn);
 
-		//Circular of the panel pointers: * xtmp = x[0]; for( k=0; k < depth; k++ ) x[k] = x[k+1]; x[d] = xtmp;
+		//Circular of the panel pointers: * xtmp = x[0]; for(k=0; k < depth; k++) x[k] = x[k+1]; x[d] = xtmp;
 		//Go to next process row and column - update the message ids for broadcast
 		if (depth)
 		{
@@ -167,18 +164,21 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			panel[1] = p;
 		}
 
-		if( mycol == icurcol ) { jj += jb; nq -= jb; }
-		icurcol = MModAdd1( icurcol, npcol );
-		tag = MNxtMgid( tag, MSGID_BEGIN_FACT, MSGID_END_FACT );
+		if(mycol == icurcol)
+		{
+			nq -= jb;
+		}
+		icurcol = MModAdd1(icurcol, npcol);
+		tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	}
 
-	//Clean-up: Finish updates - release panels and panel list
-	nn = HPL_numrocI( 1, N, nb, nb, mycol, 0, npcol );
+	//Clean-up: Release panels and panel list
 	if(depth)
 	{
-		(void) HPL_pdpanel_disp(  &panel[0] );
+		(void) HPL_pdpanel_disp( &panel[0]);
 	}
-	(void) HPL_pdpanel_disp( &panel[depth] );
+	(void) HPL_pdpanel_disp(&panel[depth]);
 
-	if( panel ) free( panel );
+	if(panel) free(panel);
 }
+
