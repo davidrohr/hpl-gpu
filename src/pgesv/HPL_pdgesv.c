@@ -123,6 +123,26 @@
  * ---------------------------------------------------------------------
  */ 
 
+void HPL_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
+{
+	int mycol = Grid->mycol;
+	int test = HPL_KEEP_TESTING;
+	if(mycol == icurcol)
+	{
+		HPL_pdfact(panel);    //factor current panel
+	}
+
+	HPL_ptimer_detail(HPL_TIMING_BCAST);
+	HPL_binit(panel);
+	do
+	{
+		HPL_bcast(panel, &test);
+	}
+	while(test != HPL_SUCCESS);
+	HPL_bwait(panel);
+	HPL_ptimer_detail(HPL_TIMING_BCAST);
+}
+
 void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const int NN)
 {
 	//.. Local Variables ..
@@ -186,7 +206,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
-	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
+	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
 	//.. Executable Statements ..
 	if( A->n <= 0 ) return;
 	A->info = 0;
@@ -224,25 +244,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		(void) HPL_pdpanel_free(panel[depth]);
 		HPL_pdpanel_init(GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth]);
 
-		if(mycol == icurcol)
-		{
-			HPL_pdfact(panel[depth]);    //factor current panel
-			nn = HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol);
-		}
-		else
-		{
-			nn = 0;
-		}
+		HPL_factorize(GRID, panel[depth], icurcol);
 
-		HPL_ptimer_detail(HPL_TIMING_BCAST);
-		(void) HPL_binit(panel[depth]);
-		do
-		{
-			(void) HPL_bcast(panel[depth], &test);
-		}
-		while(test != HPL_SUCCESS);
-		(void) HPL_bwait(panel[depth]);
-		HPL_ptimer_detail(HPL_TIMING_BCAST);
+		nn = (mycol == icurcol) ? HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol) : 0;
 
 		//Finish the latest update and broadcast the current panel
 		HPL_pdupdateTT(NULL, NULL, panel[depth], nq-nn);
