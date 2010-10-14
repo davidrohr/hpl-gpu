@@ -224,6 +224,12 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		CALDGEMM_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, factorize != -1 );
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		
+		/*if (factorize != -1)
+		{
+			HPL_pdgesv_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
+			HPL_pdgesv_broadcast(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
+		}*/
+
 		if (PANEL->grid->nprow != 1 && curr != 0)
 		{
 			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
