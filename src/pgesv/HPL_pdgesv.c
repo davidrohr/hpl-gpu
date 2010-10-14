@@ -127,6 +127,7 @@ void HPL_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	int mycol = Grid->mycol;
 	int test = HPL_KEEP_TESTING;
+	fprintfct(stderr, "Running Factorize\n");
 	if(mycol == icurcol)
 	{
 		HPL_pdfact(panel);    //factor current panel
@@ -141,9 +142,10 @@ void HPL_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	while(test != HPL_SUCCESS);
 	HPL_bwait(panel);
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
+	fprintfct(stderr, "Factorize Ended\n");
 }
 
-void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const int NN)
+void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize)
 {
 	//.. Local Variables ..
 	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
@@ -176,25 +178,46 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 	if (n)
 	{
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		if (PANEL->grid->nprow == 1) HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
-		else HPL_pdlaswp01T( PBCST, &test, PANEL, n );
+		if (PANEL->grid->nprow == 1)
+		{
+			HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+		}
+		else
+		{
+			HPL_pdlaswp01T( PBCST, &test, PANEL, n );
+		}
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-		if (PANEL->grid->nprow == 1) HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
-		else                         HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+		if (PANEL->grid->nprow == 1)
+		{
+			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
+		}
+		else
+		{
+			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+		}
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
-
+		
+		if (factorize != -1)
+		{
+			HPL_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
+		}
+		
 		if (PANEL->grid->nprow != 1 && curr != 0)
 		{
 			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 			HPL_dlatcpy( jb, n, Uptr, LDU, Aptr, lda );
 			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 		}
+	}
+	else if (factorize != -1)
+	{
+		HPL_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
 	}
 
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
@@ -206,7 +229,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
-	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+	int N, depth, icurcol=0, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
 	//.. Executable Statements ..
 	if( A->n <= 0 ) return;
 	A->info = 0;
@@ -239,20 +262,29 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	{
 		n = N - j;
 		jb = Mmin(n, nb);
+		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
 
 		//Initialize current panel
-		HPL_pdpanel_free(panel[depth]);
-		HPL_pdpanel_init(GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth]);
 
-		HPL_factorize(GRID, panel[depth], icurcol);
+		if (j == 0 || depth == 0)
+		{
+			HPL_pdpanel_free(panel[depth]);
+			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth]);
+			HPL_factorize(GRID, panel[depth], icurcol);
+		}
+		
+		if (depth && j + nb < N)
+		{
+			HPL_pdpanel_free(panel[0]);
+			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
+		}
 
 		nn = (mycol == icurcol) ? HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol) : 0;
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT(NULL, NULL, panel[depth], nq-nn);
+		HPL_pdupdateTT(GRID, panel[0], panel[depth], nq-nn, (depth && j + nb < N) ? icurcol : -1);
 
-		//Circular of the panel pointers: * xtmp = x[0]; for(k=0; k < depth; k++) x[k] = x[k+1]; x[d] = xtmp;
-		//Go to next process row and column - update the message ids for broadcast
+		//Switch panel pointers
 		if (depth)
 		{
 			p = panel[0];
