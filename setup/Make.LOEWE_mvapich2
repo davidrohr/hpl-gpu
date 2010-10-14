@@ -228,4 +228,3 @@ ARFLAGS      = r
 RANLIB       = echo
 #
 # ----------------------------------------------------------------------
-HPL_DEFS += -DTRACE_CALLS -DHPL_DETAILED_TIMING
