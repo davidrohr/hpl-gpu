@@ -146,13 +146,13 @@ void HPL_pdgesvK2(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		}
 
 		HPL_ptimer_detail( HPL_TIMING_BCAST );
-		(void) HPL_binit(         panel[0] );
+		(void) HPL_binit(         panel[depth] );
 		do
 		{
-			(void) HPL_bcast(       panel[0], &test );
+			(void) HPL_bcast(       panel[depth], &test );
 		}
 		while( test != HPL_SUCCESS );
-		(void) HPL_bwait(         panel[0] );
+		(void) HPL_bwait(         panel[depth] );
 		HPL_ptimer_detail( HPL_TIMING_BCAST );
 
 		//Finish the latest update and broadcast the current panel
