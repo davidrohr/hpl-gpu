@@ -151,11 +151,7 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #define    HPL_dtrsv           cblas_dtrsv
 #define    HPL_dger            cblas_dger
 
-#ifdef HPL_CALL_CALDGEMM
-#define    HPL_dgemm           CALDGEMM_dgemm
-#else
 #define    HPL_dgemm           cblas_dgemm
-#endif
 #define    HPL_dtrsm           cblas_dtrsm
 #endif
 
