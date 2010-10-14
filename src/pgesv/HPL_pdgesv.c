@@ -64,8 +64,37 @@
  */
 #include "hpl.h"
 
-void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
-{
+/* 
+ * Purpose
+ * =======
+ *
+ * HPL_pdupdateTT broadcast - forward the panel PBCST and simultaneously
+ * applies the row interchanges and updates part of the trailing (using
+ * the panel PANEL) submatrix.
+ *
+ * Arguments
+ * =========
+ *
+ * PBCST (local input/output) HPL_T_panel *
+ * On entry, PBCST points to the data structure containing the
+ * panel (to be broadcast) information.
+ *
+ * IFLAG (local output) int *
+ * On exit, IFLAG indicates whether or not the broadcast has
+ * been completed when PBCST is not NULL on entry. In that case,
+ * IFLAG is left unchanged.
+ *
+ * PANEL (local input/output) HPL_T_panel *
+ * On entry, PANEL points to the data structure containing the
+ * panel (to be updated) information.
+ *
+ * NN (local input) const int
+ * On entry, NN specifies the local number of columns of the
+ * trailing submatrix to be updated starting at the current
+ * position. NN must be at least zero.
+ *
+ * ---------------------------------------------------------------------
+ */ 
 /* 
  * Purpose
  * =======
@@ -93,6 +122,68 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
  *
  * ---------------------------------------------------------------------
  */ 
+
+void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const int NN)
+{
+	//.. Local Variables ..
+	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
+	int * ipiv;
+	int curr, i, iroff, jb, lda, ldl2, mp, n, nb, test;
+	//.. Executable Statements ..
+	fprintfct(stderr, "Running pdupdateTT\n");
+	HPL_ptimer_detail( HPL_TIMING_UPDATE );
+	nb = PANEL->nb;
+	jb = PANEL->jb;
+	n = PANEL->nq;
+	lda = PANEL->lda;
+	if( NN >= 0 ) n = Mmin( NN, n );
+
+	const int LDU = PANEL->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+
+	Aptr = PANEL->A;
+	L2ptr = PANEL->L2;
+	L1ptr = PANEL->L1;
+	ldl2 = PANEL->ldl2;
+	curr = ( PANEL->grid->myrow == PANEL->prow ? 1 : 0 );
+	Uptr = PANEL->grid->nprow == 1 ? PANEL->A : PANEL->U;
+	dpiv = PANEL->DPIV;
+	ipiv = PANEL->IWORK;
+	iroff = PANEL->ii;
+	mp = PANEL->mp - ( PANEL->grid->nprow == 1 || curr != 0 ? jb : 0 );
+
+	if( PANEL->grid->nprow == 1 ) for( i = 0; i < jb; i++ ) { ipiv[i] = (int)(dpiv[i]) - iroff; }
+
+	if (n)
+	{
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+		if (PANEL->grid->nprow == 1) HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+		else HPL_pdlaswp01T( PBCST, &test, PANEL, n );
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+
+		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+		if (PANEL->grid->nprow == 1) HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
+		else                         HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+
+		HPL_ptimer_detail( HPL_TIMING_DGEMM );
+		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
+		HPL_ptimer_detail( HPL_TIMING_DGEMM );
+
+		if (PANEL->grid->nprow != 1 && curr != 0)
+		{
+			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+			HPL_dlatcpy( jb, n, Uptr, LDU, Aptr, lda );
+			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+		}
+	}
+
+	HPL_ptimer_detail( HPL_TIMING_UPDATE );
+
+	fprintfct(stderr, "pdupdateTT ended\n");
+}
+
+void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
+{
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
 	int N, depth, icurcol=0, j, jb, k, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT, test=HPL_KEEP_TESTING;
@@ -185,4 +276,3 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Solve upper triangular system
 	if( A->info == 0 ) HPL_pdtrsv( GRID, A );
 }
-
