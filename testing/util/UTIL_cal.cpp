@@ -63,12 +63,12 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
                      const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
                      const int K, const double ALPHA, const double * A, const int LDA,
                      const double * B, const int LDB, const double BETA, double * C,
-                     const int LDC )
+                     const int LDC, int LinpackCallbacks )
 {
-	if (M == 0 || N == 0 || K == 0) return;
-        else if( M >= 2048 && N >= 2048 && K >= 512 )
+	if (!LinpackCallbacks && (M == 0 || N == 0 || K == 0)) return;
+        else if(LinpackCallbacks || ( M >= 2048 && N >= 2048 && K >= 512 ))
         {
-	    cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB );
+	    cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, (bool) LinpackCallbacks );
         }
         else
         {
