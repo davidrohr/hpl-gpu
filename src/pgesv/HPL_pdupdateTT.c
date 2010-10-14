@@ -104,7 +104,10 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 	//.. Executable Statements ..
 	fprintfct(stderr, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
-	nb = PANEL->nb; jb = PANEL->jb; n = PANEL->nq; lda = PANEL->lda;
+	nb = PANEL->nb;
+	jb = PANEL->jb;
+	n = PANEL->nq;
+	lda = PANEL->lda;
 	if( NN >= 0 ) n = Mmin( NN, n );
 
 	const int LDU = PANEL->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
@@ -135,7 +138,7 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
-		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, PANEL->grid->nprow == 1 || curr == 0 ? Aptr : Mptr( Aptr, jb, 0, lda ), lda );
+		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 
 		if (PANEL->grid->nprow != 1 && curr != 0)
