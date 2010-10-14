@@ -95,7 +95,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /cm/shared/apps/openmpi/gcc/64/1.4.2
+MPdir        = /usr/mpi/gcc/openmpi-1.4.2
 MPinc        = $(MPdir)/include
 MPlib        = -L$(MPdir)/lib64 -lmpi
 #
