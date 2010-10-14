@@ -108,30 +108,8 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 	nb = PANEL->nb; jb = PANEL->jb; n = PANEL->nq; lda = PANEL->lda;
 	if( NN >= 0 ) n = Mmin( NN, n );
 
-	//There is nothing to update, enforce the panel broadcast.
-	if( ( n <= 0 ) || ( jb <= 0 ) )
-	{
-		if( PBCST != NULL )
-		{
-			do
-		 {
-			 (void) HPL_bcast( PBCST, IFLAG );
-		 }
-		 while( *IFLAG != HPL_SUCCESS );
-		}
-		HPL_ptimer_detail( HPL_TIMING_UPDATE );
-		return;
-	}
 	const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
 	//fprintf(stderr, "UPDATE %d %d\n", n, LDU);
-
-	//Enable/disable the column panel probing mechanism
-	HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-	(void) HPL_bcast( PBCST, &test );
-	HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-
-
-
 
 
 
@@ -143,31 +121,6 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		mp   = PANEL->mp - jb; iroff = PANEL->ii;   nq0   = 0; 
 
 		for( i = 0; i < jb; i++ ) { ipiv[i] = (int)(dpiv[i]) - iroff; }
-
-		//So far we have not updated anything -  test availability of the panel to be forwarded - If detected forward it and finish the update in one step.
-		while ( test == HPL_KEEP_TESTING )
-		{
-			fprintfct(stderr, "Updating NB columns\n");
-			nn = n - nq0; nn = Mmin( nb, nn );
-
-			//Update nb columns at a time
-			HPL_ptimer_detail( HPL_TIMING_LASWP );
-			HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
-			HPL_ptimer_detail( HPL_TIMING_LASWP );
-
-			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,
-				HplUnit, jb, nn, HPL_rone, L1ptr, jb, Aptr, lda );
-
-			HPL_dgemm( HplColumnMajor, HplNoTrans, HplNoTrans, mp, nn,
-				jb, -HPL_rone, L2ptr, ldl2, Aptr, lda, HPL_rone,
-				Mptr( Aptr, jb, 0, lda ), lda );
-
-			Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn; 
-
-			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-			(void) HPL_bcast( PBCST, &test ); 
-			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-		}
 
 		//The panel has been forwarded at that point, finish the update
 		if( ( nn = n - nq0 ) > 0 )
@@ -192,10 +145,6 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 
 
 
-
-
-
-
 	//General Case
 	else                        /* nprow > 1 ... */
 	{
@@ -206,45 +155,6 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 		Aptr = PANEL->A; L2ptr = PANEL->L2;  L1ptr = PANEL->L1;
 		Uptr = PANEL->U; ldl2 = PANEL->ldl2;
 		mp   = PANEL->mp - ( curr != 0 ? jb : 0 );
-
-		//Broadcast has not occured yet, spliting the computational part
-		while ( test == HPL_KEEP_TESTING )
-		{
-			fprintfct(stderr, "Updating NB columns\n");
-			nn = n - nq0; nn = Mmin( nb, nn );
-
-			HPL_ptimer_detail( HPL_TIMING_DTRSM );
-			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
-				HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
-			HPL_ptimer_detail( HPL_TIMING_DTRSM );
-
-			if( curr != 0 )
-			{
-				HPL_ptimer_detail( HPL_TIMING_DGEMM );
-				HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
-					jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
-					Mptr( Aptr, jb, 0, lda ), lda );
-				HPL_ptimer_detail( HPL_TIMING_DGEMM );
-
-				HPL_ptimer_detail( HPL_TIMING_DLATCPY );
-				HPL_dlatcpy( jb, nn, Uptr, LDU, Aptr, lda );
-				HPL_ptimer_detail( HPL_TIMING_DLATCPY );
-			}
-			else
-			{
-				HPL_ptimer_detail( HPL_TIMING_DGEMM );
-				HPL_dgemm( HplColumnMajor, HplNoTrans, HplTrans, mp, nn,
-					jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone,
-					Aptr, lda );
-				HPL_ptimer_detail( HPL_TIMING_DGEMM );
-			}
-			Uptr = Mptr( Uptr, nn, 0, LDU );
-			Aptr = Mptr( Aptr, 0, nn, lda ); nq0 += nn;
-
-			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-			(void) HPL_bcast( PBCST, &test ); 
-			HPL_ptimer_detail( HPL_TIMING_BCASTUPD );
-		}
 
 		//The panel has been forwarded at that point, finish the update
 		if( ( nn = n - nq0 ) > 0 )
@@ -280,8 +190,6 @@ void HPL_pdupdateTT(HPL_T_panel* PBCST, int* IFLAG, HPL_T_panel* PANEL, const in
 
 	PANEL->A = Mptr( PANEL->A, 0, n, lda ); PANEL->nq -= n; PANEL->jj += n;
 
-	//return the outcome of the probe  (should always be  HPL_SUCCESS,  the panel broadcast is enforced in that routine).
-	if( PBCST != NULL ) *IFLAG = test;
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 
 	fprintfct(stderr, "pdupdateTT ended\n");
