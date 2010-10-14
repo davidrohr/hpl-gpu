@@ -241,7 +241,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		jb = Mmin(n, nb);
 
 		//Initialize current panel
-		(void) HPL_pdpanel_free(panel[depth]);
+		HPL_pdpanel_free(panel[depth]);
 		HPL_pdpanel_init(GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[depth]);
 
 		HPL_factorize(GRID, panel[depth], icurcol);
@@ -271,9 +271,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Clean-up: Release panels and panel list
 	if(depth)
 	{
-		(void) HPL_pdpanel_disp( &panel[0]);
+		HPL_pdpanel_disp( &panel[0]);
 	}
-	(void) HPL_pdpanel_disp(&panel[depth]);
+	HPL_pdpanel_disp(&panel[depth]);
 
 	if(panel) free(panel);
 	
