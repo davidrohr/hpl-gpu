@@ -76,7 +76,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = LOEWE-CSC_gpu
+ARCH         = LOEWE_noATIhack
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -174,7 +174,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
-HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib -Wl,-rpath=$(TOPdir)/caldgemm/ati_patch
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
 #
 # - Compile time options -----------------------------------------------
 #
