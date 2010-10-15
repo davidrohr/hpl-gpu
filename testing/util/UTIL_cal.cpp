@@ -39,6 +39,9 @@ int CALDGEMM_Init()
 	cal_info.Quiet = CAL_TRUE;
 	cal_info.TabularTiming = CAL_FALSE;
 #endif
+#ifdef HPL_GPU_TIMING
+	cal_info.DisplayTiming = CAL_TRUE;
+#endif
 	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
 	//cal_info.Height = 4096;

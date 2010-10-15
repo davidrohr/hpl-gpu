@@ -188,7 +188,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
 # -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
-# -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
+# -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
+# -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM (Will also display timing)
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DCALDGEMM_TEST        Activate Test Debug Code
 #
