@@ -86,28 +86,7 @@
 #define    HPL_LATCPY_LOG2_N_DEPTH  1
 #endif
 
-#ifdef STDC_HEADERS
-void HPL_dlatcpy
-(
-   const int                        M,
-   const int                        N,
-   const double *                   A,
-   const int                        LDA,
-   double *                         B,
-   const int                        LDB
-)
-#else
-void HPL_dlatcpy
-( M, N, A, LDA, B, LDB )
-   const int                        M;
-   const int                        N;
-   const double *                   A;
-   const int                        LDA;
-   double *                         B;
-   const int                        LDB;
-#endif
-{
-/* 
+/**
  * Purpose
  * =======
  *
@@ -142,14 +121,14 @@ void HPL_dlatcpy
  *
  * ---------------------------------------------------------------------
  */
-START_TRACE( DLATCPY )
+void HPL_dlatcpy(const int M, const int N, const double *A, const int LDA, double *B, const int LDB)
+{
+   START_TRACE( DLATCPY )
 
-/*
- * .. Local Variables ..
- */
-#ifdef HPL_LATCPY_USE_COPY
-   register int               j;
-#else
+   if ( M <= 0 || N <= 0 ) {
+      return;
+   }
+
 #if   ( HPL_LATCPY_N_DEPTH == 1 )
    const double               * A0 = A;
    double                     * B0 = B;
@@ -163,29 +142,16 @@ START_TRACE( DLATCPY )
                               * B2 = B + (LDB << 1), * B3 = B + 3 * LDB;
 #endif
    const int                  incA = -M * LDA + (1 << HPL_LATCPY_LOG2_N_DEPTH),
-                              incB = ( (unsigned int)(LDB) <<
-                                       HPL_LATCPY_LOG2_N_DEPTH ) - M,
+                              incB = ( (unsigned int)(LDB) << HPL_LATCPY_LOG2_N_DEPTH ) - M,
                               incA0 = -M * LDA + 1, incB0 = LDB - M;
    int                        mu, nu;
-   register int               i, j;
-#endif
-/* ..
- * .. Executable Statements ..
- */
-   if( ( M <= 0 ) || ( N <= 0 ) ) return;
 
-#ifdef HPL_LATCPY_USE_COPY
-   for( j = 0; j < N; j++, B0 += LDB ) HPL_dcopy( M, A0+j, LDA, B0, 1 );
-#else
-   mu = (int)( ( (unsigned int)(M) >> HPL_LATCPY_LOG2_M_DEPTH ) <<
-                                      HPL_LATCPY_LOG2_M_DEPTH );
-   nu = (int)( ( (unsigned int)(N) >> HPL_LATCPY_LOG2_N_DEPTH ) <<
-                                      HPL_LATCPY_LOG2_N_DEPTH );
 
-   for( j = 0; j < nu; j += HPL_LATCPY_N_DEPTH )
-   {
-      for( i = 0; i < mu; i += HPL_LATCPY_M_DEPTH )
-      {
+   mu = (int)( ( (unsigned int)(M) >> HPL_LATCPY_LOG2_M_DEPTH ) << HPL_LATCPY_LOG2_M_DEPTH );
+   nu = (int)( ( (unsigned int)(N) >> HPL_LATCPY_LOG2_N_DEPTH ) << HPL_LATCPY_LOG2_N_DEPTH );
+
+   for( int j = 0; j < nu; j += HPL_LATCPY_N_DEPTH ) {
+      for( int i = 0; i < mu; i += HPL_LATCPY_M_DEPTH ) {
 #if   ( HPL_LATCPY_N_DEPTH == 1 )
          B0[ 0] = *A0; A0 += LDA;
 #elif ( HPL_LATCPY_N_DEPTH == 2 )
@@ -354,8 +320,7 @@ START_TRACE( DLATCPY )
 #endif
       }
 
-      for( i = mu; i < M; i++ )
-      {
+      for( int i = mu; i < M; i++ ) {
 #if   ( HPL_LATCPY_N_DEPTH == 1 )
          *B0 = *A0; B0++; A0 += LDA;
 #elif ( HPL_LATCPY_N_DEPTH == 2 )
@@ -376,10 +341,8 @@ START_TRACE( DLATCPY )
 #endif
    }
 
-   for( j = nu; j < N; j++, B0 += incB0, A0 += incA0 )
-   {
-      for( i = 0; i < mu; i += HPL_LATCPY_M_DEPTH, B0 += HPL_LATCPY_M_DEPTH )
-      {
+   for( int j = nu; j < N; j++, B0 += incB0, A0 += incA0 ) {
+      for( int i = 0; i < mu; i += HPL_LATCPY_M_DEPTH, B0 += HPL_LATCPY_M_DEPTH ) {
          B0[ 0]=*A0; A0 += LDA;
 #if ( HPL_LATCPY_M_DEPTH >  1 )
          B0[ 1]=*A0; A0 += LDA;
@@ -409,12 +372,10 @@ START_TRACE( DLATCPY )
 #endif
       }
 
-      for( i = mu; i < M; i++, B0++, A0 += LDA ) { *B0 = *A0; }
+      for( int i = mu; i < M; i++, B0++, A0 += LDA ) {
+         *B0 = *A0;
+      }
    }
-#endif
 
-END_TRACE
-/*
- * End of HPL_dlatcpy
- */
-} 
+   END_TRACE
+}
