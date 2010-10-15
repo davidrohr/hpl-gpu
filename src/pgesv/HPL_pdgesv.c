@@ -288,6 +288,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
 
 		//Initialize current panel
+		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 
 		if (j == 0 || depth == 0)
 		{
@@ -308,6 +309,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		//Finish the latest update and broadcast the current panel
 		HPL_pdupdateTT(GRID, panel[0], panel[depth], nq-nn, (depth && j + nb < N) ? icurcol : -1);
 
+		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
 		if (depth)
 		{
