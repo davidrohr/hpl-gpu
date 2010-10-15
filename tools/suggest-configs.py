@@ -16,21 +16,17 @@
 #
 
 #
-# Calculate possible configurations for hpl on the given number of nodes and
-# the given blocksize.
+# Calculate possible configurations for hpl on the given number of nodes.
 #
-# A configuation is namely a set of P, Q and N.
-#
-# It is recommended for the blocksize to be in the area of 1024
+# A configuation is namely a set of P, Q, N and NB.
 #
 # A few restrictions are applied:
 #
 # a) N % NB = 0
-# b) NB % 64 = 0 (for caldgemm we currently require 64 - but 8 is the goal)
-# c1) (N / NB ) % Q = 0
+# c) (N / NB ) % Q = 0
 # c2) (N / NB) % P = 0
-# d) isOdd(N / 64 / Q) (should be 8 like in (b) )
-# e) isOdd(NB / 64) (should be 8 like in (b) )
+#
+# NB = 1024
 #
 # Not to forget about the physical limit  N <= sqrt( 0.8 * 64 Gi * P * Q / 8 )
 #
@@ -50,23 +46,11 @@ class Configuration:
 		self.nb = nb
 
 	def __str__( self ):
-		return "P x Q = %d x %d -- N = %d -- NB = %d -- Buffer wastage ~ %d " % ( self.p, self.q, self.n, self.nb, self.wastage() )
-
-	def wastage( self ):
-		""" Calculate how much of the gpu buffer is wasted
-
-		    This is not an absolute number, it resembles the number of bytes wasted per line of the gpu buffer,
-		    therefore less is better. Ideal is one, as 0 (which would come out as 64 in this case) violates
-		    condition e """
-		return (64 - (self.nb % 64)) / 8;
+		return "P x Q = %d x %d -- N = %d -- NB = %d" % ( self.p, self.q, self.n, self.nb )
 
 	def fullfillsRestrictions( self ):
 		# a)
 		if self.n % self.nb != 0:
-			return False
-
-		# b)
-		if self.nb % 64 != 0:
 			return False
 
 		# c1)
@@ -75,14 +59,6 @@ class Configuration:
 
 		# c2)
 		if ( self.n / self.nb ) % self.p != 0:
-			return False
-
-		# d)
-		if ( self.n / 64 / self.q ) % 2 == 0:
-			return False
-
-		# e)
-		if ( self.nb / 64 ) % 2 == 0:
 			return False
 
 		return True
@@ -95,7 +71,7 @@ def splitIn2Factors( n ):
 	return factors
 
 def memoryLimitForN( nodes ):
-	return int( math.sqrt( .8 * 64 * 1024 * 1024 * 1024 * nodes / 8 ) )
+	return int( math.sqrt( .85 * 64 * 1024 * 1024 * 1024 * nodes / 8 ) )
 
 def roundDown( n, nb ):
 	return n - n % nb; # we are not using div from future, but just be sure
@@ -110,6 +86,7 @@ if __name__ == "__main__":
 		exit(1)
 
 	nodes = int( sys.argv[1] )
+	nb = 1024
 
 	# Get all possible process configurations
 	pqs = splitIn2Factors( nodes )
@@ -124,12 +101,11 @@ if __name__ == "__main__":
 
 	# Now check which Ns work for these configurations
 	for pq in pqs:
-		for nb in range( 512, 2048+1, 8 ):
-			blockSpecificLimit = roundDown( memoryLimit, nb )
-			for n in range( blockSpecificLimit, int( 0.8 * blockSpecificLimit ), -nb ):
-				config = Configuration( pq[0], pq[1], n, nb )
-				if config.fullfillsRestrictions():
-					configs.append( config )
+		blockSpecificLimit = roundDown( memoryLimit, nb )
+		for n in range( blockSpecificLimit, int( 0.8 * blockSpecificLimit ), -nb ):
+			config = Configuration( pq[0], pq[1], n, nb )
+			if config.fullfillsRestrictions():
+				configs.append( config )
 
 	# sort by N for output
 	# We prefer, in that order
@@ -137,7 +113,7 @@ if __name__ == "__main__":
 	#  2) With many process rows (more quadratic)
 	#  3) That waste little GPU buffer
 	#  4) And have large blocks
-	for config in sorted( configs, key = lambda config: ( config.n, config.p, -config.wastage(), config.nb ), reverse=True ):
+	for config in sorted( configs, key = lambda config: ( config.n, config.p ), reverse=True ):
 		print config
 
 
