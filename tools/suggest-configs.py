@@ -70,8 +70,8 @@ def splitIn2Factors( n ):
 			factors.append( (p, n/p) )
 	return factors
 
-def memoryLimitForN( nodes ):
-	return int( math.sqrt( .85 * 64 * 1024 * 1024 * 1024 * nodes / 8 ) )
+def memoryLimitForN( nodes, memPerNode ):
+	return int( math.sqrt( memPerNode * 1024 * 1024 * 1024 * nodes / 8 ) )
 
 def roundDown( n, nb ):
 	return n - n % nb; # we are not using div from future, but just be sure
@@ -81,12 +81,18 @@ def roundDown( n, nb ):
 #
 if __name__ == "__main__":
 
-	if len( sys.argv ) != 2:
-		print 'Usage: suggest-configs.py <nodes>'
+	if len( sys.argv ) < 2:
+		print 'Usage: suggest-configs.py <nodes> [memPerNode in GiB]'
 		exit(1)
 
 	nodes = int( sys.argv[1] )
 	nb = 1024
+
+	if len( sys.argv ) > 2:
+		memPerNode = float( sys.argv[2] )
+	else:
+		memPerNode = .8 * 64;
+
 
 	# Get all possible process configurations
 	pqs = splitIn2Factors( nodes )
@@ -94,7 +100,7 @@ if __name__ == "__main__":
 	print "Factors of %d" % nodes
 	print pqs
 
-	memoryLimit = memoryLimitForN( nodes )
+	memoryLimit = memoryLimitForN( nodes, memPerNode )
 	print "Memory Limit %d" % memoryLimit
 
 	configs = []
