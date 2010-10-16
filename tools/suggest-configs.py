@@ -112,6 +112,7 @@ if __name__ == "__main__":
 			config = Configuration( pq[0], pq[1], n, nb )
 			if config.fullfillsRestrictions():
 				configs.append( config )
+				break
 
 	# sort by N for output
 	# We prefer, in that order
