@@ -97,14 +97,9 @@ if __name__ == "__main__":
 	while len( configs ) < 3:
 		# Get all possible process configurations
 		pqs = splitIn2Factors( nodes )
-	
-		print "Factors of %d" % nodes
-		print pqs
-	
+
 		memoryLimit = memoryLimitForN( nodes, memPerNode )
-		print "Memory Limit %d" % memoryLimit
-	
-	
+
 		# Now check which Ns work for these configurations
 		for pq in pqs:
 			blockSpecificLimit = roundDown( memoryLimit, nb )
