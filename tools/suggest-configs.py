@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
 	configs = []
 
-	while len( configs ) < 3:
+	while len( configs ) < 3 and nodes > 0:
 		# Get all possible process configurations
 		pqs = splitIn2Factors( nodes )
 
