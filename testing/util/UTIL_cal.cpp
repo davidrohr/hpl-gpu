@@ -30,7 +30,7 @@ static caldgemm cal_dgemm;
 int CALDGEMM_Init()
 {
 	//cal_info.Pin = -3;
-	cal_info.Verify = CAL_TRUE;
+	//cal_info.Verify = CAL_TRUE;
 	//cal_info.Disassemble = CAL_FALSE;
 #if defined(TRACE_CALLS) | defined(HPL_GPU_NOT_QUIET)
 	cal_info.Quiet = CAL_FALSE;
