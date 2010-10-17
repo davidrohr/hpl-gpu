@@ -400,10 +400,7 @@ void HPL_pdtest
 #if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
-   size_t fastrand_num = SEED;
-   const size_t fastrand_mul = 84937482743;
-   const size_t fastrand_add = 138493846343;
-   const size_t fastrand_mod = 538948374763;
+   fastrand_num = SEED;
    for (long long int i = 0;i < (size_t) (mat.ld + 1) * (size_t)(mat.nq) + (size_t) ALGO->align;i++)
    {
 	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
