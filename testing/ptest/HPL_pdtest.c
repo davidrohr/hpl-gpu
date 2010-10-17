@@ -397,7 +397,20 @@ void HPL_pdtest
  * Check computation, re-generate [ A | b ], compute norm 1 and inf of A and x,
  * and norm inf of b - A x. Display residual checks.
  */
+#if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
+#else
+   size_t fastrand_num = SEED;
+   const size_t fastrand_mul = 84937482743;
+   const size_t fastrand_add = 138493846343;
+   const size_t fastrand_mod = 538948374763;
+   for (long long int i = 0;i < (size_t) (mat.ld + 1) * (size_t)(mat.nq) + (size_t) ALGO->align;i++)
+   {
+	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
+	mat.A[i] = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+   }
+#endif
+
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );
    AnormI = HPL_pdlange( GRID, HPL_NORM_I, N, N, NB, mat.A, mat.ld );
 /*

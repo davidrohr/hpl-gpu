@@ -384,7 +384,7 @@ void HPL_pdinfo
  * Checking threshold value (TEST->thrsh)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
-#ifdef HPL_FASTINIT
+#if defined(HPL_FASTINIT) & !defined(HPL_FASTVERIFY)
       TEST->thrsh = -1;
 #else
       (void) sscanf( line, "%s", num ); TEST->thrsh = atof( num );
