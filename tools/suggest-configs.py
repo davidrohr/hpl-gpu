@@ -66,6 +66,14 @@ class Configuration:
 		""" Calculate the memory used per node in GiB """
 		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
 
+	def eta( self, gflopsPerNode ):
+		""" Calculate estimated computation time in seconds """
+		return ( float(2) / 3 * self.n**3 - float( self.n**2 ) / 2 ) / ( gflopsPerNode * self.p * self.q * 10**9 )
+
+	def memoryPerNode( self ):
+		""" Calculate the memory used per node in GiB """
+		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
+
 def splitIn2Factors( n ):
 	factors = []
 	for p in range( n < 4 and 1 or 2, int( math.sqrt( n ) ) + 1 ):
@@ -85,7 +93,7 @@ def roundDown( n, nb ):
 if __name__ == "__main__":
 
 	if len( sys.argv ) < 2:
-		print 'Usage: suggest-configs.py <nodes> [memPerNode in GiB]'
+		print 'Usage: suggest-configs.py <nodes> [memPerNode in GiB] [perfPerNode in Gflops]'
 		exit(1)
 
 	nodes = int( sys.argv[1] )
@@ -93,6 +101,10 @@ if __name__ == "__main__":
 
 	if len( sys.argv ) > 2:
 		memPerNode = float( sys.argv[2] )
+		if len( sys.argv ) > 3:
+			perfPerNode = float( sys.argv[3] )
+		else:
+			perfPerNode = 317
 	else:
 		memPerNode = .8 * 64;
 
@@ -125,5 +137,9 @@ if __name__ == "__main__":
 	#  3) That waste little GPU buffer
 	#  4) And have large blocks
 	for config in sorted( configs, key = lambda config: ( config.p*config.q, config.n, config.p ), reverse=True ):
-		print config
+		eta = int( config.eta( perfPerNode ) );
+		etaHour = eta / 3600;
+		etaMin = eta % 3600 / 60;
+		print "%s -- ETA = %d:%d" % \
+			( config, etaHour, etaMin )
 
