@@ -82,7 +82,6 @@ enum HPL_DIAG
 enum HPL_SIDE
 {  HplLeft     = 141,  HplRight        = 142 }; 
 
-#ifdef HPL_CALL_CBLAS
 /*
  * ---------------------------------------------------------------------
  * The C interface of the BLAS is available ...
@@ -158,22 +157,15 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #define    HPL_gpu_dgemm       cblas_dgemm
 #endif
 #define    HPL_dtrsm           cblas_dtrsm
-#else
-#ifdef HPL_CALL_CALDGEMM
-#define    HPL_gpu_dgemm       CALDGEMM_dgemm
-#else
-#define    HPL_gpu_dgemm       HPL_dgemm
-#endif
 #endif
 
-#endif
 
 /*
  * ---------------------------------------------------------------------
  * HPL BLAS Function prototypes
  * ---------------------------------------------------------------------
  */
-#if defined(HPL_NO_CALL_CBLAS) || defined(TRACE_CALLS)
+#if defined(TRACE_CALLS)
 
 int HPL_idamax(   const int,   const double *,   const int);
 void HPL_daxpy(   const int,   const double,   const double *,   const int,   double *,   const int );

@@ -185,9 +185,7 @@ void HPL_dtrsm
  */ 
 START_TRACE( DTRSM )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dtrsm( ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB );
-#endif
 
 END_TRACE
 /*

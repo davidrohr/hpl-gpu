@@ -179,8 +179,6 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
-# -DHPL_CALL_CBLAS       call the cblas interface;
-# -DHPL_CALL_VSIPL       call the vsip  library;
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
@@ -204,7 +202,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM #-DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

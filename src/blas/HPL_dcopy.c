@@ -114,9 +114,7 @@ void HPL_dcopy
  */ 
 START_TRACE( DCOPY )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dcopy( N, X, INCX, Y, INCY );
-#endif
 
 END_TRACE
 /*

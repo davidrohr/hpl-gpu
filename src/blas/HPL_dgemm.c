@@ -191,14 +191,41 @@ void HPL_dgemm
  */ 
 START_TRACE( DGEMM )
 
-#ifdef HPL_CALL_CBLAS
+   cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+                BETA, C, LDC );
+
+END_TRACE
+/*
+ * End of HPL_dgemm
+ */
+}
+
+void HPL_gpu_dgemm
+(
+   const enum HPL_ORDER             ORDER,
+   const enum HPL_TRANS             TRANSA,
+   const enum HPL_TRANS             TRANSB,
+   const int                        M,
+   const int                        N,
+   const int                        K,
+   const double                     ALPHA,
+   const double *                   A,
+   const int                        LDA,
+   const double *                   B,
+   const int                        LDB,
+   const double                     BETA,
+   double *                         C,
+   const int                        LDC
+)
+{
+START_TRACE( DGEMM )
+
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                    BETA, C, LDC );
 #else
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                 BETA, C, LDC );
-#endif
 #endif
 
 END_TRACE

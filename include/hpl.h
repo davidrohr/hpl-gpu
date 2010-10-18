@@ -81,20 +81,6 @@
 #define NO_TRACE_CALLS
 #endif
 
-#ifndef HPL_CALL_CBLAS                       /* there can be only one */
-#error BLAS Library required
-#endif
-
-#ifdef HPL_CALL_CALBLAS                     /* CALBLAS requires CBLAS */
-#ifndef HPL_CALL_CBLAS
-#define HPL_CALL_CBLAS
-#endif
-#endif
-
-#ifndef HPL_CALL_CBLAS                    /* Dont use cblas interface */
-#define HPL_NO_CALL_CBLAS
-#endif
-
 /*
 * ---------------------------------------------------------------------
 * Include files

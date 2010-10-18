@@ -110,9 +110,7 @@ void HPL_dscal
  */ 
 START_TRACE( DSCAL )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dscal( N, ALPHA, X, INCX );
-#endif
 
 END_TRACE
 /*

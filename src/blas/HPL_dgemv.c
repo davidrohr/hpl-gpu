@@ -164,9 +164,7 @@ void HPL_dgemv
  */ 
 START_TRACE( DGEMV )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dgemv( ORDER, TRANS, M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY );
-#endif
 
 END_TRACE
 /*

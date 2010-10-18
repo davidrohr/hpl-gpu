@@ -160,9 +160,7 @@ void HPL_dtrsv
  */ 
 START_TRACE( DTRSV )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dtrsv( ORDER, UPLO, TRANS, DIAG, N, A, LDA, X, INCX );
-#endif
 
 END_TRACE
 /*

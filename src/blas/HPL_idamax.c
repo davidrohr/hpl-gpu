@@ -104,9 +104,7 @@ START_TRACE( IDAMAX )
 
    int                       imax = 0;
 
-#ifdef HPL_CALL_CBLAS
    imax = cblas_idamax( N, X, INCX );
-#endif
 
 END_TRACE
 

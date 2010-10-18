@@ -116,9 +116,7 @@ void HPL_dswap
  */ 
 START_TRACE( DSWAP )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dswap( N, X, INCX, Y, INCY );
-#endif
 
 END_TRACE
 /*
