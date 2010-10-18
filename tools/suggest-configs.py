@@ -44,7 +44,8 @@ class Configuration:
 		self.nb = nb
 
 	def __str__( self ):
-		return "Nodes = %d -- P x Q = %d x %d -- N = %d -- NB = %d" % ( self.p*self.q, self.p, self.q, self.n, self.nb )
+		return "Nodes = %d -- P x Q = %d x %d -- N = %d -- NB = %d -- Mem. used per node = %.2f GiB" % \
+			( self.p*self.q, self.p, self.q, self.n, self.nb, self.memoryPerNode() )
 
 	def fullfillsRestrictions( self ):
 		# a)
@@ -60,6 +61,10 @@ class Configuration:
 			return False
 
 		return True
+
+	def memoryPerNode( self ):
+		""" Calculate the memory used per node in GiB """
+		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
 
 def splitIn2Factors( n ):
 	factors = []
