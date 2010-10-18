@@ -200,9 +200,7 @@ void HPL_pdtest
    /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
                            (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
                          sizeof(double) );*/
-   vptr = CALDGEMM_alloc( ( (size_t)(ALGO->align) + 
-                           (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
-                         sizeof(double) );
+   vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double) );
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
@@ -219,8 +217,7 @@ void HPL_pdtest
 /*
  * generate matrix and right-hand-side, [ A | b ] which is N by N+1.
  */
-   mat.A  = (double *)HPL_PTR( vptr,
-                               ((size_t)(ALGO->align) * sizeof(double) ) );
+   mat.A  = (double *) HPL_PTR( vptr, ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
@@ -229,10 +226,10 @@ void HPL_pdtest
    const size_t fastrand_mul = 84937482743;
    const size_t fastrand_add = 138493846343;
    const size_t fastrand_mod = 538948374763;
-   for (long long int i = 0;i < (size_t) (mat.ld + 1) * (size_t)(mat.nq) + (size_t) ALGO->align;i++)
+   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
    {
 	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
-	mat.A[i] = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
    }
 #endif
 
@@ -401,10 +398,10 @@ void HPL_pdtest
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
    fastrand_num = SEED;
-   for (long long int i = 0;i < (size_t) (mat.ld + 1) * (size_t)(mat.nq) + (size_t) ALGO->align;i++)
+   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
    {
 	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
-	mat.A[i] = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
    }
 #endif
 
