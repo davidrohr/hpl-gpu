@@ -65,6 +65,7 @@
 #include "util_trace.h"
 
 #include "tsc.h"
+#include "../pauxil/helpers.h"
 
 /**
  * Purpose
@@ -101,17 +102,83 @@
  *
  * ---------------------------------------------------------------------
  */
-extern "C" void HPL_dlatcpy(const int M, const int N, const double *A, const int LDA, double *B, const int LDB)
+extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB)
 {
    TimeStampCounter tsc;
-   fprintf( stderr, "%s(M = %d, N = %d, LDA = %d, LDB = %d)", __func__, M, N, LDA, LDB );
    START_TRACE( DLATCPY )
    tsc.start();
 
-   if ( M <= 0 || N <= 0 ) {
+   if ( _M <= 0 || _N <= 0 ) {
       return;
    }
 
+   const size_t M = _M;
+   const size_t N = _N;
+   const size_t LDA = _LDA;
+   const size_t LDB = _LDB;
+
+   // B_ij = A_ji
+
+   size_t i = 0;
+   for ( ; i < M - 7; i += 8 )
+   {
+      double *__restrict__ B_ij = &B[ i ];
+      const double *__restrict__ A_ji = &A[ i * LDA ];
+      size_t j = 0;
+      for ( ; j < N - 7; j += DoublesInCacheline )
+      {
+         _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 2 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 3 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 4 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_NTA );
+         _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_NTA );
+         for ( size_t j2 = 0; j2 < DoublesInCacheline; ++j2 )
+         {
+            // collect one cacheline in a store buffer
+            // reading 8 streams from A linearly
+            streamingCopy( &B_ij[ 0 ], &A_ji[ 0 * LDA ] );
+            streamingCopy( &B_ij[ 1 ], &A_ji[ 1 * LDA ] );
+            streamingCopy( &B_ij[ 2 ], &A_ji[ 2 * LDA ] );
+            streamingCopy( &B_ij[ 3 ], &A_ji[ 3 * LDA ] );
+            streamingCopy( &B_ij[ 4 ], &A_ji[ 4 * LDA ] );
+            streamingCopy( &B_ij[ 5 ], &A_ji[ 5 * LDA ] );
+            streamingCopy( &B_ij[ 6 ], &A_ji[ 6 * LDA ] );
+            streamingCopy( &B_ij[ 7 ], &A_ji[ 7 * LDA ] );
+
+            B_ij += LDB;
+            ++A_ji;
+         }
+      }
+      for ( ; j < N; ++j )
+      {
+         streamingCopy( &B_ij[ 0 ], &A_ji[ 0 * LDA ] );
+         streamingCopy( &B_ij[ 1 ], &A_ji[ 1 * LDA ] );
+         streamingCopy( &B_ij[ 2 ], &A_ji[ 2 * LDA ] );
+         streamingCopy( &B_ij[ 3 ], &A_ji[ 3 * LDA ] );
+         streamingCopy( &B_ij[ 4 ], &A_ji[ 4 * LDA ] );
+         streamingCopy( &B_ij[ 5 ], &A_ji[ 5 * LDA ] );
+         streamingCopy( &B_ij[ 6 ], &A_ji[ 6 * LDA ] );
+         streamingCopy( &B_ij[ 7 ], &A_ji[ 7 * LDA ] );
+
+         B_ij += LDB;
+         ++A_ji;
+      }
+   }
+   for ( size_t j = 0; j < N; ++j )
+   {
+      for ( ; i < M; ++i )
+      {
+         streamingCopy( &B[ i + j * LDB ], &A[ j + i * LDA ] );
+      }
+   }
+
+   // make sure the streaming stores are visible to subsequent loads and stores to B
+   _mm_mfence();
+
+#if 0
    const double               * A0 = A,              * A1 = A + 1;
    double                     * B0 = B,              * B1 = B +     LDB;
    const int                  incA = -M * LDA + (1 << 1),
@@ -126,7 +193,6 @@ extern "C" void HPL_dlatcpy(const int M, const int N, const double *A, const int
    for( int j = 0; j < nu; j += 2 ) {
       for( int i = 0; i < mu; i += 4 ) {
          B0[ 0] = *A0; A0 += LDA; B1[ 0] = *A1; A1 += LDA;
-
          B0[ 1] = *A0; A0 += LDA; B1[ 1] = *A1; A1 += LDA;
          B0[ 2] = *A0; A0 += LDA; B1[ 2] = *A1; A1 += LDA;
          B0[ 3] = *A0; A0 += LDA; B1[ 3] = *A1; A1 += LDA;
@@ -151,6 +217,7 @@ extern "C" void HPL_dlatcpy(const int M, const int N, const double *A, const int
          *B0 = *A0;
       }
    }
+#endif
 
    tsc.stop();
    END_TRACE
