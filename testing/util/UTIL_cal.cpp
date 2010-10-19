@@ -82,7 +82,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	if (!LinpackCallbacks && (M == 0 || N == 0 || K == 0)) return;
         else if(LinpackCallbacks || ( M >= 2048 && N >= 2048 && K >= 512 ))
         {
-	    if (cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, (bool) LinpackCallbacks ))
+	    if (cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
 	    {
 		printf("Error in CALDGEMM Run, aborting HPL Run\n");
 		exit(1);
