@@ -221,5 +221,6 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
 
    tsc.stop();
    END_TRACE
-   fprintf( stderr, "=> %f GB/s\n", M * N * sizeof( double ) / tsc.cycles() );
+   fprintf( stderr, "%s(M = %d, N = %d, LDA = %d, LDB = %d) => %f GB/s\n", __func__, _M, _N, _LDA, _LDB,
+         static_cast<double>( M ) * N * sizeof( double ) / tsc.cycles() );
 }
