@@ -120,48 +120,39 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
    // B_ij = A_ji
 
    size_t i = 0;
-   for ( ; i < M - 7; i += 8 )
+   for ( ; i + 7 < M; i += 8 )
    {
       double *__restrict__ B_ij = &B[ i ];
       const double *__restrict__ A_ji = &A[ i * LDA ];
       size_t j = 0;
-      for ( ; j < N - 7; j += DoublesInCacheline )
+      for ( ; j + 7 < N; j += 8 )
       {
-         _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 2 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 3 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 4 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_NTA );
-         _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_NTA );
-         for ( size_t j2 = 0; j2 < DoublesInCacheline; ++j2 )
+         _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 2 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 3 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 4 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_T1 );
+         _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_T1 );
+         for ( size_t j2 = 0; j2 < 8; ++j2 )
          {
             // collect one cacheline in a store buffer
             // reading 8 streams from A linearly
-            streamingCopy( &B_ij[ 0 ], &A_ji[ 0 * LDA ] );
-            streamingCopy( &B_ij[ 1 ], &A_ji[ 1 * LDA ] );
-            streamingCopy( &B_ij[ 2 ], &A_ji[ 2 * LDA ] );
-            streamingCopy( &B_ij[ 3 ], &A_ji[ 3 * LDA ] );
-            streamingCopy( &B_ij[ 4 ], &A_ji[ 4 * LDA ] );
-            streamingCopy( &B_ij[ 5 ], &A_ji[ 5 * LDA ] );
-            streamingCopy( &B_ij[ 6 ], &A_ji[ 6 * LDA ] );
-            streamingCopy( &B_ij[ 7 ], &A_ji[ 7 * LDA ] );
-
+            for ( size_t i2 = 0; i2 < 8; ++i2 )
+            {
+                streamingCopy( &B_ij[ i2 ], &A_ji[ i2 * LDA ] );
+            }
             B_ij += LDB;
             ++A_ji;
          }
       }
       for ( ; j < N; ++j )
       {
-         streamingCopy( &B_ij[ 0 ], &A_ji[ 0 * LDA ] );
-         streamingCopy( &B_ij[ 1 ], &A_ji[ 1 * LDA ] );
-         streamingCopy( &B_ij[ 2 ], &A_ji[ 2 * LDA ] );
-         streamingCopy( &B_ij[ 3 ], &A_ji[ 3 * LDA ] );
-         streamingCopy( &B_ij[ 4 ], &A_ji[ 4 * LDA ] );
-         streamingCopy( &B_ij[ 5 ], &A_ji[ 5 * LDA ] );
-         streamingCopy( &B_ij[ 6 ], &A_ji[ 6 * LDA ] );
-         streamingCopy( &B_ij[ 7 ], &A_ji[ 7 * LDA ] );
+          for ( size_t i2 = 0; i2 < 8; ++i2 )
+          {
+              streamingCopy( &B_ij[ i2 ], &A_ji[ i2 * LDA ] );
+          }
 
          B_ij += LDB;
          ++A_ji;
@@ -181,17 +172,17 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
 #if 0
    const double               * A0 = A,              * A1 = A + 1;
    double                     * B0 = B,              * B1 = B +     LDB;
-   const int                  incA = -M * LDA + (1 << 1),
-                              incB = ( (unsigned int)(LDB) << 1 ) - M,
+   const size_t                  incA = -M * LDA + (1 << 1),
+                              incB = ( LDB << 1 ) - M,
                               incA0 = -M * LDA + 1, incB0 = LDB - M;
-   int                        mu, nu;
+   size_t                        mu, nu;
 
 
-   mu = (int)( ( (unsigned int)(M) >> 2 ) << 2 );
-   nu = (int)( ( (unsigned int)(N) >> 1 ) << 1 );
+   mu = ( M >> 2 ) << 2;
+   nu = ( N >> 1 ) << 1;
 
-   for( int j = 0; j < nu; j += 2 ) {
-      for( int i = 0; i < mu; i += 4 ) {
+   for( size_t j = 0; j < nu; j += 2 ) {
+      for( size_t i = 0; i < mu; i += 4 ) {
          B0[ 0] = *A0; A0 += LDA; B1[ 0] = *A1; A1 += LDA;
          B0[ 1] = *A0; A0 += LDA; B1[ 1] = *A1; A1 += LDA;
          B0[ 2] = *A0; A0 += LDA; B1[ 2] = *A1; A1 += LDA;
@@ -199,21 +190,21 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
          B0 += 4; B1 += 4;
       }
 
-      for( int i = mu; i < M; i++ ) {
+      for( size_t i = mu; i < M; i++ ) {
          *B0 = *A0; B0++; A0 += LDA; *B1 = *A1; B1++; A1 += LDA;
       }
 
       A0 += incA; A1 += incA; B0 += incB; B1 += incB;
    }
 
-   for( int j = nu; j < N; j++, B0 += incB0, A0 += incA0 ) {
-      for( int i = 0; i < mu; i += 4, B0 += 4 ) {
+   for( size_t j = nu; j < N; j++, B0 += incB0, A0 += incA0 ) {
+      for( size_t i = 0; i < mu; i += 4, B0 += 4 ) {
          B0[ 0]=*A0; A0 += LDA;
          B0[ 1]=*A0; A0 += LDA;
          B0[ 2]=*A0; A0 += LDA; B0[ 3]=*A0; A0 += LDA;
       }
 
-      for( int i = mu; i < M; i++, B0++, A0 += LDA ) {
+      for( size_t i = mu; i < M; i++, B0++, A0 += LDA ) {
          *B0 = *A0;
       }
    }
