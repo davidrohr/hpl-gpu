@@ -62,10 +62,9 @@
 /*
  * Include files
  */
-#include "hpl.h"
-
-#include "util_timer.h"
 #include "util_trace.h"
+
+#include "tsc.h"
 
 /**
  * Purpose
@@ -102,9 +101,12 @@
  *
  * ---------------------------------------------------------------------
  */
-void HPL_dlatcpy(const int M, const int N, const double *A, const int LDA, double *B, const int LDB)
+extern "C" void HPL_dlatcpy(const int M, const int N, const double *A, const int LDA, double *B, const int LDB)
 {
+   TimeStampCounter tsc;
+   fprintf( stderr, "%s(M = %d, N = %d, LDA = %d, LDB = %d)", __func__, M, N, LDA, LDB );
    START_TRACE( DLATCPY )
+   tsc.start();
 
    if ( M <= 0 || N <= 0 ) {
       return;
@@ -150,5 +152,7 @@ void HPL_dlatcpy(const int M, const int N, const double *A, const int LDA, doubl
       }
    }
 
+   tsc.stop();
    END_TRACE
+   fprintf( stderr, "=> %f GB/s\n", M * N * sizeof( double ) / tsc.cycles() );
 }
