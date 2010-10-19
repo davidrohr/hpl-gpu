@@ -29,7 +29,6 @@ static caldgemm cal_dgemm;
 
 int CALDGEMM_Init()
 {
-	//cal_info.Pin = -3;
 #ifdef HPL_GPU_VERIFY
 	cal_info.Verify = CAL_TRUE;
 #endif
