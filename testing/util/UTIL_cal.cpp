@@ -34,12 +34,11 @@ int CALDGEMM_Init()
 	cal_info.Verify = CAL_TRUE;
 #endif
 	//cal_info.Disassemble = CAL_FALSE;
+	cal_info.TabularTiming = CAL_TRUE;
 #if defined(TRACE_CALLS) | defined(HPL_GPU_NOT_QUIET)
 	cal_info.Quiet = CAL_FALSE;
-	cal_info.TabularTiming = CAL_TRUE;
 #else
 	cal_info.Quiet = CAL_TRUE;
-	cal_info.TabularTiming = CAL_FALSE;
 #endif
 #ifdef HPL_GPU_TIMING
 	cal_info.DisplayTiming = CAL_TRUE;
