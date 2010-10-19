@@ -221,7 +221,9 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
-		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, factorize != -1 );
+		int caldgemm_linpack_mode;
+		if (caldgemm_linpack_mode = (factorize != -1)) caldgemm_linpack_mode += (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol);
+		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		
 		/*if (factorize != -1)

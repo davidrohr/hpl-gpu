@@ -215,7 +215,8 @@ void HPL_gpu_dgemm
    const int                        LDB,
    const double                     BETA,
    double *                         C,
-   const int                        LDC
+   const int                        LDC,
+   int LinpackCallbacks
 )
 {
 START_TRACE( DGEMM )

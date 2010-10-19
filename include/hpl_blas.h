@@ -179,6 +179,8 @@ void HPL_dtrsv(   const enum HPL_ORDER,   const enum HPL_UPLO,   const enum HPL_
    const int );
 void HPL_dgemm(   const enum HPL_ORDER,   const enum HPL_TRANS,   const enum HPL_TRANS,   const int,   const int,   const int,   const double,   const double *,
    const int,   const double *,   const int,   const double,   double *,   const int );
+void HPL_gpu_dgemm(   const enum HPL_ORDER,   const enum HPL_TRANS,   const enum HPL_TRANS,   const int,   const int,   const int,   const double,   const double *,
+   const int,   const double *,   const int,   const double,   double *,   const int, int );
 void HPL_dtrsm(   const enum HPL_ORDER,   const enum HPL_SIDE,   const enum HPL_UPLO,   const enum HPL_TRANS,   const enum HPL_DIAG,   const int,   const int,
    const double,   const double *,   const int,   double *,   const int );
 
