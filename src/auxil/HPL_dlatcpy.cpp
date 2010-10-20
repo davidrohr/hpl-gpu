@@ -66,6 +66,71 @@
 
 #include "tsc.h"
 #include "../pauxil/helpers.h"
+#include <tbb/parallel_for.h>
+
+typedef MyRange<8, 64> Range;
+
+class HPL_dlatcpy_impl
+{
+    private:
+        const size_t N;
+        const size_t LDA;
+        const size_t LDB;
+        const double *__restrict__ const A;
+        double *__restrict__ const B;
+
+    public:
+        HPL_dlatcpy_impl(size_t _N, const double *_A, size_t _LDA,
+                double *_B, size_t _LDB)
+            : N(_N), LDA(_LDA), LDB(_LDB),
+            A(_A), B(_B)
+        {
+        }
+
+        void operator()(const Range &range) const
+        {
+            const size_t end = range.begin() + range.N();
+            //fprintf(stderr, "%s: %ld - %ld\n", __func__, range.begin(), end);
+            for (size_t i = range.begin(); i < end; i += 8) {
+                double *__restrict__ B_ij = &B[ i ];
+                const double *__restrict__ A_ji = &A[ i * LDA ];
+                size_t j = 0;
+                for ( ; j < (N & ~7); j += 8 )
+                {
+                    _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 2 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 3 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 4 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_T1 );
+                    _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_T1 );
+                    for ( size_t j2 = 0; j2 < 8; j2 += 2 )
+                    {
+                        for ( size_t i2 = 0; i2 < 8; i2 += 2 )
+                        {
+                            const __m128d tmp0 = _mm_load_pd( &A_ji[ i2 * LDA ] );
+                            const __m128d tmp1 = _mm_load_pd( &A_ji[ i2 * LDA + LDA ] );
+                            _mm_stream_pd( &B_ij[ i2       ], _mm_unpacklo_pd( tmp0, tmp1 ) );
+                            _mm_stream_pd( &B_ij[ i2 + LDB ], _mm_unpackhi_pd( tmp0, tmp1 ) );
+                        }
+                        B_ij += 2 * LDB;
+                        A_ji += 2;
+                    }
+                }
+                for ( ; j < N; ++j )
+                {
+                    for ( size_t i2 = 0; i2 < 8; ++i2 )
+                    {
+                        streamingCopy( &B_ij[ i2 ], &A_ji[ i2 * LDA ] );
+                    }
+
+                    B_ij += LDB;
+                    ++A_ji;
+                }
+            }
+        }
+};
 
 /**
  * Purpose
@@ -119,99 +184,24 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
 
    // B_ij = A_ji
 
-   size_t i = 0;
-   for ( ; i + 7 < M; i += 8 )
-   {
-      double *__restrict__ B_ij = &B[ i ];
-      const double *__restrict__ A_ji = &A[ i * LDA ];
-      size_t j = 0;
-      for ( ; j + 7 < N; j += 8 )
-      {
-         _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 2 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 3 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 4 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_T1 );
-         _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_T1 );
-         for ( size_t j2 = 0; j2 < 8; ++j2 )
-         {
-            // collect one cacheline in a store buffer
-            // reading 8 streams from A linearly
-            for ( size_t i2 = 0; i2 < 8; ++i2 )
-            {
-                streamingCopy( &B_ij[ i2 ], &A_ji[ i2 * LDA ] );
-            }
-            B_ij += LDB;
-            ++A_ji;
-         }
-      }
-      for ( ; j < N; ++j )
-      {
-          for ( size_t i2 = 0; i2 < 8; ++i2 )
-          {
-              streamingCopy( &B_ij[ i2 ], &A_ji[ i2 * LDA ] );
-          }
+   // BS * N ~ 512kB ~ 60k doubles => BS ~ 60000 / N
+   const size_t BS = 60000 / N;
+   tbb::parallel_for( Range(0, M & ~7, BS), HPL_dlatcpy_impl( N, A, LDA, B, LDB ) );
 
-         B_ij += LDB;
-         ++A_ji;
-      }
-   }
    for ( size_t j = 0; j < N; ++j )
    {
-      for ( ; i < M; ++i )
+      for ( size_t i = M & ~7; i < M; ++i )
       {
          streamingCopy( &B[ i + j * LDB ], &A[ j + i * LDA ] );
       }
    }
 
-   // make sure the streaming stores are visible to subsequent loads and stores to B
+   // make sure the streaming stores are visible to subsequent loads
+   // and stores to B
    _mm_mfence();
-
-#if 0
-   const double               * A0 = A,              * A1 = A + 1;
-   double                     * B0 = B,              * B1 = B +     LDB;
-   const size_t                  incA = -M * LDA + (1 << 1),
-                              incB = ( LDB << 1 ) - M,
-                              incA0 = -M * LDA + 1, incB0 = LDB - M;
-   size_t                        mu, nu;
-
-
-   mu = ( M >> 2 ) << 2;
-   nu = ( N >> 1 ) << 1;
-
-   for( size_t j = 0; j < nu; j += 2 ) {
-      for( size_t i = 0; i < mu; i += 4 ) {
-         B0[ 0] = *A0; A0 += LDA; B1[ 0] = *A1; A1 += LDA;
-         B0[ 1] = *A0; A0 += LDA; B1[ 1] = *A1; A1 += LDA;
-         B0[ 2] = *A0; A0 += LDA; B1[ 2] = *A1; A1 += LDA;
-         B0[ 3] = *A0; A0 += LDA; B1[ 3] = *A1; A1 += LDA;
-         B0 += 4; B1 += 4;
-      }
-
-      for( size_t i = mu; i < M; i++ ) {
-         *B0 = *A0; B0++; A0 += LDA; *B1 = *A1; B1++; A1 += LDA;
-      }
-
-      A0 += incA; A1 += incA; B0 += incB; B1 += incB;
-   }
-
-   for( size_t j = nu; j < N; j++, B0 += incB0, A0 += incA0 ) {
-      for( size_t i = 0; i < mu; i += 4, B0 += 4 ) {
-         B0[ 0]=*A0; A0 += LDA;
-         B0[ 1]=*A0; A0 += LDA;
-         B0[ 2]=*A0; A0 += LDA; B0[ 3]=*A0; A0 += LDA;
-      }
-
-      for( size_t i = mu; i < M; i++, B0++, A0 += LDA ) {
-         *B0 = *A0;
-      }
-   }
-#endif
 
    tsc.stop();
    END_TRACE
-   fprintf( stderr, "%s(M = %d, N = %d, LDA = %d, LDB = %d) => %f GB/s\n", __func__, _M, _N, _LDA, _LDB,
-         static_cast<double>( M ) * N * sizeof( double ) / tsc.cycles() );
+   fprintf( stderr, "%s(M = %d, N = %d, LDA = %d, LDB = %d) => Bs = %ld, %f GB/s\n", __func__, _M, _N, _LDA, _LDB, BS,
+         2.1 * 2 * M * N * sizeof( double ) / tsc.cycles() );
 }
