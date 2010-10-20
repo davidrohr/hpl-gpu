@@ -33,8 +33,8 @@ namespace
 
         // use SSE registers:
         __m128 tmp;
-        asm("movq (%[src]), %[tmp]" : [tmp]"=x"(tmp) : [src]"r"(src));
-        asm("movq %[tmp], (%[dst])" :: [tmp]"x"(tmp), [dst]"r"(dst));
+        asm("movq %[src], %[tmp]" : [tmp]"=x"(tmp) : [src]"m"(*src));
+        asm("movq %[tmp], %[dst]" :: [tmp]"x"(tmp), [dst]"m"(*dst));
     }
 
     static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
