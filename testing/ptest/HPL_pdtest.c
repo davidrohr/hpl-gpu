@@ -302,6 +302,10 @@ void HPL_pdtest
              ( GRID->order == HPL_ROW_MAJOR ? 'R' : 'C' ),
              ALGO->depth, ctop, crfact, ALGO->nbdiv, cpfact, ALGO->nbmin,
              N, NB, nprow, npcol, wtime[0], ctime[0], Gflops );
+#ifdef HPL_PRINT_AVG_MATRIX_SIZE
+      float avgSize = (float) ( N ) * N * 8 / nprow / npcol / 1024 / 1024 / 1024;
+      HPL_fprintf( TEST->outfp, "Avg. matri size per node: %.2f GiB\n", avgSize );
+#endif
    }
 #ifdef HPL_DETAILED_TIMING
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_WALL_PTIME,

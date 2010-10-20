@@ -176,6 +176,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DUSE_ORIGINAL_LASWP   use original laswp implementation
 # -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
 # -DNO_EQUILIBRATION     disable Equilibration (hardcoded instead of runtime parameter)
+# -DHPL_PRINT_AVG_MATRIX_SIZE
+#                        show how much memory the matrix uses per node on average
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
