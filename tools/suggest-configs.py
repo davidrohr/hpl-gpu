@@ -32,6 +32,8 @@
 #
 
 # TODO project performance (only needed for fuzzy N)
+# TODO prefer larger matrices more
+# TODO prefer squarer (so not fully square) pxq
 
 import sys
 import math
