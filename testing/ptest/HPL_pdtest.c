@@ -80,8 +80,8 @@ void* fastmatgen_slave(void* arg)
    
 
    cpu_set_t mask;
-   __CPU_ZERO_S(sizeof(cpu_set_t), &mask);
-   __CPU_SET_S(num, sizeof(cpu_set_t), &mask);
+   CPU_ZERO(&mask);
+   CPU_SET(num, &mask);
    sched_setaffinity(0, sizeof(cpu_set_t), &mask);
 
    size_t fastrand_num = fastrand_seed + 65537 * num;
