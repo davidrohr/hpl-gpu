@@ -128,7 +128,6 @@ void HPL_pdlaswp01T
    n = PANEL->n; n = Mmin( NN, n ); jb = PANEL->jb;
    //Quick return if there is nothing to do
    if( ( n <= 0 ) || ( jb <= 0 ) ) return;
-   HPL_ptimer_detail( HPL_TIMING_LASWP );
    const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
    //fprintf(stderr, "LASWP %d %d\n", n, LDU);
 
@@ -186,6 +185,4 @@ void HPL_pdlaswp01T
    HPL_rollT( PBCST, IFLAG, PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
    /* Permute U in every process row */
    HPL_dlaswp10N( n, jb, U, LDU, permU );
-
-   HPL_ptimer_detail( HPL_TIMING_LASWP );
 }
