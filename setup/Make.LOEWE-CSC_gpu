@@ -191,6 +191,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DCALDGEMM_TEST        Activate Test Debug Code
+# -DHPL_PRINT_AVG_MATRIX_SIZE
+#                        show how much memory the matrix uses per node on average
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
