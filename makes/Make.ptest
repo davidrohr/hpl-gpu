@@ -67,7 +67,8 @@ INCdep           = \
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_blas.h  $(INCdir)/hpl_auxil.h   \
    $(INCdir)/hpl_gesv.h   $(INCdir)/hpl_pmisc.h $(INCdir)/hpl_pauxil.h  \
    $(INCdir)/hpl_panel.h  $(INCdir)/hpl_pgesv.h $(INCdir)/hpl_pmatgen.h \
-   $(INCdir)/hpl_ptimer.h $(INCdir)/hpl_ptest.h
+   $(INCdir)/hpl_ptimer.h $(INCdir)/hpl_ptest.h \
+   $(INCdir)/glibc_hacks.h
 #
 ## Executable names ####################################################
 # 
