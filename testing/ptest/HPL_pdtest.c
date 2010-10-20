@@ -222,7 +222,7 @@ void HPL_pdtest
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
-   size_t fastrand_num = SEED;
+   size_t fastrand_num = SEED + myrow * npcol + mycol;
    const size_t fastrand_mul = 84937482743;
    const size_t fastrand_add = 138493846343;
    const size_t fastrand_mod = 538948374763;
@@ -397,7 +397,7 @@ void HPL_pdtest
 #if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
-   fastrand_num = SEED;
+   fastrand_num = SEED + myrow * npcol + mycol;
    for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
    {
 	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
