@@ -140,6 +140,6 @@ if __name__ == "__main__":
 		eta = int( config.eta( perfPerNode ) );
 		etaHour = eta / 3600;
 		etaMin = eta % 3600 / 60;
-		print "%s -- ETA = %d:%d" % \
+		print "%s -- ETA = %d:%02d" % \
 			( config, etaHour, etaMin )
 
