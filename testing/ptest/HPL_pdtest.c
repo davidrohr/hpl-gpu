@@ -62,11 +62,11 @@
 /*
  * Include files
  */
+#include "glibc_hacks.h"
 #include "hpl.h"
 #include <sys/mman.h>
 #include "util_cal.h"
 #include <pthread.h>
-#include <sched.h>
 
 #define FASTRAND_THREADS 24
 int fastrand_seed;
