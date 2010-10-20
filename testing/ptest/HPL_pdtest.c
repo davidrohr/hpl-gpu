@@ -165,23 +165,6 @@ void HPL_pdtest
  * Ensure that lda is a multiple of ALIGN and not a power of 2
  */
  
-#ifdef DGEMM_HPL_TEST
-    {
-    size_t n = 78000;
-    size_t nb = 1024;
-    size_t lda = n;
-    if (lda % 8) lda += (8 - lda % 8);
-    printf("malloc %lld\n", (size_t) n * lda * sizeof(double));
-    double* m = CALDGEMM_alloc(n * lda * sizeof(double));
-    printf("memset\n");fflush(stdout);
-    memset(m, 0, n * lda * sizeof(double));
-    printf("dgemm\n");fflush(stdout);
-    CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n - nb, n - nb, nb, 0.5, m + nb * lda, lda, m + nb, lda, 0.5, m + nb * (lda + 1), lda);
-    printf("free\n");
-    CALDGEMM_free(m);
-    }
-#endif
- 
    mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align;
    
    //Make sure LDA is an uneven multiple of cache line size
@@ -233,15 +216,6 @@ void HPL_pdtest
    }
 #endif
 
-#ifdef DGEMM_HPL_TEST
-    for (int nb = NB;nb < N;nb += NB)
-    {
-	CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, mat.A + nb * mat.ld, mat.ld, mat.A + nb, mat.ld, 0.5, mat.A + nb * (mat.ld + 1), mat.ld);
-	double* tmpptr = (double*) vptr;
-        CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, tmpptr + nb * mat.ld, mat.ld, tmpptr + nb, mat.ld, 0.5, tmpptr + nb * (mat.ld + 1), mat.ld);
-    }
-#endif
-   
 /*
  * Solve linear system
  */
