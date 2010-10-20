@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_grid_info
 (
    const HPL_T_grid *               GRID,
@@ -73,15 +72,6 @@ int HPL_grid_info
    int *                            MYROW,
    int *                            MYCOL
 )
-#else
-int HPL_grid_info
-( GRID, NPROW, NPCOL, MYROW, MYCOL )
-   const HPL_T_grid *               GRID;
-   int *                            NPROW;
-   int *                            NPCOL;
-   int *                            MYROW;
-   int *                            MYCOL;
-#endif
 {
 /* 
  * Purpose

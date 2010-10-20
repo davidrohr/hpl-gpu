@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 void HPL_min
 (
    const int                        N,
@@ -75,14 +74,6 @@ void HPL_min
    void *                           INOUT,
    const HPL_T_TYPE                 DTYPE
 )
-#else
-void HPL_min
-( N, IN, INOUT, DTYPE )
-   const int                        N;
-   const void *                     IN;
-   void *                           INOUT;
-   const HPL_T_TYPE                 DTYPE;
-#endif
 {
 /* 
  * Purpose

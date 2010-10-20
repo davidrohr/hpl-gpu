@@ -69,7 +69,6 @@
 
 #ifndef HPL_dtrsm
 
-#ifdef STDC_HEADERS
 void HPL_dtrsm
 (
    const enum HPL_ORDER             ORDER,
@@ -85,22 +84,6 @@ void HPL_dtrsm
    double *                         B,
    const int                        LDB
 )
-#else
-void HPL_dtrsm
-( ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB )
-   const enum HPL_ORDER             ORDER;
-   const enum HPL_SIDE              SIDE;
-   const enum HPL_UPLO              UPLO;
-   const enum HPL_TRANS             TRANS;
-   const enum HPL_DIAG              DIAG;
-   const int                        M;
-   const int                        N;
-   const double                     ALPHA;
-   const double *                   A;
-   const int                        LDA;
-   double *                         B;
-   const int                        LDB;
-#endif
 {
 /* 
  * Purpose
@@ -202,107 +185,7 @@ void HPL_dtrsm
  */ 
 START_TRACE( DTRSM )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dtrsm( ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB );
-#endif
-#ifdef HPL_CALL_FBLAS
-   double                    alpha = ALPHA;
-#ifdef StringSunStyle
-#if defined( HPL_USE_F77_INTEGER_DEF )
-   F77_INTEGER               IONE = 1;
-#else
-   int                       IONE = 1;
-#endif
-#endif
-#ifdef StringStructVal
-   F77_CHAR                  fside;
-   F77_CHAR                  fuplo;
-   F77_CHAR                  ftran;
-   F77_CHAR                  fdiag;
-#endif
-#ifdef StringStructPtr
-   F77_CHAR                  fside;
-   F77_CHAR                  fuplo;
-   F77_CHAR                  ftran;
-   F77_CHAR                  fdiag;
-#endif
-#ifdef StringCrayStyle
-   F77_CHAR                  fside;
-   F77_CHAR                  fuplo;
-   F77_CHAR                  ftran;
-   F77_CHAR                  fdiag;
-#endif
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77M   = M,   F77N   = N,
-                             F77lda = LDA, F77ldb = LDB;
-#else
-#define  F77M                M
-#define  F77N                N
-#define  F77lda              LDA
-#define  F77ldb              LDB
-#endif
-   char                      cside, cuplo, ctran, cdiag;
-
-   if(      TRANS == HplNoTrans ) ctran = 'N';
-   else if( TRANS == HplTrans   ) ctran = 'T';
-   else                           ctran = 'C';
-   cdiag = ( DIAG == HplUnit  ? 'U' : 'N' );
-
-   if( ORDER == HplColumnMajor )
-   {
-      cside = ( SIDE == HplRight ? 'R' : 'L' );
-      cuplo = ( UPLO == HplLower ? 'L' : 'U' );
-#ifdef StringSunStyle
-      F77dtrsm( &cside, &cuplo, &ctran, &cdiag, &F77M, &F77N, &alpha,
-                A, &F77lda, B, &F77ldb, IONE, IONE, IONE, IONE );
-#endif
-#ifdef StringCrayStyle
-      fside = HPL_C2F_CHAR( cside ); fuplo = HPL_C2F_CHAR( cuplo );
-      ftran = HPL_C2F_CHAR( ctran ); fdiag = HPL_C2F_CHAR( cdiag );
-      F77dtrsm( fside,  fuplo,  ftran,  fdiag,  &F77M, &F77N, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-#ifdef StringStructVal
-      fside.len = 1; fside.cp = &cside; fuplo.len = 1; fuplo.cp = &cuplo;
-      ftran.len = 1; ftran.cp = &ctran; fdiag.len = 1; fdiag.cp = &cdiag;
-      F77dtrsm( fside,  fuplo,  ftran,  fdiag,  &F77M, &F77N, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-#ifdef StringStructPtr
-      fside.len = 1; fside.cp = &cside; fuplo.len = 1; fuplo.cp = &cuplo;
-      ftran.len = 1; ftran.cp = &ctran; fdiag.len = 1; fdiag.cp = &cdiag;
-      F77dtrsm( &fside, &fuplo, &ftran, &fdiag, &F77M, &F77N, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-   }
-   else
-   {
-      cside = ( SIDE == HplRight ? 'L' : 'R' );
-      cuplo = ( UPLO == HplLower ? 'U' : 'L' );
-#ifdef StringSunStyle
-      F77dtrsm( &cside, &cuplo, &ctran, &cdiag, &F77N, &F77M, &alpha,
-                A, &F77lda, B, &F77ldb, IONE, IONE, IONE, IONE );
-#endif
-#ifdef StringCrayStyle
-      fside = HPL_C2F_CHAR( cside ); fuplo = HPL_C2F_CHAR( cuplo );
-      ftran = HPL_C2F_CHAR( ctran ); fdiag = HPL_C2F_CHAR( cdiag );
-      F77dtrsm( fside,  fuplo,  ftran,  fdiag,  &F77N, &F77M, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-#ifdef StringStructVal
-      fside.len = 1; fside.cp = &cside; fuplo.len = 1; fuplo.cp = &cuplo;
-      ftran.len = 1; ftran.cp = &ctran; fdiag.len = 1; fdiag.cp = &cdiag;
-      F77dtrsm( fside,  fuplo,  ftran,  fdiag,  &F77N, &F77M, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-#ifdef StringStructPtr
-      fside.len = 1; fside.cp = &cside; fuplo.len = 1; fuplo.cp = &cuplo;
-      ftran.len = 1; ftran.cp = &ctran; fdiag.len = 1; fdiag.cp = &cdiag;
-      F77dtrsm( &fside, &fuplo, &ftran, &fdiag, &F77N, &F77M, &alpha,
-                A, &F77lda, B, &F77ldb );
-#endif
-   }
-#endif
 
 END_TRACE
 /*

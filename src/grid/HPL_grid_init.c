@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 int HPL_grid_init
 (
    MPI_Comm                         COMM,
@@ -76,15 +75,6 @@ int HPL_grid_init
    const int                        NPCOL,
    HPL_T_grid *                     GRID
 )
-#else
-int HPL_grid_init
-( COMM, ORDER, NPROW, NPCOL, GRID )
-   MPI_Comm                         COMM;
-   const HPL_T_ORDER                ORDER;
-   const int                        NPROW;
-   const int                        NPCOL;
-   HPL_T_grid *                     GRID;
-#endif
 {
 /* 
  * Purpose

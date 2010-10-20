@@ -73,15 +73,10 @@
 #define   I_SEND    0
 #define   I_RECV    1
 
-#ifdef STDC_HEADERS
 int HPL_binit_blong
 (
    HPL_T_panel *              PANEL
 )
-#else
-int HPL_binit_blong( PANEL )
-   HPL_T_panel *              PANEL;
-#endif
 {
 /* ..
  * .. Executable Statements ..
@@ -142,17 +137,11 @@ int HPL_binit_blong( PANEL )
  
 #endif
 
-#ifdef STDC_HEADERS
 int HPL_bcast_blong
 (
    HPL_T_panel                * PANEL,
    int                        * IFLAG
 )
-#else
-int HPL_bcast_blong( PANEL, IFLAG )
-   HPL_T_panel                * PANEL;
-   int                        * IFLAG;
-#endif
 { 
 /*
  * .. Local Variables ..
@@ -359,15 +348,10 @@ int HPL_bcast_blong( PANEL, IFLAG )
    return( *IFLAG );
 }
 
-#ifdef STDC_HEADERS
 int HPL_bwait_blong
 (
    HPL_T_panel *              PANEL
 )
-#else
-int HPL_bwait_blong( PANEL )
-   HPL_T_panel *              PANEL;
-#endif
 {
 /* ..
  * .. Executable Statements ..

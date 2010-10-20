@@ -82,7 +82,6 @@ enum HPL_DIAG
 enum HPL_SIDE
 {  HplLeft     = 141,  HplRight        = 142 }; 
 
-#ifdef HPL_CALL_CBLAS
 /*
  * ---------------------------------------------------------------------
  * The C interface of the BLAS is available ...
@@ -117,58 +116,24 @@ enum HPL_SIDE
  * CBLAS Function prototypes
  * ---------------------------------------------------------------------
  */
-CBLAS_INDEX       cblas_idamax
-STDC_ARGS(
-(  const int,       const double *,  const int ) );
-void              cblas_dswap
-STDC_ARGS(
-(  const int,       double *,        const int,       double *,
-   const int ) );
-void              cblas_dcopy
-STDC_ARGS(
-(  const int,       const double *,  const int,       double *,
-   const int ) );
-void              cblas_daxpy
-STDC_ARGS(
-(  const int,       const double,    const double *,  const int,
-   double *,        const int ) );
-void              cblas_dscal
-STDC_ARGS(
-(  const int,       const double,    double *,        const int ) );
+CBLAS_INDEX cblas_idamax(  const int,       const double *,  const int );
+void cblas_dswap (  const int,       double *,        const int,       double *,   const int );
+void cblas_dcopy (  const int,       const double *,  const int,       double *,   const int );
+void cblas_daxpy (  const int,       const double,    const double *,  const int,   double *,        const int );
+void cblas_dscal (  const int,       const double,    double *,        const int );
 
-void              cblas_dgemv
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
-   const int,       const int,       const double,    const double *,
-   const int,       const double *,  const int,       const double,
-   double *,        const int ) );
+void cblas_dgemv (  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE, const int,       const int,       const double,    const double *,
+   const int,       const double *,  const int,       const double,   double *,        const int );
 
-void              cblas_dger
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const int,       const int,
-   const double,    const double *,  const int,       const double *,
-   const int,       double *,        const int ) );
-void              cblas_dtrsv
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_UPLO,
-   const enum CBLAS_TRANSPOSE,       const enum CBLAS_DIAG,
-   const int,       const double *,  const int,       double *,
-   const int ) );
+void cblas_dger (  const enum CBLAS_ORDER,           const int,       const int,   const double,    const double *,  const int,       const double *,
+   const int,       double *,        const int );
+void cblas_dtrsv (  const enum CBLAS_ORDER,           const enum CBLAS_UPLO,   const enum CBLAS_TRANSPOSE,       const enum CBLAS_DIAG,
+   const int,       const double *,  const int,       double *,   const int );
 
-void              cblas_dgemm
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
-   const enum CBLAS_TRANSPOSE,       const int,       const int,
-   const int,       const double,    const double *,  const int,
-   const double *,  const int,       const double,    double *,
-   const int ) );
-void              cblas_dtrsm
-STDC_ARGS(
-(  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,
-   const enum CBLAS_UPLO,            const enum CBLAS_TRANSPOSE,
-   const enum CBLAS_DIAG,            const int,       const int,
-   const double,    const double *,  const int,       double *,
-   const int ) );
+void cblas_dgemm (  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,   const enum CBLAS_TRANSPOSE,       const int,       const int,
+   const int,       const double,    const double *,  const int,   const double *,  const int,       const double,    double *,   const int );
+void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   const enum CBLAS_UPLO,            const enum CBLAS_TRANSPOSE,
+   const enum CBLAS_DIAG,            const int,       const int,    const double,    const double *,  const int,       double *,   const int );
 /*
  * ---------------------------------------------------------------------
  * HPL C BLAS macro definition
@@ -186,427 +151,36 @@ STDC_ARGS(
 #define    HPL_dger            cblas_dger
 
 #define    HPL_dgemm           cblas_dgemm
+#ifdef HPL_CALL_CALDGEMM
+#define    HPL_gpu_dgemm       CALDGEMM_dgemm
+#else
+#define    HPL_gpu_dgemm       cblas_dgemm
+#endif
 #define    HPL_dtrsm           cblas_dtrsm
 #endif
 
-#endif
 
-#ifdef HPL_CALL_FBLAS
-/*
- * ---------------------------------------------------------------------
- * Use the Fortran 77 interface of the BLAS ...
- * ---------------------------------------------------------------------
- * Defaults: Add_, F77_INTEGER=int, StringSunStyle
- * ---------------------------------------------------------------------
- */
-#ifndef NoChange
-#ifndef UpCase
-#ifndef Add__
-#ifndef Add_
-
-#define Add_
-
-#endif
-#endif
-#endif
-#endif
-
-#ifndef F77_INTEGER
-#define    F77_INTEGER         int
-#else
-#define    HPL_USE_F77_INTEGER_DEF
-#endif
-
-#ifndef StringCrayStyle
-#ifndef StringStructVal
-#ifndef StringStructPtr
-#ifndef StringSunStyle
-
-#define StringSunStyle
-
-#endif
-#endif
-#endif
-#endif
-/*
- * ---------------------------------------------------------------------
- * Fortran 77 <-> C interface
- * ---------------------------------------------------------------------
- *
- * These macros identifies how Fortran routines will be called.
- *
- * Add_     : the Fortran compiler expects the name of C functions to be
- * in all lower case and to have an underscore postfixed it (Suns, Intel
- * compilers expect this).
- *
- * NoChange : the Fortran compiler expects the name of C functions to be
- * in all lower case (IBM RS6K compilers do this).
- *
- * UpCase   : the Fortran compiler expects the name of C functions to be
- * in all upcase. (Cray compilers expect this).
- *
- * Add__    : the Fortran compiler in use is f2c, a Fortran to C conver-
- * ter.
- */
-#ifdef NoChange
-/*
- * These defines  set  up  the  naming scheme required to have a FORTRAN
- * routine called by a C routine with the following  FORTRAN to C inter-
- * face:
- *
- *          FORTRAN DECLARATION            C CALL
- *          SUBROUTINE DGEMM(...)          dgemm(...)
- */
-#define    F77dswap               dswap
-#define    F77dscal               dscal
-#define    F77dcopy               dcopy
-#define    F77daxpy               daxpy
-#define    F77idamax              idamax
-
-#define    F77dgemv               dgemv
-#define    F77dtrsv               dtrsv
-#define    F77dger                dger
-
-#define    F77dgemm               dgemm
-#define    F77dtrsm               dtrsm
-
-#endif
-
-#ifdef UpCase
-/*
- * These defines  set  up  the  naming scheme required to have a FORTRAN
- * routine called by a C routine with the following  FORTRAN to C inter-
- * face:
- *
- *          FORTRAN DECLARATION            C CALL
- *          SUBROUTINE DGEMM(...)          DGEMM(...)
- */
-#ifdef CRAY_BLAS
-                                                                                
-#define    F77dswap               SSWAP
-#define    F77dscal               SSCAL
-#define    F77dcopy               SCOPY
-#define    F77daxpy               SAXPY
-#define    F77idamax              ISAMAX
-                                                                                
-#define    F77dgemv               SGEMV
-#define    F77dtrsv               STRSV
-#define    F77dger                SGER
-                                                                                
-#define    F77dgemm               SGEMM
-#define    F77dtrsm               STRSM
-                                                                                
-#else
-
-#define    F77dswap               DSWAP
-#define    F77dscal               DSCAL
-#define    F77dcopy               DCOPY
-#define    F77daxpy               DAXPY
-#define    F77idamax              IDAMAX
-
-#define    F77dgemv               DGEMV
-#define    F77dtrsv               DTRSV
-#define    F77dger                DGER
-
-#define    F77dgemm               DGEMM
-#define    F77dtrsm               DTRSM
-
-#endif
-
-#endif
-
-#ifdef Add_
-/*
- * These defines  set  up  the  naming scheme required to have a FORTRAN
- * routine called by a C routine  with the following  FORTRAN to C inter-
- * face:
- *
- *          FORTRAN DECLARATION            C CALL
- *          SUBROUTINE DGEMM(...)          dgemm_(...)
- */
-#define    F77dswap               dswap_
-#define    F77dscal               dscal_
-#define    F77dcopy               dcopy_
-#define    F77daxpy               daxpy_
-#define    F77idamax              idamax_
-
-#define    F77dgemv               dgemv_
-#define    F77dtrsv               dtrsv_
-#define    F77dger                dger_
-
-#define    F77dgemm               dgemm_
-#define    F77dtrsm               dtrsm_
-
-#endif
-
-#ifdef Add__
-/*
- * These defines  set  up  the  naming scheme required to have a FORTRAN
- * routine called by a C routine  with the following  FORTRAN to C inter-
- * face:
- *
- *          FORTRAN DECLARATION            C CALL
- *          SUBROUTINE DGEMM(...)          dgemm_(...)
- */
-#define    F77dswap               dswap_
-#define    F77dscal               dscal_
-#define    F77dcopy               dcopy_
-#define    F77daxpy               daxpy_
-#define    F77idamax              idamax_
- 
-#define    F77dgemv               dgemv_
-#define    F77dtrsv               dtrsv_
-#define    F77dger                dger_
- 
-#define    F77dgemm               dgemm_
-#define    F77dtrsm               dtrsm_
- 
-#endif
-/*
- * ---------------------------------------------------------------------
- * Typedef definitions and conversion utilities
- * ---------------------------------------------------------------------
- */
-#ifdef StringCrayStyle
-
-#include <fortran.h>
-                      /* Type of character argument in a FORTRAN call */
-#define    F77_CHAR            _fcd
-                                    /* Character conversion utilities */
-#define    HPL_F2C_CHAR(c)     (*(_fcdtocp(c) ))
-#define    HPL_C2F_CHAR(c)     (_cptofcd(&(c), 1))
-
-#define    F77_CHAR_DECL       F77_CHAR          /* input CHARACTER*1 */
-
-#endif
-/* ------------------------------------------------------------------ */
-#ifdef StringStructVal
-                      /* Type of character argument in a FORTRAN call */
-typedef struct { char *cp; F77_INTEGER len; } F77_CHAR;
-                                    /* Character conversion utilities */
-#define    HPL_F2C_CHAR(c)     (*(c.cp))
-
-#define    F77_CHAR_DECL       F77_CHAR          /* input CHARACTER*1 */
-
-#endif
-/* ------------------------------------------------------------------ */
-#ifdef StringStructPtr
-                      /* Type of character argument in a FORTRAN call */
-typedef struct { char *cp; F77_INTEGER len; } F77_CHAR;
-                                    /* Character conversion utilities */
-#define    HPL_F2C_CHAR(c)     (*(c->cp))
-
-#define    F77_CHAR_DECL       F77_CHAR *        /* input CHARACTER*1 */
-
-#endif
-/* ------------------------------------------------------------------ */
-#ifdef StringSunStyle
-                      /* Type of character argument in a FORTRAN call */
-#define    F77_CHAR            char *
-                                    /* Character conversion utilities */
-#define    HPL_F2C_CHAR(c)     (*(c))
-#define    HPL_C2F_CHAR(c)     (&(c))
-
-#define    F77_CHAR_DECL       F77_CHAR          /* input CHARACTER*1 */
-#define    F77_1_CHAR          , F77_INTEGER
-#define    F77_2_CHAR          F77_1_CHAR F77_1_CHAR
-#define    F77_3_CHAR          F77_2_CHAR F77_1_CHAR
-#define    F77_4_CHAR          F77_3_CHAR F77_1_CHAR
-
-#endif
-/* ------------------------------------------------------------------ */
-
-#ifndef F77_1_CHAR
-#define    F77_1_CHAR
-#define    F77_2_CHAR
-#define    F77_3_CHAR
-#define    F77_4_CHAR
-#endif
-
-#define    F77_INT_DECL        const F77_INTEGER *   /* input integer */
-#define    F77_SIN_DECL        const double *         /* input scalar */
-#define    F77_VIN_DECL        const double *         /* input vector */
-#define    F77_VINOUT_DECL     double *        /* input/output matrix */
-#define    F77_MIN_DECL        const double *         /* input matrix */
-#define    F77_MINOUT_DECL     double *        /* input/output matrix */
- 
-#ifdef CRAY_PVP_ENV                      /* Type of FORTRAN functions */
-#define    F77_VOID_FUN        extern fortran void      /* subroutine */
-#define    F77_INT_FUN         extern fortran int /* integer function */
-#else
-#define    F77_VOID_FUN        extern void              /* subroutine */
-#define    F77_INT_FUN         extern int         /* integer function */
-#endif
-/*
- * ---------------------------------------------------------------------
- * Fortran 77 BLAS function prototypes
- * ---------------------------------------------------------------------
- */
-F77_VOID_FUN    F77dswap
-STDC_ARGS(
-(  F77_INT_DECL,    F77_VINOUT_DECL, F77_INT_DECL,    F77_VINOUT_DECL,
-   F77_INT_DECL ) );
-F77_VOID_FUN    F77dscal
-STDC_ARGS(
-(  F77_INT_DECL,    F77_SIN_DECL,    F77_VINOUT_DECL, F77_INT_DECL ) );
-F77_VOID_FUN    F77dcopy
-STDC_ARGS(
-(  F77_INT_DECL,    F77_VIN_DECL,    F77_INT_DECL,    F77_VINOUT_DECL,
-   F77_INT_DECL ) );
-F77_VOID_FUN    F77daxpy
-STDC_ARGS(
-(  F77_INT_DECL,    F77_SIN_DECL,    F77_VIN_DECL,    F77_INT_DECL,
-   F77_VINOUT_DECL, F77_INT_DECL ) );
-F77_INT_FUN     F77idamax
-STDC_ARGS(
-(  F77_INT_DECL,    F77_VIN_DECL,    F77_INT_DECL ) );
-
-F77_VOID_FUN    F77dgemv
-STDC_ARGS(
-(  F77_CHAR_DECL,   F77_INT_DECL,    F77_INT_DECL,    F77_SIN_DECL,
-   F77_MIN_DECL,    F77_INT_DECL,    F77_VIN_DECL,    F77_INT_DECL,
-   F77_SIN_DECL,    F77_VINOUT_DECL, F77_INT_DECL     F77_1_CHAR ) );
-F77_VOID_FUN    F77dger
-STDC_ARGS(
-(  F77_INT_DECL,    F77_INT_DECL,    F77_SIN_DECL,    F77_VIN_DECL,
-   F77_INT_DECL,    F77_VIN_DECL,    F77_INT_DECL,    F77_MINOUT_DECL,
-   F77_INT_DECL ) );
-F77_VOID_FUN    F77dtrsv
-STDC_ARGS(
-(  F77_CHAR_DECL,   F77_CHAR_DECL,   F77_CHAR_DECL,   F77_INT_DECL,
-   F77_MIN_DECL,    F77_INT_DECL,    F77_VINOUT_DECL, F77_INT_DECL
-   F77_3_CHAR ) );
-
-F77_VOID_FUN    F77dgemm
-STDC_ARGS(
-(  F77_CHAR_DECL,   F77_CHAR_DECL,   F77_INT_DECL,    F77_INT_DECL,
-   F77_INT_DECL,    F77_SIN_DECL,    F77_MIN_DECL,    F77_INT_DECL,
-   F77_MIN_DECL,    F77_INT_DECL,    F77_SIN_DECL,    F77_MINOUT_DECL,
-   F77_INT_DECL     F77_2_CHAR ) );
-F77_VOID_FUN    F77dtrsm
-STDC_ARGS(
-(  F77_CHAR_DECL,   F77_CHAR_DECL,   F77_CHAR_DECL,   F77_CHAR_DECL,
-   F77_INT_DECL,    F77_INT_DECL,    F77_SIN_DECL,    F77_MIN_DECL,
-   F77_INT_DECL,    F77_MINOUT_DECL, F77_INT_DECL     F77_4_CHAR ) );
-
-#endif
 /*
  * ---------------------------------------------------------------------
  * HPL BLAS Function prototypes
  * ---------------------------------------------------------------------
  */
-#if defined(HPL_NO_CALL_CBLAS) || defined(TRACE_CALLS)
+#if defined(TRACE_CALLS)
 
-int                              HPL_idamax
-STDC_ARGS( (
-   const int,
-   const double *,
-   const int
-) );
-void                             HPL_daxpy
-STDC_ARGS( (
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dcopy
-STDC_ARGS( (
-   const int,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dscal
-STDC_ARGS( (
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dswap
-STDC_ARGS( (
-   const int,
-   double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dgemv
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_TRANS,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   const double *,
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dger
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dtrsv
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_UPLO,
-   const enum HPL_TRANS,
-   const enum HPL_DIAG,
-   const int,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
-void                             HPL_dgemm
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_TRANS,
-   const enum HPL_TRANS,
-   const int,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   const double *,
-   const int,
-   const double,
-   double *,
-   const int
-) );
-void                             HPL_dtrsm
-STDC_ARGS( (
-   const enum HPL_ORDER,
-   const enum HPL_SIDE,
-   const enum HPL_UPLO,
-   const enum HPL_TRANS,
-   const enum HPL_DIAG,
-   const int,
-   const int,
-   const double,
-   const double *,
-   const int,
-   double *,
-   const int
-) );
+int HPL_idamax(   const int,   const double *,   const int);
+void HPL_daxpy(   const int,   const double,   const double *,   const int,   double *,   const int );
+void HPL_dcopy(   const int,   const double *,   const int,   double *,   const int );
+void HPL_dscal(   const int,   const double,   double *,   const int );
+void HPL_dswap(   const int,   double *,   const int,   double *,   const int );
+void HPL_dgemv(   const enum HPL_ORDER,   const enum HPL_TRANS,   const int,   const int,   const double,   const double *,   const int,   const double *,   const int,
+   const double,   double *,   const int );
+void HPL_dger(   const enum HPL_ORDER,   const int,   const int,   const double,   const double *,   const int,   double *,   const int,   double *,   const int );
+void HPL_dtrsv(   const enum HPL_ORDER,   const enum HPL_UPLO,   const enum HPL_TRANS,   const enum HPL_DIAG,   const int,   const double *,   const int,   double *,
+   const int );
+void HPL_dgemm(   const enum HPL_ORDER,   const enum HPL_TRANS,   const enum HPL_TRANS,   const int,   const int,   const int,   const double,   const double *,
+   const int,   const double *,   const int,   const double,   double *,   const int );
+void HPL_dtrsm(   const enum HPL_ORDER,   const enum HPL_SIDE,   const enum HPL_UPLO,   const enum HPL_TRANS,   const enum HPL_DIAG,   const int,   const int,
+   const double,   const double *,   const int,   double *,   const int );
 
 #endif
 

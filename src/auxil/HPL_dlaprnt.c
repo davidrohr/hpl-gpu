@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_dlaprnt
 (
    const int                        M,
@@ -75,17 +74,6 @@ void HPL_dlaprnt
    const int                        LDA,
    const char *                     CMATNM
 )
-#else
-void HPL_dlaprnt
-( M, N, A, IA, JA, LDA, CMATNM )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        IA;
-   const int                        JA;
-   const int                        LDA;
-   const char *                     CMATNM;
-#endif
 {
 /* 
  * Purpose

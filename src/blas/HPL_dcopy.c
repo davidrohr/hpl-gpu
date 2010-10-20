@@ -69,7 +69,6 @@
 
 #ifndef HPL_dcopy
 
-#ifdef STDC_HEADERS
 void HPL_dcopy
 (
    const int                        N,
@@ -78,15 +77,6 @@ void HPL_dcopy
    double *                         Y,
    const int                        INCY
 )
-#else
-void HPL_dcopy
-( N, X, INCX, Y, INCY )
-   const int                        N;
-   const double *                   X;
-   const int                        INCX;
-   double *                         Y;
-   const int                        INCY;
-#endif
 {
 /* 
  * Purpose
@@ -124,19 +114,7 @@ void HPL_dcopy
  */ 
 START_TRACE( DCOPY )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dcopy( N, X, INCX, Y, INCY );
-#endif
-#ifdef HPL_CALL_FBLAS
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77N = N, F77incx = INCX, F77incy = INCY;
-#else
-#define F77N                 N
-#define F77incx              INCX
-#define F77incy              INCY
-#endif
-   F77dcopy( &F77N, X, &F77incx, Y, &F77incy );
-#endif
 
 END_TRACE
 /*

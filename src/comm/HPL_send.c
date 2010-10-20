@@ -74,7 +74,6 @@
 #undef HPL_USE_MPI_DATATYPE
 #endif
 
-#ifdef STDC_HEADERS
 int HPL_send
 (
    double *                         SBUF,
@@ -83,15 +82,6 @@ int HPL_send
    int                              STAG,
    MPI_Comm                         COMM
 )
-#else
-int HPL_send
-( SBUF, SCOUNT, DEST, STAG, COMM )
-   double *                         SBUF;
-   int                              SCOUNT;
-   int                              DEST;
-   int                              STAG;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

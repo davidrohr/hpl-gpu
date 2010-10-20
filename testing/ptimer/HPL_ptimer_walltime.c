@@ -79,11 +79,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#ifdef STDC_HEADERS
 double HPL_ptimer_walltime( void )
-#else
-double HPL_ptimer_walltime()
-#endif
 {
    struct timeval             tp;
    static long                start=0, startu;
@@ -103,11 +99,7 @@ double HPL_ptimer_walltime()
 
 #else
 
-#ifdef STDC_HEADERS
 double HPL_ptimer_walltime( void )
-#else
-double HPL_ptimer_walltime()
-#endif
 {
    return( MPI_Wtime() );
 }

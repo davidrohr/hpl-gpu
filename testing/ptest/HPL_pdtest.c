@@ -63,8 +63,9 @@
  * Include files
  */
 #include "hpl.h"
+#include <sys/mman.h>
+#include "util_cal.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdtest
 (
    HPL_T_test *                     TEST,
@@ -74,16 +75,6 @@ void HPL_pdtest
    const int                        NB,
    const int                        SEED
 )
-#else
-void HPL_pdtest
-( TEST, GRID, ALGO, N, NB )
-   HPL_T_test *                     TEST;
-   HPL_T_grid *                     GRID;
-   HPL_T_palg *                     ALGO;
-   const int                        N;
-   const int                        NB;
-   const int                        SEED;
-#endif
 {
 /* 
  * Purpose
@@ -173,7 +164,30 @@ void HPL_pdtest
  *
  * Ensure that lda is a multiple of ALIGN and not a power of 2
  */
+ 
+#ifdef DGEMM_HPL_TEST
+    {
+    size_t n = 78000;
+    size_t nb = 1024;
+    size_t lda = n;
+    if (lda % 8) lda += (8 - lda % 8);
+    printf("malloc %lld\n", (size_t) n * lda * sizeof(double));
+    double* m = CALDGEMM_alloc(n * lda * sizeof(double));
+    printf("memset\n");fflush(stdout);
+    memset(m, 0, n * lda * sizeof(double));
+    printf("dgemm\n");fflush(stdout);
+    CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n - nb, n - nb, nb, 0.5, m + nb * lda, lda, m + nb, lda, 0.5, m + nb * (lda + 1), lda);
+    printf("free\n");
+    CALDGEMM_free(m);
+    }
+#endif
+ 
    mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align;
+   
+   //Make sure LDA is an uneven multiple of cache line size
+   if (mat.ld % 64) mat.ld += 64 - mat.ld % 64;
+   if (mat.ld % 128 == 0) mat.ld += 64;
+   
    do
    {
       ii = ( mat.ld += ALGO->align ); ip2 = 1;
@@ -183,9 +197,11 @@ void HPL_pdtest
 /*
  * Allocate dynamic memory
  */
-   vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
+   /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
                            (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
-                         sizeof(double) );
+                         sizeof(double) );*/
+   vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double) );
+                         
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
                           GRID->all_comm );
@@ -201,10 +217,31 @@ void HPL_pdtest
 /*
  * generate matrix and right-hand-side, [ A | b ] which is N by N+1.
  */
-   mat.A  = (double *)HPL_PTR( vptr,
-                               ((size_t)(ALGO->align) * sizeof(double) ) );
+   mat.A  = (double *) HPL_PTR( vptr, ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
+#ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
+#else
+   size_t fastrand_num = SEED;
+   const size_t fastrand_mul = 84937482743;
+   const size_t fastrand_add = 138493846343;
+   const size_t fastrand_mod = 538948374763;
+   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
+   {
+	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
+	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+   }
+#endif
+
+#ifdef DGEMM_HPL_TEST
+    for (int nb = NB;nb < N;nb += NB)
+    {
+	CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, mat.A + nb * mat.ld, mat.ld, mat.A + nb, mat.ld, 0.5, mat.A + nb * (mat.ld + 1), mat.ld);
+	double* tmpptr = (double*) vptr;
+        CALDGEMM_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N - nb, N - nb, NB, 0.5, tmpptr + nb * mat.ld, mat.ld, tmpptr + nb, mat.ld, 0.5, tmpptr + nb * (mat.ld + 1), mat.ld);
+    }
+#endif
+   
 /*
  * Solve linear system
  */
@@ -341,7 +378,7 @@ void HPL_pdtest
  * Quick return, if I am not interested in checking the computations
  */
    if( TEST->thrsh <= HPL_rzero )
-   { (TEST->kpass)++; if( vptr ) free( vptr ); return; }
+   { (TEST->kpass)++; if( vptr ) CALDGEMM_free( vptr ); return; }
 /*
  * Check info returned by solve
  */
@@ -351,13 +388,23 @@ void HPL_pdtest
          HPL_pwarn( TEST->outfp, __LINE__, "HPL_pdtest", "%s %d, %s", 
                     "Error code returned by solve is", mat.info, "skip" );
       (TEST->kskip)++;
-      if( vptr ) free( vptr ); return;
+      if( vptr ) CALDGEMM_free( vptr ); return;
    }
 /*
  * Check computation, re-generate [ A | b ], compute norm 1 and inf of A and x,
  * and norm inf of b - A x. Display residual checks.
  */
+#if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
+#else
+   fastrand_num = SEED;
+   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
+   {
+	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
+	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+   }
+#endif
+
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );
    AnormI = HPL_pdlange( GRID, HPL_NORM_I, N, N, NB, mat.A, mat.ld );
 /*
@@ -451,7 +498,7 @@ void HPL_pdtest
          "||b||_oo . . . . . . . . . . . . . . . . . . . = ", BnormI );
       }
    }
-   if( vptr ) free( vptr );
+   if( vptr ) CALDGEMM_free( vptr );
 /*
  * End of HPL_pdtest
  */

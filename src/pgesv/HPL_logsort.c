@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_logsort
 (
    const int                        NPROCS,
@@ -73,15 +72,6 @@ void HPL_logsort
    int *                            IPMAP,
    int *                            IPMAPM1
 )
-#else
-void HPL_logsort
-( NPROCS, ICURROC, IPLEN, IPMAP, IPMAPM1 )
-   const int                        NPROCS;
-   const int                        ICURROC;
-   int *                            IPLEN;
-   int *                            IPMAP;
-   int *                            IPMAPM1;
-#endif
 {
 /* 
  * Purpose

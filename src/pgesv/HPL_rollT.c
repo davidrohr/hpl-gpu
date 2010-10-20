@@ -70,7 +70,6 @@
 #define   I_SEND    0
 #define   I_RECV    1
 
-#ifdef STDC_HEADERS
 void HPL_rollT
 (
    HPL_T_panel *                    PBCST,
@@ -83,19 +82,6 @@ void HPL_rollT
    const int *                      IPMAP,
    const int *                      IPMAPM1
 )
-#else
-void HPL_rollT
-( PBCST, IFLAG, PANEL, N, U, LDU, IPLEN, IPMAP, IPMAPM1 )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   const int *                      IPLEN;
-   const int *                      IPMAP;
-   const int *                      IPMAPM1;
-#endif
 {
 /* 
  * Purpose
@@ -157,7 +143,10 @@ START_TRACE( ROLLT )
 /*
  * .. Local Variables ..
  */
-   MPI_Status                 status;
+#ifndef HPL_SEND_U_PADDING
+   MPI_Datatype               type[2];
+#endif
+MPI_Status                 status;
    MPI_Request                request;
    MPI_Comm                   comm;
    int                        Cmsgid=MSGID_BEGIN_PFACT, ibufR, ibufS,
@@ -199,28 +188,75 @@ START_TRACE( ROLLT )
  
       if( lengthR > 0 )
       {
+#ifndef HPL_SEND_U_PADDING
+         if( ierr == MPI_SUCCESS )
+         {
+            if( LDU == N )
+               ierr = MPI_Type_contiguous( lengthR * LDU, MPI_DOUBLE,
+                                           &type[I_RECV] );
+            else
+               ierr = MPI_Type_vector( lengthR, N, LDU, MPI_DOUBLE,
+                                       &type[I_RECV] );
+         }
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Type_commit( &type[I_RECV] );
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Irecv( Mptr( U, 0, ibufR, LDU ), 1, type[I_RECV],
+                                partner, Cmsgid, comm, &request );
+#else
+/*
+ * In our case, LDU is N - Do not use the MPI datatype.
+ */
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Irecv( Mptr( U, 0, ibufR, LDU ), lengthR*LDU,
                                 MPI_DOUBLE, partner, Cmsgid, comm, &request );
+#endif
       }
  
       if( lengthS > 0 )
       {
+#ifndef HPL_SEND_U_PADDING
+         if( ierr == MPI_SUCCESS )
+         {
+            if( LDU == N )
+               ierr =   MPI_Type_contiguous( lengthS*LDU, MPI_DOUBLE,
+                                             &type[I_SEND] );
+            else
+               ierr =   MPI_Type_vector( lengthS, N, LDU, MPI_DOUBLE,
+                                         &type[I_SEND] );
+         }
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Type_commit( &type[I_SEND] );
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Send( Mptr( U, 0, ibufS, LDU ), 1, type[I_SEND],
+                               partner, Cmsgid, comm );
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Type_free( &type[I_SEND] );
+#else
+/*
+ * In our case, LDU is N - Do not use the MPI datatype.
+ */
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Send( Mptr( U, 0, ibufS, LDU ), lengthS*LDU,
                                MPI_DOUBLE, partner, Cmsgid, comm );
+#endif
       }
 
       if( lengthR > 0 )
       {
          if( ierr == MPI_SUCCESS )
             ierr =   MPI_Wait( &request, &status );
+#ifndef HPL_SEND_U_PADDING
+         if( ierr == MPI_SUCCESS )
+            ierr =   MPI_Type_free( &type[I_RECV] );
+#endif
       }
 /*
  * Probe for column panel - forward it when available
  */
       if( *IFLAG == HPL_KEEP_TESTING ) (void) HPL_bcast( PBCST, IFLAG );
    }
+
 
    if( ierr != MPI_SUCCESS )
    { HPL_pabort( __LINE__, "HPL_rollT", "MPI call failed" ); }

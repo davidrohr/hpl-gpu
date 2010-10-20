@@ -86,7 +86,6 @@
 #define    HPL_LACPY_LOG2_N_DEPTH   1
 #endif
 
-#ifdef STDC_HEADERS
 void HPL_dlacpy
 (
    const int                        M,
@@ -96,16 +95,6 @@ void HPL_dlacpy
    double *                         B,
    const int                        LDB
 )
-#else
-void HPL_dlacpy
-( M, N, A, LDA, B, LDB )
-   const int                        M;
-   const int                        N;
-   const double *                   A;
-   const int                        LDA;
-   double *                         B;
-   const int                        LDB;
-#endif
 {
 /* 
  * Purpose

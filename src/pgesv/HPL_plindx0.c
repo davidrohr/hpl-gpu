@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 void HPL_plindx0
 (
    HPL_T_panel *                    PANEL,
@@ -77,16 +76,6 @@ void HPL_plindx0
    int *                            LINDXAU,
    int *                            LLEN
 )
-#else
-void HPL_plindx0
-( PANEL, K, IPID, LINDXA, LINDXAU, LLEN )
-   HPL_T_panel *                    PANEL;
-   const int                        K;
-   int *                            IPID;
-   int *                            LINDXA;
-   int *                            LINDXAU;
-   int *                            LLEN;
-#endif
 {
 /* 
  * Purpose

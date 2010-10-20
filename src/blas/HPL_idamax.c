@@ -69,20 +69,12 @@
 
 #ifndef HPL_idamax
 
-#ifdef STDC_HEADERS
 int HPL_idamax
 (
    const int                        N,
    const double *                   X,
    const int                        INCX
 )
-#else
-int HPL_idamax
-( N, X, INCX )
-   const int                        N;
-   const double *                   X;
-   const int                        INCX;
-#endif 
 {
 /* 
  * Purpose
@@ -112,19 +104,7 @@ START_TRACE( IDAMAX )
 
    int                       imax = 0;
 
-#ifdef HPL_CALL_CBLAS
    imax = cblas_idamax( N, X, INCX );
-#endif
-#ifdef HPL_CALL_FBLAS
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77N = N, F77incx = INCX;
-#else
-#define F77N                 N
-#define F77incx              INCX
-#endif
-
-   if( N > 0 ) imax = F77idamax( &F77N, X, &F77incx ) - 1;
-#endif
 
 END_TRACE
 

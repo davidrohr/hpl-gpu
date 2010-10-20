@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_packL
 (
    HPL_T_panel *                    PANEL,
@@ -72,14 +71,6 @@ int HPL_packL
    const int                        LEN,
    const int                        IBUF
 )
-#else
-int HPL_packL
-( PANEL, INDEX, LEN, IBUF )
-   HPL_T_panel *                    PANEL;
-   const int                        INDEX;
-   const int                        LEN;
-   const int                        IBUF;
-#endif
 {
 /* 
  * Purpose

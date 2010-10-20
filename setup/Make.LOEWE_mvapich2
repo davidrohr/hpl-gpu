@@ -106,16 +106,26 @@ MPlib        = -L$(MPdir)/lib -lmpich
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-LAdir        = $(TOPdir)/GotoBLAS2
-LAinc        = 
-LAlib        = $(LAdir)/libgoto2.a
+GOTOdir      = $(TOPdir)/GotoBLAS2
+GOTOlib      = $(GOTOdir)/libgoto2.a
+CALDGEMMdir  = $(TOPdir)/caldgemm
+CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
+CALDGEMMutil  = $(CALDGEMMdir)/calutil.o
+LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
+LAlib        = $(CALDGEMMlib) $(CALDGEMMutil) $(GOTOlib) -laticalrt -laticalcl
 
 .DEFAULT_GOAL := all
 
-$(LAlib): $(LAdir)/*.h $(LAdir)/*.c $(LAdir)/interface/* $(LAdir)/kernel/x86_64/* $(LAdir)/driver/*/*
-	pushd $(LAdir); $(MAKE); popd
+$(GOTOlib): $(GOTOdir)/*.h $(GOTOdir)/*.c $(GOTOdir)/interface/* $(GOTOdir)/kernel/x86_64/* $(GOTOdir)/driver/*/*
+	pushd $(GOTOdir); $(MAKE); popd
 
-build_src: $(LAlib)
+$(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
+	pushd $(CALDGEMMdir); $(MAKE); popd
+
+$(CALDGEMMutil): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
+	pushd $(CALDGEMMdir); $(MAKE); popd
+
+build_src: $(GOTOlib) $(CALDGEMMlib) $(CALDGEMMutil)
 
 #
 # ----------------------------------------------------------------------
@@ -163,19 +173,24 @@ F2CDEFS      =
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) -I$(MPinc)
-HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lgfortran -Wl,-rpath=$(TOPdir)/lib
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$(TOPdir)/lib -ltbb $(MPlib) -lgfortran -Wl,-rpath=$(TOPdir)/lib -Wl,-rpath=$(TOPdir)/caldgemm/ati_patch
 #
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
 # -DHPL_CALL_CBLAS       call the cblas interface;
+# -DHPL_CALL_VSIPL       call the vsip  library;
 # -DHPL_DETAILED_TIMING  enable detailed timers;
+# -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
-#                        be relevant for optimization
-# -DUSE_ORIGINAL_LASWP   use original laswp implementation
-# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
-# -DNO_EQUILIBRATION     disable Equilibration (hardcoded instead of runtime parameter)
+#                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
+# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
+# -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
+# -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
+# -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
+# -DCALDGEMM_TEST        Activate Test Debug Code
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -186,7 +201,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET #-DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

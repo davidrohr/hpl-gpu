@@ -78,11 +78,7 @@ static double                 HPL_timer_cpusec   [HPL_NTIMER],
  * User callable functions
  * ---------------------------------------------------------------------
  */
-#ifdef STDC_HEADERS
 void HPL_timer_boot( void )
-#else
-void HPL_timer_boot()
-#endif
 {
 /*
  * HPL_timer_boot (re)sets all timers to 0, and enables HPL_timer.
@@ -106,12 +102,7 @@ void HPL_timer_boot()
  */
 }
 
-#ifdef STDC_HEADERS
 void HPL_timer( const int I )
-#else
-void HPL_timer( I )
-   const int                  I;
-#endif
 {
 /* 
  * Purpose
@@ -165,11 +156,7 @@ void HPL_timer( I )
  */
 }
 
-#ifdef STDC_HEADERS
 void HPL_timer_enable( void )
-#else
-void HPL_timer_enable()
-#endif
 {
 /*
  * HPL_timer_enable sets it so calls to HPL_timer are not ignored.
@@ -184,11 +171,7 @@ void HPL_timer_enable()
  */
 }
 
-#ifdef STDC_HEADERS
 void HPL_timer_disable( void )
-#else
-void HPL_timer_disable()
-#endif
 {
 /*
  * HPL_timer_disable sets it so calls to HPL_timer are ignored.
@@ -203,17 +186,7 @@ void HPL_timer_disable()
  */
 }
 
-#ifdef STDC_HEADERS
-double HPL_timer_inquire
-(
-   const HPL_T_TIME           TMTYPE,
-   const int                  I
-)
-#else
-double HPL_timer_inquire( TMTYPE, I )
-   const int                  I;
-   const HPL_T_TIME           TMTYPE;
-#endif
+double HPL_timer_inquire(const HPL_T_TIME TMTYPE, const int I)
 {
 /*
  * Purpose

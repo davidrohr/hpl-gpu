@@ -64,17 +64,12 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_fprintf
 (
    FILE *                           STREAM,
    const char *                     FORM,
    ...                              
 )
-#else
-void HPL_fprintf( va_alist )
-va_dcl
-#endif
 {
 /* 
  * Purpose
@@ -104,20 +99,10 @@ va_dcl
  */
    va_list                    argptr;
    char                       cline[256];
-#ifndef STDC_HEADERS
-   FILE                       * STREAM;
-   char                       * FORM;
-#endif
 /* ..
  * .. Executable Statements ..
  */
-#ifdef STDC_HEADERS
    va_start( argptr, FORM );
-#else
-   va_start( argptr );
-   STREAM = va_arg( argptr, FILE * );
-   FORM   = va_arg( argptr, char * );
-#endif
    (void) vsprintf( cline, FORM, argptr );
    va_end( argptr ); 
 

@@ -64,18 +64,11 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdtrsv
 (
    HPL_T_grid *                     GRID,
    HPL_T_pmat *                     AMAT
 )
-#else
-void HPL_pdtrsv
-( GRID, AMAT )
-   HPL_T_grid *                     GRID;
-   HPL_T_pmat *                     AMAT;
-#endif
 {
 /* 
  * Purpose
@@ -133,9 +126,7 @@ void HPL_pdtrsv
 /* ..
  * .. Executable Statements ..
  */
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_PTRSV );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_PTRSV );
    if( ( n = AMAT->n ) <= 0 ) return;
    nb = AMAT->nb; lda = AMAT->ld; A = AMAT->A; XR = AMAT->X;
 
@@ -302,9 +293,7 @@ void HPL_pdtrsv
                             Ccomm );
 
    if( Wfr  ) free( W  );
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_PTRSV );
-#endif
+   HPL_ptimer_detail( HPL_TIMING_PTRSV );
 /*
  * End of HPL_pdtrsv
  */

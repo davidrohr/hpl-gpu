@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_dlocmax
 (
    HPL_T_panel *                    PANEL,
@@ -73,15 +72,6 @@ void HPL_dlocmax
    const int                        JJ,
    double *                         WORK
 )
-#else
-void HPL_dlocmax
-( PANEL, N, II, JJ, WORK )
-   HPL_T_panel *                    PANEL;
-   const int                        N;
-   const int                        II;
-   const int                        JJ;
-   double *                         WORK;
-#endif
 {
 /* 
  * Purpose

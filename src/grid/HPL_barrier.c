@@ -64,16 +64,10 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_barrier
 (
    MPI_Comm                         COMM
 )
-#else
-int HPL_barrier
-( COMM )
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

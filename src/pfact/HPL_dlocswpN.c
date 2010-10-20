@@ -74,7 +74,6 @@
 #define    HPL_LOCSWP_LOG2_DEPTH    5
 #endif
 
-#ifdef STDC_HEADERS
 void HPL_dlocswpN
 (
    HPL_T_panel *                    PANEL,
@@ -82,14 +81,6 @@ void HPL_dlocswpN
    const int                        JJ,
    double *                         WORK
 )
-#else
-void HPL_dlocswpN
-( PANEL, II, JJ, WORK )
-   HPL_T_panel *                    PANEL;
-   const int                        II;
-   const int                        JJ;
-   double *                         WORK;
-#endif
 {
 /* 
  * Purpose

@@ -64,24 +64,13 @@
  */
 #include "hpl.h"
 #include "util_trace.h"
+#include "util_cal.h"
 
-#ifdef STDC_HEADERS
 int main
 (
    int                        ARGC,
    char                       * * ARGV
 )
-#else
-int main( ARGC, ARGV )
-/*
- * .. Scalar Arguments ..
- */
-   int                        ARGC;
-/*
- * .. Array Arguments ..
- */
-   char                       * * ARGV;
-#endif
 {
 /* 
  * Purpose
@@ -124,6 +113,13 @@ int main( ARGC, ARGV )
  * .. Executable Statements ..
  */
    MPI_Init( &ARGC, &ARGV );
+#ifdef HPL_CALL_CALDGEMM
+   if (CALDGEMM_Init())
+   {
+	printf("Error initializing CALDGEMM, abborting run\n");
+	return(1);
+   }
+#endif
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
@@ -216,6 +212,10 @@ int main( ARGC, ARGV )
               resetTraceCounters();
 #endif
 
+#ifdef CALDGEMM_TEST
+              fprintfct(stderr, "NBMIN %d PFACT %d RFACT %d\n", algo.nbmin, algo.pfact, algo.rfact);
+#endif
+
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
 
 #ifdef TRACE_CALLS
@@ -279,6 +279,9 @@ label_end_of_npqs: ;
       if( ( test.outfp != stdout ) && ( test.outfp != stderr ) )
          (void) fclose( test.outfp );
    }
+#ifdef HPL_CALL_CALDGEMM
+   CALDGEMM_Shutdown();
+#endif
 #ifdef TRACE_CALLS
    releaseTraceCounters();
 #endif

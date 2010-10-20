@@ -65,25 +65,12 @@
  * Include files
  * ---------------------------------------------------------------------
  */
-#ifdef __STDC__
-#define STDC_HEADERS
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef STDC_HEADERS
 #include <stdarg.h>
-#define STDC_ARGS(p)           p
-#else
-#include <varargs.h>
-#define STDC_ARGS(p)           ()
-#endif
 
-#ifdef HPL_CALL_VSIPL
-#include <vsip.h>
-#endif
 /*
  * ---------------------------------------------------------------------
  * #define macro constants

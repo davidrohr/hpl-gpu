@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_jumpit
 (
    int *                            MULT,
@@ -72,14 +71,6 @@ void HPL_jumpit
    int *                            IRANN,
    int *                            IRANM
 )
-#else
-void HPL_jumpit
-( MULT, IADD, IRANN, IRANM )
-   int *                            MULT;
-   int *                            IADD;
-   int *                            IRANN;
-   int *                            IRANM;
-#endif
 {
 /* 
  * Purpose

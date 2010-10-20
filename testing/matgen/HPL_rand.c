@@ -64,11 +64,7 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 double HPL_rand( void )
-#else
-double HPL_rand()
-#endif
 {
 /* 
  * Purpose

@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_dmatgen
 (
    const int                        M,
@@ -73,15 +72,6 @@ void HPL_dmatgen
    const int                        LDA,
    const int                        ISEED
 )
-#else
-void HPL_dmatgen
-( M, N, A, LDA, ISEED )
-   const int                        M;
-   const int                        N;
-   double *                         A;
-   const int                        LDA;
-   const int                        ISEED;
-#endif
 {
 /* 
  * Purpose

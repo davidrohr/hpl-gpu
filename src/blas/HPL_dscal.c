@@ -69,7 +69,6 @@
 
 #ifndef HPL_dscal
 
-#ifdef STDC_HEADERS
 void HPL_dscal
 (
    const int                        N,
@@ -77,14 +76,6 @@ void HPL_dscal
    double *                         X,
    const int                        INCX
 )
-#else
-void HPL_dscal
-( N, ALPHA, X, INCX )
-   const int                        N;
-   const double                     ALPHA;
-   double *                         X;
-   const int                        INCX;
-#endif
 {
 /* 
  * Purpose
@@ -119,20 +110,7 @@ void HPL_dscal
  */ 
 START_TRACE( DSCAL )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dscal( N, ALPHA, X, INCX );
-#endif
-#ifdef HPL_CALL_FBLAS
-   double                    alpha = ALPHA;
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77N = N, F77incx = INCX;
-#else
-#define F77N                 N
-#define F77incx              INCX
-#endif
-
-   F77dscal( &F77N, &alpha, X, &F77incx );
-#endif
 
 END_TRACE
 /*

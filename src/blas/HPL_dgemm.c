@@ -69,7 +69,6 @@
 
 #ifndef HPL_dgemm
 
-#ifdef STDC_HEADERS
 void HPL_dgemm
 (
    const enum HPL_ORDER             ORDER,
@@ -87,24 +86,6 @@ void HPL_dgemm
    double *                         C,
    const int                        LDC
 )
-#else
-void HPL_dgemm
-( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB, BETA, C, LDC )
-   const enum HPL_ORDER             ORDER;
-   const enum HPL_TRANS             TRANSA;
-   const enum HPL_TRANS             TRANSB;
-   const int                        M;
-   const int                        N;
-   const int                        K;
-   const double                     ALPHA;
-   const double *                   A;
-   const int                        LDA;
-   const double *                   B;
-   const int                        LDB;
-   const double                     BETA;
-   double *                         C;
-   const int                        LDC;
-#endif
 {
 /* 
  * Purpose
@@ -210,100 +191,41 @@ void HPL_dgemm
  */ 
 START_TRACE( DGEMM )
 
-#ifdef HPL_CALL_CBLAS
    cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                 BETA, C, LDC );
-#endif
-#ifdef HPL_CALL_FBLAS
-   double                    alpha = ALPHA, beta = BETA;
-#ifdef StringSunStyle
-#ifdef HPL_USE_F77_INTEGER_DEF
-   F77_INTEGER               IONE = 1;
-#else
-   int                       IONE = 1;
-#endif
-#endif
-#ifdef StringStructVal
-   F77_CHAR                  ftransa;
-   F77_CHAR                  ftransb;
-#endif
-#ifdef StringStructPtr
-   F77_CHAR                  ftransa;
-   F77_CHAR                  ftransb;
-#endif
-#ifdef StringCrayStyle
-   F77_CHAR                  ftransa;
-   F77_CHAR                  ftransb;
-#endif
-#ifdef HPL_USE_F77_INTEGER_DEF
-   const F77_INTEGER         F77M   = M,   F77N   = N,   F77K = K,
-                             F77lda = LDA, F77ldb = LDB, F77ldc = LDC;
-#else
-#define F77M                 M
-#define F77N                 N
-#define F77K                 K
-#define F77lda               LDA
-#define F77ldb               LDB
-#define F77ldc               LDC
-#endif
-   char                      ctransa, ctransb;
 
-   if(      TRANSA == HplNoTrans ) ctransa = 'N';
-   else if( TRANSA == HplTrans   ) ctransa = 'T';
-   else                            ctransa = 'C';
- 
-   if(      TRANSB == HplNoTrans ) ctransb = 'N';
-   else if( TRANSB == HplTrans   ) ctransb = 'T';
-   else                            ctransb = 'C';
+END_TRACE
+/*
+ * End of HPL_dgemm
+ */
+}
 
-   if( ORDER == HplColumnMajor )
-   {
-#ifdef StringSunStyle
-      F77dgemm( &ctransa, &ctransb, &F77M, &F77N, &F77K, &alpha, A, &F77lda,
-                B, &F77ldb, &beta, C, &F77ldc, IONE, IONE );
-#endif
-#ifdef StringCrayStyle
-      ftransa = HPL_C2F_CHAR( ctransa ); ftransb = HPL_C2F_CHAR( ctransb );
-      F77dgemm( ftransa,  ftransb,  &F77M, &F77N, &F77K, &alpha, A, &F77lda,
-                B, &F77ldb, &beta, C, &F77ldc );
-#endif
-#ifdef StringStructVal
-      ftransa.len = 1; ftransa.cp = &ctransa;
-      ftransb.len = 1; ftransb.cp = &ctransb;
-      F77dgemm( ftransa,  ftransb,  &F77M, &F77N, &F77K, &alpha, A, &F77lda,
-                B, &F77ldb, &beta, C, &F77ldc );
-#endif
-#ifdef StringStructPtr
-      ftransa.len = 1; ftransa.cp = &ctransa;
-      ftransb.len = 1; ftransb.cp = &ctransb;
-      F77dgemm( &ftransa, &ftransb, &F77M, &F77N, &F77K, &alpha, A, &F77lda,
-                B, &F77ldb, &beta, C, &F77ldc );
-#endif
-   }
-   else
-   {
-#ifdef StringSunStyle
-      F77dgemm( &ctransb, &ctransa, &F77N, &F77M, &F77K, &alpha, B, &F77ldb,
-                A, &F77lda, &beta, C, &F77ldc, IONE, IONE );
-#endif
-#ifdef StringCrayStyle
-      ftransa = HPL_C2F_CHAR( ctransa ); ftransb = HPL_C2F_CHAR( ctransb );
-      F77dgemm( ftransb,  ftransa,  &F77N, &F77M, &F77K, &alpha, B, &F77ldb,
-                A, &F77lda, &beta, C, &F77ldc );
-#endif
-#ifdef StringStructVal
-      ftransa.len = 1; ftransa.cp = &ctransa;
-      ftransb.len = 1; ftransb.cp = &ctransb;
-      F77dgemm( ftransb,  ftransa,  &F77N, &F77M, &F77K, &alpha, B, &F77ldb,
-                A, &F77lda, &beta, C, &F77ldc );
-#endif
-#ifdef StringStructPtr
-      ftransa.len = 1; ftransa.cp = &ctransa;
-      ftransb.len = 1; ftransb.cp = &ctransb;
-      F77dgemm( &ftransb, &ftransa, &F77N, &F77M, &F77K, &alpha, B, &F77ldb,
-                A, &F77lda, &beta, C, &F77ldc );
-#endif
-   }
+void HPL_gpu_dgemm
+(
+   const enum HPL_ORDER             ORDER,
+   const enum HPL_TRANS             TRANSA,
+   const enum HPL_TRANS             TRANSB,
+   const int                        M,
+   const int                        N,
+   const int                        K,
+   const double                     ALPHA,
+   const double *                   A,
+   const int                        LDA,
+   const double *                   B,
+   const int                        LDB,
+   const double                     BETA,
+   double *                         C,
+   const int                        LDC
+)
+{
+START_TRACE( DGEMM )
+
+#ifdef HPL_CALL_CALDGEMM
+   CALDGEMM_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+                   BETA, C, LDC );
+#else
+   cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+                BETA, C, LDC );
 #endif
 
 END_TRACE

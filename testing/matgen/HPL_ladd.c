@@ -64,20 +64,12 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_ladd
 (
    int *                            J,
    int *                            K,
    int *                            I
 )
-#else
-void HPL_ladd
-( J, K, I )
-   int *                            J;
-   int *                            K;
-   int *                            I;
-#endif
 {
 /* 
  * Purpose

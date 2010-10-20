@@ -67,7 +67,6 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
-#ifdef STDC_HEADERS
 void HPL_spreadT
 (
    HPL_T_panel *                    PBCST,
@@ -82,21 +81,6 @@ void HPL_spreadT
    const int *                      IPMAP,
    const int *                      IPMAPM1
 )
-#else
-void HPL_spreadT
-( PBCST, IFLAG, PANEL, SIDE, N, U, LDU, SRCDIST, IPLEN, IPMAP, IPMAPM1 )
-   HPL_T_panel *                    PBCST;
-   int *                            IFLAG;
-   HPL_T_panel *                    PANEL;
-   const enum HPL_SIDE              SIDE;
-   const int                        N;
-   double *                         U;
-   const int                        LDU;
-   const int                        SRCDIST;
-   const int *                      IPLEN;
-   const int *                      IPMAP;
-   const int *                      IPMAPM1;
-#endif
 {
 /* 
  * Purpose
@@ -173,6 +157,9 @@ START_TRACE( SPREAD_T )
 /*
  * .. Local Variables ..
  */
+#ifndef HPL_SEND_U_PADDING
+   MPI_Datatype              type;
+#endif
    MPI_Status                status;
    MPI_Comm                  comm;
    unsigned int              ip2=1, mask=1, mydist, mydist2;
@@ -211,17 +198,62 @@ START_TRACE( SPREAD_T )
 
                if( mydist & ip2 )
                {
+#ifndef HPL_SEND_U_PADDING
+                  if( ierr == MPI_SUCCESS )
+                  {
+                     if( LDU == N )
+                        ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
+                                                    &type );
+                     else
+                        ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
+                                                &type );
+                  }
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_commit( &type );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
+                                        IPMAP[npm1-partner], Cmsgid, comm,
+                                        &status );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_free( &type );
+#else
+/*
+ * In our case, LDU is N - do not use the MPI Datatypes
+ */
                   if( ierr == MPI_SUCCESS )
                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm, &status );
+#endif
                }
                else if( partner < nprow )
                {
+#ifndef HPL_SEND_U_PADDING
+                  if( ierr == MPI_SUCCESS )
+                  {
+                     if( LDU == N )
+                        ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
+                                                    &type );
+                     else
+                        ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
+                                                &type );
+                  }
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_commit( &type );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
+                                        IPMAP[npm1-partner], Cmsgid, comm );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_free( &type );
+#else
+/*
+ * In our case, LDU is N - do not use the MPI Datatypes
+ */
                   if( ierr == MPI_SUCCESS )
                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm );
+#endif
                }
             }
          }
@@ -265,17 +297,63 @@ START_TRACE( SPREAD_T )
 
                if( mydist & ip2 )
                {
+#ifndef HPL_SEND_U_PADDING
+                  if( ierr == MPI_SUCCESS )
+                  {
+                     if( LDU == N )
+                        ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
+                                                    &type );
+                     else
+                        ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
+                                                &type );
+                  }
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_commit( &type );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
+                                        IPMAP[SRCDIST+partner], Cmsgid,
+                                        comm, &status );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_free( &type );
+#else
+/*
+ * In our case, LDU is N - do not use the MPI Datatypes
+ */
                   if( ierr == MPI_SUCCESS )
                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm, &status );
+#endif
                }
                else if( partner < nprow )
                {
+#ifndef HPL_SEND_U_PADDING
+                  if( ierr == MPI_SUCCESS )
+                  {
+                     if( LDU == N )
+                        ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
+                                                    &type );
+                     else
+                        ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
+                                                &type );
+                  }
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_commit( &type );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
+                                        IPMAP[SRCDIST+partner], Cmsgid,
+                                        comm );
+                  if( ierr == MPI_SUCCESS )
+                     ierr =   MPI_Type_free( &type );
+#else
+/*
+ * In our case, LDU is N - do not use the MPI Datatypes
+ */
                   if( ierr == MPI_SUCCESS )
                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm );
+#endif
                }
             }
          }

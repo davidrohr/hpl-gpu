@@ -64,20 +64,12 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_pnum
 (
    const HPL_T_grid *               GRID,
    const int                        MYROW,
    const int                        MYCOL
 )
-#else
-int HPL_pnum
-( GRID, MYROW, MYCOL )
-   const HPL_T_grid *               GRID;
-   const int                        MYROW;
-   const int                        MYCOL;
-#endif
 {
 /* 
  * Purpose

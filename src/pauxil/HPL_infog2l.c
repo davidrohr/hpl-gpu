@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_infog2l
 (
    int                              I,
@@ -84,26 +83,6 @@ void HPL_infog2l
    int *                            PROW,
    int *                            PCOL
 )
-#else
-void HPL_infog2l
-( I, J, IMB, MB, INB, NB, RSRC, CSRC, MYROW, MYCOL, NPROW, NPCOL, II, JJ, PROW, PCOL )
-   int                              I;
-   int                              J;
-   const int                        IMB;
-   const int                        MB;
-   const int                        INB;
-   const int                        NB;
-   const int                        RSRC;
-   const int                        CSRC;
-   const int                        MYROW;
-   const int                        MYCOL;
-   const int                        NPROW;
-   const int                        NPCOL;
-   int *                            II;
-   int *                            JJ;
-   int *                            PROW;
-   int *                            PCOL;
-#endif 
 {
 /* 
  * Purpose

@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_all_reduce
 (
    void *                           BUFFER,
@@ -73,15 +72,6 @@ int HPL_all_reduce
    const HPL_T_OP                   OP,
    MPI_Comm                         COMM
 )
-#else
-int HPL_all_reduce
-( BUFFER, COUNT, DTYPE, OP, COMM )
-   void *                           BUFFER;
-   const int                        COUNT;
-   const HPL_T_TYPE                 DTYPE;
-   const HPL_T_OP                   OP;
-   MPI_Comm                         COMM;
-#endif
 {
 /* 
  * Purpose

@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_numrocI
 (
    const int                        N,
@@ -75,17 +74,6 @@ int HPL_numrocI
    const int                        SRCPROC,
    const int                        NPROCS
 )
-#else
-int HPL_numrocI
-( N, I, INB, NB, PROC, SRCPROC, NPROCS )
-   const int                        N;
-   const int                        I;
-   const int                        INB;
-   const int                        NB;
-   const int                        PROC;
-   const int                        SRCPROC;
-   const int                        NPROCS;
-#endif
 {
 /* 
  * Purpose

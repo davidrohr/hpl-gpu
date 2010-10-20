@@ -64,16 +64,10 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 int HPL_pdpanel_disp
 (
    HPL_T_panel * *                  PANEL
 )
-#else
-int HPL_pdpanel_disp
-( PANEL )
-   HPL_T_panel * *                  PANEL;
-#endif
 {
 /* 
  * Purpose

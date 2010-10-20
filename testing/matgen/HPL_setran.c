@@ -70,18 +70,11 @@
  */
 static int       ias[2], ics[2], irand[2];
 
-#ifdef STDC_HEADERS
 void HPL_setran
 (
    const int                        OPTION,
    int *                            IRAN
 )
-#else
-void HPL_setran
-( OPTION, IRAN )
-   const int                        OPTION;
-   int *                            IRAN;
-#endif
 {
 /* 
  * Purpose

@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 void HPL_pdlaprnt
 (
    const HPL_T_grid *               GRID,
@@ -77,19 +76,6 @@ void HPL_pdlaprnt
    const int                        IACOL,
    const char *                     CMATNM
 )
-#else
-void HPL_pdlaprnt
-( GRID, M, N, NB, A, LDA, IAROW, IACOL, CMATNM )
-   const HPL_T_grid *               GRID;
-   const int                        M;
-   const int                        N;
-   const int                        NB;
-   double *                         A;
-   const int                        LDA;
-   const int                        IAROW;
-   const int                        IACOL;
-   const char *                     CMATNM;
-#endif
 {
 /* 
  * Purpose

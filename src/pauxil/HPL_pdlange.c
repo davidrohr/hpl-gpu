@@ -64,7 +64,6 @@
  */
 #include "hpl.h"
 
-#ifdef STDC_HEADERS
 double HPL_pdlange
 (
    const HPL_T_grid *               GRID,
@@ -75,17 +74,6 @@ double HPL_pdlange
    const double *                   A,
    const int                        LDA
 )
-#else
-double HPL_pdlange
-( GRID, NORM, M, N, NB, A, LDA )
-   const HPL_T_grid *               GRID;
-   const HPL_T_NORM                 NORM;
-   const int                        M;
-   const int                        N;
-   const int                        NB;
-   const double *                   A;
-   const int                        LDA;
-#endif
 {
 /* 
  * Purpose
