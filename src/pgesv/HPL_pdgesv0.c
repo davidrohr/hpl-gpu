@@ -63,6 +63,7 @@
  * Include files
  */
 #include "hpl.h"
+#include "util_timer.h"
 
 #ifdef STDC_HEADERS
 void HPL_pdgesv0
@@ -112,12 +113,25 @@ void HPL_pdgesv0
    HPL_T_panel                * * panel = NULL;
    int                        N, j, jb, n, nb, tag=MSGID_BEGIN_FACT,
                               test=HPL_KEEP_TESTING;
+
+#ifdef HPL_PRINT_INTERMEDIATE
+   uint64_t                   total_gflop;
+   uint64_t                   time_start, time_now;
+#endif
 /* ..
  * .. Executable Statements ..
  */
-   if( ( N = A->n ) <= 0 ) return;
+   if( ( N = A->n ) <= 2 ) return;
 
    nb = A->nb;
+
+#ifdef HPL_PRINT_INTERMEDIATE
+   if( GRID->myrow == 0 && GRID->mycol == 0 )
+   {
+      total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
+      time_start = util_getTimestamp();
+   }
+#endif /* HPL_PRINT_INTERMEDIATE */
 /*
  * Allocate a panel list of length 1 - Allocate panel[0] resources
  */
@@ -133,6 +147,24 @@ void HPL_pdgesv0
    for( j = 0; j < N; j += nb )
    {
       n = N - j; jb = Mmin( n, nb );
+
+#ifdef HPL_PRINT_INTERMEDIATE
+      // we have done (N-n)/2 of the calculation
+      // we still have n/2 of the calculations to go (+ time for solve)
+      if( GRID->myrow == 0 && GRID->mycol == 0 )
+      {
+         uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
+         uint64_t gFlop = total_gflop - todo_gflop;
+         float ratio = (float) gFlop / total_gflop;
+         time_now = util_getTimestamp();
+         uint64_t seconds = util_getTimeDifference( time_start, time_now ) / 1e6;
+         float flops = (float)gFlop / (float)seconds;
+         uint64_t eta = ( ratio > 0.0f && seconds > 0 ) ? seconds / ratio - seconds : 0;
+         //printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
+         printf( "%f %% of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, flops, eta );
+      }
+#endif /* HPL_PRINT_INTERMEDIATE */
+
 /*
  * Release panel resources - re-initialize panel data structure
  */
@@ -152,6 +184,7 @@ void HPL_pdgesv0
  * Update message id for next factorization
  */
       tag = MNxtMgid( tag, MSGID_BEGIN_FACT, MSGID_END_FACT );
+
    }
 /*
  * Release panel resources and panel list
