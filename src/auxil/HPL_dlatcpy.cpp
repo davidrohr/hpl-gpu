@@ -64,7 +64,6 @@
  */
 #include "util_trace.h"
 
-#include "tsc.h"
 #include "../pauxil/helpers.h"
 #include <tbb/parallel_for.h>
 
@@ -260,9 +259,7 @@ class HPL_dlatcpy_impl2
  */
 extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB)
 {
-   TimeStampCounter tsc;
    START_TRACE( DLATCPY )
-   tsc.start();
 
    if ( _M <= 0 || _N <= 0 ) {
       return;
@@ -303,8 +300,5 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
    // and stores to B
    _mm_mfence();
 
-   tsc.stop();
    END_TRACE
-   fprintf( stderr, "%s(M = %4d, N = %5d, LDA = %5d, LDB = %5d) => Bs = %4ld, %.2f GB/s\n", __func__,
-         _M, _N, _LDA, _LDB, BS, 2.1 * 2 * M * N * sizeof( double ) / tsc.cycles() );
 }
