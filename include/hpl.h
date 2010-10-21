@@ -97,7 +97,6 @@
 #include "hpl_pfact.h"
 #include "hpl_pgesv.h"
 
-#include "hpl_timer.h"
 #include "hpl_matgen.h"
 #include "hpl_test.h"
 

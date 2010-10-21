@@ -82,7 +82,6 @@ build_src        :
 #
 build_tst        :
 	( $(CD) testing/matgen/$(arch);    $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) testing/timer/$(arch);     $(MAKE) TOPdir=$(TOPdir))
 	( $(CD) testing/pmatgen/$(arch);   $(MAKE) TOPdir=$(TOPdir))
 	( $(CD) testing/ptimer/$(arch);    $(MAKE) TOPdir=$(TOPdir))
 	( $(CD) testing/util/$(arch);      $(MAKE) TOPdir=$(TOPdir))
@@ -110,7 +109,6 @@ startup_src      :
 #
 startup_tst      :
 	- $(MAKE) -f Make.top leaf le=testing/matgen  arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=testing/timer   arch=$(arch)
 	- $(MAKE) -f Make.top leaf le=testing/pmatgen arch=$(arch)
 	- $(MAKE) -f Make.top leaf le=testing/ptimer  arch=$(arch)
 	- $(MAKE) -f Make.top leaf le=testing/ptest   arch=$(arch)
@@ -131,7 +129,6 @@ refresh_src      :
 #
 refresh_tst      :
 	- $(CP) makes/Make.matgen   testing/matgen/$(arch)/Makefile
-	- $(CP) makes/Make.timer    testing/timer/$(arch)/Makefile
 	- $(CP) makes/Make.pmatgen  testing/pmatgen/$(arch)/Makefile
 	- $(CP) makes/Make.ptimer   testing/ptimer/$(arch)/Makefile
 	- $(CP) makes/Make.ptest    testing/ptest/$(arch)/Makefile
@@ -153,7 +150,6 @@ clean_src        :
 #
 clean_tst        :
 	- ( $(CD) testing/matgen/$(arch);   $(MAKE) clean )
-	- ( $(CD) testing/timer/$(arch);    $(MAKE) clean )
 	- ( $(CD) testing/pmatgen/$(arch);  $(MAKE) clean )
 	- ( $(CD) testing/ptimer/$(arch);   $(MAKE) clean )
 	- ( $(CD) testing/ptest/$(arch);    $(MAKE) clean )
@@ -174,7 +170,6 @@ clean_arch_src   :
 #
 clean_arch_tst   :
 	- $(RM) -r testing/matgen/$(arch)
-	- $(RM) -r testing/timer/$(arch)
 	- $(RM) -r testing/pmatgen/$(arch)
 	- $(RM) -r testing/ptimer/$(arch)
 	- $(RM) -r testing/ptest/$(arch)
@@ -202,7 +197,6 @@ clean_guard_src  :
 #
 clean_guard_tst  :
 	- ( $(CD) testing/matgen/$(arch);  $(RM) *.grd )
-	- ( $(CD) testing/timer/$(arch);   $(RM) *.grd )
 	- ( $(CD) testing/pmatgen/$(arch); $(RM) *.grd )
 	- ( $(CD) testing/ptimer/$(arch);  $(RM) *.grd )
 	- ( $(CD) testing/ptest/$(arch);   $(RM) *.grd )

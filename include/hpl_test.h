@@ -71,7 +71,6 @@
 #include "hpl_gesv.h"
 
 #include "hpl_matgen.h"
-#include "hpl_timer.h"
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
