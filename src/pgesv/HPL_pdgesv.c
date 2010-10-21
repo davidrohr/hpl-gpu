@@ -294,7 +294,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Create main panel
 	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth]);
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
-
+	
 	//Main loop over the columns of A
 	for(j = 0; j < N; j += nb)
 	{

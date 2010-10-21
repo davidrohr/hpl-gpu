@@ -64,6 +64,8 @@
 #include "util_timer.h"
 #include "util_trace.h"
 
+#include "util_cal.h"
+
 int HPL_pdpanel_free
 (
    HPL_T_panel *                    PANEL
