@@ -33,8 +33,8 @@ namespace
 
         // use SSE registers:
         __m128 tmp;
-        asm("movq (%[src]), %[tmp]" : [tmp]"=x"(tmp) : [src]"r"(src));
-        asm("movq %[tmp], (%[dst])" :: [tmp]"x"(tmp), [dst]"r"(dst));
+        asm("movq %[src], %[tmp]" : [tmp]"=x"(tmp) : [src]"m"(*src));
+        asm("movq %[tmp], %[dst]" :: [tmp]"x"(tmp), [dst]"m"(*dst));
     }
 
     static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
@@ -43,7 +43,11 @@ namespace
         //asm("movnti %0, (%1)"::"r"(*src), "r"(dst));
 
         // use MMX registers + streaming stores:
-        _mm_stream_pi(reinterpret_cast<__m64 *>(dst), _mm_cvtsi64_m64(*reinterpret_cast<const long long *>(src)));
+        const __m64 tmp = *reinterpret_cast<const __m64 *>(src);
+        //asm("movq %[src], %[tmp]" : [tmp]"=y"(tmp) : [src]"m"(*src));
+        //asm("movntq %[tmp], %[dst]" :: [tmp]"y"(tmp), [dst]"m"(*dst));
+        asm("movntq %[src], %[dst]" :: [src]"y"(tmp), [dst]"m"(*dst));
+        //_mm_stream_pi(reinterpret_cast<__m64 *>(dst), *reinterpret_cast<const __m64 *>(src));
     }
 
     enum {
