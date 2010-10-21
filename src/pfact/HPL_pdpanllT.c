@@ -141,9 +141,6 @@ void HPL_pdpanllT
 /* ..
  * .. Executable Statements ..
  */
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_PFACT );
-#endif
    A    = PANEL->A;   lda = PANEL->lda;
    L1   = PANEL->L1;  n0  = PANEL->jb;
    curr = (int)( PANEL->grid->myrow == PANEL->prow );
@@ -195,9 +192,6 @@ void HPL_pdpanllT
    if( WORK[0] != HPL_rzero )
       HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 );
 
-#ifdef HPL_DETAILED_TIMING
-   HPL_ptimer( HPL_TIMING_PFACT );
-#endif
 /*
  * End of HPL_pdpanllT
  */

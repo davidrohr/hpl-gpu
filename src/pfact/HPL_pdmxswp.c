@@ -136,7 +136,6 @@ void HPL_pdmxswp
 /* ..
  * .. Executable Statements ..
  */
-   HPL_ptimer_detail( HPL_TIMING_MXSWP );
    grid = PANEL->grid; myrow = grid->myrow; nprow = grid->nprow;
 /*
  * ip2  : the smallest power of two less than or equal to nprow;
@@ -305,7 +304,6 @@ void HPL_pdmxswp
  * Save the global pivot index in pivot array
  */
    (PANEL->DPIV)[JJ] = WORK[2];
-   HPL_ptimer_detail( HPL_TIMING_MXSWP );
 /*
  * End of HPL_pdmxswp
  */

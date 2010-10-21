@@ -354,24 +354,6 @@ void HPL_pdtest
                       HPL_c[HPL_TIMING_RPFACT-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_RPFACT-HPL_TIMING_BEG]
                  );
 /*
- * Panel factorization
- */
-      if( HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG] > HPL_rzero )
-         HPL_fprintf( TEST->outfp,
-                      "+ Max aggregated wall time pfact . . : %18.2f %6.2f %4.2f\n",
-                      HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG], HPL_c[HPL_TIMING_PFACT-HPL_TIMING_BEG],
-                      HPL_c[HPL_TIMING_PFACT-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_PFACT-HPL_TIMING_BEG]
-                 );
-/*
- * Panel factorization (swap)
- */
-      if( HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG] > HPL_rzero )
-         HPL_fprintf( TEST->outfp,
-                      "+ Max aggregated wall time mxswp . . : %18.2f %6.2f %4.2f\n",
-                      HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG], HPL_c[HPL_TIMING_MXSWP-HPL_TIMING_BEG],
-                      HPL_c[HPL_TIMING_MXSWP-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_MXSWP-HPL_TIMING_BEG]
-                 );
-/*
  * Update
  */
       if( HPL_w[HPL_TIMING_UPDATE-HPL_TIMING_BEG] > HPL_rzero )
