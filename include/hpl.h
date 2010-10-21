@@ -117,6 +117,12 @@
 #define fprintfct(...)
 #endif
 
+#ifdef CALDGEMM_TEST_DEBUG
+#define fprintfctd fprintf
+#else
+#define fprintfctd(...)
+#endif
+
 #endif
 /*
 * End of hpl.h

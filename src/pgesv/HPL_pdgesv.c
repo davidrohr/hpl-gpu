@@ -130,18 +130,18 @@ int HPL_CALDGEMM_wrapper_icurcol = -1;
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	int mycol = Grid->mycol;
-	fprintfct(stderr, "Running Factorize\n");
+	fprintfctd(stderr, "Running Factorize\n");
 	if(mycol == icurcol)
 	{
 		HPL_pdfact(panel);    //factor current panel
 	}
-	fprintfct(stderr, "Factorize Ended\n");
+	fprintfctd(stderr, "Factorize Ended\n");
 }
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	int test = HPL_KEEP_TESTING;
-	fprintfct(stderr, "Starting Broadcast\n");
+	fprintfctd(stderr, "Starting Broadcast\n");
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	HPL_binit(panel);
 	do
@@ -151,7 +151,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	while(test != HPL_SUCCESS);
 	HPL_bwait(panel);
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
-	fprintfct(stderr, "Broadcast Ended\n");
+	fprintfctd(stderr, "Broadcast Ended\n");
 }
 
 void HPL_CALLDGEMM_wrapper_factorize()
@@ -170,7 +170,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	int * ipiv;
 	int curr, i, iroff, jb, lda, ldl2, mp, n, nb, test;
 	//.. Executable Statements ..
-	fprintfct(stderr, "Running pdupdateTT\n");
+	fprintfctd(stderr, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 	nb = PANEL->nb;
 	jb = PANEL->jb;
@@ -247,7 +247,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 
-	fprintfct(stderr, "pdupdateTT ended\n");
+	fprintfctd(stderr, "pdupdateTT ended\n");
 }
 
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
