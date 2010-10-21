@@ -92,8 +92,8 @@ START_TRACE( PDPANEL_FREE )
  */
    if( PANEL->pmat->info == 0 ) PANEL->pmat->info = *(PANEL->DINFO);
 
-   if( PANEL->WORK  ) free( PANEL->WORK  );
-   if( PANEL->IWORK ) free( PANEL->IWORK );
+   //if( PANEL->WORK  ) free( PANEL->WORK  );
+   //if( PANEL->IWORK ) free( PANEL->IWORK );
 
 END_TRACE
 
