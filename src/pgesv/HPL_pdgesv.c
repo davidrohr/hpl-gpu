@@ -63,6 +63,7 @@
  * Include files
  */
 #include "hpl.h"
+#include "util_timer.h"
 
 /* 
  * Purpose
@@ -255,6 +256,10 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
 	int N, depth, icurcol=0, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+#ifdef HPL_PRINT_INTERMEDIATE
+	uint64_t total_gflop;
+	uint64_t time_start;
+#endif
 	//.. Executable Statements ..
 	if( A->n <= 0 ) return;
 	A->info = 0;
@@ -264,6 +269,14 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	depth = ALGO->depth;
 	N = A->n;
 	nb = A->nb;
+
+#ifdef HPL_PRINT_INTERMEDIATE
+	if( GRID->myrow == 0 && GRID->mycol == 0 )
+	{
+		total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
+		time_start = util_getTimestamp();
+	}
+#endif /* HPL_PRINT_INTERMEDIATE */
 
 	//Allocate a panel list of length depth + 1 (depth >= 1)
 	panel = (HPL_T_panel **)malloc((size_t)(depth+1) * sizeof(HPL_T_panel *));
@@ -288,6 +301,23 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		n = N - j;
 		jb = Mmin(n, nb);
 		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
+
+#ifdef HPL_PRINT_INTERMEDIATE
+		// we have done (N-n)/2 of the calculation
+		// we still have n/2 of the calculations to go (+ time for solve)
+		if( GRID->myrow == 0 && GRID->mycol == 0 )
+		{
+			uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
+			uint64_t gFlop = total_gflop - todo_gflop;
+			float ratio = (float) gFlop / total_gflop;
+			uint64_t time_now = util_getTimestamp();
+			uint64_t seconds = util_getTimeDifference( time_start, time_now ) / 1e6;
+			float flops = (float)gFlop / (float)seconds;
+			uint64_t eta = ( ratio > 0.0f && seconds > 0 ) ? seconds / ratio - seconds : 0;
+			//printf( "%f %% of factorization (%.3f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
+			printf( "%f %% of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, flops, eta );
+		}
+#endif /* HPL_PRINT_INTERMEDIATE */
 
 		//Initialize current panel
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
