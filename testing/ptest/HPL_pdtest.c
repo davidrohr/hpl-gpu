@@ -245,9 +245,7 @@ void HPL_pdtest
 /*
  * Allocate dynamic memory
  */
-   /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
-                           (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
-                         sizeof(double) );*/
+   /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq) ) * sizeof(double) );*/
    vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double) );
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;

@@ -145,6 +145,8 @@ void HPL_pdpanel_new
    }
 
    HPL_pdpanel_init( GRID, ALGO, M, N, JB, A, IA, JA, TAG, p );
+   p->WORK = p->IWORK = NULL;
+   p->memalloc = p->memallocI = 0;
    *PANEL = p;
 /*
  * End of HPL_pdpanel_new

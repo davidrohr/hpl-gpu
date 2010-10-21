@@ -106,6 +106,8 @@ typedef struct HPL_S_panel
 	int msgid; /* message id for panel bcast */
 	int ldl2; /* local leading dim of array L2 */
 	int len; /* length of the buffer to broadcast */
+
+	size_t memalloc, memallocI;
 } HPL_T_panel;
 
 /*

@@ -214,12 +214,20 @@ START_TRACE( PDPANEL_INIT )
       if( nprow > 1 )                                 /* space for U */
       { nu = nq - JB; lwork += JB * Mmax( 0, nu ) + ALGO->align; }
 
-      if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) * 
-                                           sizeof( double ) ) ) )
-      {
-         HPL_pabort( __LINE__, "HPL_pdpanel_init",
-                     "Memory allocation failed" );
-      }
+	  if (lwork > memalloc)
+	  {
+		if (PANEL->WORK)
+		{
+			 CALDGEMM_free(PANEL->WORK);
+			 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+		}
+		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
+		{
+			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
+		}
+		memalloc = lwork;
+	  }
+
 /*
  * Initialize the pointers of the panel structure  -  Always re-use A in
  * the only process column
@@ -250,12 +258,19 @@ START_TRACE( PDPANEL_INIT )
          lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 
-      if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) *
-                                           sizeof( double ) ) ) )
-      {
-         HPL_pabort( __LINE__, "HPL_pdpanel_init",
-                     "Memory allocation failed" );
-      }
+	  if (lwork > memalloc)
+	  {
+		if (PANEL->WORK)
+		{
+			 CALDGEMM_free(PANEL->WORK);
+			 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+		}
+        if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
+        {
+         HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
+        }
+		memalloc = lwork;
+	  }
 /*
  * Initialize the pointers of the panel structure - Re-use A in the cur-
  * rent process column when HPL_COPY_L is not defined.
@@ -328,8 +343,16 @@ START_TRACE( PDPANEL_INIT )
       lwork = 4 + (9 * JB) + (3 * nprow) + itmp1;
    }
 
-   PANEL->IWORK = (int *)malloc( (size_t)(lwork) * sizeof( int ) );
-
+   if (lwork > memallocI)
+   {
+     if (PANEL->IWORK)
+	 {
+		 CALDGEMM_free(PANEL->IWORK);
+		 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+	 }
+     PANEL->IWORK = (int *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( int ) );
+	 memalloc = lwork;
+   }
    if( PANEL->IWORK == NULL )
    { HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" ); }
                        /* Initialize the first entry of the workarray */
