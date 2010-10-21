@@ -212,7 +212,7 @@ int main
               resetTraceCounters();
 #endif
 
-			  fprintfct(stderr, "(Problem: N %d NB %d)(Network: BCAST %d LOOKAHEAD %d) (Factorization: NBMIN %d NBDIV %d PFACT %d RFACT %d)\n", nval[in], nbval[inb], algo.btopo, algo.depth, algo.nbmin, algo.ndbiv, algo.pfact, algo.rfact);
+			  fprintfct(stderr, "(Problem: N %d NB %d)(Network: BCAST %d LOOKAHEAD %d) (Factorization: NBMIN %d NBDIV %d PFACT %d RFACT %d)\n", nval[in], nbval[inb], algo.btopo, algo.depth, algo.nbmin, algo.nbdiv, algo.pfact, algo.rfact);
 
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
 
