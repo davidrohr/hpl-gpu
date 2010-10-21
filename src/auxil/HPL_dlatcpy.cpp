@@ -280,7 +280,7 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
    if (N < 1024) {
       // BS * N ~ 512kB ~ 60k doubles => BS ~ 60000 / N
       BS = 60000 / N;
-      BS = BS > MM ? MM : BS;
+      BS = BS > MM ? BS / 2 : BS;
       tbb::parallel_for( Range(0, MM, BS), HPL_dlatcpy_impl( N, A, LDA, B, LDB ),
             tbb::simple_partitioner() );
    } else {
