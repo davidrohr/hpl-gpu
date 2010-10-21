@@ -62,9 +62,74 @@
 /*
  * Include files
  */
+#include "glibc_hacks.h"
 #include "hpl.h"
 #include <sys/mman.h>
 #include "util_cal.h"
+#include <pthread.h>
+
+#define FASTRAND_THREADS 24
+int fastrand_seed;
+volatile int fastrand_done[FASTRAND_THREADS];
+double* fastrand_A;
+size_t fastrand_size;
+
+void* fastmatgen_slave(void* arg)
+{
+   int num = (int) (size_t) arg;
+   
+
+   cpu_set_t mask;
+   CPU_ZERO(&mask);
+   CPU_SET(num, &mask);
+   sched_setaffinity(0, sizeof(cpu_set_t), &mask);
+
+   size_t fastrand_num = fastrand_seed + 65537 * num;
+   const size_t fastrand_mul = 84937482743;
+   const size_t fastrand_add = 138493846343;
+   const size_t fastrand_mod = 538948374763;
+   
+   size_t sizeperthread = fastrand_size / FASTRAND_THREADS;
+   
+   double* A = fastrand_A + num * sizeperthread;
+   size_t size = (num == FASTRAND_THREADS - 1) ? (fastrand_size - (FASTRAND_THREADS - 1) * sizeperthread) : sizeperthread;
+   
+   for (size_t i = 0;i < size;i++)
+   {
+	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
+	A[i] = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+   }
+   
+   
+   fastrand_done[num] = 1;
+   return(NULL);
+}
+
+void fastmatgen(int SEED, double* A, size_t size)
+{
+    fastrand_seed = SEED;
+    fastrand_A = A;
+    fastrand_size = size;
+    memset((void*) fastrand_done, 0, FASTRAND_THREADS * sizeof(int));
+    
+    cpu_set_t oldmask;
+    sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
+    
+    for (int i = 0;i < FASTRAND_THREADS - 1;i++)
+    {
+	pthread_t thr;
+	pthread_create(&thr, NULL, fastmatgen_slave, (void*) (size_t) i);
+    }
+    fastmatgen_slave((void*) (size_t) (FASTRAND_THREADS - 1));
+        
+    for (int i = 0;i < FASTRAND_THREADS;i++)
+    {
+	while (fastrand_done[i] == 0)
+	{
+	}
+    }
+    sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
+}
 
 void HPL_pdtest
 (
@@ -222,15 +287,7 @@ void HPL_pdtest
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
-   size_t fastrand_num = SEED;
-   const size_t fastrand_mul = 84937482743;
-   const size_t fastrand_add = 138493846343;
-   const size_t fastrand_mod = 538948374763;
-   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
-   {
-	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
-	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
-   }
+   fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
 #endif
 
 #ifdef DGEMM_HPL_TEST
@@ -401,12 +458,7 @@ void HPL_pdtest
 #if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
-   fastrand_num = SEED;
-   for (double* tmpptr = mat.A;tmpptr < mat.X;tmpptr++)
-   {
-	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
-	*tmpptr = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
-   }
+   fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
 #endif
 
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );

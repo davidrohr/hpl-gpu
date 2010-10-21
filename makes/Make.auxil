@@ -93,8 +93,8 @@ lib.grd : $(HPL_auxobj)
 #
 HPL_dlacpy.o           : ../HPL_dlacpy.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlacpy.c
-HPL_dlatcpy.o          : ../HPL_dlatcpy.c          $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_dlatcpy.c
+HPL_dlatcpy.o          : ../HPL_dlatcpy.cpp        $(INCdep) ../../pauxil/helpers.h
+	$(CXX) -o $@ -c $(CXXFLAGS) -frename-registers ../HPL_dlatcpy.cpp
 HPL_fprintf.o          : ../HPL_fprintf.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_fprintf.c
 HPL_warn.o             : ../HPL_warn.c             $(INCdep)
