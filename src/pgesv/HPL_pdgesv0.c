@@ -149,8 +149,8 @@ void HPL_pdgesv0
       n = N - j; jb = Mmin( n, nb );
 
 #ifdef HPL_PRINT_INTERMEDIATE
-      // we have done (N-n)/2 of the calculation
-      // we still have n/2 of the calculations to go (+ time for solve)
+      // there is still a triangle containing n rows to compute
+      // a trapezoid containing j rows has already been computed
       if( GRID->myrow == 0 && GRID->mycol == 0 )
       {
          uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
@@ -161,9 +161,9 @@ void HPL_pdgesv0
          float flops = (float)gFlop / (float)seconds;
          if( seconds != 0 && j != 0 )
          {
-            uint64_t eta = ( ratio > 0.0f && seconds > 0 ) ? seconds / ratio - seconds : 0;
-            //printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
-            printf( "%f %% of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, flops, eta );
+            uint64_t eta = seconds / ratio - seconds;
+            //printf( "%.f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
+            printf( "%.f %% of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, flops, eta );
          }
       }
 #endif /* HPL_PRINT_INTERMEDIATE */
