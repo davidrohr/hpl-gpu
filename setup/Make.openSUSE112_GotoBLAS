@@ -198,7 +198,7 @@ CCNOOPT      = $(HPL_DEFS)
 _FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -Wall -Wimplicit \
                 -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
                 -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
-                -Wno-unused-function -pedantic -Wno-long-long -Wshadow
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow -frename-registers
 CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
 CCFLAGS      = $(_FLAGS) -std=gnu99
 #

@@ -72,20 +72,21 @@ namespace
     class MyRange
     {
         public:
-            MyRange(size_t b, size_t n)
-                : m_begin(b), m_n(n)
+            MyRange(size_t b, size_t n, size_t blocksize = Blocksize)
+                : m_begin(b), m_n(n), m_blocksize(blocksize)
             {}
 
             MyRange(MyRange<MultipleOf, Blocksize> &r, tbb::split)
                 : m_begin(r.m_begin),
-                m_n((r.m_n / 2) & ~(MultipleOf - 1))
+                m_n((r.m_n / 2) & ~(MultipleOf - 1)),
+                m_blocksize(r.m_blocksize)
             {
                 r.m_begin += m_n;
                 r.m_n -= m_n;
             }
 
             bool empty() const { return m_n == 0; }
-            bool is_divisible() const { return m_n >= Blocksize; }
+            bool is_divisible() const { return m_n >= m_blocksize; }
 
             size_t N() const { return m_n; }
             size_t begin() const { return m_begin; }
@@ -93,6 +94,7 @@ namespace
         private:
             size_t m_begin;
             size_t m_n;
+            size_t m_blocksize;
     };
 
 } // anonymous namespace
