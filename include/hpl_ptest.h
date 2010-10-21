@@ -121,6 +121,7 @@ typedef struct HPL_S_test
 #define    HPL_TIMING_BCAST	 20
 #define    HPL_TIMING_BCASTUPD	 21
 #define    HPL_TIMING_ITERATION  22
+#define    HPL_TIMING_DLACOPY  23
 #endif
 /*
  * ---------------------------------------------------------------------

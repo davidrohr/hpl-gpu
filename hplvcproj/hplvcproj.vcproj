@@ -233,6 +233,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\auxil\HPL_dlatcpy.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\src\auxil\HPL_fprintf.c"
 						>
 					</File>
@@ -294,10 +298,6 @@
 					</File>
 					<File
 						RelativePath="..\testing\matgen\HPL_setran.c"
-						>
-					</File>
-					<File
-						RelativePath="..\testing\timer\HPL_timer.c"
 						>
 					</File>
 					<File
@@ -789,10 +789,6 @@
 				</File>
 				<File
 					RelativePath="..\include\hpl_test.h"
-					>
-				</File>
-				<File
-					RelativePath="..\include\hpl_timer.h"
 					>
 				</File>
 				<File

@@ -166,6 +166,7 @@ void HPL_ptimer( const int I )
         case 17: sprintf(timer_name, "DGEMM");break;
         case 18: sprintf(timer_name, "DTRSM");break;
         case 19: sprintf(timer_name, "DLATCPY");break;
+		case 23: sprintf(timer_name, "DLACPY");break;
         case 20: sprintf(timer_name, "BCAST");break;
         case 21: sprintf(timer_name, "BCAST UPD");break;
         case 22: sprintf(timer_name, "ITERATION");break;
