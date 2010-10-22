@@ -113,13 +113,14 @@ START_TRACE( BWAIT )
 
    switch( top )
    {
-      case HPL_1RING_M : ierr = HPL_bwait_1rinM( PANEL ); break;
-      case HPL_1RING   : ierr = HPL_bwait_1ring( PANEL ); break;
-      case HPL_2RING_M : ierr = HPL_bwait_2rinM( PANEL ); break;
-      case HPL_2RING   : ierr = HPL_bwait_2ring( PANEL ); break;
-      case HPL_BLONG_M : ierr = HPL_bwait_blonM( PANEL ); break;
-      case HPL_BLONG   : ierr = HPL_bwait_blong( PANEL ); break;
-      default          : ierr = HPL_SUCCESS;
+      case HPL_1RING_M     : ierr = HPL_bwait_1rinM( PANEL ); break;
+      case HPL_1RING       : ierr = HPL_bwait_1ring( PANEL ); break;
+      case HPL_2RING_M     : ierr = HPL_bwait_2rinM( PANEL ); break;
+      case HPL_2RING       : ierr = HPL_bwait_2ring( PANEL ); break;
+      case HPL_BLONG_M     : ierr = HPL_bwait_blonM( PANEL ); break;
+      case HPL_BLONG       : ierr = HPL_bwait_blong( PANEL ); break;
+      case HPL_MPI_BCAST   : ierr = HPL_bwait_mpi( PANEL );   break;
+      default              : ierr = HPL_SUCCESS;
    }
  
 END_TRACE

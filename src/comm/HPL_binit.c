@@ -112,13 +112,14 @@ START_TRACE( BINIT )
 
    switch( top )
    {
-      case HPL_1RING_M : ierr = HPL_binit_1rinM( PANEL ); break;
-      case HPL_1RING   : ierr = HPL_binit_1ring( PANEL ); break;
-      case HPL_2RING_M : ierr = HPL_binit_2rinM( PANEL ); break;
-      case HPL_2RING   : ierr = HPL_binit_2ring( PANEL ); break;
-      case HPL_BLONG_M : ierr = HPL_binit_blonM( PANEL ); break;
-      case HPL_BLONG   : ierr = HPL_binit_blong( PANEL ); break;
-      default          : ierr = HPL_SUCCESS;
+      case HPL_1RING_M     : ierr = HPL_binit_1rinM( PANEL ); break;
+      case HPL_1RING       : ierr = HPL_binit_1ring( PANEL ); break;
+      case HPL_2RING_M     : ierr = HPL_binit_2rinM( PANEL ); break;
+      case HPL_2RING       : ierr = HPL_binit_2ring( PANEL ); break;
+      case HPL_BLONG_M     : ierr = HPL_binit_blonM( PANEL ); break;
+      case HPL_BLONG       : ierr = HPL_binit_blong( PANEL ); break;
+      case HPL_MPI_BCAST   : ierr = HPL_binit_mpi( PANEL );   break;
+      default              : ierr = HPL_SUCCESS;
    }
  
 END_TRACE

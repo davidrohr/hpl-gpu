@@ -75,7 +75,7 @@ HPL_comobj       = \
    HPL_2rinM.o            HPL_blong.o            HPL_blonM.o            \
    HPL_packL.o            HPL_copyL.o            HPL_binit.o            \
    HPL_bcast.o            HPL_bwait.o            HPL_send.o             \
-   HPL_recv.o             HPL_sdrv.o
+   HPL_recv.o             HPL_sdrv.o             HPL_mpi.o
 #
 ## Targets #############################################################
 #
@@ -102,6 +102,8 @@ HPL_blong.o            : ../HPL_blong.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_blong.c
 HPL_blonM.o            : ../HPL_blonM.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_blonM.c
+HPL_mpi.o              : ../HPL_mpi.c              $(INCdep)
+	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_mpi.c
 HPL_packL.o            : ../HPL_packL.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_packL.c
 HPL_copyL.o            : ../HPL_copyL.c            $(INCdep)
