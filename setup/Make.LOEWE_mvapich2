@@ -205,7 +205,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT #-DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
