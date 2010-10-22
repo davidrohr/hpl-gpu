@@ -203,7 +203,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		}
 		else
 		{
-			HPL_pdlaswp01T( PBCST, &test, PANEL, n );
+			HPL_pdlaswp01T( NULL, &test, PANEL, n );
 		}
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 
