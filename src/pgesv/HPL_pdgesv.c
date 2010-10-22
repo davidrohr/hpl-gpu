@@ -333,6 +333,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			HPL_pdgesv_broadcast(GRID, panel[depth], icurcol);
 		}
 		
+		tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
+		
 		if (depth && j + nb < N)
 		{
 			HPL_pdpanel_free(panel[0]);
@@ -359,7 +361,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			nq -= jb;
 		}
 		icurcol = MModAdd1(icurcol, npcol);
-		tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	}
 
 	//Clean-up: Release panels and panel list
