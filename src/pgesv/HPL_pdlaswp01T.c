@@ -125,6 +125,7 @@ void HPL_pdlaswp01T
    int                       icurrow, * iflag, * ipA, * ipl, jb, k,
                              lda, myrow, n, nprow;
 
+
    n = PANEL->n; n = Mmin( NN, n ); jb = PANEL->jb;
    //Quick return if there is nothing to do
    if( ( n <= 0 ) || ( jb <= 0 ) ) return;

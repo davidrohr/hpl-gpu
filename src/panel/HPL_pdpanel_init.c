@@ -214,7 +214,11 @@ START_TRACE( PDPANEL_INIT )
    {                                     /* space for L1, DPIV, DINFO */
       lwork = ALGO->align + ( PANEL->len = JB * JB + JB + 1 );
       if( nprow > 1 )                                 /* space for U */
-      { nu = nq - JB; lwork += JB * Mmax( 0, nu ) + ALGO->align; }
+      {
+          nu = nq - JB;
+          if (nu % 8) nu += 8 - nu % 8;
+          if (nu % 16 == 0) nu += 8;
+          lwork += JB * Mmax( 0, nu ) + ALGO->align; }
 
 	  if (lwork > PANEL->memalloc)
 	  {
@@ -253,10 +257,8 @@ START_TRACE( PDPANEL_INIT )
       if( nprow > 1 )                                 /* space for U */
       { 
          nu = ( mycol == icurcol ? nq - JB : nq );
-	 //fprintf(stderr, "Init %d ", nu);
          if (nu % 8) nu += 8 - nu % 8;
          if (nu % 16 == 0) nu += 8;
-         //fprintf(stderr, "%d\n", nu);
          lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 

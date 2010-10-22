@@ -338,6 +338,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			HPL_pdpanel_free(panel[0]);
 			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
 		}
+		
 
 		nn = (mycol == icurcol) ? HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol) : 0;
 
@@ -367,7 +368,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		HPL_pdpanel_disp( &panel[0]);
 	}
 	HPL_pdpanel_disp(&panel[depth]);
-
 	if(panel) free(panel);
 	
 	//Solve upper triangular system
