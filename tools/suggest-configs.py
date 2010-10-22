@@ -101,15 +101,12 @@ if __name__ == "__main__":
 	nodes = int( sys.argv[1] )
 	nb = 1024
 
+	memPerNode = .8 * 64
+	perfPerNode = 317
 	if len( sys.argv ) > 2:
 		memPerNode = float( sys.argv[2] )
 		if len( sys.argv ) > 3:
 			perfPerNode = float( sys.argv[3] )
-		else:
-			perfPerNode = 317
-	else:
-		memPerNode = .8 * 64;
-
 
 	configs = []
 
