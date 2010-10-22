@@ -64,71 +64,144 @@
  */
 #include "hpl.h"
 
-#include "util_timer.h"
-#include "util_trace.h"
+#ifdef HPL_NO_MPI_DATATYPE  /* The user insists to not use MPI types */
+#ifndef HPL_COPY_L       /* and also want to avoid the copy of L ... */
+#define HPL_COPY_L   /* well, sorry, can not do that: force the copy */
+#endif
+#endif
 
-int HPL_bcast
+#ifdef STDC_HEADERS
+int HPL_binit_mpi
 (
-   HPL_T_panel *                    PANEL,
-   int *                            IFLAG
+   HPL_T_panel *              PANEL
 )
+#else
+int HPL_binit_mpi( PANEL )
+   HPL_T_panel *              PANEL;
+#endif
 {
-/* 
- * Purpose
- * =======
- *
- * HPL_bcast broadcasts  the  current  panel.  Successful  completion is
- * indicated by IFLAG set to HPL_SUCCESS on return. IFLAG will be set to
- * HPL_FAILURE on failure and to HPL_KEEP_TESTING when the operation was
- * not completed, in which case this function should be called again.
- *
- * Arguments
- * =========
- *
- * PANEL   (input/output)                HPL_T_panel *
- *         On entry,  PANEL  points to the  current panel data structure
- *         being broadcast.
- *
- * IFLAG   (output)                      int *
- *         On exit,  IFLAG  indicates  whether  or not the broadcast has
- *         occured.
- *
- * ---------------------------------------------------------------------
- */ 
-START_TRACE( BCAST )
-
+#ifdef HPL_USE_MPI_DATATYPE
 /*
  * .. Local Variables ..
  */
    int                        ierr;
-   HPL_T_TOP                  top;
+#endif
+/* ..
+ * .. Executable Statements ..
+ */
+   if( PANEL == NULL )           { return( HPL_SUCCESS ); }
+   if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
+#ifdef HPL_USE_MPI_DATATYPE
+#ifdef HPL_COPY_L
+/*
+ * Copy the panel into a contiguous buffer
+ */
+   HPL_copyL( PANEL );
+#endif
+/*
+ * Create the MPI user-defined data type
+ */
+   ierr = HPL_packL( PANEL, 0, PANEL->len, 0 );
+ 
+   return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
+#else
+/*
+ * Force the copy of the panel into a contiguous buffer
+ */
+   HPL_copyL( PANEL );
+
+   return( HPL_SUCCESS );
+#endif
+}
+
+#ifdef HPL_USE_MPI_DATATYPE
+
+#define   _M_BUFF     PANEL->buffers[0]
+#define   _M_COUNT    PANEL->counts[0]
+#define   _M_TYPE     PANEL->dtypes[0]
+
+#else
+
+#define   _M_BUFF     (void *)(PANEL->L2)
+#define   _M_COUNT    PANEL->len
+#define   _M_TYPE     MPI_DOUBLE
+
+#endif
+
+#ifdef STDC_HEADERS
+int HPL_bcast_mpi
+(
+   HPL_T_panel                * PANEL,
+   int                        * IFLAG
+)
+#else
+int HPL_bcast_mpi( PANEL, IFLAG )
+   HPL_T_panel                * PANEL;
+   int                        * IFLAG;
+#endif
+{
+/*
+ * .. Local Variables ..
+ */
+   MPI_Comm                   comm;
+   int                        ierr, go, next, msgid, prev, rank, root,
+                              size;
 /* ..
  * .. Executable Statements ..
  */
    if( PANEL == NULL ) { *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-   if( PANEL->grid->npcol <= 1 )
+   if( ( size = PANEL->grid->npcol ) <= 1 )
    {                     *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
 /*
- * Retrieve the selected virtual broadcast topology
+ * Cast phase:  If I am the root process, start spreading the panel.  If
+ * I am not the root process, probe for message. If the message is here,
+ * then receive it, and  if I am not the last process of the ring, then
+ * forward it to the next.  Otherwise, inform the caller that the panel
+ * has still not been received.
  */
-   top = PANEL->algo->btopo;
+   rank = PANEL->grid->mycol; comm  = PANEL->grid->row_comm;
+   root = PANEL->pcol;        msgid = PANEL->msgid;
+   size = PANEL->grid->npcol;
 
-   switch( top )
-   {
-      case HPL_1RING_M     : ierr = HPL_bcast_1rinM( PANEL, IFLAG ); break;
-      case HPL_1RING       : ierr = HPL_bcast_1ring( PANEL, IFLAG ); break;
-      case HPL_2RING_M     : ierr = HPL_bcast_2rinM( PANEL, IFLAG ); break;
-      case HPL_2RING       : ierr = HPL_bcast_2ring( PANEL, IFLAG ); break;
-      case HPL_BLONG_M     : ierr = HPL_bcast_blonM( PANEL, IFLAG ); break;
-      case HPL_BLONG       : ierr = HPL_bcast_blong( PANEL, IFLAG ); break;
-      case HPL_MPI_BCAST   : ierr = HPL_bcast_mpi( PANEL, IFLAG );   break;
-      default              : printf( "default" ); ierr = HPL_SUCCESS;
-   }
+   ierr = MPI_Bcast( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
 
-END_TRACE
-
-   return( ierr );
 /*
- * End of HPL_bcast
+ * If the message was received and being forwarded,  return HPL_SUCCESS.
+ * If an error occured in an MPI call, return HPL_FAILURE.
+ */  
+   *IFLAG = ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE );
+
+   return( *IFLAG );
+}
+
+#ifdef STDC_HEADERS
+int HPL_bwait_mpi
+(
+   HPL_T_panel *              PANEL
+)
+#else
+int HPL_bwait_mpi( PANEL )
+   HPL_T_panel *              PANEL;
+#endif
+{
+#ifdef HPL_USE_MPI_DATATYPE
+/*
+ * .. Local Variables ..
  */
+   int                        ierr;
+#endif
+/* ..
+ * .. Executable Statements ..
+ */
+   if( PANEL == NULL )           { return( HPL_SUCCESS ); }
+   if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
+/*
+ * Release the arrays of request / status / data-types and buffers 
+ */
+#ifdef HPL_USE_MPI_DATATYPE
+   ierr = MPI_Type_free( &PANEL->dtypes[0] );
+   return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
+#else
+   return( HPL_SUCCESS );
+#endif
 }
