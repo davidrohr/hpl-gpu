@@ -194,6 +194,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DCALDGEMM_TEST        Activate Test Debug Code
 # -DHPL_PRINT_INTERMEDIATE
 #                        print intermediate performance results
+# -DHPL_PRINT_AVG_MATRIX_SIZE
+#                        show how much memory the matrix uses per node on average
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -204,7 +206,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING #-DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
