@@ -73,6 +73,7 @@ extern "C" void HPL_dlaswp10N(const int _M, const int N, double *A,
 START_TRACE( DLASWP10N )
 
 #ifdef USE_ORIGINAL_LASWP
+const int M = _M;
 #include "HPL_dlaswp10N.c"
 #else
     // we require that LDA is even!
