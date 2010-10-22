@@ -203,7 +203,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET -DHPL_GPU_TIMING -DCALDGEMM_TEST -DHPL_PRINT_INTERMEDIATE #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET -DHPL_GPU_TIMING -DCALDGEMM_TEST -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_TIMING -DHPL_DETAILED_TIMING #-DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

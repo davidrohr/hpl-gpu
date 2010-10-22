@@ -191,13 +191,10 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DCALDGEMM_TEST        Activate Test Debug Code
-<<<<<<< HEAD
 # -DHPL_PRINT_INTERMEDIATE
 #                        print intermediate performance results
-=======
 # -DHPL_PRINT_AVG_MATRIX_SIZE
 #                        show how much memory the matrix uses per node on average
->>>>>>> origin/caldgemm
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -208,11 +205,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-<<<<<<< HEAD
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET -DHPL_PRINT_INTERMEDIATE #-DHPL_DETAILED_TIMING -DTRACE_CALLS
-=======
 HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CBLAS -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE #-DHPL_DETAILED_TIMING -DTRACE_CALLS
->>>>>>> origin/caldgemm
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
