@@ -198,6 +198,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\caldgemm\caldgemm.il"
+					>
+				</File>
+				<File
 					RelativePath="..\caldgemm\calutil.cpp"
 					>
 				</File>
@@ -842,6 +846,46 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<Filter
+				Name="setup"
+				>
+				<File
+					RelativePath="..\setup\Make.LOEWE-CSC_cpu"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE-CSC_gpu"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_mvapich"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_mvapich2"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_noATIhack"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_verbose"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE112_caldgemm_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE112_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE113_GotoBLAS"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
