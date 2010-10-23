@@ -69,8 +69,6 @@
 
 void HPL_spreadT
 (
-   HPL_T_panel *                    PBCST,
-   int *                            IFLAG,
    HPL_T_panel *                    PANEL,
    const enum HPL_SIDE              SIDE,
    const int                        N,
@@ -89,22 +87,10 @@ void HPL_spreadT
  * HPL_spreadT spreads  the local array containing local pieces of U, so
  * that on exit to this function,  a piece of  U  is contained in every
  * process row.  The array  IPLEN  contains the number of columns of U,
- * that should be spread on any given process row.  This function  also
- * probes for the presence of  the column panel  PBCST.  If  available,
- * this  panel will be forwarded.  If  PBCST  is  NULL  on input,  this
- * probing mechanism will be disabled.
+ * that should be spread on any given process row.
  *
  * Arguments
  * =========
- *
- * PBCST   (local input/output)          HPL_T_panel *
- *         On entry,  PBCST  points to the data structure containing the
- *         panel (to be broadcast) information.
- *
- * IFLAG   (local input/output)          int *
- *         On entry, IFLAG  indicates  whether or not  the broadcast has
- *         already been completed.  If not,  probing will occur, and the
- *         outcome will be contained in IFLAG on exit.
  *
  * PANEL   (local input/output)          HPL_T_panel *
  *         On entry,  PANEL  points to the data structure containing the
@@ -260,11 +246,6 @@ START_TRACE( SPREAD_T )
  
          if( mydist2 < ip2 ) {  ip2 >>= 1; il += ip2; }
          else { mydist2 -= ip2; ip2 >>= 1; il -= ip2; }
-/*
- * Probe for column panel - forward it when available
- */
-         if( *IFLAG == HPL_KEEP_TESTING ) (void) HPL_bcast( PBCST, IFLAG );
- 
       } while( ip2 > 0 );
    }
    else
@@ -360,10 +341,6 @@ START_TRACE( SPREAD_T )
  
          if( mydist2 < ip2 ) {  ip2 >>= 1; il -= ip2; }
          else { mydist2 -= ip2; ip2 >>= 1; il += ip2; }
-/*
- * Probe for column panel - forward it when available
- */
-         if( *IFLAG == HPL_KEEP_TESTING ) (void) HPL_bcast( PBCST, IFLAG );
  
       } while( ip2 > 0 );
    }

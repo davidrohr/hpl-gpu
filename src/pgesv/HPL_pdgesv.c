@@ -69,7 +69,7 @@
  * Purpose
  * =======
  *
- * HPL_pdupdateTT broadcast - forward the panel PBCST and simultaneously
+ * HPL_pdupdateTT broadcast - factorize and forward the panel PBCST and simultaneously
  * applies the row interchanges and updates part of the trailing (using
  * the panel PANEL) submatrix.
  *
@@ -79,11 +79,6 @@
  * PBCST (local input/output) HPL_T_panel *
  * On entry, PBCST points to the data structure containing the
  * panel (to be broadcast) information.
- *
- * IFLAG (local output) int *
- * On exit, IFLAG indicates whether or not the broadcast has
- * been completed when PBCST is not NULL on entry. In that case,
- * IFLAG is left unchanged.
  *
  * PANEL (local input/output) HPL_T_panel *
  * On entry, PANEL points to the data structure containing the
@@ -169,7 +164,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	//.. Local Variables ..
 	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
 	int * ipiv;
-	int curr, i, iroff, jb, lda, ldl2, mp, n, nb, test;
+	int curr, i, iroff, jb, lda, ldl2, mp, n, nb;
 	//.. Executable Statements ..
 	fprintfctd(stderr, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
@@ -203,7 +198,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		}
 		else
 		{
-			HPL_pdlaswp01T( NULL, &test, PANEL, n );
+			HPL_pdlaswp01T( PANEL, n );
 		}
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 

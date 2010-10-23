@@ -66,8 +66,6 @@
 
 void HPL_pdlaswp01T
 (
-   HPL_T_panel *                    PBCST,
-   int *                            IFLAG,
    HPL_T_panel *                    PANEL,
    const int                        NN
 )
@@ -77,7 +75,7 @@ void HPL_pdlaswp01T
  * =======
  *
  * HPL_pdlaswp01T applies the  NB  row interchanges to  NN columns of the
- * trailing submatrix and broadcast a column panel.
+ * trailing submatrix.
  *  
  * A "Spread then roll" algorithm performs  the swap :: broadcast  of the
  * row panel U at once,  resulting in a minimal communication volume  and
@@ -96,15 +94,6 @@ void HPL_pdlaswp01T
  *
  * Arguments
  * =========
- *
- * PBCST   (local input/output)          HPL_T_panel *
- *         On entry,  PBCST  points to the data structure containing the
- *         panel (to be broadcast) information.
- *
- * IFLAG   (local input/output)          int *
- *         On entry, IFLAG  indicates  whether or not  the broadcast has
- *         already been completed.  If not,  probing will occur, and the
- *         outcome will be contained in IFLAG on exit.
  *
  * PANEL   (local input/output)          HPL_T_panel *
  *         On entry,  PANEL  points to the data structure containing the
@@ -170,7 +159,7 @@ void HPL_pdlaswp01T
    }
 
    /* Spread U - optionally probe for column panel */
-   HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, n, U, LDU, 0, iplen, ipmap, ipmapm1 );
+   HPL_spreadT( PANEL, HplRight, n, U, LDU, 0, iplen, ipmap, ipmapm1 );
 
    /* Local exchange (everywhere but in process row icurrow) */
    if( myrow != icurrow )
@@ -180,10 +169,10 @@ void HPL_pdlaswp01T
    }
 #ifndef NO_EQUILIBRATION
    /* Equilibration */
-   HPL_equil( PBCST, IFLAG, PANEL, n, U, LDU, iplen, ipmap, ipmapm1, iwork );
+   HPL_equil( PANEL, n, U, LDU, iplen, ipmap, ipmapm1, iwork );
 #endif
    /* Rolling phase */
-   HPL_rollT( PBCST, IFLAG, PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
+   HPL_rollT( PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
    /* Permute U in every process row */
    HPL_dlaswp10N( n, jb, U, LDU, permU );
 }

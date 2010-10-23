@@ -72,8 +72,6 @@
 
 void HPL_rollT
 (
-   HPL_T_panel *                    PBCST,
-   int *                            IFLAG,
    HPL_T_panel *                    PANEL,
    const int                        N,
    double *                         U,
@@ -89,20 +87,8 @@ void HPL_rollT
  *
  * HPL_rollT rolls the local arrays containing the local pieces of U, so
  * that on exit to this function  U  is replicated in every process row.
- * In addition, this function probe for the presence of the column panel
- * and forwards it when available.
- *
  * Arguments
  * =========
- *
- * PBCST   (local input/output)          HPL_T_panel *
- *         On entry,  PBCST  points to the data structure containing the
- *         panel (to be broadcast) information.
- *
- * IFLAG   (local input/output)          int *
- *         On entry, IFLAG  indicates  whether or not  the broadcast has
- *         already been completed.  If not,  probing will occur, and the
- *         outcome will be contained in IFLAG on exit.
  *
  * PANEL   (local input/output)          HPL_T_panel *
  *         On entry,  PANEL  points to the data structure containing the
@@ -251,10 +237,6 @@ MPI_Status                 status;
             ierr =   MPI_Type_free( &type[I_RECV] );
 #endif
       }
-/*
- * Probe for column panel - forward it when available
- */
-      if( *IFLAG == HPL_KEEP_TESTING ) (void) HPL_bcast( PBCST, IFLAG );
    }
 
 

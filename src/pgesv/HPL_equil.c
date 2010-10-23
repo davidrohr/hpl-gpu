@@ -66,8 +66,6 @@
 
 void HPL_equil
 (
-   HPL_T_panel *                    PBCST,
-   int *                            IFLAG,
    HPL_T_panel *                    PANEL,
    const int                        N,
    double *                         U,
@@ -84,21 +82,10 @@ void HPL_equil
  *
  * HPL_equil equilibrates  the  local  pieces  of U, so that on exit to
  * this function, pieces of U contained in every process row are of the
- * same size. This phase makes the rolling phase optimal.  In addition,
- * this  function probes  for  the  column panel L and forwards it when
- * possible.
+ * same size. This phase makes the rolling phase optimal.
  *
  * Arguments
  * =========
- *
- * PBCST   (local input/output)          HPL_T_panel *
- *         On entry,  PBCST  points to the data structure containing the
- *         panel (to be broadcast) information.
- *
- * IFLAG   (local input/output)          int *
- *         On entry, IFLAG  indicates  whether or not  the broadcast has
- *         already been completed.  If not,  probing will occur, and the
- *         outcome will be contained in IFLAG on exit.
  *
  * PANEL   (local input/output)          HPL_T_panel *
  *         On entry,  PANEL  points to the data structure containing the
@@ -208,14 +195,12 @@ void HPL_equil
  */
          if( left  )
          {
-             HPL_spreadT( PBCST, IFLAG, PANEL, HplLeft,  N, U, LDU,
-                     iprow, IWORK, IPMAP, IPMAPM1 );
+             HPL_spreadT( PANEL, HplLeft,  N, U, LDU, iprow, IWORK, IPMAP, IPMAPM1 );
          }
 
          if( right )
          {
-             HPL_spreadT( PBCST, IFLAG, PANEL, HplRight, N, U, LDU,
-                     iprow, IWORK, IPMAP, IPMAPM1 );
+             HPL_spreadT( PANEL, HplRight, N, U, LDU, iprow, IWORK, IPMAP, IPMAPM1 );
          }
       }
    }
