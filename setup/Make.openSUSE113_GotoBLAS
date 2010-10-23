@@ -169,7 +169,6 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
-# -DHPL_CALL_CBLAS       call the cblas interface;
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization
