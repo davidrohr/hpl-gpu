@@ -58,7 +58,7 @@ int CALDGEMM_Init()
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
 	cal_info.NoPerformanceWarnings = CAL_FALSE;
-	cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
+	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
 	cal_info.linpack_factorize_function = HPL_CALLDGEMM_wrapper_factorize;
