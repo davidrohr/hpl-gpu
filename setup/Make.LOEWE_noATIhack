@@ -184,6 +184,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
 # -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
 # -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
@@ -203,7 +204,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_GPU_NOT_QUIET -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_FASTINIT -DHPL_FASTVERIFY #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_DETAILED_TIMING -DHPL_GPU_TIMING -DCALDGEMM_TEST #-DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

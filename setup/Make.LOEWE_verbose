@@ -186,6 +186,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
 # -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
 # -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
