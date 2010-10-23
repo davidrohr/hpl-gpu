@@ -498,6 +498,7 @@ void HPL_pdinfo
          else if( j == 3 ) TP[ i ] = HPL_2RING_M;
          else if( j == 4 ) TP[ i ] = HPL_BLONG;
          else if( j == 5 ) TP[ i ] = HPL_BLONG_M;
+         else if( j == 6 ) TP[ i ] = HPL_MPI_BCAST;
          else              TP[ i ] = HPL_1RING_M;
       }
 /*
@@ -618,12 +619,13 @@ label_error:
       }
       for( i = 0; i < *NTPS; i++ )
       {
-         if(      TP[i] == HPL_1RING   ) iwork[j] = 0;
-         else if( TP[i] == HPL_1RING_M ) iwork[j] = 1;
-         else if( TP[i] == HPL_2RING   ) iwork[j] = 2;
-         else if( TP[i] == HPL_2RING_M ) iwork[j] = 3;
-         else if( TP[i] == HPL_BLONG   ) iwork[j] = 4;
-         else if( TP[i] == HPL_BLONG_M ) iwork[j] = 5;
+         if(      TP[i] == HPL_1RING     ) iwork[j] = 0;
+         else if( TP[i] == HPL_1RING_M   ) iwork[j] = 1;
+         else if( TP[i] == HPL_2RING     ) iwork[j] = 2;
+         else if( TP[i] == HPL_2RING_M   ) iwork[j] = 3;
+         else if( TP[i] == HPL_BLONG     ) iwork[j] = 4;
+         else if( TP[i] == HPL_BLONG_M   ) iwork[j] = 5;
+         else if( TP[i] == HPL_MPI_BCAST ) iwork[j] = 6;
          j++;
       }
       for( i = 0; i < *NDHS; i++ ) { iwork[j] = DH[i]; j++; }
@@ -662,6 +664,7 @@ label_error:
          else if( iwork[j] == 3 ) TP[i] = HPL_2RING_M;
          else if( iwork[j] == 4 ) TP[i] = HPL_BLONG;
          else if( iwork[j] == 5 ) TP[i] = HPL_BLONG_M;
+         else if( iwork[j] == 6 ) TP[i] = HPL_MPI_BCAST;
          j++;
       }
       for( i = 0; i < *NDHS; i++ ) { DH[i] = iwork[j]; j++; }
@@ -918,6 +921,8 @@ label_error:
             HPL_fprintf( TEST->outfp,       "   Blong " );
          else if( TP[i] == HPL_BLONG_M )
             HPL_fprintf( TEST->outfp,       "  BlongM " );
+         else if( TP[i] == HPL_MPI_BCAST )
+            HPL_fprintf( TEST->outfp,       "     MPI " );
       }
       if( *NTPS > 8 )
       {
@@ -936,6 +941,8 @@ label_error:
                HPL_fprintf( TEST->outfp,       "   Blong " );
             else if( TP[i] == HPL_BLONG_M )
                HPL_fprintf( TEST->outfp,       "  BlongM " );
+            else if( TP[i] == HPL_MPI_BCAST )
+               HPL_fprintf( TEST->outfp,       "     MPI " );
          }
          if( *NTPS > 16 )
          {
@@ -954,6 +961,8 @@ label_error:
                   HPL_fprintf( TEST->outfp,       "   Blong " );
                else if( TP[i] == HPL_BLONG_M )
                   HPL_fprintf( TEST->outfp,       "  BlongM " );
+               else if( TP[i] == HPL_MPI_BCAST )
+                  HPL_fprintf( TEST->outfp,       "     MPI " );
             }
          }
       }

@@ -20,7 +20,7 @@ HPL.out      output file name (if any)
 3            # of recursive panel fact.
 0 1 2        RFACTs (0=left, 1=Crout, 2=Right)
 1            # of broadcast
-0            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM)
+0            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM,6=MPI)
 1            # of lookahead depth
 0            DEPTHs (>=0)
 8            memory alignment in double (> 0)
