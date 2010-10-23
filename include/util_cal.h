@@ -31,6 +31,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
    const int, int LinpackCallbacks );
 void* CALDGEMM_alloc(size_t size);
 void CALDGEMM_free(void* ptr);
+void CALDGEMM_set_num_nodes(int num);
 
 #ifdef __cplusplus
 }

@@ -116,3 +116,8 @@ void CALDGEMM_free(void* ptr)
 {
     cal_dgemm.FreeMemory((double*) ptr);
 }
+
+void CALDGEMM_set_num_nodes(int num)
+{
+    cal_info.LinpackNodes = num;
+}

@@ -172,6 +172,10 @@ int main
       if( ( myrow < 0 ) || ( myrow >= nprow ) ||
           ( mycol < 0 ) || ( mycol >= npcol ) ) goto label_end_of_npqs;
 
+#ifdef HPL_CALL_CALDGEMM
+      CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq]);
+#endif
+
       for( in = 0; in < ns; in++ )
       {                            /* Loop over various problem sizes */
        for( inb = 0; inb < nbs; inb++ )
