@@ -20,8 +20,10 @@
 
 extern "C"
 {
+	extern int HPL_CALDGEMM_swap_current_n;
     extern void HPL_CALLDGEMM_wrapper_factorize();
     extern void HPL_CALLDGEMM_wrapper_broadcast();
+	extern void HPL_CALLDGEMM_wrapper_swap();
 }
 
 static caldgemm::SampleInfo cal_info;
@@ -63,6 +65,8 @@ int CALDGEMM_Init()
 	
 	cal_info.linpack_factorize_function = HPL_CALLDGEMM_wrapper_factorize;
 	cal_info.linpack_broadcast_function = HPL_CALLDGEMM_wrapper_broadcast;
+	cal_info.linpack_swap_function = HPL_CALLDGEMM_wrapper_swap;
+	cal_info.LinpackSwapN = HPL_CALDGEMM_swap_current_n;
 
 	return(cal_dgemm.InitCALDGEMM( &cal_info ));
 }

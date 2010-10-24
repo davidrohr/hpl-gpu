@@ -118,10 +118,48 @@
  *
  * ---------------------------------------------------------------------
  */ 
- 
+
+extern int HPL_CALDGEMM_swap_current_n;
+int HPL_CALDGEMM_swap_current_n;
+
+void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
+{
+	int jb = panel->jb;
+	const int LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+	double* Aptr = PANEL->A;
+	double* L1ptr = PANEL->L1;
+	double* Uptr = PANEL->grid->nprow == 1 ? PANEL->A : PANEL->U;
+	int lda = PANEL->lda;
+
+	int* ipiv = PANEL->IWORK;
+
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+		if (PANEL->grid->nprow == 1)
+		{
+			HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+		}
+		else
+		{
+			HPL_pdlaswp01T( PANEL, n );
+		}
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+
+		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+		if (PANEL->grid->nprow == 1)
+		{
+			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
+		}
+		else
+		{
+			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+		}
+		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+}
+
 HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;
 HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
+int HPL_CALDGEMM_wrapper_n = -1;
 
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
@@ -158,6 +196,10 @@ void HPL_CALLDGEMM_wrapper_broadcast()
 {
 	HPL_pdgesv_broadcast(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
 }
+void HPL_CALLDGEMM_wrapper_swap()
+{
+	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_n);
+}
 
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize)
 {
@@ -189,30 +231,10 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	if( PANEL->grid->nprow == 1 ) for( i = 0; i < jb; i++ ) { ipiv[i] = (int)(dpiv[i]) - iroff; }
 
+	HPL_CALDGEMM_wrapper_n = n;
+
 	if (n)
 	{
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		if (PANEL->grid->nprow == 1)
-		{
-			HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
-		}
-		else
-		{
-			HPL_pdlaswp01T( PANEL, n );
-		}
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-
-		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-		if (PANEL->grid->nprow == 1)
-		{
-			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
-		}
-		else
-		{
-			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
-		}
-		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
