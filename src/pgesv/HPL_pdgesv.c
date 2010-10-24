@@ -119,33 +119,33 @@
  * ---------------------------------------------------------------------
  */ 
 
-extern int HPL_CALDGEMM_swap_current_n;
-int HPL_CALDGEMM_swap_current_n;
+extern size_t HPL_CALDGEMM_swap_current_n;
+size_t HPL_CALDGEMM_swap_current_n;
 
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
+	int lda = panel->lda;
 	const int LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
-	double* Aptr = PANEL->A;
-	double* L1ptr = PANEL->L1;
-	double* Uptr = PANEL->grid->nprow == 1 ? PANEL->A : PANEL->U;
-	int lda = PANEL->lda;
+	double* Aptr = panel->A;
+	double* L1ptr = panel->L1;
+	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 
-	int* ipiv = PANEL->IWORK;
+	int* ipiv = panel->IWORK;
 
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		if (PANEL->grid->nprow == 1)
+		if (panel->grid->nprow == 1)
 		{
 			HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
 		}
 		else
 		{
-			HPL_pdlaswp01T( PANEL, n );
+			HPL_pdlaswp01T( panel, n );
 		}
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-		if (PANEL->grid->nprow == 1)
+		if (panel->grid->nprow == 1)
 		{
 			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
 		}
@@ -158,6 +158,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 
 HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;
 HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
+HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
 
@@ -188,17 +189,17 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	fprintfctd(stderr, "Broadcast Ended\n");
 }
 
-void HPL_CALLDGEMM_wrapper_factorize()
+void HPL_CALDGEMM_wrapper_factorize()
 {
 	HPL_pdgesv_factorize(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
 }
-void HPL_CALLDGEMM_wrapper_broadcast()
+void HPL_CALDGEMM_wrapper_broadcast()
 {
 	HPL_pdgesv_broadcast(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
 }
-void HPL_CALLDGEMM_wrapper_swap()
+void HPL_CALDGEMM_wrapper_swap()
 {
-	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_n);
+	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel_work, HPL_CALDGEMM_wrapper_n);
 }
 
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize)
@@ -231,14 +232,23 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	if( PANEL->grid->nprow == 1 ) for( i = 0; i < jb; i++ ) { ipiv[i] = (int)(dpiv[i]) - iroff; }
 
-	HPL_CALDGEMM_wrapper_n = n;
-
 	if (n)
 	{
-		HPL_ptimer_detail( HPL_TIMING_DGEMM );
+		HPL_CALDGEMM_wrapper_n = n;
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
+		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
+
+#ifdef HPL_ASYNC_LASWP
+		CALDGEMM_enable_async_laswp(1);
+#else
+		CALDGEMM_enable_async_laswp(0);
+		//HPL_pdgesv_swap(Grid, PANEL, n);
+		HPL_CALDGEMM_wrapper_swap();
+#endif
+	
+		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );

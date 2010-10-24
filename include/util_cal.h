@@ -32,6 +32,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
 void* CALDGEMM_alloc(size_t size);
 void CALDGEMM_free(void* ptr);
 void CALDGEMM_set_num_nodes(int num);
+void CALDGEMM_enable_async_laswp(int enable);
 
 #ifdef __cplusplus
 }

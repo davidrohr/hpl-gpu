@@ -20,10 +20,10 @@
 
 extern "C"
 {
-	extern int HPL_CALDGEMM_swap_current_n;
-    extern void HPL_CALLDGEMM_wrapper_factorize();
-    extern void HPL_CALLDGEMM_wrapper_broadcast();
-	extern void HPL_CALLDGEMM_wrapper_swap();
+	extern size_t HPL_CALDGEMM_swap_current_n;
+    extern void HPL_CALDGEMM_wrapper_factorize();
+    extern void HPL_CALDGEMM_wrapper_broadcast();
+	extern void HPL_CALDGEMM_wrapper_swap();
 }
 
 static caldgemm::SampleInfo cal_info;
@@ -63,10 +63,9 @@ int CALDGEMM_Init()
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
-	cal_info.linpack_factorize_function = HPL_CALLDGEMM_wrapper_factorize;
-	cal_info.linpack_broadcast_function = HPL_CALLDGEMM_wrapper_broadcast;
-	cal_info.linpack_swap_function = HPL_CALLDGEMM_wrapper_swap;
-	cal_info.LinpackSwapN = HPL_CALDGEMM_swap_current_n;
+	cal_info.linpack_factorize_function = HPL_CALDGEMM_wrapper_factorize;
+	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
+	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
 
 	return(cal_dgemm.InitCALDGEMM( &cal_info ));
 }
@@ -82,8 +81,20 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
                      const double * B, const int LDB, const double BETA, double * C,
                      const int LDC, int LinpackCallbacks )
 {
-	if (!LinpackCallbacks && (M == 0 || N == 0 || K == 0)) return;
-        else if(LinpackCallbacks || ( M >= 2048 && N >= 2048 && K >= 512 ))
+	if (M == 0 || N == 0 || K == 0)
+	{
+            if (cal_info.LinpackSwapN != NULL)
+            {
+        	HPL_CALDGEMM_wrapper_swap();
+            }
+            if (LinpackCallbacks)
+            {
+        	HPL_CALDGEMM_wrapper_factorize();
+        	HPL_CALDGEMM_wrapper_broadcast();
+            }
+	    return;
+	}
+        else if(( M >= 2048 && N >= 2048 && K >= 512 ))
         {
 	    if (cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
 	    {
@@ -94,9 +105,17 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
         else
         {
             // Use plain cblas
+            if (cal_info.LinpackSwapN != NULL)
+            {
+        	HPL_CALDGEMM_wrapper_swap();
+            }
             cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );
+            if (LinpackCallbacks)
+            {
+        	HPL_CALDGEMM_wrapper_factorize();
+        	HPL_CALDGEMM_wrapper_broadcast();
+            }
         }
-
 }
 
 void* CALDGEMM_alloc(size_t size)
@@ -124,4 +143,9 @@ void CALDGEMM_free(void* ptr)
 void CALDGEMM_set_num_nodes(int num)
 {
     cal_info.LinpackNodes = num;
+}
+
+void CALDGEMM_enable_async_laswp(int enable)
+{
+	cal_info.LinpackSwapN = enable ? &HPL_CALDGEMM_swap_current_n : NULL;
 }
