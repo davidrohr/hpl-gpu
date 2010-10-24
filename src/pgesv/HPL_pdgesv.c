@@ -327,7 +327,11 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	{
 		n = N - j;
 		jb = Mmin(n, nb);
+#ifdef HPL_DETAILED_TIMING
 		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d Totaltime=%2.3lf\n", j, N, n, jb, HPL_ptimer_inquire( HPL_WALL_PTIME, HPL_TIMING_ITERATION ));
+#else
+		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
+#endif
 
 #ifdef HPL_PRINT_INTERMEDIATE
 		// there is still a triangle containing n rows to compute
