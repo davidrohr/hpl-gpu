@@ -59,7 +59,9 @@ int CALDGEMM_Init()
 	//cal_info.DynamicSched = CAL_TRUE;
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
+#ifdef HPL_NO_PERFORMANCE_WARNINGS
 	cal_info.NoPerformanceWarnings = CAL_FALSE;
+#endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
@@ -144,7 +146,6 @@ void CALDGEMM_set_num_nodes(int num)
 {
     cal_info.LinpackNodes = num;
 }
-
 void CALDGEMM_enable_async_laswp(int enable)
 {
 	cal_info.LinpackSwapN = enable ? &HPL_CALDGEMM_swap_current_n : NULL;
