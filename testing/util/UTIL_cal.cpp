@@ -57,7 +57,9 @@ int CALDGEMM_Init()
 	//cal_info.DynamicSched = CAL_TRUE;
 	//cal_info.MemPolicy = CAL_TRUE;
 	//cal_info.DumpMatrix = CAL_FALSE;
+#ifdef HPL_NO_PERFORMANCE_WARNINGS
 	cal_info.NoPerformanceWarnings = CAL_FALSE;
+#endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
