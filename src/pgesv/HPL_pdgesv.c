@@ -122,6 +122,13 @@
 extern volatile size_t HPL_CALDGEMM_swap_current_n;
 volatile size_t HPL_CALDGEMM_swap_current_n;
 
+HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;
+HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
+HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
+int HPL_CALDGEMM_wrapper_icurcol = -1;
+int HPL_CALDGEMM_wrapper_n = -1;
+size_t HPL_CALDGEMM_wrapper_laswp_stepsize;
+
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
@@ -133,6 +140,8 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int* ipiv = panel->IWORK;
 	int* permU = NULL;
 
+	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
+
 	if (panel->grid->nprow > 1)
 	{
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
@@ -141,15 +150,11 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	}
 
 	int nremain = n;
-#ifdef HPL_ASYNC_LASWP
-	size_t stepsize = 2048;
-#else
-	size_t stepsize = n;
-#endif
-	for (size_t i = 0;i < n;i += stepsize)
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
 	{
-		stepsize *= 3;
-		int nn = Mmin(nremain, stepsize);
+		fprintf(stderr, "Test i=%lld step=%lld remain=%lld\n", i, HPL_CALDGEMM_wrapper_laswp_stepsize, nremain);
+		HPL_CALDGEMM_wrapper_laswp_stepsize *= 3;
+		int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
 		nremain -= nn;
 
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
@@ -177,13 +182,10 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		
 		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
+	
+	fprintfctd(stderr, "Starting Broadcast\n");
 }
 
-HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;
-HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
-HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
-int HPL_CALDGEMM_wrapper_icurcol = -1;
-int HPL_CALDGEMM_wrapper_n = -1;
 
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
@@ -225,7 +227,7 @@ void HPL_CALDGEMM_wrapper_swap()
 	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel_work, HPL_CALDGEMM_wrapper_n);
 }
 
-void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize)
+void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize, int depth2)
 {
 	//.. Local Variables ..
 	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
@@ -263,13 +265,18 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
 
-#ifdef HPL_ASYNC_LASWP
-		CALDGEMM_enable_async_laswp(1);
-#else
-		CALDGEMM_enable_async_laswp(0);
-		//HPL_pdgesv_swap(Grid, PANEL, n);
-		HPL_CALDGEMM_wrapper_swap();
-#endif
+		if (depth2)
+		{
+		    HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
+		    CALDGEMM_enable_async_laswp(1);
+		}
+		else
+		{
+		    HPL_CALDGEMM_wrapper_laswp_stepsize = n;
+		    CALDGEMM_enable_async_laswp(0);
+		    //HPL_pdgesv_swap(Grid, PANEL, n);
+		    HPL_CALDGEMM_wrapper_swap();
+		}
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
@@ -305,7 +312,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
-	int N, depth, icurcol=0, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+	int N, depth1, depth2, icurcol=0, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
 	uint64_t time_start;
@@ -316,9 +323,10 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	
 	mycol = GRID->mycol;
 	npcol = GRID->npcol;
-	depth = ALGO->depth;
 	N = A->n;
 	nb = A->nb;
+	depth1 = (ALGO->depth >= 1);
+	depth2 = (ALGO->depth >= 2);
 
 #ifdef HPL_PRINT_INTERMEDIATE
 	if( GRID->myrow == 0 && GRID->mycol == 0 )
@@ -328,21 +336,21 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	}
 #endif /* HPL_PRINT_INTERMEDIATE */
 
-	//Allocate a panel list of length depth + 1 (depth >= 1)
-	panel = (HPL_T_panel **)malloc((size_t)(depth+1) * sizeof(HPL_T_panel *));
+	//Allocate a panel list of length depth1;
+	panel = (HPL_T_panel **)malloc((size_t)(depth1+1) * sizeof(HPL_T_panel *));
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
 	nq = HPL_numroc(N+1, nb, nb, mycol, 0, npcol);
 	nn = N;
 
-	if (depth)
+	if (depth1)
 	{
 		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[0]);
 	}
 
 	//Create main panel
-	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth]);
+	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	
 	//Main loop over the columns of A
@@ -379,17 +387,17 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		//Initialize current panel
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 
-		if (j == 0 || depth == 0)
+		if (j == 0 || depth1 == 0)
 		{
-			HPL_pdpanel_free(panel[depth]);
-			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth]);
-			HPL_pdgesv_factorize(GRID, panel[depth], icurcol);
-			HPL_pdgesv_broadcast(GRID, panel[depth], icurcol);
+			HPL_pdpanel_free(panel[depth1]);
+			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth1]);
+			HPL_pdgesv_factorize(GRID, panel[depth1], icurcol);
+			HPL_pdgesv_broadcast(GRID, panel[depth1], icurcol);
 		}
 		
 		tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 		
-		if (depth && j + nb < N)
+		if (depth1 && j + nb < N)
 		{
 			HPL_pdpanel_free(panel[0]);
 			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
@@ -399,11 +407,11 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		nn = (mycol == icurcol) ? HPL_numrocI(jb, j, nb, nb, mycol, 0, npcol) : 0;
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT(GRID, panel[0], panel[depth], nq-nn, (depth && j + nb < N) ? icurcol : -1);
+		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? icurcol : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
-		if (depth)
+		if (depth1)
 		{
 			p = panel[0];
 			panel[0] = panel[1];
@@ -418,11 +426,11 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	}
 
 	//Clean-up: Release panels and panel list
-	if(depth)
+	if(depth1)
 	{
 		HPL_pdpanel_disp( &panel[0]);
 	}
-	HPL_pdpanel_disp(&panel[depth]);
+	HPL_pdpanel_disp(&panel[depth1]);
 	if(panel) free(panel);
 	
 	//Solve upper triangular system

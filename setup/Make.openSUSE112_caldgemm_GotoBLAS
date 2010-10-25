@@ -190,7 +190,6 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
 # -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
-# -DHPL_ASYNC_LASWP      Call LASWP and DTRSM asynchronously from caldgemm
 # -DHPL_GPU_VERIFY       Verify result of caldgemm calls
 # -DCALDGEMM_TEST        Activate Test Debug Code
 # -DHPL_PRINT_INTERMEDIATE
