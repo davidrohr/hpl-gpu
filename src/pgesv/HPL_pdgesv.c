@@ -134,7 +134,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int* permU = NULL;
 
 	int nremain = n;
-#ifdef HPL_ASYNC_LASWPaaa
+#ifdef HPL_ASYNC_LASWP_DEACTIVATED
 	size_t stepsize = 2048;
 #else
 	size_t stepsize = n;
