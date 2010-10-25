@@ -125,35 +125,55 @@ size_t HPL_CALDGEMM_swap_current_n;
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
-	int lda = panel->lda;
-	const int LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+	size_t lda = panel->lda;
+	const size_t LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
 	double* Aptr = panel->A;
 	double* L1ptr = panel->L1;
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
-
 	int* ipiv = panel->IWORK;
+	int* permU = NULL;
+
+	int nremain = n;
+#ifdef HPL_ASYNC_LASWPaaa
+	size_t stepsize = 2048;
+#else
+	size_t stepsize = n;
+#endif
+	if (panel->grid->nprow > 1)
+	{
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+		permU = HPL_pdlaswp01T( panel, n );
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+	}
+
+	for (size_t i = 0;i < n;i += stepsize)
+	{
+		stepsize *= 3;
+		int nn = Mmin(nremain, stepsize);
+		nremain -= nn;
 
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 		if (panel->grid->nprow == 1)
 		{
-			HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+			HPL_dlaswp00N( jb, nn, Aptr, lda, ipiv );
 		}
 		else
 		{
-			HPL_pdlaswp01T( panel, n );
+			if (permU) HPL_dlaswp10N( nn, jb, Uptr, LDU, permU );
 		}
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
 		if (panel->grid->nprow == 1)
 		{
-			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, n, HPL_rone, L1ptr, jb, Uptr, LDU );
+			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
 		}
 		else
 		{
-			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, n, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
+			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr, LDU );
 		}
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+	}
 }
 
 HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;

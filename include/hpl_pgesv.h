@@ -161,7 +161,7 @@ void HPL_plindx1( HPL_T_panel *, const int, const int *, int *, int *, int *, in
 void HPL_spreadT( HPL_T_panel *, const enum HPL_SIDE, const int, double *, const int, const int, const int *, const int *, const int * );
 void HPL_equil( HPL_T_panel *, const int, double *, const int, int *, const int *, const int *, int * );
 void HPL_rollT( HPL_T_panel *, const int, double *, const int, const int *, const int *, const int * );
-void HPL_pdlaswp01T( HPL_T_panel *, const int );
+int* HPL_pdlaswp01T( HPL_T_panel *, const int );
 
 void HPL_pdgesv( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
  
