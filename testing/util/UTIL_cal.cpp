@@ -20,7 +20,7 @@
 
 extern "C"
 {
-	extern size_t HPL_CALDGEMM_swap_current_n;
+	extern volatile size_t HPL_CALDGEMM_swap_current_n;
     extern void HPL_CALDGEMM_wrapper_factorize();
     extern void HPL_CALDGEMM_wrapper_broadcast();
 	extern void HPL_CALDGEMM_wrapper_swap();
