@@ -129,6 +129,25 @@ int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
 size_t HPL_CALDGEMM_wrapper_laswp_stepsize;
 
+int* permU = NULL;
+
+void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
+{
+	int jb = panel->jb;
+	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
+	size_t lda = panel->lda;
+	const size_t LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
+	
+	if (panel->grid->nprow > 1)
+	{
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+		permU = HPL_pdlaswp01T( panel, n );
+		HPL_dlaswp10N( n, jb, Uptr, LDU, permU );
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+	}
+}
+
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
@@ -138,37 +157,32 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	double* L1ptr = panel->L1;
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	int* ipiv = panel->IWORK;
-	int* permU = NULL;
 
-	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
-
-	if (panel->grid->nprow > 1)
-	{
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		permU = HPL_pdlaswp01T( panel, n );
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-	}
-
+#ifndef CALDGEMM_TEST_DEBUG
+	HPL_ptimer_detail( HPL_TIMING_DTRSM );
+#endif
 	int nremain = n;
 	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
 	{
-		fprintf(stderr, "Test i=%lld step=%lld remain=%lld\n", i, HPL_CALDGEMM_wrapper_laswp_stepsize, nremain);
 		HPL_CALDGEMM_wrapper_laswp_stepsize *= 3;
 		int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
 		nremain -= nn;
 
+#ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
+#endif
 		if (panel->grid->nprow == 1)
 		{
 			HPL_dlaswp00N( jb, nn, Aptr + i * lda, lda, ipiv );
 		}
 		else
 		{
-			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
+			//if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
 		}
+#ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
-
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+#endif
 		if (panel->grid->nprow == 1)
 		{
 			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
@@ -177,13 +191,19 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		{
 			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
+#ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+#endif
 		HPL_CALDGEMM_swap_current_n = i + nn;
 		
 		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
+
+#ifndef CALDGEMM_TEST_DEBUG
+	HPL_ptimer_detail( HPL_TIMING_DTRSM );
+#endif
 	
-	fprintfctd(stderr, "Starting Broadcast\n");
+	fprintfctd(stderr, "LASWP/DTRSM finished\n");
 }
 
 
@@ -265,6 +285,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
 
+		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
 		if (depth2)
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
@@ -274,8 +295,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = n;
 		    CALDGEMM_enable_async_laswp(0);
-		    //HPL_pdgesv_swap(Grid, PANEL, n);
-		    HPL_CALDGEMM_wrapper_swap();
+		    HPL_pdgesv_swap(Grid, PANEL, n);
 		}
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
