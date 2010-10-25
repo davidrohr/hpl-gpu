@@ -173,6 +173,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
+		HPL_CALDGEMM_swap_current_n = i + nn;
+		
+		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
 }
 
