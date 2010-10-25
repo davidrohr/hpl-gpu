@@ -194,6 +194,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #                        print intermediate performance results
 # -DHPL_PRINT_AVG_MATRIX_SIZE
 #                        show how much memory the matrix uses per node on average
+# -DHPL_NO_PERFORMANCE_WARNINGS
+#                        Suppress performance warnings from CALDGEMM library
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
