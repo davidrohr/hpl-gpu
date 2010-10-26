@@ -25,7 +25,7 @@
 #define USE_CORES 3
 #define CORE_COUNT 6
 
-//#define RESTRICT_CORES
+#define RESTRICT_CORES
 
 namespace
 {
