@@ -145,7 +145,7 @@ void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	{
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 		permU = HPL_pdlaswp01T( panel, n );
-		HPL_dlaswp10N( n, jb, Uptr, LDU, permU );
+		//HPL_dlaswp10N( n, jb, Uptr, LDU, permU );
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 	}
 	/*else
@@ -185,7 +185,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		}
 		else
 		{
-			//if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
+			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
 		}
 #ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
