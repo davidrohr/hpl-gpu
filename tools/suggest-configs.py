@@ -97,10 +97,10 @@ def roundDown( n, nb ):
 if __name__ == "__main__":
 
 	parser = optparse.OptionParser( usage='Usage: %prog [options] nodes', description='Suggests values for PxQ and N for a given number of nodes.' )
-	parser.add_option( '--memory', metavar='memory', default=.8*64, type=float, help='Memory to use per node in GiB' )
-	parser.add_option( '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
-	parser.add_option( '--relaxed', metavar='relaxed', action='store_true', default=False, help='Do not apply tiling restricitons, simply give maximum matrix size and posible process configurations' )
-	parser.add_option( '--flat', metavar='relaxed', action='store_true', default=False, help='Enable flat configurations' )
+	parser.add_option( '-m', '--memory', metavar='memory', default=.8*64, type=float, help='Memory to use per node in GiB' )
+	parser.add_option( '-p', '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
+	parser.add_option( '-r', '--relaxed', metavar='relaxed', action='store_true', default=False, help='Do not apply tiling restricitons, simply give maximum matrix size and posible process configurations' )
+	parser.add_option( '-f', '--flat', metavar='relaxed', action='store_true', default=False, help='Enable flat configurations' )
 
 
 #	parser.add_option('dirs', metavar='dir', nargs='+', help='The direcotories to scan for HPL*out files' )
