@@ -296,7 +296,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
 		if (depth2 && n >= 56 * 1024)
 		{
-		    HPL_CALDGEMM_wrapper_laswp_stepsize = 4096;
+		    HPL_CALDGEMM_wrapper_laswp_stepsize = 5120;
 		    CALDGEMM_enable_async_laswp(1);
 		}
 		else
