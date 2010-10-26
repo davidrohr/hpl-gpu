@@ -77,9 +77,10 @@ class Configuration:
 		""" Calculate the memory used per node in GiB """
 		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
 
-def splitIn2Factors( n ):
+def splitIn2Factors( n, flat=False ):
 	factors = []
-	for p in range( n < 4 and 1 or 2, int( math.sqrt( n ) ) + 1 ):
+	min_p = flat and 2 or int( math.sqrt( n / 2 ) )
+	for p in range( n < 4 and 1 or min_p, int( math.sqrt( n ) ) + 1 ):
 		if n % p == 0:
 			factors.append( (p, n/p) )
 	return factors
@@ -99,6 +100,7 @@ if __name__ == "__main__":
 	parser.add_option( '--memory', metavar='memory', default=.8*64, type=float, help='Memory to use per node in GiB' )
 	parser.add_option( '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
 	parser.add_option( '--relaxed', metavar='relaxed', action='store_true', default=False, help='Do not apply tiling restricitons, simply give maximum matrix size and posible process configurations' )
+	parser.add_option( '--flat', metavar='relaxed', action='store_true', default=False, help='Enable flat configurations' )
 
 
 #	parser.add_option('dirs', metavar='dir', nargs='+', help='The direcotories to scan for HPL*out files' )
@@ -118,7 +120,7 @@ if __name__ == "__main__":
 
 	while len( configs ) < 3 and nodes > 0:
 		# Get all possible process configurations
-		pqs = splitIn2Factors( nodes )
+		pqs = splitIn2Factors( nodes, args.flat )
 
 		memoryLimit = memoryLimitForN( nodes, memPerNode )
 		blockSpecificLimit = roundDown( memoryLimit, nb )
