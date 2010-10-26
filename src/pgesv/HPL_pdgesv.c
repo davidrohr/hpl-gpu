@@ -134,9 +134,11 @@ int* permU = NULL;
 void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
+	double* Aptr = panel->A;
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	size_t lda = panel->lda;
 	const size_t LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+	int* ipiv = panel->IWORK;
 	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
 	
 	if (panel->grid->nprow > 1)
@@ -146,6 +148,12 @@ void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_dlaswp10N( n, jb, Uptr, LDU, permU );
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 	}
+	/*else
+	{
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+		HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+		HPL_ptimer_detail( HPL_TIMING_LASWP );
+	}*/
 }
 
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
@@ -286,7 +294,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
 
 		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
-		if (depth2)
+		if (depth2 && n >= 56 * 1024)
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
 		    CALDGEMM_enable_async_laswp(1);
