@@ -37,6 +37,7 @@
 
 import sys
 import math
+import optparse
 
 class Configuration:
 	def __init__( self, p, q, n, nb ):
@@ -94,19 +95,23 @@ def roundDown( n, nb ):
 #
 if __name__ == "__main__":
 
-	if len( sys.argv ) < 2:
-		print 'Usage: suggest-configs.py <nodes> [memPerNode in GiB] [perfPerNode in Gflops]'
-		exit(1)
+	parser = optparse.OptionParser( usage='Usage: %prog [options] nodes', description='Suggests values for PxQ and N for a given number of nodes.' )
+	parser.add_option( '--memory', metavar='memory', default=.8*64, type=float, help='Memory to use per node in GiB' )
+	parser.add_option( '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
 
-	nodes = int( sys.argv[1] )
+
+#	parser.add_option('dirs', metavar='dir', nargs='+', help='The direcotories to scan for HPL*out files' )
+	( args, tmp ) = parser.parse_args()
+
+	if len( tmp ) != 1:
+		parser.error( 'Need to give a number of nodes' )
+		exit -1
+
+	nodes = int( tmp[0] )
 	nb = 1024
 
-	memPerNode = .8 * 64
-	perfPerNode = 317
-	if len( sys.argv ) > 2:
-		memPerNode = float( sys.argv[2] )
-		if len( sys.argv ) > 3:
-			perfPerNode = float( sys.argv[3] )
+	memPerNode = args.memory
+	perfPerNode = args.performance
 
 	configs = []
 
