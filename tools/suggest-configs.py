@@ -32,9 +32,12 @@
 #
 
 # TODO project performance (only needed for fuzzy N)
+# TODO prefer larger matrices more
+# TODO prefer squarer (so not fully square) pxq
 
 import sys
 import math
+import optparse
 
 class Configuration:
 	def __init__( self, p, q, n, nb ):
@@ -74,9 +77,10 @@ class Configuration:
 		""" Calculate the memory used per node in GiB """
 		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
 
-def splitIn2Factors( n ):
+def splitIn2Factors( n, flat=False ):
 	factors = []
-	for p in range( n < 4 and 1 or 2, int( math.sqrt( n ) ) + 1 ):
+	min_p = flat and 2 or int( math.sqrt( n / 2 ) )
+	for p in range( n < 4 and 1 or min_p, int( math.sqrt( n ) ) + 1 ):
 		if n % p == 0:
 			factors.append( (p, n/p) )
 	return factors
@@ -92,39 +96,45 @@ def roundDown( n, nb ):
 #
 if __name__ == "__main__":
 
-	if len( sys.argv ) < 2:
-		print 'Usage: suggest-configs.py <nodes> [memPerNode in GiB] [perfPerNode in Gflops]'
-		exit(1)
+	parser = optparse.OptionParser( usage='Usage: %prog [options] nodes', description='Suggests values for PxQ and N for a given number of nodes.' )
+	parser.add_option( '-m', '--memory', metavar='memory', default=.8*64, type=float, help='Memory to use per node in GiB' )
+	parser.add_option( '-p', '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
+	parser.add_option( '-r', '--relaxed', metavar='relaxed', action='store_true', default=False, help='Do not apply tiling restricitons, simply give maximum matrix size and posible process configurations' )
+	parser.add_option( '-f', '--flat', metavar='relaxed', action='store_true', default=False, help='Enable flat configurations' )
 
-	nodes = int( sys.argv[1] )
+
+#	parser.add_option('dirs', metavar='dir', nargs='+', help='The direcotories to scan for HPL*out files' )
+	( args, tmp ) = parser.parse_args()
+
+	if len( tmp ) != 1:
+		parser.error( 'Need to give a number of nodes' )
+		exit -1
+
+	nodes = int( tmp[0] )
 	nb = 1024
 
-	if len( sys.argv ) > 2:
-		memPerNode = float( sys.argv[2] )
-		if len( sys.argv ) > 3:
-			perfPerNode = float( sys.argv[3] )
-		else:
-			perfPerNode = 317
-	else:
-		memPerNode = .8 * 64;
-
+	memPerNode = args.memory
+	perfPerNode = args.performance
 
 	configs = []
 
 	while len( configs ) < 3 and nodes > 0:
 		# Get all possible process configurations
-		pqs = splitIn2Factors( nodes )
+		pqs = splitIn2Factors( nodes, args.flat )
 
 		memoryLimit = memoryLimitForN( nodes, memPerNode )
+		blockSpecificLimit = roundDown( memoryLimit, nb )
 
 		# Now check which Ns work for these configurations
 		for pq in pqs:
-			blockSpecificLimit = roundDown( memoryLimit, nb )
-			for n in range( blockSpecificLimit, int( 0.8 * blockSpecificLimit ), -nb ):
-				config = Configuration( pq[0], pq[1], n, nb )
-				if config.fullfillsRestrictions():
-					configs.append( config )
-					break
+			if args.relaxed:
+				configs.append( Configuration( pq[0], pq[1], blockSpecificLimit, nb ) )
+			else:
+				for n in range( blockSpecificLimit, int( 0.8 * blockSpecificLimit ), -nb ):
+					config = Configuration( pq[0], pq[1], n, nb )
+					if config.fullfillsRestrictions():
+						configs.append( config )
+						break
 
 		# in case we did not find at least three configs till now we will try
 		# again with a smaller number of nodes
