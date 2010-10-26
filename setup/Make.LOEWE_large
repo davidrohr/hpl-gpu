@@ -95,9 +95,9 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /usr/mpi/gcc/openmpi-1.4.2
+MPdir        = /usr/mpi/gcc/mvapich2-1.5.1
 MPinc        = $(MPdir)/include
-MPlib        = -L$(MPdir)/lib64 -lmpi
+MPlib        = -L$(MPdir)/lib -lmpich
 #
 # ----------------------------------------------------------------------
 # - Linear Algebra library (BLAS or VSIPL) -----------------------------
@@ -174,7 +174,7 @@ F2CDEFS      =
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
-HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib -Wl,-rpath=$(TOPdir)/caldgemm/ati_patch
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lgfortran -Wl,-rpath=$(TOPdir)/lib -Wl,-rpath=$(TOPdir)/caldgemm/ati_patch
 #
 # - Compile time options -----------------------------------------------
 #
