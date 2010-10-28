@@ -79,7 +79,7 @@ class HPL_dlacpy_impl
 		double *__restrict__ const B;
 
 	public:
-		HPL_dlatcpy_impl2(size_t _N, const double *_A, size_t _LDA, double *_B, size_t _LDB)
+		HPL_dlatcpy_impl(size_t _N, const double *_A, size_t _LDA, double *_B, size_t _LDB)
 			: N(_N), LDA(_LDA), LDB(_LDB), A(_A), B(_B)
 		{
 		}
