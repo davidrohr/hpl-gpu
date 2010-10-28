@@ -95,7 +95,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = /usr/mpi/gcc/openmpi-1.4.2
+MPdir        = /usr/mpi/gcc/openmpi-1.4.1
 MPinc        = $(MPdir)/include
 MPlib        = -L$(MPdir)/lib64 -lmpi
 #
@@ -206,7 +206,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_DETAILED_TIMING -DHPL_GPU_TIMING -DCALDGEMM_TEST #-DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT -DHPL_FASTVERIFY #-DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
