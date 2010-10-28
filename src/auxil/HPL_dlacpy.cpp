@@ -79,7 +79,7 @@ class HPL_dlacpy_impl
 		double *__restrict__ const B;
 
 	public:
-		HPL_dlatcpy_impl(size_t _N, const double *_A, size_t _LDA, double *_B, size_t _LDB)
+		HPL_dlacpy_impl(size_t _N, const double *_A, size_t _LDA, double *_B, size_t _LDB)
 			: N(_N), LDA(_LDA), LDB(_LDB), A(_A), B(_B)
 		{
 		}
@@ -90,7 +90,7 @@ class HPL_dlacpy_impl
 			for (size_t j = 0 ; j < N; j ++ )
 			{
 				double *__restrict__ B_ij = &B[ j * LDB ];
-				const double *__restrict__ A_ji = &A[ j * LDA ];
+				const double *__restrict__ A_ij = &A[ j * LDA ];
 				for (size_t i = range.begin(); i < end; i += 8)
 				{
 					_mm_stream_pd( &B_ij[i], _mm_load_pd( &A_ij[i]));
@@ -137,9 +137,9 @@ class HPL_dlacpy_impl
  *
  * ---------------------------------------------------------------------
  */
-extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB)
+extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB)
 {
-   START_TRACE( DLATCPY )
+   START_TRACE( DLACPY )
 
    if ( _M <= 0 || _N <= 0 ) {
 	  return;
@@ -153,7 +153,7 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
 
    // B_ij = A_ji
 
-   tbb::parallel_for( Range(0, MM), HPL_dlatcpy_impl( N, A, LDA, B, LDB ), tbb::simple_partitioner() );
+   tbb::parallel_for( Range(0, MM), HPL_dlacpy_impl( N, A, LDA, B, LDB ), tbb::simple_partitioner() );
 
    if ( M & 7 )
    {
