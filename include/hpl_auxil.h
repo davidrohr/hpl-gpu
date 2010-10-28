@@ -97,7 +97,7 @@ typedef enum
 void HPL_fprintf(FILE *, const char *, ...);
 void HPL_warn(FILE *, int, const char *, const char *, ...);
 void HPL_abort(int, const char *, const char *, ...);
-void HPL_dlacpy(const int, const int, const double *, const int, double *, const int);
+void HPL_dlacpy(const int, const int, const double *, const int, double *, const int, int );
 void HPL_dlatcpy(const int, const int, const double *, const int, double *, const int);
 void HPL_dlaprnt(const int, const int, double *, const int, const int, const int, const char *);
 double HPL_dlange(const HPL_T_NORM, const int, const int, const double *, const int);

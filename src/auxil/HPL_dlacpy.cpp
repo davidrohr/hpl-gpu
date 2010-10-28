@@ -69,6 +69,23 @@
 
 typedef MyRange<8, 16> Range;
 
+inline void dlacpy_worker(const double* __restrict__ A, double* __restrict__ B, size_t N, size_t begin, size_t end, size_t LDA, size_t LDB)
+{
+	for (size_t j = 0 ; j < N; j ++ )
+	{
+		double *__restrict__ B_ij = &B[ j * LDB ];
+		const double *__restrict__ A_ij = &A[ j * LDA ];
+		for (size_t i = begin; i < end; i += 8)
+		{
+			//_mm_prefetch( &A_ij[i + LDA], _MM_HINT_NTA);
+			_mm_stream_pd( &B_ij[i], _mm_load_pd( &A_ij[i]));
+			_mm_stream_pd( &B_ij[i + 2], _mm_load_pd( &A_ij[i + 2]));
+			_mm_stream_pd( &B_ij[i + 4], _mm_load_pd( &A_ij[i + 4]));
+			_mm_stream_pd( &B_ij[i + 6], _mm_load_pd( &A_ij[i + 6]));
+		}
+	}
+}
+
 class HPL_dlacpy_impl
 {
 	private:
@@ -87,18 +104,7 @@ class HPL_dlacpy_impl
 		void operator()(const Range &range) const
 		{
 			const size_t end = range.begin() + range.N();
-			for (size_t j = 0 ; j < N; j ++ )
-			{
-				double *__restrict__ B_ij = &B[ j * LDB ];
-				const double *__restrict__ A_ij = &A[ j * LDA ];
-				for (size_t i = range.begin(); i < end; i += 8)
-				{
-					_mm_stream_pd( &B_ij[i], _mm_load_pd( &A_ij[i]));
-					_mm_stream_pd( &B_ij[i + 2], _mm_load_pd( &A_ij[i + 2]));
-					_mm_stream_pd( &B_ij[i + 4], _mm_load_pd( &A_ij[i + 4]));
-					_mm_stream_pd( &B_ij[i + 6], _mm_load_pd( &A_ij[i + 6]));
-				}
-			}
+			dlacpy_worker(A, B, N, range.begin(), end, LDA, LDB);
 		}
 };
 
@@ -137,7 +143,7 @@ class HPL_dlacpy_impl
  *
  * ---------------------------------------------------------------------
  */
-extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB)
+extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const int _LDA, double *B, const int _LDB, int multithread)
 {
    START_TRACE( DLACPY )
 
@@ -153,7 +159,14 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
 
    // B_ij = A_ji
 
-   tbb::parallel_for( Range(0, MM), HPL_dlacpy_impl( N, A, LDA, B, LDB ), tbb::simple_partitioner() );
+   if (multithread)
+   {
+    tbb::parallel_for( Range(0, MM), HPL_dlacpy_impl( N, A, LDA, B, LDB ), tbb::auto_partitioner() );
+   }
+   else
+   {
+    dlacpy_worker(A, B, N, 0, MM, LDA, LDB);
+   }
 
    if ( M & 7 )
    {
