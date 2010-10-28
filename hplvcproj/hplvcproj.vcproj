@@ -221,6 +221,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\auxil\HPL_dlacpy.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\src\auxil\HPL_dlamch.c"
 						>
 					</File>
