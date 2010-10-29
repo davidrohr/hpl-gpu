@@ -43,9 +43,9 @@ namespace
 #ifndef RESTRICT_CORES
         if (num_threads_string) {
             num_threads = atoi(num_threads_string);
-            fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
+            //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
         } else {
-            fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
+            //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
         }
 #else
         num_threads = USE_DIES * USE_CORES;
@@ -78,11 +78,11 @@ namespace
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
         sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
 
-        fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
+        //fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
         static tbb::task_scheduler_init init(num_threads);
         tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
 
-        fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
+        //fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
         sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 
         return 0;
