@@ -20,7 +20,7 @@
 #include "util_cal.h"
 
 #define fprintfdvv	//Disable verbose verbose debug output
-#define fprintfdvv fprintf
+//#define fprintfdvv fprintf
 
 
 extern "C"
