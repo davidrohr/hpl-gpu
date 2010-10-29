@@ -128,7 +128,7 @@ int main
    }
    if (mpiavail != MPI_REQUIRE_THREAD_SAFETY)
    {
-	printf("No Multithreaded MPI available\n");
+	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
 #ifdef HPL_CALL_CALDGEMM

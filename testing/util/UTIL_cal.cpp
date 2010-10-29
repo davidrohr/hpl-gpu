@@ -128,8 +128,8 @@ int CALDGEMM_Init()
 	cal_info.linpack_factorize_function = funneled_factorize_wrapper;
 	cal_info.linpack_broadcast_function = funneled_broadcast_wrapper;
 #else	
-	cal_info.linpack_factorize_function = HPL_CALLDGEMM_wrapper_factorize;
-	cal_info.linpack_broadcast_function = HPL_CALLDGEMM_wrapper_broadcast;
+	cal_info.linpack_factorize_function = HPL_CALDGEMM_wrapper_factorize;
+	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
 #endif
 
 	int retVal = cal_dgemm.InitCALDGEMM( &cal_info );
@@ -194,7 +194,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
             if (LinpackCallbacks)
             {
         	HPL_CALDGEMM_wrapper_factorize();
-        	if (cal_info->LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
+        	if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
             }
 	    return;
 	}
@@ -222,7 +222,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	    {
 		    fprintfdvv(stderr, "Waiting to factorize\n");
 		    pthread_mutex_lock(&startfactorize);
-		    HPL_CALLDGEMM_wrapper_factorize();
+		    HPL_CALDGEMM_wrapper_factorize();
 		    pthread_mutex_unlock(&factorizedone);
 		    
 		    if (cal_info.LinpackNodes > 1)
@@ -235,7 +235,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 		    
 			    fprintfdvv(stderr, "Waiting to broadcast\n");
 			    pthread_mutex_lock(&startbroadcast);
-			    HPL_CALLDGEMM_wrapper_broadcast();
+			    HPL_CALDGEMM_wrapper_broadcast();
 			    pthread_mutex_unlock(&broadcastdone);
 			    sched_setaffinity(0, sizeof(cpu_set_t), &old_mask);
 		    }
