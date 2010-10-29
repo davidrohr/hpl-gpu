@@ -112,7 +112,25 @@ int main
 /* ..
  * .. Executable Statements ..
  */
-   MPI_Init( &ARGC, &ARGV );
+   //MPI_Init( &ARGC, &ARGV );
+   int mpiavail = 0;
+   
+#ifdef HPL_MPI_FUNNELED_THREADING
+#define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_FUNNELED
+#else
+#define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
+#endif
+   
+   if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
+   {
+	printf("Error initializing MPI\n");
+	return(1);
+   }
+   if (mpiavail != MPI_REQUIRE_THREAD_SAFETY)
+   {
+	printf("No Multithreaded MPI available\n");
+	return(1);
+   }
 #ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())
    {

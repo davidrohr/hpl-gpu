@@ -312,7 +312,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			{
 				uint64_t eta = seconds / ratio - seconds;
 				//printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
-				printf( "%.f %% of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, flops, eta );
+				printf( "%.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, j, N, flops, eta );
 			}
 		}
 #endif /* HPL_PRINT_INTERMEDIATE */
