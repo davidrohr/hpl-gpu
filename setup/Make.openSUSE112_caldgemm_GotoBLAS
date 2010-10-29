@@ -196,6 +196,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #                        print intermediate performance results
 # -DHPL_PRINT_AVG_MATRIX_SIZE
 #                        show how much memory the matrix uses per node on average
+# -DHPL_MPI_FUNNELED_THREADING
+#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
