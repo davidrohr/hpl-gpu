@@ -16,6 +16,7 @@
 
 #include <caldgemm.h>
 #include <pthread.h>
+#include <mpi.h>
 #include <errno.h>
 #include "util_cal.h"
 
@@ -26,13 +27,14 @@
 extern "C"
 {
 	extern volatile size_t HPL_CALDGEMM_swap_current_n;
-    extern void HPL_CALDGEMM_wrapper_factorize();
-    extern void HPL_CALDGEMM_wrapper_broadcast();
+	extern void HPL_CALDGEMM_wrapper_factorize();
+	extern void HPL_CALDGEMM_wrapper_broadcast();
 	extern void HPL_CALDGEMM_wrapper_swap();
 }
 
 static caldgemm::SampleInfo cal_info;
 static caldgemm cal_dgemm;
+char PreOutput[64] = "";
 
 #ifdef HPL_MPI_FUNNELED_THREADING
 pthread_mutex_t startgpudgemm, gpudgemmdone, startfactorize, factorizedone, startbroadcast, broadcastdone;
@@ -123,6 +125,7 @@ int CALDGEMM_Init()
 	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
 	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
+	cal_info.PreOut = PreOutput;
 
 #ifdef HPL_MPI_FUNNELED_THREADING
 	cal_info.linpack_factorize_function = funneled_factorize_wrapper;
@@ -185,6 +188,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
                      const double * B, const int LDB, const double BETA, double * C,
                      const int LDC, int LinpackCallbacks )
 {
+	static int LinpackIteration = 0;
 	if (M == 0 || N == 0 || K == 0)
 	{
             if (cal_info.LinpackSwapN != NULL)
@@ -200,6 +204,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	}
         else if(( M >= 2048 && N >= 2048 && K >= 512 ))
         {
+            sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 #ifdef HPL_MPI_FUNNELED_THREADING
 	    gpudgemmparams.A = (double*) A;
 	    gpudgemmparams.B = (double*) B;
@@ -289,9 +294,10 @@ void CALDGEMM_free(void* ptr)
     cal_dgemm.FreeMemory((double*) ptr);
 }
 
-void CALDGEMM_set_num_nodes(int num)
+void CALDGEMM_set_num_nodes(int num, int rank)
 {
     cal_info.LinpackNodes = num;
+    cal_info.MPIRank = rank;
 }
 void CALDGEMM_enable_async_laswp(int enable)
 {

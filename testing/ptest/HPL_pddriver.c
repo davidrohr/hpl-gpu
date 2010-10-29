@@ -191,7 +191,7 @@ int main
           ( mycol < 0 ) || ( mycol >= npcol ) ) goto label_end_of_npqs;
 
 #ifdef HPL_CALL_CALDGEMM
-      CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq]);
+      CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq], grid.iam);
 #endif
 
       for( in = 0; in < ns; in++ )
