@@ -14,9 +14,11 @@ extern "C" void checkMpiThread_impl( const char *file, int line )
       fprintf( stderr, "%s MPI ERROR: incorrect calling thread to MPI function at %s:%d\n", hostname, file, line );
    }
 }
+#endif
 
 extern "C" void setMpiThread()
 {
+#ifdef HPL_CHECK_MPI_THREADS
    checkMpiThread_id = pthread_self();
-}
 #endif
+}
