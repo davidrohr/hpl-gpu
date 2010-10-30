@@ -121,6 +121,7 @@ int main
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
    
+   setMpiThread();
    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
@@ -138,8 +139,8 @@ int main
 	return(1);
    }
 #endif
-   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-   MPI_Comm_size( MPI_COMM_WORLD, &size );
+checkMpiThread;    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+checkMpiThread;    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
  * Read and check validity of test parameters from input file
  *
@@ -305,7 +306,7 @@ label_end_of_npqs: ;
 #ifdef TRACE_CALLS
    releaseTraceCounters();
 #endif
-   MPI_Finalize();
+checkMpiThread;    MPI_Finalize();
    exit( 0 );
 
    return( 0 );

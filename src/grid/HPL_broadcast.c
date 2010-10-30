@@ -119,8 +119,8 @@ START_TRACE( BROADCAST )
  * .. Executable Statements ..
  */
    if( COUNT <= 0 ) return( MPI_SUCCESS );
-   mpierr = MPI_Comm_size( COMM, &size ); if( size <= 1 ) return( mpierr );
-   mpierr = MPI_Comm_rank( COMM, &rank );
+checkMpiThread;    mpierr = MPI_Comm_size( COMM, &size ); if( size <= 1 ) return( mpierr );
+checkMpiThread;    mpierr = MPI_Comm_rank( COMM, &rank );
 
    kk = size - 1;
    while( kk > 1 ) { kk >>= 1; ip2 <<= 1; mask <<= 1; mask++; }
@@ -136,13 +136,13 @@ START_TRACE( BROADCAST )
          if( mydist & ip2 )
          {
             partner = MModAdd( ROOT, partner, size );
-            mpierr  = MPI_Recv(  BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
+checkMpiThread;             mpierr  = MPI_Recv(  BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
                                  partner, tag, COMM, &status );
          }
          else if( partner < size )
          {
             partner = MModAdd( ROOT, partner, size );
-            mpierr  = MPI_Send( BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
+checkMpiThread;             mpierr  = MPI_Send( BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
                                 partner, tag, COMM );
          }
          if( mpierr != MPI_SUCCESS ) hplerr = mpierr;
