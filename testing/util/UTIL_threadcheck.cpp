@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <pthread.h>
+#include <cstdio>
 
+#ifdef HPL_CHECK_MPI_THREADS
 static pthread_t checkMpiThread_id = pthread_t();
 
 extern "C" void checkMpiThread_impl( const char *file, int line )
@@ -17,3 +19,4 @@ extern "C" void setMpiThread()
 {
    checkMpiThread_id = pthread_self();
 }
+#endif
