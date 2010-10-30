@@ -155,30 +155,38 @@ START_TRACE( SDRV )
  * Post asynchronous receive
  */
 checkMpiThread          ierr =      MPI_Type_contiguous( RCOUNT, MPI_DOUBLE, &type[0] );
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_commit( &type[0] );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Irecv( (void *)(RBUF), 1, type[0], PARTNER,
                                 RTAG, COMM, &request );
+         }
 /*
  * Blocking send
  */
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_contiguous( SCOUNT, MPI_DOUBLE, &type[1] );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_commit( &type[1] );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Send( (void *)(SBUF), 1, type[1], PARTNER,
                                STAG, COMM );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_free( &type[1] );
+         }
 /*
  * Wait for the receive to complete
  */
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Wait( &request, &status );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_free( &type[0] );
+         }
 #else
 /*
  * Post asynchronous receive
@@ -188,14 +196,16 @@ checkMpiThread          ierr =      MPI_Irecv( (void *)(RBUF), RCOUNT, MPI_DOUBL
 /*
  * Blocking send
  */
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Send( (void *)(SBUF), SCOUNT, MPI_DOUBLE,
                                PARTNER, STAG, COMM );
+         }
 /*
  * Wait for the receive to complete
  */
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Wait( &request, &status );
+         }
 #endif
       }
       else
@@ -205,13 +215,16 @@ checkMpiThread             ierr =   MPI_Wait( &request, &status );
  */
 #ifdef HPL_USE_MPI_DATATYPE
 checkMpiThread          ierr =      MPI_Type_contiguous( RCOUNT, MPI_DOUBLE, &type[0] );
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_commit( &type[0] );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Recv( (void *)(RBUF), 1, type[0], PARTNER, RTAG,
                                COMM, &status );
-         if( ierr == MPI_SUCCESS )
+         }
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_free( &type[0] );
+         }
 #else
 checkMpiThread          ierr =      MPI_Recv( (void *)(RBUF), RCOUNT, MPI_DOUBLE,
                                PARTNER, RTAG, COMM, &status );
@@ -225,13 +238,16 @@ checkMpiThread          ierr =      MPI_Recv( (void *)(RBUF), RCOUNT, MPI_DOUBLE
  */
 #ifdef HPL_USE_MPI_DATATYPE
 checkMpiThread       ierr =      MPI_Type_contiguous( SCOUNT, MPI_DOUBLE, &type[1] );
-      if( ierr == MPI_SUCCESS )
+      if( ierr == MPI_SUCCESS ) {
 checkMpiThread          ierr =   MPI_Type_commit( &type[1] );
-      if( ierr == MPI_SUCCESS )
+      }
+      if( ierr == MPI_SUCCESS ) {
 checkMpiThread          ierr =   MPI_Send( (void *)(SBUF), 1, type[1], PARTNER, STAG,
                           COMM );
-      if( ierr == MPI_SUCCESS )
+      }
+      if( ierr == MPI_SUCCESS ) {
 checkMpiThread          ierr =   MPI_Type_free( &type[1] ) );
+      }
 #else
 checkMpiThread       ierr =      MPI_Send( (void *)(SBUF), SCOUNT, MPI_DOUBLE, PARTNER,
                             STAG, COMM );

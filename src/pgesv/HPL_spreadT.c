@@ -187,29 +187,34 @@ START_TRACE( SPREAD_T )
 #ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
-                     if( LDU == N )
+                     if( LDU == N ) {
 checkMpiThread                         ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
                                                     &type );
-                     else
+                     } else {
 checkMpiThread                         ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
                                                 &type );
+                     }
                   }
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_commit( &type );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[npm1-partner], Cmsgid, comm,
                                         &status );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_free( &type );
+                  }
 #else
 /*
  * In our case, LDU is N - do not use the MPI Datatypes
  */
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm, &status );
+                  }
 #endif
                }
                else if( partner < nprow )
@@ -217,28 +222,33 @@ checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 
 #ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
-                     if( LDU == N )
+                     if( LDU == N ) {
 checkMpiThread                         ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
                                                     &type );
-                     else
+                     } else {
 checkMpiThread                         ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
                                                 &type );
+                     }
                   }
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_commit( &type );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[npm1-partner], Cmsgid, comm );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_free( &type );
+                  }
 #else
 /*
  * In our case, LDU is N - do not use the MPI Datatypes
  */
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm );
+                  }
 #endif
                }
             }
@@ -281,29 +291,34 @@ checkMpiThread                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 
 #ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
-                     if( LDU == N )
+                     if( LDU == N ) {
 checkMpiThread                         ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
                                                     &type );
-                     else
+                     } else {
 checkMpiThread                         ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
                                                 &type );
+                     }
                   }
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_commit( &type );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[SRCDIST+partner], Cmsgid,
                                         comm, &status );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_free( &type );
+                  }
 #else
 /*
  * In our case, LDU is N - do not use the MPI Datatypes
  */
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm, &status );
+                  }
 #endif
                }
                else if( partner < nprow )
@@ -311,29 +326,34 @@ checkMpiThread                      ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 
 #ifndef HPL_SEND_U_PADDING
                   if( ierr == MPI_SUCCESS )
                   {
-                     if( LDU == N )
+                     if( LDU == N ) {
 checkMpiThread                         ierr = MPI_Type_contiguous( lbuf*LDU, MPI_DOUBLE,
                                                     &type );
-                     else
+                     } else {
 checkMpiThread                         ierr = MPI_Type_vector( lbuf, N, LDU, MPI_DOUBLE,
                                                 &type );
+                     }
                   }
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_commit( &type );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[SRCDIST+partner], Cmsgid,
                                         comm );
-                  if( ierr == MPI_SUCCESS )
+                  }
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Type_free( &type );
+                  }
 #else
 /*
  * In our case, LDU is N - do not use the MPI Datatypes
  */
-                  if( ierr == MPI_SUCCESS )
+                  if( ierr == MPI_SUCCESS ) {
 checkMpiThread                      ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm );
+                  }
 #endif
                }
             }

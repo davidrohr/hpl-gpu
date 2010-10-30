@@ -133,12 +133,15 @@ START_TRACE( SEND )
 
 #ifdef HPL_USE_MPI_DATATYPE
 checkMpiThread    ierr =      MPI_Type_contiguous( SCOUNT, MPI_DOUBLE, &type );
-   if( ierr == MPI_SUCCESS )
+   if( ierr == MPI_SUCCESS ) {
 checkMpiThread       ierr =   MPI_Type_commit( &type );
-   if( ierr == MPI_SUCCESS )
+   }
+   if( ierr == MPI_SUCCESS ) {
 checkMpiThread       ierr =   MPI_Send( (void *)(SBUF), 1, type, DEST, STAG, COMM );
-   if( ierr == MPI_SUCCESS )
+   }
+   if( ierr == MPI_SUCCESS ) {
 checkMpiThread       ierr =   MPI_Type_free( &type );
+   }
 #else
 checkMpiThread    ierr = MPI_Send( (void *)(SBUF), SCOUNT, MPI_DOUBLE, DEST, STAG, COMM );
 #endif

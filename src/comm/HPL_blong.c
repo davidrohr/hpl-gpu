@@ -208,19 +208,22 @@ checkMpiThread             ierr = MPI_Iprobe( partner, msgid, comm, &go, &PANEL-
                if( ierr == MPI_SUCCESS )
                   ierr =   HPL_packL( PANEL, ibuf, lbuf, I_RECV );
 #endif
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Recv( _M_BUFF_R, _M_COUNT_R, _M_TYPE_R,
                                      partner, msgid, comm, &PANEL->status[0] );
+               }
 #ifdef HPL_USE_MPI_DATATYPE
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Type_free( &PANEL->dtypes[I_RECV] );
+               }
 #endif
             }
             else       /* Recv message of length zero to enable probe */
             {
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Recv( (void *)(&dummy), 0, MPI_BYTE, partner,
                                      msgid, comm, &PANEL->status[0] );
+               }
             }
          }
          else if( partner < size )
@@ -233,19 +236,22 @@ checkMpiThread                   ierr =   MPI_Recv( (void *)(&dummy), 0, MPI_BYT
                if( ierr == MPI_SUCCESS )
                   ierr =   HPL_packL( PANEL, ibuf, lbuf, I_SEND );
 #endif
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Ssend( _M_BUFF_S, _M_COUNT_S, _M_TYPE_S,
                                       partner, msgid, comm );
+               }
 #ifdef HPL_USE_MPI_DATATYPE
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Type_free( &PANEL->dtypes[I_SEND] );
+               }
 #endif
             }
             else       /* Send message of length zero to enable probe */
             {
-               if( ierr == MPI_SUCCESS )
+               if( ierr == MPI_SUCCESS ) {
 checkMpiThread                   ierr =   MPI_Ssend( (void *)(&dummy), 0, MPI_BYTE,
                                       partner, msgid, comm );
+               }
             }
          }
       }
@@ -298,16 +304,18 @@ checkMpiThread                   ierr =   MPI_Ssend( (void *)(&dummy), 0, MPI_BY
          if( ierr == MPI_SUCCESS )
             ierr =   HPL_packL( PANEL, ibufS, lbufS, I_SEND );
 #endif
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Issend( _M_ROLL_BUFF_S, _M_ROLL_COUNT_S,
                                  _M_ROLL_TYPE_S, partner, msgid, comm,
                                  &PANEL->request[0] );
+         }
       }
       else
       {
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Issend( (void *)(&dummy), 0, MPI_BYTE, partner,
                                  msgid, comm, &PANEL->request[0] );
+         }
       }
 
       if(  lbufR > 0 )
@@ -316,27 +324,31 @@ checkMpiThread             ierr =   MPI_Issend( (void *)(&dummy), 0, MPI_BYTE, p
          if( ierr == MPI_SUCCESS )
             ierr =   HPL_packL( PANEL, ibufR, lbufR, I_RECV );
 #endif
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Recv( _M_ROLL_BUFF_R, _M_ROLL_COUNT_R,
                                _M_ROLL_TYPE_R, partner, msgid, comm,
                                &PANEL->status[0] );
+         }
 #ifdef HPL_USE_MPI_DATATYPE
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Type_free( &PANEL->dtypes[I_RECV] );
+         }
 #endif
       }
       else
       {
-         if( ierr == MPI_SUCCESS )
+         if( ierr == MPI_SUCCESS ) {
 checkMpiThread             ierr =   MPI_Recv( (void *)(&dummy), 0, MPI_BYTE, partner,
                                msgid, comm, &PANEL->status[0] );
+         }
       }
 
       if( ierr == MPI_SUCCESS )
          ierr =   MPI_Wait ( &PANEL->request[0], &PANEL->status[0] );
 #ifdef HPL_USE_MPI_DATATYPE
-      if( ( lbufS > 0 ) && ( ierr == MPI_SUCCESS ) )
+      if( ( lbufS > 0 ) && ( ierr == MPI_SUCCESS ) ) {
 checkMpiThread          ierr =   MPI_Type_free( &PANEL->dtypes[I_SEND] );
+      }
 #endif
    }
 /*
