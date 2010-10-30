@@ -126,9 +126,9 @@ int HPL_packL
    PANEL->buffers[IBUF] = (void *)(PANEL->L2 + INDEX);
    PANEL->counts [IBUF] = 1;
 
-checkMpiThread;    ierr =      MPI_Type_contiguous( LEN, MPI_DOUBLE, &PANEL->dtypes[IBUF] );
+checkMpiThread    ierr =      MPI_Type_contiguous( LEN, MPI_DOUBLE, &PANEL->dtypes[IBUF] );
    if( ierr == MPI_SUCCESS )
-checkMpiThread;       ierr =   MPI_Type_commit( &PANEL->dtypes[IBUF] );
+checkMpiThread       ierr =   MPI_Type_commit( &PANEL->dtypes[IBUF] );
 
    return( ierr );
 #else
@@ -175,7 +175,7 @@ checkMpiThread;       ierr =   MPI_Type_commit( &PANEL->dtypes[IBUF] );
          type[nbufs] = MPI_DOUBLE;
          blen[nbufs] = m1;
          if( ierr == MPI_SUCCESS )
-checkMpiThread;             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
+checkMpiThread             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
  
          nbufs++; len -= m1; j1++; ibuf += m1;
 /*
@@ -189,7 +189,7 @@ checkMpiThread;             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
             type[nbufs] = MPI_DOUBLE;
             blen[nbufs] = m1;
             if( ierr == MPI_SUCCESS )
-checkMpiThread;                ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
+checkMpiThread                ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
  
             nbufs++; len -= m1; j1++; ibuf += m1;
          }
@@ -203,7 +203,7 @@ checkMpiThread;                ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] )
          type[nbufs] = MPI_DOUBLE;
          blen[nbufs] = len;
          if( ierr == MPI_SUCCESS )
-checkMpiThread;             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
+checkMpiThread             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
          nbufs++;
       }
  
@@ -214,7 +214,7 @@ checkMpiThread;             ierr =   MPI_Address( bufs[nbufs], &disp[nbufs] );
  * construct the struct type 
  */
       if( ierr == MPI_SUCCESS )
-checkMpiThread;          ierr =   MPI_Type_struct( nbufs, blen, disp, type,
+checkMpiThread          ierr =   MPI_Type_struct( nbufs, blen, disp, type,
                                    &PANEL->dtypes[IBUF] );
 /*
  * release temporaries
@@ -227,7 +227,7 @@ checkMpiThread;          ierr =   MPI_Type_struct( nbufs, blen, disp, type,
  * commit the type 
  */
       if( ierr == MPI_SUCCESS )
-checkMpiThread;          ierr =   MPI_Type_commit( &PANEL->dtypes[IBUF] );
+checkMpiThread          ierr =   MPI_Type_commit( &PANEL->dtypes[IBUF] );
 
       return( ierr );
    }

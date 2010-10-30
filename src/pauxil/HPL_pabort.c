@@ -114,7 +114,7 @@ void HPL_pabort
    (void) vsprintf( cline, FORM, argptr );
    va_end( argptr ); 
 
-checkMpiThread;    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+checkMpiThread    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 /*
  * Display an error message
  */
@@ -128,7 +128,7 @@ checkMpiThread;    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
                    "HPL ERROR", "from process #", rank, "on line", LINE,
                    "of function", SRNAME, cline );
 
-checkMpiThread;    MPI_Abort( MPI_COMM_WORLD, -1 );
+checkMpiThread    MPI_Abort( MPI_COMM_WORLD, -1 );
    exit( -1 );
 /*
  * End of HPL_pabort

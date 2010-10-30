@@ -4,7 +4,7 @@ extern void setMpiThread();
 extern void checkMpiThread_impl( const char *, int );
 
 #define checkMpiThread \
-   checkMpiThread_impl( __FILE__, __LINE__ )
+   checkMpiThread_impl( __FILE__, __LINE__ );
 #else
 #define checkMpiThread
 #endif

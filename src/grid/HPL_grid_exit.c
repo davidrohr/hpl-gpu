@@ -100,11 +100,11 @@ START_TRACE( GRID_EXIT )
  */
    if( GRID->all_comm != MPI_COMM_NULL )
    {
-checkMpiThread;       mpierr = MPI_Comm_free( &(GRID->row_comm) );
+checkMpiThread       mpierr = MPI_Comm_free( &(GRID->row_comm) );
       if( mpierr != MPI_SUCCESS ) hplerr = mpierr;
-checkMpiThread;       mpierr = MPI_Comm_free( &(GRID->col_comm) );
+checkMpiThread       mpierr = MPI_Comm_free( &(GRID->col_comm) );
       if( mpierr != MPI_SUCCESS ) hplerr = mpierr;
-checkMpiThread;       mpierr = MPI_Comm_free( &(GRID->all_comm) );
+checkMpiThread       mpierr = MPI_Comm_free( &(GRID->all_comm) );
       if( mpierr != MPI_SUCCESS ) hplerr = mpierr;
    }
 

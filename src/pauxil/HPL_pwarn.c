@@ -118,7 +118,7 @@ void HPL_pwarn
    (void) vsprintf( cline, FORM, argptr );
    va_end( argptr ); 
 
-checkMpiThread;    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+checkMpiThread    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 /*
  * Display an error message
  */

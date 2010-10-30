@@ -163,7 +163,7 @@ int HPL_bcast_mpi( PANEL, IFLAG )
    root = PANEL->pcol;        msgid = PANEL->msgid;
    size = PANEL->grid->npcol;
 
-checkMpiThread;    ierr = MPI_Bcast( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
+checkMpiThread    ierr = MPI_Bcast( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
 
 /*
  * If the message was received and being forwarded,  return HPL_SUCCESS.
@@ -199,7 +199,7 @@ int HPL_bwait_mpi( PANEL )
  * Release the arrays of request / status / data-types and buffers 
  */
 #ifdef HPL_USE_MPI_DATATYPE
-checkMpiThread;    ierr = MPI_Type_free( &PANEL->dtypes[0] );
+checkMpiThread    ierr = MPI_Type_free( &PANEL->dtypes[0] );
    return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
 #else
    return( HPL_SUCCESS );

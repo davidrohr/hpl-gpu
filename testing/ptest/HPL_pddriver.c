@@ -139,8 +139,8 @@ int main
 	return(1);
    }
 #endif
-checkMpiThread;    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-checkMpiThread;    MPI_Comm_size( MPI_COMM_WORLD, &size );
+checkMpiThread    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+checkMpiThread    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
  * Read and check validity of test parameters from input file
  *
@@ -306,7 +306,7 @@ label_end_of_npqs: ;
 #ifdef TRACE_CALLS
    releaseTraceCounters();
 #endif
-checkMpiThread;    MPI_Finalize();
+checkMpiThread    MPI_Finalize();
    exit( 0 );
 
    return( 0 );
