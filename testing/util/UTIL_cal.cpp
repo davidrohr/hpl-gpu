@@ -16,7 +16,6 @@
 
 #include <caldgemm.h>
 #include <pthread.h>
-#include <mpi.h>
 #include <errno.h>
 #include "util_cal.h"
 
