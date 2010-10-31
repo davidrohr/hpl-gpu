@@ -200,6 +200,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
 # -DHPL_CHECK_MPI_THREADS
 #                        Check that all MPI calls come from the same thread that called init
+# -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
 #
 # By default HPL will:
 #    *) not copy L before broadcast,

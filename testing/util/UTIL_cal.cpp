@@ -134,6 +134,10 @@ int CALDGEMM_Init()
 	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
 #endif
 
+#ifdef HPL_PRINT_THROTTLING_NODES
+	cal_info.GPUClock = HPL_PRINT_THROTTLING_NODES;
+#endif
+
 	int retVal = cal_dgemm.InitCALDGEMM( &cal_info );
 	
 #ifdef HPL_MPI_FUNNELED_THREADING
