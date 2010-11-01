@@ -19,7 +19,7 @@
 #include <errno.h>
 #include "util_cal.h"
 
-#define fprintfdvv	//Disable verbose verbose debug output
+#define fprintfdvv( a, b )	//Disable verbose verbose debug output
 //#define fprintfdvv fprintf
 
 
