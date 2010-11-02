@@ -382,7 +382,24 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	
 	//Main loop over the columns of A
-	for(j = 0; j < N; j += nb)
+	
+#ifdef HPL_START_PERCENTAGE
+	double fullwork = N;
+	fullwork = fullwork * fullwork * fullwork;
+	fullwork *= 1.0 - (double) HPL_START_PERCENTAGE / 100.0;
+	fullwork = pow(fullwork, 1.0 / 3.0);
+	int startrow = N - fullwork;
+	if (startrow < 0) startrow = 0;
+	startrow -= startrow % (npcol * nb);
+	if( GRID->myrow == 0 && GRID->mycol == 0 )
+	{
+	    fprintf(stderr, "Starting at col %d which corresponds to approx %2.1lf %% of execution time\n", startrow, 100.0 * (double) (N - startrow) * (double) (N - startrow) * (double) (N - startrow) / (double) N / (double) N / (double) N);
+	}
+#else
+	const int startrow = 0;
+#endif
+	
+	for(j = startrow; j < N; j += nb)
 	{
 		n = N - j;
 		jb = Mmin(n, nb);
@@ -415,7 +432,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		//Initialize current panel
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 
-		if (j == 0 || depth1 == 0)
+		if (j == startrow || depth1 == 0)
 		{
 			HPL_pdpanel_free(panel[depth1]);
 			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth1]);

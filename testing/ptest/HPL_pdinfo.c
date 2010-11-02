@@ -384,7 +384,7 @@ checkMpiThread    MPI_Comm_size( MPI_COMM_WORLD, &size );
  * Checking threshold value (TEST->thrsh)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
-#if defined(HPL_FASTINIT) & !defined(HPL_FASTVERIFY)
+#if (defined(HPL_FASTINIT) & !defined(HPL_FASTVERIFY)) | defined(HPL_START_PERCENTAGE)
       TEST->thrsh = -1;
 #else
       (void) sscanf( line, "%s", num ); TEST->thrsh = atof( num );

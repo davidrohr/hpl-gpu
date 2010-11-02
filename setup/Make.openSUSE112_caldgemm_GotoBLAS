@@ -203,6 +203,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
 # -DHPL_NO_MPI_THREAD_CHECK
 #			 HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
+# -DHPL_START_PERCENTAGE=<float>
+#			 Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
