@@ -112,7 +112,10 @@ int main
 /* ..
  * .. Executable Statements ..
  */
-   //MPI_Init( &ARGC, &ARGV );
+   setMpiThread();
+#ifdef HPL_NO_MPI_THREAD_CHECK
+   MPI_Init( &ARGC, &ARGV );
+#else
    int mpiavail = 0;
    
 #ifdef HPL_MPI_FUNNELED_THREADING
@@ -121,7 +124,6 @@ int main
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
    
-   setMpiThread();
    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
@@ -132,6 +134,8 @@ int main
 	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
+#endif
+
 #ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())
    {
