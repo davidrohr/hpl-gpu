@@ -31,6 +31,24 @@
 /**
  * Retrieves a timestamt that never walks backwards.
  *
+ * Use util_getTimeDifference to compare Walltimes
+ */
+uint64_t util_getWalltime( )
+{
+        struct timespec now;
+        clock_gettime( CLOCK_REALTIME, &now );
+
+        long nanos = now.tv_nsec;
+        time_t seconds = now.tv_sec;
+
+        uint64_t mus = ((uint64_t) seconds ) * 1000 * 1000 + nanos / 1000;
+
+        return mus;
+}
+
+/**
+ * Retrieves a timestamt that never walks backwards.
+ *
  * Use util_getTimeDifference to compare Timestamps
  */
 uint64_t util_getTimestamp( )

@@ -311,8 +311,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			if( seconds != 0 && j != 0 )
 			{
 				uint64_t eta = seconds / ratio - seconds;
+				uint64_t wall_now = util_getWalltime() / 1e3;
 				//printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
-				printf( "%.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, j, N, flops, eta );
+				printf( "[%ld] %.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", wall_now, ratio * 100, j, N, flops, eta );
 			}
 		}
 #endif /* HPL_PRINT_INTERMEDIATE */

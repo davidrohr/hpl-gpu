@@ -24,6 +24,12 @@ extern "C" {
 #endif
 
 /**
+ * Retrieves Timestamp in museconds since the Epoch
+ * ( can walk backwards )
+ */
+uint64_t util_getWalltime( );
+
+/**
  * Retrieves a timestamt that never walks backwards.
  *
  * Use util_getTimeDifference to compare Timestamps
