@@ -156,19 +156,19 @@ int HPL_bcast_2rinM
  
    if( rank == root )
    {
-      ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid, comm );
+checkMpiThread       ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid, comm );
 
       if( ( ierr == MPI_SUCCESS ) && ( size > 2 ) )
       {
          if( MModAdd1( next, size ) != roo2 )
          {
-            ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE,
+checkMpiThread             ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE,
                              MModAdd1( next, size ), msgid, comm );
          }
 
          if( ierr == MPI_SUCCESS )
          {
-            ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, roo2, msgid,
+checkMpiThread             ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, roo2, msgid,
                              comm );
          }
       }
@@ -180,18 +180,18 @@ int HPL_bcast_2rinM
           ( MModSub1( prev,  size )  == root ) ) partner = root;
       else                                       partner = prev;
  
-      ierr = MPI_Iprobe( partner, msgid, comm, &go, &PANEL->status[0] );
+checkMpiThread       ierr = MPI_Iprobe( partner, msgid, comm, &go, &PANEL->status[0] );
 
       if( ierr == MPI_SUCCESS )
       {
          if( go != 0 )
          {
-            ierr = MPI_Recv( _M_BUFF, _M_COUNT, _M_TYPE, partner, msgid,
+checkMpiThread             ierr = MPI_Recv( _M_BUFF, _M_COUNT, _M_TYPE, partner, msgid,
                              comm, &PANEL->status[0] );
             if( ( ierr == MPI_SUCCESS ) && ( prev != root ) &&
                 ( next != roo2        ) && ( next != root ) )
             {
-               ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid,
+checkMpiThread                ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid,
                                 comm );
             }
          }
@@ -227,7 +227,7 @@ int HPL_bwait_2rinM
  * Release the arrays of request / status / data-types and buffers
  */
 #ifdef HPL_USE_MPI_DATATYPE
-   ierr = MPI_Type_free( &PANEL->dtypes[0] );
+checkMpiThread    ierr = MPI_Type_free( &PANEL->dtypes[0] );
  
    return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
 #else

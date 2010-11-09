@@ -196,6 +196,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #                        show how much memory the matrix uses per node on average
 # -DHPL_NO_PERFORMANCE_WARNINGS
 #                        Suppress performance warnings from CALDGEMM library
+# -DHPL_CHECK_MPI_THREADS
+#                        Check that all MPI calls come from the same thread that called init
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -206,7 +208,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_NO_PERFORMANCE_WARNINGS -DHPL_FASTINIT -DHPL_FASTVERIFY #-DTRACE_CALLS
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_NO_PERFORMANCE_WARNINGS -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_CHECK_MPI_THREADS #-DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

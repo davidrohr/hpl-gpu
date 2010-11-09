@@ -21,6 +21,12 @@
 
 #include "glibc_hacks.h"
 
+#define USE_DIES 4
+#define USE_CORES 3
+#define CORE_COUNT 6
+
+#define RESTRICT_CORES
+
 namespace
 {
     class HPL_init_laswp_foo
@@ -33,18 +39,25 @@ namespace
     {
         const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         int num_threads = tbb::task_scheduler_init::automatic;
+        
+#ifndef RESTRICT_CORES
         if (num_threads_string) {
             num_threads = atoi(num_threads_string);
-            fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
+            //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
         } else {
-            fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
+            //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
         }
+#else
+        num_threads = USE_DIES * USE_CORES;
+#endif
 
         // before we init TBB we must make sure that we are not pinned to a CPU
         cpu_set_t oldmask;
         sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
         cpu_set_t fullMask;
         CPU_ZERO(&fullMask);
+
+#ifndef RESTRICT_CORES
         for (int i = 0; i < 64; ++i) {
             CPU_SET(i, &fullMask);
         }
@@ -53,14 +66,23 @@ namespace
                 && std::strcmp("1", std::getenv("LASWP_PIN_WORKER_THREADS")) == 0) {
             CPU_XOR(&fullMask, &fullMask, &oldmask);
         }
+#else
+        for (int i = 0;i < USE_DIES;i++)
+        {
+    	    for (int j = 0;j < USE_CORES;j++)
+    	    {
+    		CPU_SET(i * CORE_COUNT + CORE_COUNT - j - 1, &fullMask);
+    	    }
+    	}
+#endif
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
         sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
 
-        fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
+        //fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
         static tbb::task_scheduler_init init(num_threads);
         tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
 
-        fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
+        //fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
         sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 
         return 0;

@@ -64,7 +64,7 @@
  */
 #include "hpl.h"
 
-void HPL_pdlaswp01T
+int* HPL_pdlaswp01T
 (
    HPL_T_panel *                    PANEL,
    const int                        NN
@@ -117,7 +117,7 @@ void HPL_pdlaswp01T
 
    n = PANEL->n; n = Mmin( NN, n ); jb = PANEL->jb;
    //Quick return if there is nothing to do
-   if( ( n <= 0 ) || ( jb <= 0 ) ) return;
+   if( ( n <= 0 ) || ( jb <= 0 ) ) return(NULL);
    const int LDU = n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8;
    //fprintf(stderr, "LASWP %d %d\n", n, LDU);
 
@@ -174,5 +174,6 @@ void HPL_pdlaswp01T
    /* Rolling phase */
    HPL_rollT( PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
    /* Permute U in every process row */
-   HPL_dlaswp10N( n, jb, U, LDU, permU );
+   //HPL_dlaswp10N( n, jb, U, LDU, permU ); //Moved into caldgemm callback
+   return(permU);
 }

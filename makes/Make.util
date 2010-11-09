@@ -69,7 +69,8 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_utilobj       = \
-   UTIL_timer.o            UTIL_trace.o      UTIL_cal.o
+   UTIL_timer.o            UTIL_trace.o      UTIL_cal.o \
+   UTIL_threadcheck.o
 #
 ## Targets #############################################################
 #
@@ -90,6 +91,8 @@ UTIL_trace.o    : ../UTIL_trace.c    $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../UTIL_trace.c
 UTIL_cal.o    : ../UTIL_cal.cpp    $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_cal.cpp
+UTIL_threadcheck.o    : ../UTIL_threadcheck.cpp    $(INCdep)
+	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_threadcheck.cpp
 #
 # ######################################################################
 #

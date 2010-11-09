@@ -12,4 +12,4 @@
 libgoto2*.a
 libgoto2*.so
 
-build.sh
+*.sh

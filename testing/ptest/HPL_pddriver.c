@@ -112,7 +112,10 @@ int main
 /* ..
  * .. Executable Statements ..
  */
-   //MPI_Init( &ARGC, &ARGV );
+   setMpiThread();
+#ifdef HPL_NO_MPI_THREAD_CHECK
+   MPI_Init( &ARGC, &ARGV );
+#else
    int mpiavail = 0;
    
 #ifdef HPL_MPI_FUNNELED_THREADING
@@ -128,9 +131,11 @@ int main
    }
    if (mpiavail != MPI_REQUIRE_THREAD_SAFETY)
    {
-	printf("No Multithreaded MPI available\n");
+	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
+#endif
+
 #ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())
    {
@@ -138,8 +143,8 @@ int main
 	return(1);
    }
 #endif
-   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-   MPI_Comm_size( MPI_COMM_WORLD, &size );
+checkMpiThread    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+checkMpiThread    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
  * Read and check validity of test parameters from input file
  *
@@ -191,7 +196,7 @@ int main
           ( mycol < 0 ) || ( mycol >= npcol ) ) goto label_end_of_npqs;
 
 #ifdef HPL_CALL_CALDGEMM
-      CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq]);
+      CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq], grid.iam);
 #endif
 
       for( in = 0; in < ns; in++ )
@@ -305,7 +310,7 @@ label_end_of_npqs: ;
 #ifdef TRACE_CALLS
    releaseTraceCounters();
 #endif
-   MPI_Finalize();
+checkMpiThread    MPI_Finalize();
    exit( 0 );
 
    return( 0 );

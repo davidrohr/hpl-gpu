@@ -133,16 +133,19 @@ START_TRACE( RECV )
    if( RCOUNT <= 0 ) return( HPL_SUCCESS );
 
 #ifdef HPL_USE_MPI_DATATYPE
-   ierr =      MPI_Type_contiguous( RCOUNT, MPI_DOUBLE, &type );
-   if( ierr == MPI_SUCCESS )
-      ierr =   MPI_Type_commit( &type );
-   if( ierr == MPI_SUCCESS )
-      ierr =   MPI_Recv( (void *)(RBUF), 1, type, SRC, RTAG, COMM,
+checkMpiThread    ierr =      MPI_Type_contiguous( RCOUNT, MPI_DOUBLE, &type );
+   if( ierr == MPI_SUCCESS ) {
+checkMpiThread       ierr =   MPI_Type_commit( &type );
+   }
+   if( ierr == MPI_SUCCESS ) {
+checkMpiThread       ierr =   MPI_Recv( (void *)(RBUF), 1, type, SRC, RTAG, COMM,
                          &status );
-   if( ierr == MPI_SUCCESS )
-      ierr =   MPI_Type_free( &type );
+   }
+   if( ierr == MPI_SUCCESS ) {
+checkMpiThread       ierr =   MPI_Type_free( &type );
+   }
 #else
-   ierr = MPI_Recv( (void *)(RBUF), RCOUNT, MPI_DOUBLE, SRC, RTAG,
+checkMpiThread    ierr = MPI_Recv( (void *)(RBUF), RCOUNT, MPI_DOUBLE, SRC, RTAG,
                     COMM, &status );
 #endif
 

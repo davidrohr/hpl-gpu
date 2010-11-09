@@ -190,7 +190,7 @@ void HPL_pdrpancrN
       if( curr != 0 )
       {
          HPL_dlacpy( ioff, jb, Mptr( L1, 0, ioff, n0 ), n0,
-                     Mptr( A, 0, ioff, lda ), lda );
+                     Mptr( A, 0, ioff, lda ), lda, 1 );
          ii += jb; m -= jb;
       }
       jj += jb; jb = Mmin( n, nb );
