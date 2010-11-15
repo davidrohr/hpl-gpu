@@ -121,8 +121,12 @@ int CALDGEMM_Init()
 	cal_info.NoPerformanceWarnings = CAL_TRUE;
 #endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
-	cal_info.KeepBuffersMapped = CAL_TRUE;
 	
+#ifdef HPL_NO_HACKED_LIB
+	cal_info.KeepBuffersMapped = CAL_FALSE;
+#else
+	cal_info.KeepBuffersMapped = CAL_TRUE;
+#endif
 	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
 	cal_info.PreOut = PreOutput;
 

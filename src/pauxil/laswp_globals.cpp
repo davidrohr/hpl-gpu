@@ -67,13 +67,24 @@ namespace
             CPU_XOR(&fullMask, &fullMask, &oldmask);
         }
 #else
-        for (int i = 0;i < USE_DIES;i++)
+
+#include "caldgemm/caldgemm_config.h"
+#ifdef HPL_NO_HACKED_LIB
+	for (int i = CALDGEMM_OUTPUT_THREADS_SLOW + 2;i < 64;i+=2)
+#else
+	for (int i = CALDGEMM_OUTPUT_THREADS + 2;i < 64;i+=2)
+#endif
+	{
+		CPU_SET(i, &fullmask);
+	}
+
+/*        for (int i = 0;i < USE_DIES;i++)
         {
     	    for (int j = 0;j < USE_CORES;j++)
     	    {
     		CPU_SET(i * CORE_COUNT + CORE_COUNT - j - 1, &fullMask);
     	    }
-    	}
+    	}*/
 #endif
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
         sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
