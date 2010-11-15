@@ -26,6 +26,7 @@
 #define CORE_COUNT 6
 
 #define RESTRICT_CORES
+#include "../../caldgemm/caldgemm_config.h"
 
 namespace
 {
@@ -68,14 +69,13 @@ namespace
         }
 #else
 
-#include "caldgemm/caldgemm_config.h"
 #ifdef HPL_NO_HACKED_LIB
 	for (int i = CALDGEMM_OUTPUT_THREADS_SLOW + 2;i < 64;i+=2)
 #else
 	for (int i = CALDGEMM_OUTPUT_THREADS + 2;i < 64;i+=2)
 #endif
 	{
-		CPU_SET(i, &fullmask);
+		CPU_SET(i, &fullMask);
 	}
 
 /*        for (int i = 0;i < USE_DIES;i++)
