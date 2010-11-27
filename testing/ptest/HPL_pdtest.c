@@ -97,7 +97,7 @@ void* fastmatgen_slave(void* arg)
    for (size_t i = 0;i < size;i++)
    {
 	fastrand_num = (fastrand_num * fastrand_mul + fastrand_add) % fastrand_mod;
-	A[i] = (double) 0.5 + (double) fastrand_num / (double)fastrand_mod;
+	A[i] = (double) -0.5 + (double) fastrand_num / (double)fastrand_mod;
    }
    
    
