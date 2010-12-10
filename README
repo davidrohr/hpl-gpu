@@ -1,32 +1,31 @@
 ==============================================================
- High Performance Computing Linpack Benchmark (HPL)
- HPL 2.0 - September 10, 2008
+ High Performance Computing Linpack Benchmark (HPL-GPU)
+ HPL-GPU - 1.0 - 2010
 ==============================================================
 
- HPL is a software package that solves a (random) dense linear
- system  in   double  precision  (64   bits)   arithmetic   on 
- distributed-memory  computers.   It can thus be regarded as a
- portable as well as  freely  available implementation  of the
- High Performance Computing Linpack Benchmark.
+ This is a largely rewritten version of the traditional High
+ Performance Linpack as published on netlib.org. It has been
+ modified to make use of modern multi-core CPUs, enhanced
+ lookahead and a high performance DGEMM for AMD Cypress GPUs.
 
- The  HPL  software  package requires the availibility on your
- system of an implementation of the  Message Passing Interface
- MPI  (1.1 compliant).  An  implementation of either the Basic
- Linear Algebra Subprograms  BLAS  or the  Vector Signal Image
- Processing Library VSIPL is also needed.  Machine-specific as
- well as generic implementations of MPI, the  BLAS  and  VSIPL
- are available for a large variety of systems.
+ See http://code.compeng.uni-frankfurt.de/projects/hpl for 
+ detailed and up to date informaion.
 
- Install See the file INSTALL in this directory.
+ Install
  -------
+ See the wiki at
+ http://code.compeng.uni-frankfurt.de/projects/hpl/wiki
 
- Tuning  See the file TUNING in this directory.
+ Tuning
  ------
+ See the guidelines for legacy HPL at
+ http://netlib.org/benchmark/hpl/tuning.html
+ and the Technical report on CALDGEMM at
+ http://code.compeng.uni-frankfurt.de/documents/1
 
- Bugs  Known  problems and bugs with this release are documen-
- ----  ted in the file hpl/BUGS.
+ Bugs
+ ----
+ Are tracked at
+ http://code.compeng.uni-frankfurt.de/projects/hpl/issues
 
- Check out  the website  www.netlib.org/benchmark/hpl  for the
- latest information.
-
-==============================================================
+=============================================================
