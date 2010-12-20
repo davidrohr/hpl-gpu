@@ -525,6 +525,14 @@ checkMpiThread    MPI_Comm_size( MPI_COMM_WORLD, &size );
                        "Value of DEPTH less than 0 or greater than 2" );
             error = 1; goto label_error;
          }
+#ifndef HPL_CALL_CALDGEMM
+	if (DH[i] != 0)
+	{
+            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
+                       "Value of DEPTH not equal 0 not supported without CALDGEMM" );
+            error = 1; goto label_error;
+	}
+#endif
       }
 /*
  * Memory alignment in bytes (> 0) (ALIGN)
