@@ -35,6 +35,8 @@
  * requirement of acknowledgement in advertising materials will apply to
  * the combination as such.
  */
+ 
+#ifdef HPL_CALL_CALDGEMM
 
 #include <caldgemm.h>
 #include <pthread.h>
@@ -53,7 +55,7 @@ extern "C"
 	extern void HPL_CALDGEMM_wrapper_swap();
 }
 
-static caldgemm::SampleInfo cal_info;
+static caldgemm::caldgemm_config cal_info;
 static caldgemm cal_dgemm;
 char PreOutput[64] = "";
 
@@ -332,3 +334,17 @@ void CALDGEMM_enable_async_laswp(int enable)
 {
 	cal_info.LinpackSwapN = enable ? &HPL_CALDGEMM_swap_current_n : NULL;
 }
+#else
+#include <stdlib.h>
+extern "C" void CALDGEMM_free(void* ptr);
+extern "C" void* CALDGEMM_alloc(size_t size);
+
+void CALDGEMM_free(void* ptr)
+{
+    free(ptr);
+}
+void* CALDGEMM_alloc(size_t size)
+{
+    return malloc(size);
+}
+#endif
