@@ -115,6 +115,7 @@
  * ---------------------------------------------------------------------
  */ 
 
+#ifdef HPL_CALL_CALDGEMM
 extern volatile size_t HPL_CALDGEMM_swap_current_n;
 volatile size_t HPL_CALDGEMM_swap_current_n;
 
@@ -124,6 +125,7 @@ HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
 size_t HPL_CALDGEMM_wrapper_laswp_stepsize;
+#endif
 
 int* permU = NULL;
 
@@ -161,6 +163,10 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	double* L1ptr = panel->L1;
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	int* ipiv = panel->IWORK;
+	
+#ifndef HPL_CALL_CALDGEMM
+	const size_t HPL_CALDGEMM_wrapper_laswp_stepsize = n;
+#endif
 
 #ifndef CALDGEMM_TEST_DEBUG
 	HPL_ptimer_detail( HPL_TIMING_DTRSM );
@@ -168,8 +174,12 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int nremain = n;
 	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
 	{
+#ifdef HPL_CALL_CALDGEMM
 		if (i) HPL_CALDGEMM_wrapper_laswp_stepsize *= 3;
-		int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+#else
+		const int nn = nremain;
+#endif
 		nremain -= nn;
 
 #ifdef CALDGEMM_TEST_DEBUG
@@ -198,7 +208,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
 #endif
+#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
+#endif
 		
 		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
@@ -238,6 +250,8 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	fprintfctd(stderr, "Broadcast Ended\n");
 }
 
+#ifdef HPL_CALL_CALDGEMM
+
 void HPL_CALDGEMM_wrapper_factorize()
 {
 	HPL_pdgesv_factorize(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
@@ -250,6 +264,8 @@ void HPL_CALDGEMM_wrapper_swap()
 {
 	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel_work, HPL_CALDGEMM_wrapper_n);
 }
+
+#endif
 
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize, int depth2)
 {
@@ -283,13 +299,15 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	if (n)
 	{
+#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_wrapper_n = n;
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
-
+#endif
 		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
+#ifdef HPL_CALL_CALDGEMM
 		if (depth2 && n >= 56 * 1024)
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = 5120;
@@ -299,20 +317,29 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = n;
 		    CALDGEMM_enable_async_laswp(0);
+#endif
 		    HPL_pdgesv_swap(Grid, PANEL, n);
+#ifdef HPL_CALL_CALDGEMM
 		}
+#endif
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
+#ifdef HPL_CALL_CALDGEMM
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
+#else
+		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
+#endif
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		
-		/*if (factorize != -1)
+#ifndef HPL_CALL_CALDGEMM
+		if (factorize != -1)
 		{
 			HPL_pdgesv_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
 			HPL_pdgesv_broadcast(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
-		}*/
+		}
+#endif
 
 		if (PANEL->grid->nprow != 1 && curr != 0)
 		{
