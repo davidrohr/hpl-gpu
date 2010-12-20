@@ -44,12 +44,14 @@
 
 #include "glibc_hacks.h"
 
+#ifdef HPL_CALL_CALDGEMM
 #define USE_DIES 4
 #define USE_CORES 3
 #define CORE_COUNT 6
 
 #define RESTRICT_CORES
 #include "../../caldgemm/caldgemm_config.h"
+#endif
 
 namespace
 {
