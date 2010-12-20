@@ -83,54 +83,59 @@ class dlaswp06T_impl
                 double *u2 = &u[columns];
                 j = (j - columns) * 0x15;
                 long tmp1;
+#ifdef HPL_HAVE_PREFETCHW
+#define HPL_PREFETCHW "prefetchw"
+#else
+#define HPL_PREFETCHW "prefetchnta"
+#endif
                 asm volatile(
                     "lea 0x6(%%rip), %[tmp1]\n"
                     "lea (%[tmp1], %[tmp0], 1), %[tmp1]\n"
                     "jmpq *%[tmp1]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x38(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x38(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x30(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x30(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x28(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x28(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x20(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x20(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x18(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x18(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x10(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
                     "mov %[tmp0], -0x10(%[u])\n"
                     "add %[LDA], %[a]\n"
 
-                    "prefetchw (%[a],%[aNext],1)\n"
+                    HPL_PREFETCHW " (%[a],%[aNext],1)\n"
                     "mov (%[a]), %[tmp0]\n"
                     "mov -0x8(%[u]), %[tmp1]\n"
                     "mov %[tmp1], (%[a])\n"
