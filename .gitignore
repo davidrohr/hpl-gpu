@@ -2,6 +2,9 @@
 /Make.*
 !/Make.top
 
+# Ignore autodownloaded stuff
+/include/tbb
+
 # Ignore build directories
 /bin/
 /lib/
