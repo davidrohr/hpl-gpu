@@ -59,12 +59,6 @@ include Make.inc
 # ######################################################################
 #
 
-$(INCdir)/tbb/tbb.h:
-	cd $(INCdir) && mkdir build_tbb && cd build_tbb && \
-	wget 'http://www.threadingbuildingblocks.org/uploads/78/162/3.0%20update%204/tbb30_127oss_src.tgz' && \
-	tar -xf tbb30_127oss_src.tgz && cd tbb30_127oss && $(MAKE) && cp -a include/tbb $(INCdir)/ && \
-	cp build/linux_*_release/lib*.so* $(TOPdir)/lib && cd ../.. && rm -rf build_tbb
-
 INCdep           = \
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_blas.h   $(INCdir)/hpl_auxil.h \
    $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h   $(INCdir)/hpl_pauxil.h \
