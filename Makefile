@@ -56,7 +56,7 @@
 #
 SHELL            = /bin/sh
 #
-arch             = UNKNOWN
+arch             ?= UNKNOWN
 #
 ## Targets #############################################################
 #
