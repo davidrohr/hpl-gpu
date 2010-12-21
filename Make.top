@@ -53,10 +53,12 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ======================================================================
-#
+
 arch             = UNKNOWN
-#
+VERSION          = 1.0.1
+
 export TOPdir       := $(CURDIR)
+
 # check if we have a non-default setup file
 ifeq ($(strip $(wildcard Make.$(arch))),)
 export setupmake=$(TOPdir)/setup/Make.$(arch)
@@ -66,19 +68,19 @@ endif
 include $(setupmake)
 
 startup_dir      :
-	$(MKDIR) -p include/$(arch)
-	$(MKDIR) -p lib/$(arch)
-	$(MKDIR) -p bin/$(arch)
+	@$(MKDIR) -p include/$(arch)
+	@$(MKDIR) -p lib/$(arch)
+	@$(MKDIR) -p bin/$(arch)
 
 src/%/$(arch)/Makefile: makes/Make.%
-	@$(MKDIR) -p `dirname $@`
+	@$(MKDIR) -p $(@D)
 	@$(RM) $@
-	@$(CP) $< $@
+	$(CP) $< $@
 
 testing/%/$(arch)/Makefile: makes/Make.%
-	@$(MKDIR) -p `dirname $@`
+	@$(MKDIR) -p $(@D)
 	@$(RM) $@
-	@$(CP) $< $@
+	$(CP) $< $@
 
 refresh_src: src/auxil/$(arch)/Makefile src/blas/$(arch)/Makefile \
 		src/comm/$(arch)/Makefile src/grid/$(arch)/Makefile \
@@ -90,21 +92,25 @@ refresh_tst: testing/matgen/$(arch)/Makefile testing/pmatgen/$(arch)/Makefile \
 		testing/util/$(arch)/Makefile
 
 build_src: refresh_src
-	$(MAKE) -C src/auxil/$(arch)
-	$(MAKE) -C src/blas/$(arch)
-	$(MAKE) -C src/comm/$(arch)
-	$(MAKE) -C src/grid/$(arch)
-	$(MAKE) -C src/panel/$(arch)
-	$(MAKE) -C src/pauxil/$(arch)
-	$(MAKE) -C src/pfact/$(arch)
-	$(MAKE) -C src/pgesv/$(arch)
+	@$(MAKE) -C src/auxil/$(arch)
+	@$(MAKE) -C src/blas/$(arch)
+	@$(MAKE) -C src/comm/$(arch)
+	@$(MAKE) -C src/grid/$(arch)
+	@$(MAKE) -C src/panel/$(arch)
+	@$(MAKE) -C src/pauxil/$(arch)
+	@$(MAKE) -C src/pfact/$(arch)
+	@$(MAKE) -C src/pgesv/$(arch)
 
 build_tst: refresh_tst
-	$(MAKE) -C testing/matgen/$(arch)
-	$(MAKE) -C testing/pmatgen/$(arch)
-	$(MAKE) -C testing/ptimer/$(arch)
-	$(MAKE) -C testing/util/$(arch)
-	$(MAKE) -C testing/ptest/$(arch)
+	@$(MAKE) -C testing/matgen/$(arch)
+	@$(MAKE) -C testing/pmatgen/$(arch)
+	@$(MAKE) -C testing/ptimer/$(arch)
+	@$(MAKE) -C testing/util/$(arch)
+	@$(MAKE) -C testing/ptest/$(arch)
+	@echo "================================================================================"
+	@echo " HPL-GPU $(VERSION) build successfully completed."
+	@echo " You can find the executable in $(TOPdir)/bin/$(arch)/xhpl"
+	@echo "================================================================================"
 
 ## clean ###############################################################
 #
