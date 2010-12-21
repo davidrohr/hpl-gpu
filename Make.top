@@ -56,79 +56,56 @@
 #
 arch             = UNKNOWN
 #
-TOPdir       := $(CURDIR)
+export TOPdir       := $(CURDIR)
 # check if we have a non-default setup file
 ifeq ($(strip $(wildcard Make.$(arch))),)
-include setup/Make.$(arch)
+export setupmake=$(TOPdir)/setup/Make.$(arch)
 else
-include Make.$(arch)
+export setupmake=$(TOPdir)/Make.$(arch)
 endif
-#
-## build ###############################################################
-#
-build_src        :
-	( $(CD) src/auxil/$(arch);         $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/blas/$(arch);          $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/comm/$(arch);          $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/grid/$(arch);          $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/panel/$(arch);         $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/pauxil/$(arch);        $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/pfact/$(arch);         $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) src/pgesv/$(arch);         $(MAKE) TOPdir=$(TOPdir))
-#
-build_tst        :
-	( $(CD) testing/matgen/$(arch);    $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) testing/pmatgen/$(arch);   $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) testing/ptimer/$(arch);    $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) testing/util/$(arch);      $(MAKE) TOPdir=$(TOPdir))
-	( $(CD) testing/ptest/$(arch);     $(MAKE) TOPdir=$(TOPdir))
-#( SPMS_make_cd`' testing/test/$(arch);      SPMS_make_make`' )
-#
-## startup #############################################################
-#
+include $(setupmake)
+
 startup_dir      :
 	$(MKDIR) -p include/$(arch)
 	$(MKDIR) -p lib/$(arch)
 	$(MKDIR) -p bin/$(arch)
-#
-startup_src      :
-	- $(MAKE) -f Make.top leaf le=src/auxil       arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/blas        arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/comm        arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/grid        arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/panel       arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/pauxil      arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/pfact       arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=src/pgesv       arch=$(arch)
-#
-startup_tst      :
-	- $(MAKE) -f Make.top leaf le=testing/matgen  arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=testing/pmatgen arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=testing/ptimer  arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=testing/ptest   arch=$(arch)
-	- $(MAKE) -f Make.top leaf le=testing/util   arch=$(arch)
-#- SPMS_make_make`' -f Make.top leaf le=testing/test    arch=$(arch)
-#
-## refresh #############################################################
-#
-refresh_src      :
-	- $(CP) makes/Make.auxil    src/auxil/$(arch)/Makefile
-	- $(CP) makes/Make.blas     src/blas/$(arch)/Makefile
-	- $(CP) makes/Make.comm     src/comm/$(arch)/Makefile
-	- $(CP) makes/Make.grid     src/grid/$(arch)/Makefile
-	- $(CP) makes/Make.panel    src/panel/$(arch)/Makefile
-	- $(CP) makes/Make.pauxil   src/pauxil/$(arch)/Makefile
-	- $(CP) makes/Make.pfact    src/pfact/$(arch)/Makefile
-	- $(CP) makes/Make.pgesv    src/pgesv/$(arch)/Makefile
-#
-refresh_tst      :
-	- $(CP) makes/Make.matgen   testing/matgen/$(arch)/Makefile
-	- $(CP) makes/Make.pmatgen  testing/pmatgen/$(arch)/Makefile
-	- $(CP) makes/Make.ptimer   testing/ptimer/$(arch)/Makefile
-	- $(CP) makes/Make.ptest    testing/ptest/$(arch)/Makefile
-	- $(CP) makes/Make.util    testing/util/$(arch)/Makefile
-#- SPMS_make_cp`' makes/Make.test     testing/test/$(arch)/Makefile
-#
+
+src/%/$(arch)/Makefile: makes/Make.%
+	@$(MKDIR) -p `dirname $@`
+	@$(RM) $@
+	@$(CP) $< $@
+
+testing/%/$(arch)/Makefile: makes/Make.%
+	@$(MKDIR) -p `dirname $@`
+	@$(RM) $@
+	@$(CP) $< $@
+
+refresh_src: src/auxil/$(arch)/Makefile src/blas/$(arch)/Makefile \
+		src/comm/$(arch)/Makefile src/grid/$(arch)/Makefile \
+		src/panel/$(arch)/Makefile src/pauxil/$(arch)/Makefile \
+		src/pfact/$(arch)/Makefile src/pgesv/$(arch)/Makefile
+
+refresh_tst: testing/matgen/$(arch)/Makefile testing/pmatgen/$(arch)/Makefile \
+		testing/ptimer/$(arch)/Makefile testing/ptest/$(arch)/Makefile \
+		testing/util/$(arch)/Makefile
+
+build_src: refresh_src
+	$(MAKE) -C src/auxil/$(arch)
+	$(MAKE) -C src/blas/$(arch)
+	$(MAKE) -C src/comm/$(arch)
+	$(MAKE) -C src/grid/$(arch)
+	$(MAKE) -C src/panel/$(arch)
+	$(MAKE) -C src/pauxil/$(arch)
+	$(MAKE) -C src/pfact/$(arch)
+	$(MAKE) -C src/pgesv/$(arch)
+
+build_tst: refresh_tst
+	$(MAKE) -C testing/matgen/$(arch)
+	$(MAKE) -C testing/pmatgen/$(arch)
+	$(MAKE) -C testing/ptimer/$(arch)
+	$(MAKE) -C testing/util/$(arch)
+	$(MAKE) -C testing/ptest/$(arch)
+
 ## clean ###############################################################
 #
 clean_src        :
@@ -195,21 +172,3 @@ clean_guard_tst  :
 	- ( $(CD) testing/ptimer/$(arch);  $(RM) *.grd )
 	- ( $(CD) testing/ptest/$(arch);   $(RM) *.grd )
 	- ( $(CD) testing/util/$(arch);   $(RM) *.grd )
-#- ( SPMS_make_cd`' testing/test/$(arch);    SPMS_make_rm`' *.grd )
-#
-## misc ################################################################
-#
-# allow override file
-ifeq ($(strip $(wildcard Make.$(arch))),)
-leaf             :
-	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
-	- ( $(CD) $(le)/$(arch) ; \
-            $(LN_S) $(TOPdir)/setup/Make.$(arch) Make.inc )
-else
-leaf             :
-	- ( $(CD) $(le) ; $(MKDIR) $(arch) )
-	- ( $(CD) $(le)/$(arch) ; \
-            $(LN_S) $(TOPdir)/Make.$(arch) Make.inc )
-endif
-#
-########################################################################

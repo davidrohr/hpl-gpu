@@ -64,18 +64,10 @@ all              : install
 #
 # ######################################################################
 #
-install          : startup refresh build
+install          : startup build
 #
 startup          :
 	$(MAKE) -f Make.top startup_dir     arch=$(arch)
-	$(MAKE) -f Make.top startup_src     arch=$(arch)
-	$(MAKE) -f Make.top startup_tst     arch=$(arch)
-	$(MAKE) -f Make.top refresh_src     arch=$(arch)
-	$(MAKE) -f Make.top refresh_tst     arch=$(arch)
-#
-refresh          :
-	$(MAKE) -f Make.top refresh_src     arch=$(arch)
-	$(MAKE) -f Make.top refresh_tst     arch=$(arch)
 #
 build            :
 	$(MAKE) -f Make.top build_src       arch=$(arch)
