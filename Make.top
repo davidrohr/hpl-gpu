@@ -133,6 +133,7 @@ build_tst: refresh_tst
 	@echo "  Verify that MPI calls are from the main thread:           $(call isenabled,-DHPL_CHECK_MPI_THREADS)"
 	@echo "  Skip MPI thread capabilities check; just call MPI_Init:   $(call isenabled,-DHPL_NO_MPI_THREAD_CHECK)"
 	@echo "  Do not use the hacked ATI lib:                            $(call isenabled,-DHPL_NO_HACKED_LIB)"
+	@echo "  Use PREFETCHW instruction (AMD CPUs only):                $(call isenabled,-DHPL_HAVE_PREFETCHW)"
 	@echo "  GPU clock (for throttling detection):                     $(or $(subst -DHPL_PRINT_THROTTLING_NODES=,,$(filter -DHPL_PRINT_THROTTLING_NODES=%,$(HPL_DEFS))),default)"
 	@echo "  Start the run at:                                         $(or $(subst -DHPL_START_PERCENTAGE=,,$(filter -DHPL_START_PERCENTAGE=%,$(HPL_DEFS))), 0)%"
 	@echo "================================================================================"
