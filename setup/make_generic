@@ -84,7 +84,6 @@ sed -e 's%@SHELL@%/bin/sh%' \
     -e 's%@MPDIR@%%' \
     -e 's%@MPINC@%%' \
     -e 's%@MPLIB@%%' \
-    -e 's%@F2CDEFS@%-DAdd_ -DF77_INTEGER=int -DStringSunStyle%' \
     -e 's%@LADIR@%%' \
     -e 's%@LAINC@%%' \
     -e 's%@LALIB@%-lblas%' \

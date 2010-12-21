@@ -101,68 +101,13 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-GOTOdir      = $(TOPdir)/GotoBLAS2
+GOTOdir      = $(HOME)/GotoBLAS2
 GOTOlib      = $(GOTOdir)/libgoto2.a
-CALDGEMMdir  = $(TOPdir)/caldgemm
+CALDGEMMdir  = $(HOME)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
-CALDGEMMutil  = $(CALDGEMMdir)/calutil.o
 LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
-LAlib        = $(CALDGEMMlib) $(CALDGEMMutil) $(GOTOlib) -laticalrt -laticalcl
+LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
 
-.DEFAULT_GOAL := all
-
-$(GOTOlib): $(GOTOdir)/*.h $(GOTOdir)/*.c $(GOTOdir)/interface/* $(GOTOdir)/kernel/x86_64/* $(GOTOdir)/driver/*/*
-	pushd $(GOTOdir); $(MAKE); popd
-
-$(CALDGEMMlib): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
-	pushd $(CALDGEMMdir); $(MAKE); popd
-
-$(CALDGEMMutil): $(CALDGEMMdir)/*.h $(CALDGEMMdir)/*.cpp $(CALDGEMMdir)/*.il $(GOTOlib)
-	pushd $(CALDGEMMdir); $(MAKE); popd
-
-build_src: $(GOTOlib) $(CALDGEMMlib) $(CALDGEMMutil)
-
-#
-# ----------------------------------------------------------------------
-# - F77 / C interface --------------------------------------------------
-# ----------------------------------------------------------------------
-# You can skip this section  if and only if  you are not planning to use
-# a  BLAS  library featuring a Fortran 77 interface.  Otherwise,  it  is
-# necessary  to  fill out the  F2CDEFS  variable  with  the  appropriate
-# options.  **One and only one**  option should be chosen in **each** of
-# the 3 following categories:
-#
-# 1) name space (How C calls a Fortran 77 routine)
-#
-# -DAdd_              : all lower case and a suffixed underscore  (Suns,
-#                       Intel, ...),                           [default]
-# -DNoChange          : all lower case (IBM RS6000),
-# -DUpCase            : all upper case (Cray),
-# -DAdd__             : the FORTRAN compiler in use is f2c.
-#
-# 2) C and Fortran 77 integer mapping
-#
-# -DF77_INTEGER=int   : Fortran 77 INTEGER is a C int,         [default]
-# -DF77_INTEGER=long  : Fortran 77 INTEGER is a C long,
-# -DF77_INTEGER=short : Fortran 77 INTEGER is a C short.
-#
-# 3) Fortran 77 string handling
-#
-# -DStringSunStyle    : The string address is passed at the string loca-
-#                       tion on the stack, and the string length is then
-#                       passed as  an  F77_INTEGER  after  all  explicit
-#                       stack arguments,                       [default]
-# -DStringStructPtr   : The address  of  a  structure  is  passed  by  a
-#                       Fortran 77  string,  and the structure is of the
-#                       form: struct {char *cp; F77_INTEGER len;},
-# -DStringStructVal   : A structure is passed by value for each  Fortran
-#                       77 string,  and  the  structure is  of the form:
-#                       struct {char *cp; F77_INTEGER len;},
-# -DStringCrayStyle   : Special option for  Cray  machines,  which  uses
-#                       Cray  fcd  (fortran  character  descriptor)  for
-#                       interoperation.
-#
-F2CDEFS      =
 #
 # ----------------------------------------------------------------------
 # - HPL includes / libraries / specifics -------------------------------
@@ -178,30 +123,42 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
+# -DUSE_ORIGINAL_LASWP   use original laswp implementation
+# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
 # -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
-# -DHPL_HUGE_TABLES	 Allocate the memory using huge tables
-# -DHPL_GPU_NOT_QUIET	 Do not set quiet parameter for CALDGEMM
+# -DHPL_HUGE_TABLES      Allocate the memory using huge tables
+# -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
+# -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
-# -DHPL_NO_PERFORMANCE_WARNINGS
-#                        Suppress performance warnings from CALDGEMM library
+# -DHPL_GPU_VERIFY       Verify result of caldgemm calls
 # -DCALDGEMM_TEST        Activate Test Debug Code
 # -DHPL_PRINT_INTERMEDIATE
 #                        print intermediate performance results
 # -DHPL_PRINT_AVG_MATRIX_SIZE
 #                        show how much memory the matrix uses per node on average
+# -DHPL_MPI_FUNNELED_THREADING
+#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
+# -DHPL_CHECK_MPI_THREADS
+#                        Check that all MPI calls come from the same thread that called init
+# -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
+# -DHPL_NO_MPI_THREAD_CHECK
+#                        HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
+# -DHPL_START_PERCENTAGE=<float>
+#                        Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
+# -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
+# -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
-#    *) call the BLAS Fortran 77 interface,
 #    *) not display detailed timing information.
 #
 
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT -DHPL_FASTVERIFY #-DTRACE_CALLS
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_SEND_U_PADDING -DHPL_PAGELOCKED_MEM -DHPL_PRINT_AVG_MATRIX_SIZE -DHPL_PRINT_INTERMEDIATE -DHPL_COPY_L -DHPL_FASTINIT -DHPL_FASTVERIFY #-DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

@@ -110,49 +110,6 @@ LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
 
 .DEFAULT_GOAL := all
 
-build_src: $(LAlib)
-
-#
-# ----------------------------------------------------------------------
-# - F77 / C interface --------------------------------------------------
-# ----------------------------------------------------------------------
-# You can skip this section  if and only if  you are not planning to use
-# a  BLAS  library featuring a Fortran 77 interface.  Otherwise,  it  is
-# necessary  to  fill out the  F2CDEFS  variable  with  the  appropriate
-# options.  **One and only one**  option should be chosen in **each** of
-# the 3 following categories:
-#
-# 1) name space (How C calls a Fortran 77 routine)
-#
-# -DAdd_              : all lower case and a suffixed underscore  (Suns,
-#                       Intel, ...),                           [default]
-# -DNoChange          : all lower case (IBM RS6000),
-# -DUpCase            : all upper case (Cray),
-# -DAdd__             : the FORTRAN compiler in use is f2c.
-#
-# 2) C and Fortran 77 integer mapping
-#
-# -DF77_INTEGER=int   : Fortran 77 INTEGER is a C int,         [default]
-# -DF77_INTEGER=long  : Fortran 77 INTEGER is a C long,
-# -DF77_INTEGER=short : Fortran 77 INTEGER is a C short.
-#
-# 3) Fortran 77 string handling
-#
-# -DStringSunStyle    : The string address is passed at the string loca-
-#                       tion on the stack, and the string length is then
-#                       passed as  an  F77_INTEGER  after  all  explicit
-#                       stack arguments,                       [default]
-# -DStringStructPtr   : The address  of  a  structure  is  passed  by  a
-#                       Fortran 77  string,  and the structure is of the
-#                       form: struct {char *cp; F77_INTEGER len;},
-# -DStringStructVal   : A structure is passed by value for each  Fortran
-#                       77 string,  and  the  structure is  of the form:
-#                       struct {char *cp; F77_INTEGER len;},
-# -DStringCrayStyle   : Special option for  Cray  machines,  which  uses
-#                       Cray  fcd  (fortran  character  descriptor)  for
-#                       interoperation.
-#
-F2CDEFS      =
 #
 # ----------------------------------------------------------------------
 # - HPL includes / libraries / specifics -------------------------------
@@ -203,7 +160,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_FUNNELED_THREADING -DHPL_PRINT_INTERMEDIATE -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_FUNNELED_THREADING -DHPL_PRINT_INTERMEDIATE -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
