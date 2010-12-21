@@ -87,11 +87,9 @@ build_tst        :
 ## startup #############################################################
 #
 startup_dir      :
-	- $(MKDIR) include/$(arch)
-	- $(MKDIR) lib
-	- $(MKDIR) lib/$(arch)
-	- $(MKDIR) bin
-	- $(MKDIR) bin/$(arch)
+	$(MKDIR) -p include/$(arch)
+	$(MKDIR) -p lib/$(arch)
+	$(MKDIR) -p bin/$(arch)
 #
 startup_src      :
 	- $(MAKE) -f Make.top leaf le=src/auxil       arch=$(arch)
