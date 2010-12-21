@@ -101,6 +101,8 @@ build_src: refresh_src
 	@$(MAKE) -C src/pfact/$(arch)
 	@$(MAKE) -C src/pgesv/$(arch)
 
+isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes, no)
+
 build_tst: refresh_tst
 	@$(MAKE) -C testing/matgen/$(arch)
 	@$(MAKE) -C testing/pmatgen/$(arch)
@@ -110,6 +112,29 @@ build_tst: refresh_tst
 	@echo "================================================================================"
 	@echo " HPL-GPU $(VERSION) build successfully completed."
 	@echo " You can find the executable in $(TOPdir)/bin/$(arch)/xhpl"
+	@echo "================================================================================"
+	@echo "  detailed timers:                                          $(call isenabled,-DHPL_DETAILED_TIMING)"
+	@echo "  use caldgemm for DGEMM calls:                             $(call isenabled,-DHPL_CALL_CALDGEMM)"
+	@echo "  function level tracing for optimization relevant calls:   $(call isenabled,-DTRACE_CALLS)"
+	@echo "  use original laswp implementation:                        $(call isenabled,-DUSE_ORIGINAL_LASWP)"
+	@echo "  dump LINDXA(U) in laswp0[16]T:                            $(call isenabled,-DTRACE_PERMDATA)"
+	@echo "  Fast initialization of input matrices for tuning runs:    $(call isenabled,-DHPL_FASTINIT)"
+	@echo "  Fast initialization for verification:                     $(call isenabled,-DHPL_FASTVERIFY)"
+	@echo "  Allocate the memory pagelocked:                           $(call isenabled,-DHPL_PAGELOCKED_MEM)"
+	@echo "  Allocate the memory using huge tables:                    $(call isenabled,-DHPL_HUGE_TABLES)"
+	@echo "  force display of CALDGEMM timing data:                    $(call isenabled,-DHPL_GPU_TIMING)"
+	@echo "  verbose CALDGEMM (also displays timing):                  $(call isenabled,-DHPL_GPU_NOT_QUIET)"
+	@echo "  Transmit the padding of U:                                $(call isenabled,-DHPL_SEND_U_PADDING)"
+	@echo "  Verify result of caldgemm calls:                          $(call isenabled,-DHPL_GPU_VERIFY)"
+	@echo "  Activate Test Debug Code:                                 $(call isenabled,-DCALDGEMM_TEST)"
+	@echo "  print intermediate performance results:                   $(call isenabled,-DHPL_PRINT_INTERMEDIATE)"
+	@echo "  show average memory usage per node of the matrix:         $(call isenabled,-DHPL_PRINT_AVG_MATRIX_SIZE)"
+	@echo "  MPI calls only from main thread:                          $(call isenabled,-DHPL_MPI_FUNNELED_THREADING)"
+	@echo "  Verify that MPI calls are from the main thread:           $(call isenabled,-DHPL_CHECK_MPI_THREADS)"
+	@echo "  Skip MPI thread capabilities check; just call MPI_Init:   $(call isenabled,-DHPL_NO_MPI_THREAD_CHECK)"
+	@echo "  Do not use the hacked ATI lib:                            $(call isenabled,-DHPL_NO_HACKED_LIB)"
+	@echo "  GPU clock (for throttling detection):                     $(or $(subst -DHPL_PRINT_THROTTLING_NODES=,,$(filter -DHPL_PRINT_THROTTLING_NODES=%,$(HPL_DEFS))),default)"
+	@echo "  Start the run at:                                         $(or $(subst -DHPL_START_PERCENTAGE=,,$(filter -DHPL_START_PERCENTAGE=%,$(HPL_DEFS))), 0)%"
 	@echo "================================================================================"
 
 ## clean ###############################################################
