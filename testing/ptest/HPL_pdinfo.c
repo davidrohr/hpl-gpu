@@ -688,7 +688,7 @@ checkMpiThread       MPI_Finalize();
                    "========================================",
                    "========================================" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
-          "HPL-GPU 1.0    --  High-Performance Linpack benchmark  --  ",
+          "HPL-GPU " HPL_VERSION "  --  High-Performance Linpack benchmark  --  ",
           " 2010" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "Written by D. Rohr, M. Kretz and M. Bach,  ",

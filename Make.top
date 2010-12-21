@@ -55,7 +55,7 @@
 # ======================================================================
 
 arch             = UNKNOWN
-VERSION          = 1.0.1
+export HPL_VERSION          = 1.0.1
 
 export TOPdir       := $(CURDIR)
 
@@ -110,7 +110,7 @@ build_tst: refresh_tst
 	@$(MAKE) -C testing/util/$(arch)
 	@$(MAKE) -C testing/ptest/$(arch)
 	@echo "================================================================================"
-	@echo " HPL-GPU $(VERSION) build successfully completed."
+	@echo " HPL-GPU $(HPL_VERSION) build successfully completed."
 	@echo " You can find the executable in $(TOPdir)/bin/$(arch)/xhpl"
 	@echo "================================================================================"
 	@echo "  detailed timers:                                          $(call isenabled,-DHPL_DETAILED_TIMING)"

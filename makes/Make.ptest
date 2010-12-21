@@ -93,7 +93,7 @@ dexe.grd: $(HPL_pteobj) $(HPLlib)
 HPL_pddriver.o         : ../HPL_pddriver.c         $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pddriver.c
 HPL_pdinfo.o           : ../HPL_pdinfo.c           $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdinfo.c
+	$(CC) -o $@ -c $(CCFLAGS) "-DHPL_VERSION=\"$(HPL_VERSION)\"" ../HPL_pdinfo.c
 HPL_pdtest.o           : ../HPL_pdtest.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdtest.c
 #
