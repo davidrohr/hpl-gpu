@@ -104,11 +104,6 @@ MPlib        = -L$(MPdir)/lib -lmpi
 LAdir        = $(HOME)/GotoBLAS2
 LAinc        = 
 LAlib        = $(LAdir)/libgoto2.a
-
-.DEFAULT_GOAL := all
-
-build_src: $(LAlib)
-
 #
 # ----------------------------------------------------------------------
 # - HPL includes / libraries / specifics -------------------------------

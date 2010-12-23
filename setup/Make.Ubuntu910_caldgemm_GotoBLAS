@@ -107,9 +107,6 @@ CALDGEMMdir  = $(HOME)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
 LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
 LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
-
-.DEFAULT_GOAL := all
-
 #
 # ----------------------------------------------------------------------
 # - HPL includes / libraries / specifics -------------------------------
