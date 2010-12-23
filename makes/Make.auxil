@@ -59,6 +59,8 @@ include $(setupmake)
 # ######################################################################
 #
 
+.DEFAULT_GOAL := all
+
 MAKEOVERRIDES :=
 
 $(INCdir)/tbb/tbb.h:
