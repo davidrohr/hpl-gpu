@@ -154,7 +154,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(M
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) # -DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_HAVE_PREFETCHW # -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
