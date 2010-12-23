@@ -58,6 +58,8 @@ include $(setupmake)
 #
 # ######################################################################
 #
+.DEFAULT_GOAL := all
+
 INCdep           = \
    $(INCdir)/util_timer.h $(INCdir)/util_trace.h $(INCdir)/util_cal.h
 #

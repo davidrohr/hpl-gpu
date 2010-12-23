@@ -58,6 +58,8 @@ include $(setupmake)
 #
 # ######################################################################
 #
+.DEFAULT_GOAL := all
+
 INCdep           = \
    $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_ptimer.h
 #

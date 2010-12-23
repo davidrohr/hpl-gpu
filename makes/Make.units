@@ -58,6 +58,8 @@ include $(setupmake)
 #
 # ######################################################################
 #
+.DEFAULT_GOAL := all
+
 INCdep           = \
 @rout Make.units
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_auxil.h $(INCdir)/hpl_pmisc.h \

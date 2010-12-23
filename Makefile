@@ -58,6 +58,8 @@ SHELL            = /bin/sh
 #
 arch             ?= UNKNOWN
 #
+.DEFAULT_GOAL   := all
+#
 ## Targets #############################################################
 #
 all              : install

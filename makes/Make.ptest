@@ -58,6 +58,8 @@ include $(setupmake)
 #
 # ######################################################################
 #
+.DEFAULT_GOAL := all
+
 INCdep           = \
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_blas.h  $(INCdir)/hpl_auxil.h   \
    $(INCdir)/hpl_gesv.h   $(INCdir)/hpl_pmisc.h $(INCdir)/hpl_pauxil.h  \
