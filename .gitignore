@@ -16,3 +16,6 @@ libgoto2*.a
 libgoto2*.so
 
 *.sh
+
+caldgemm
+GotoBLAS2

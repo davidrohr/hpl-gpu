@@ -63,7 +63,11 @@
  * ---------------------------------------------------------------------
  */
 #include "hpl_misc.h"
+#ifndef HPL_NO_MPI
 #include "mpi.h"
+#else
+#include "mpi_disabled.h"
+#endif
 
 #endif
 /*
