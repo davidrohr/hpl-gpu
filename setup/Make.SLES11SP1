@@ -1,0 +1,187 @@
+#
+#  -- High Performance Computing Linpack Benchmark (HPL-GPU)
+#     HPL-GPU - 1.0 - 2010
+#
+#     David Rohr
+#     Matthias Kretz
+#     Matthias Bach
+#     Goethe Universität, Frankfurt am Main
+#     Frankfurt Institute for Advanced Studies
+#     (C) Copyright 2010 All Rights Reserved
+#
+#     Antoine P. Petitet
+#     University of Tennessee, Knoxville
+#     Innovative Computing Laboratory
+#     (C) Copyright 2000-2008 All Rights Reserved
+#
+#  -- Copyright notice and Licensing terms:
+#
+#  Redistribution  and  use in  source and binary forms, with or without
+#  modification, are  permitted provided  that the following  conditions
+#  are met:
+#
+#  1. Redistributions  of  source  code  must retain the above copyright
+#  notice, this list of conditions and the following disclaimer.
+#
+#  2. Redistributions in binary form must reproduce  the above copyright
+#  notice, this list of conditions,  and the following disclaimer in the
+#  documentation and/or other materials provided with the distribution.
+#
+#  3. All  advertising  materials  mentioning  features  or  use of this
+#  software must display the following acknowledgements:
+#  This  product  includes  software  developed  at  the  University  of
+#  Tennessee, Knoxville, Innovative Computing Laboratory.
+#  This product  includes software  developed at the Frankfurt Institute
+#  for Advanced Studies.
+#
+#  4. The name of the  University,  the name of the  Laboratory,  or the
+#  names  of  its  contributors  may  not  be used to endorse or promote
+#  products  derived   from   this  software  without  specific  written
+#  permission.
+#
+#  -- Disclaimer:
+#
+#  THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE UNIVERSITY
+#  OR  CONTRIBUTORS  BE  LIABLE FOR ANY  DIRECT,  INDIRECT,  INCIDENTAL,
+#  SPECIAL,  EXEMPLARY,  OR  CONSEQUENTIAL DAMAGES  (INCLUDING,  BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ======================================================================
+#
+# ----------------------------------------------------------------------
+# - shell --------------------------------------------------------------
+# ----------------------------------------------------------------------
+#
+SHELL        = /bin/sh
+#
+CD           = cd
+CP           = cp
+LN_S         = ln -s
+MKDIR        = mkdir
+RM           = /bin/rm -f
+TOUCH        = touch
+#
+# ----------------------------------------------------------------------
+# - Platform identifier ------------------------------------------------
+# ----------------------------------------------------------------------
+#
+ARCH         = SLES11SP1
+#
+# ----------------------------------------------------------------------
+# - HPL Directory Structure / HPL library ------------------------------
+# ----------------------------------------------------------------------
+#
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
+#
+HPLlib       = $(LIBdir)/libhpl.a 
+#
+# ----------------------------------------------------------------------
+# - Message Passing library (MPI) --------------------------------------
+# ----------------------------------------------------------------------
+# MPinc tells the  C  compiler where to find the Message Passing library
+# header files,  MPlib  is defined  to be the name of  the library to be
+# used. The variable MPdir is only used for defining MPinc and MPlib.
+#
+MPdir        = /usr/lib64/mpi/gcc/openmpi
+MPinc        = $(MPdir)/include
+MPlib        = -L$(MPdir)/lib64 -lmpi
+#
+# ----------------------------------------------------------------------
+# - Linear Algebra library (BLAS or VSIPL) -----------------------------
+# ----------------------------------------------------------------------
+# LAinc tells the  C  compiler where to find the Linear Algebra  library
+# header files,  LAlib  is defined  to be the name of  the library to be
+# used. The variable LAdir is only used for defining LAinc and LAlib.
+#
+GOTOdir      = $(HOME)/GotoBLAS2
+GOTOlib      = $(GOTOdir)/libgoto2.a
+CALDGEMMdir  = $(HOME)/caldgemm
+CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
+LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
+LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
+
+#
+# ----------------------------------------------------------------------
+# - HPL includes / libraries / specifics -------------------------------
+# ----------------------------------------------------------------------
+#
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) -I$(MPinc)
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(MPlib) -L$(TOPdir)/lib -ltbb -lmpi -lgfortran -Wl,-rpath=$(TOPdir)/lib
+#
+# - Compile time options -----------------------------------------------
+#
+# -DHPL_COPY_L           force the copy of the panel L before bcast;
+# -DHPL_DETAILED_TIMING  enable detailed timers;
+# -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
+# -DTRACE_CALLS          function level tracing for calls that might
+#                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
+# -DUSE_ORIGINAL_LASWP   use original laswp implementation
+# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
+# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
+# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
+# -DHPL_HUGE_TABLES      Allocate the memory using huge tables
+# -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
+# -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
+# -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
+# -DHPL_GPU_VERIFY       Verify result of caldgemm calls
+# -DCALDGEMM_TEST        Activate Test Debug Code
+# -DHPL_PRINT_INTERMEDIATE
+#                        print intermediate performance results
+# -DHPL_PRINT_AVG_MATRIX_SIZE
+#                        show how much memory the matrix uses per node on average
+# -DHPL_MPI_FUNNELED_THREADING
+#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
+# -DHPL_CHECK_MPI_THREADS
+#                        Check that all MPI calls come from the same thread that called init
+# -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
+# -DHPL_NO_MPI_THREAD_CHECK
+#                        HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
+# -DHPL_START_PERCENTAGE=<float>
+#                        Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
+# -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
+# -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
+#
+# By default HPL will:
+#    *) not copy L before broadcast,
+#    *) not display detailed timing information.
+#
+
+#
+# ----------------------------------------------------------------------
+#
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING -DHPL_MPI_FUNNELED_THREADING -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_PRINT_INTERMEDIATE -DHPL_NO_MPI_THREAD_CHECK #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+#
+# ----------------------------------------------------------------------
+# - Compilers / linkers - Optimization flags ---------------------------
+# ----------------------------------------------------------------------
+#
+CC           = gcc
+CXX          = g++
+CCNOOPT      = $(HPL_DEFS)
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=core2 -Wall -Wimplicit \
+                -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
+                -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow
+CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
+CCFLAGS      = $(_FLAGS) -std=gnu99
+#
+# On some platforms,  it is necessary  to use the Fortran linker to find
+# the Fortran internals used in the BLAS library.
+#
+LINKER       = $(CXX)
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
+#
+ARCHIVER     = ar
+ARFLAGS      = r
+RANLIB       = echo
+#
+# ----------------------------------------------------------------------
