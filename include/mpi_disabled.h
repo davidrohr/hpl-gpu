@@ -1,3 +1,8 @@
+#ifndef MPI_DISABLED_H
+#define MPI_DISABLED_H
+
+#include <time.h>
+
 typedef void* MPI_Comm;
 typedef void* MPI_Datatype;
 typedef void* MPI_Request;
@@ -68,25 +73,32 @@ typedef int MPI_Status;
 #define MPI_COMM_WORLD NULL
 #define MPI_THREAD_SERIALIZED NULL
 
-inline int MPI_Send_init(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
-inline int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
-inline int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status){return(MPI_SUCCESS);}
-inline int MPI_Send(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm){return(MPI_SUCCESS);}
-inline int MPI_Iprobe(int source, int tag, MPI_Comm comm, int *flag, MPI_Status *status){return(MPI_SUCCESS);}
-inline int MPI_Comm_rank(MPI_Comm comm, int *rank){return(0);}
-inline int MPI_Comm_size(MPI_Comm comm, int *size){return(1);}
-inline int MPI_Init(int *argc, char ***argv){return(MPI_SUCCESS);}
-inline int MPI_Init_thread(int *argc, char ***argv, int required, int *provided){*provided=required;return(MPI_SUCCESS);}
-inline int MPI_Issend(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
-inline int MPI_Wait(MPI_Request *request, MPI_Status *status){return(MPI_SUCCESS);}
-inline int MPI_Finalize(void){return(NULL);}
-inline int MPI_Ssend(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm){return(MPI_SUCCESS);}
-inline int MPI_Type_free(MPI_Datatype *type){return(MPI_SUCCESS);}
-inline int MPI_Type_contiguous(int count, MPI_Datatype oldtype, MPI_Datatype *newtype){return(MPI_SUCCESS);}
-inline int MPI_Type_commit(MPI_Datatype *type){return(MPI_SUCCESS);}
-inline int MPI_Irecv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
-inline int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm){return(MPI_SUCCESS);}
-inline int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm){return(MPI_SUCCESS);}
-inline int MPI_Comm_free(MPI_Comm *comm){return(MPI_SUCCESS);}
-inline int MPI_Abort(MPI_Comm comm, int errorcode){return(MPI_SUCCESS);}
-inline double MPI_Wtime(void){return(0.);}
+static inline int MPI_Send_init(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
+static inline int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
+static inline int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status){return(MPI_SUCCESS);}
+static inline int MPI_Send(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Iprobe(int source, int tag, MPI_Comm comm, int *flag, MPI_Status *status){return(MPI_SUCCESS);}
+static inline int MPI_Comm_rank(MPI_Comm comm, int *rank){*rank = 0;return(MPI_SUCCESS);}
+static inline int MPI_Comm_size(MPI_Comm comm, int *size){*size = 1;return(MPI_SUCCESS);}
+static inline int MPI_Init(int *argc, char ***argv){return(MPI_SUCCESS);}
+static inline int MPI_Init_thread(int *argc, char ***argv, int required, int *provided){*provided=required;return(MPI_SUCCESS);}
+static inline int MPI_Issend(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
+static inline int MPI_Wait(MPI_Request *request, MPI_Status *status){return(MPI_SUCCESS);}
+static inline int MPI_Finalize(void){return(MPI_SUCCESS);}
+static inline int MPI_Ssend(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Type_free(MPI_Datatype *type){return(MPI_SUCCESS);}
+static inline int MPI_Type_contiguous(int count, MPI_Datatype oldtype, MPI_Datatype *newtype){return(MPI_SUCCESS);}
+static inline int MPI_Type_commit(MPI_Datatype *type){return(MPI_SUCCESS);}
+static inline int MPI_Irecv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
+static inline int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm){return(MPI_SUCCESS);}
+static inline int MPI_Comm_free(MPI_Comm *comm){return(MPI_SUCCESS);}
+static inline int MPI_Abort(MPI_Comm comm, int errorcode){return(MPI_SUCCESS);}
+static inline double MPI_Wtime(void)
+{
+    struct timespec t;
+    clock_gettime(CLOCK_REALTIME, &t);
+    return(1e-9 * (double) t.tv_nsec + (double) t.tv_sec);
+}
+
+#endif

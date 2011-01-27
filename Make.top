@@ -137,7 +137,7 @@ build_tst: refresh_tst
 	@echo "  Use PREFETCHW instruction (AMD CPUs only):                $(call isenabled,-DHPL_HAVE_PREFETCHW)"
 	@echo "  GPU clock (for throttling detection):                     $(or $(subst -DHPL_PRINT_THROTTLING_NODES=,,$(filter -DHPL_PRINT_THROTTLING_NODES=%,$(HPL_DEFS))),disabled)"
 	@echo "  Start the run at:                                         $(or $(subst -DHPL_START_PERCENTAGE=,,$(filter -DHPL_START_PERCENTAGE=%,$(HPL_DEFS))), FullRun)%"
-	@echo "  MPI disabled:                                             $(call isenabled,-DHPL_NO_MPI)"
+	@echo "  MPI disabled:                                             $(call isenabled,-DHPL_NO_MPI_LIB)"
 	@echo "================================================================================"
 
 ## clean ###############################################################
