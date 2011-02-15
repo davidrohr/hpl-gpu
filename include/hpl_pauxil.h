@@ -121,7 +121,7 @@
 				 { \
 				 ig_ = (il_) + (inb_) + \
 				 (nb_)*( ((nprocs_)-1)*((il_)/(nb_)) + \
-				 (proc_)--1 ); \
+				 (proc_)-1 ); \
 				 } \
 			 } \
 			 else \
@@ -129,6 +129,7 @@
 			 ig_ = (il_); \
 			 } \
 		 }
+
 /*
  * MnumrocI computes the # of local indexes np_ residing in the process
  * of coordinate proc_ corresponding to the interval of global indexes
