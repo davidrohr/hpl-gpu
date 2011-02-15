@@ -239,7 +239,7 @@ START_TRACE( PDPANEL_INIT )
       PANEL->L1    = (double *)HPL_PTR( PANEL->WORK, dalign );
       PANEL->DPIV  = PANEL->L1    + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;       *(PANEL->DINFO) = 0.0;
-      PANEL->U     = ( nprow > 1 ? HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
+      PANEL->U     = ( nprow > 1 ? (double*) HPL_PTR( (PANEL->DINFO + 1), dalign ) : NULL );
    }
    else
    {                                        /* space for L2, L1, DPIV */

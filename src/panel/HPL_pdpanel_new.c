@@ -140,7 +140,8 @@ void HPL_pdpanel_new
       HPL_pabort( __LINE__, "HPL_pdpanel_new", "Memory allocation failed" );
    }
 
-   p->WORK = p->IWORK = NULL;
+   p->WORK = NULL;
+   p->IWORK = NULL;
    p->memalloc = p->memallocI = 0;
    HPL_pdpanel_init( GRID, ALGO, M, N, JB, A, IA, JA, TAG, p );
    *PANEL = p;

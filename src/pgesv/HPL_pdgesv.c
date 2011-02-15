@@ -131,25 +131,21 @@ int* permU = NULL;
 
 void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
-	int jb = panel->jb;
-	double* Aptr = panel->A;
-	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
-	size_t lda = panel->lda;
-	const size_t LDU = panel->grid->nprow == 1 ? lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
-	int* ipiv = panel->IWORK;
 	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
 	
 	if (panel->grid->nprow > 1)
 	{
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 		permU = HPL_pdlaswp01T( panel, n );
-		//HPL_dlaswp10N( n, jb, Uptr, LDU, permU );
+		/*const size_t LDU = panel->grid->nprow == 1 ? panel->lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
+		double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
+		HPL_dlaswp10N( n, panel->jb, Uptr, LDU, permU );*/
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 	}
 	/*else
 	{
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		HPL_dlaswp00N( jb, n, Aptr, lda, ipiv );
+		HPL_dlaswp00N( panel->jb, n, panel->A, panel->lda, panel->IWORK );
 		HPL_ptimer_detail( HPL_TIMING_LASWP );
 	}*/
 }

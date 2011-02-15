@@ -59,6 +59,7 @@
  * Include files
  */
 #include "hpl.h"
+#include "util_cal.h"
 
 int HPL_pdpanel_disp
 (
@@ -96,6 +97,10 @@ int HPL_pdpanel_disp
 	mpierr = HPL_pdpanel_free( *PANEL );
 	if( (*PANEL)->WORK  ) CALDGEMM_free( (*PANEL)->WORK  );
 	if( (*PANEL)->IWORK ) CALDGEMM_free( (*PANEL)->IWORK );
+   }
+   else
+   {
+	mpierr = MPI_SUCCESS;
    }
    if( *PANEL ) free( *PANEL );
    *PANEL = NULL;

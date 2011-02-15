@@ -197,8 +197,8 @@ void HPL_pdtest
    double                     HPL_c[HPL_TIMING_N];
 #endif
    HPL_T_pmat                 mat;
-   double                     wtime[1];
-   double                     ctime[1];
+   double                     walltime[1];
+   double                     cputime[1];
    int                        info[3];
    double                     Anorm1, AnormI, Gflops, Xnorm1, XnormI,
                               BnormI, resid0, resid1;
@@ -278,9 +278,9 @@ void HPL_pdtest
  * Gather max of all CPU and WALL clock timings and print timing results
  */
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_WALL_PTIME,
-                       1, 0, wtime );
+                       1, 0, walltime );
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_CPU_TIME,
-                       1, 0, ctime );
+                       1, 0, cputime );
 
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
@@ -302,7 +302,7 @@ void HPL_pdtest
  * Print WALL time
  */
       Gflops = ( ( (double)(N) /   1.0e+9 ) * 
-                 ( (double)(N) / wtime[0] ) ) * 
+                 ( (double)(N) / walltime[0] ) ) * 
                  ( ( 2.0 / 3.0 ) * (double)(N) + ( 3.0 / 2.0 ) );
 
       cpfact = ( ( (HPL_T_FACT)(ALGO->pfact) == 
@@ -322,12 +322,12 @@ void HPL_pdtest
       else if( ALGO->btopo == HPL_BLONG_M ) ctop = '5';
       else /* if( ALGO->btopo == HPL_MPI_BCAST ) */ ctop = '6';
 
-      if( wtime[0] > HPL_rzero )
+      if( walltime[0] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
              "W%c%1d%c%c%1d%c%1d%12d %5d %5d %5d %18.2f %6.2f %15.3e\n",
              ( GRID->order == HPL_ROW_MAJOR ? 'R' : 'C' ),
              ALGO->depth, ctop, crfact, ALGO->nbdiv, cpfact, ALGO->nbmin,
-             N, NB, nprow, npcol, wtime[0], ctime[0], Gflops );
+             N, NB, nprow, npcol, walltime[0], cputime[0], Gflops );
 #ifdef HPL_PRINT_AVG_MATRIX_SIZE
       float avgSize = (float) ( N ) * N * 8 / nprow / npcol / 1024 / 1024 / 1024;
       HPL_fprintf( TEST->outfp, "Avg. matri size per node: %.2f GiB\n", avgSize );

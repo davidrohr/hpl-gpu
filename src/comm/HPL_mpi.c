@@ -140,8 +140,7 @@ int HPL_bcast_mpi( PANEL, IFLAG )
  * .. Local Variables ..
  */
    MPI_Comm                   comm;
-   int                        ierr, go, next, msgid, prev, rank, root,
-                              size;
+   int                        ierr, msgid, rank, root, size;
 /* ..
  * .. Executable Statements ..
  */
