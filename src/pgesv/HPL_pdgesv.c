@@ -60,7 +60,7 @@
  */
 #include "hpl.h"
 #include "util_timer.h"
-
+#include "util_cal.h"
 /* 
  * Purpose
  * =======
@@ -376,11 +376,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	depth2 = (ALGO->depth >= 2);
 
 #ifdef HPL_PRINT_INTERMEDIATE
-	if( GRID->myrow == 0 && GRID->mycol == 0 )
-	{
-		total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
-		time_start = util_getTimestamp();
-	}
+	total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
+	time_start = util_getTimestamp();
 #endif /* HPL_PRINT_INTERMEDIATE */
 
 	//Allocate the panel list
