@@ -109,7 +109,7 @@
  */
 #define Mindxl2g( ig_, il_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
-		 if( ( ( (nprocs_) > 1 ) ) \
+		 if( ( (nprocs_) > 1 ) ) \
 			 { \
 			 if( (proc_) == 0 ) \
 				 { \
