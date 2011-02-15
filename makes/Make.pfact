@@ -68,12 +68,10 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_pfaobj       = \
-   HPL_dlocmax.o          HPL_dlocswpN.o         HPL_dlocswpT.o         \
-   HPL_pdmxswp.o          HPL_pdpancrN.o         HPL_pdpancrT.o         \
-   HPL_pdpanllN.o         HPL_pdpanllT.o         HPL_pdpanrlN.o         \
-   HPL_pdpanrlT.o         HPL_pdrpanllN.o        HPL_pdrpanllT.o        \
-   HPL_pdrpancrN.o        HPL_pdrpancrT.o        HPL_pdrpanrlN.o        \
-   HPL_pdrpanrlT.o        HPL_pdfact.o
+   HPL_dlocmax.o          HPL_dlocswpT.o         \
+   HPL_pdmxswp.o          HPL_pdpancrT.o         \
+   HPL_pdpanllT.o         HPL_pdpanrlT.o         HPL_pdrpanllT.o        \
+   HPL_pdrpancrT.o        HPL_pdrpanrlT.o        HPL_pdfact.o
 #
 ## Targets #############################################################
 #
