@@ -122,9 +122,9 @@ START_TRACE( REDUCE )
  * .. Executable Statements ..
  */
    if( COUNT <= 0 ) return( MPI_SUCCESS );
-checkMpiThread    mpierr = MPI_Comm_size( COMM, &size );
+   mpierr = MPI_Comm_size( COMM, &size );
    if( size  == 1 ) return( MPI_SUCCESS );
-checkMpiThread    mpierr = MPI_Comm_rank( COMM, &rank );
+   mpierr = MPI_Comm_rank( COMM, &rank );
    i = size - 1; while( i > 1 ) { i >>= 1; d++; }
 
    if( DTYPE == HPL_INT )
@@ -141,7 +141,7 @@ checkMpiThread    mpierr = MPI_Comm_rank( COMM, &rank );
    {
       do
       {
-checkMpiThread          mpierr = MPI_Recv( buffer, COUNT, HPL_2_MPI_TYPE( DTYPE ),
+         mpierr = MPI_Recv( buffer, COUNT, HPL_2_MPI_TYPE( DTYPE ),
                             MModAdd( ROOT, ip2, size ), tag, COMM,
                             &status );
          if( mpierr != MPI_SUCCESS ) hplerr = mpierr;
@@ -160,13 +160,13 @@ checkMpiThread          mpierr = MPI_Recv( buffer, COUNT, HPL_2_MPI_TYPE( DTYPE 
             if( mydist & ip2 )
             {
                partner = MModAdd( ROOT, partner, size );
-checkMpiThread                mpierr = MPI_Send( BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
+               mpierr = MPI_Send( BUFFER, COUNT, HPL_2_MPI_TYPE( DTYPE ),
                                   partner, tag, COMM );
             }
             else if( partner < size )
             {
                partner = MModAdd( ROOT, partner, size );
-checkMpiThread                mpierr  = MPI_Recv( buffer, COUNT, HPL_2_MPI_TYPE( DTYPE ),
+               mpierr  = MPI_Recv( buffer, COUNT, HPL_2_MPI_TYPE( DTYPE ),
                                    partner, tag, COMM, &status );
                OP( COUNT, buffer, BUFFER, DTYPE );
             }

@@ -97,7 +97,7 @@ double HPL_ptimer_walltime( void )
 
 double HPL_ptimer_walltime( void )
 {
-checkMpiThread    return( MPI_Wtime() );
+   return( MPI_Wtime() );
 }
  
 #endif

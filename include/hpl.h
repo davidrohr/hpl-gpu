@@ -101,8 +101,6 @@
 #include "hpl_pmatgen.h"
 #include "hpl_ptest.h"
 
-#include "util_threadcheck.h"
-
 #ifdef HPL_DETAILED_TIMING
 #define HPL_ptimer_detail(arg) HPL_ptimer(arg)
 #else

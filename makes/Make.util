@@ -66,8 +66,7 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_utilobj       = \
-   UTIL_timer.o            UTIL_trace.o      UTIL_cal.o \
-   UTIL_threadcheck.o
+   UTIL_timer.o            UTIL_trace.o      UTIL_cal.o
 #
 ## Targets #############################################################
 #

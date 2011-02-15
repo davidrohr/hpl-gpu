@@ -108,7 +108,6 @@ int main
 /* ..
  * .. Executable Statements ..
  */
-   setMpiThread();
 #ifdef HPL_NO_MPI_THREAD_CHECK
    MPI_Init( &ARGC, &ARGV );
 #else
@@ -139,8 +138,8 @@ int main
 	return(1);
    }
 #endif
-checkMpiThread    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-checkMpiThread    MPI_Comm_size( MPI_COMM_WORLD, &size );
+   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+   MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*
  * Read and check validity of test parameters from input file
  *
@@ -306,7 +305,7 @@ label_end_of_npqs: ;
 #ifdef TRACE_CALLS
    releaseTraceCounters();
 #endif
-checkMpiThread    MPI_Finalize();
+   MPI_Finalize();
    exit( 0 );
 
    return( 0 );
