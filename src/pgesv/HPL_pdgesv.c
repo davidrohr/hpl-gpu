@@ -435,12 +435,17 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
 			uint64_t gFlop = total_gflop - todo_gflop;
 			float ratio = (float) gFlop / total_gflop;
+
+			float modifier = ratio * ratio * ratio * ratio;
+			modifier = 1. - modifier;
+			modifier = 1. + 0.1 * modifier;
+
 			uint64_t time_now = util_getTimestamp();
 			uint64_t seconds = util_getTimeDifference( time_start, time_now ) / 1e6;
-			float flops = (float)gFlop / (float)seconds;
 			if( seconds != 0 && j != 0 )
 			{
-				uint64_t eta = seconds / ratio - seconds;
+				float flops = (float) gFlop / (float) seconds / modifier;
+				uint64_t eta = (seconds / ratio - seconds) * modifier;
 				uint64_t wall_now = util_getWalltime() / 1e3;
 				//printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
 				printf( "[%ld] %.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", wall_now, ratio * 100, j, N, flops, eta );
