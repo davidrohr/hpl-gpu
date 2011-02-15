@@ -69,7 +69,7 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_pauobj       = \
-   HPL_indxg2l.o          HPL_indxg2lp.o         HPL_indxg2p.o          \
+   HPL_indxg2p.o          \
    HPL_indxl2g.o          HPL_infog2l.o          HPL_numroc.o           \
    HPL_numrocI.o          HPL_dlaswp00N.o        HPL_dlaswp10N.o        \
    HPL_dlaswp01T.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
@@ -89,10 +89,6 @@ lib.grd : $(HPL_pauobj)
 #
 # ######################################################################
 #
-HPL_indxg2l.o          : ../HPL_indxg2l.c          $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_indxg2l.c
-HPL_indxg2lp.o         : ../HPL_indxg2lp.c         $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_indxg2lp.c
 HPL_indxg2p.o          : ../HPL_indxg2p.c          $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_indxg2p.c
 HPL_indxl2g.o          : ../HPL_indxl2g.c          $(INCdep)

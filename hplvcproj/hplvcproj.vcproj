@@ -533,14 +533,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pauxil\HPL_indxg2l.c"
-						>
-					</File>
-					<File
-						RelativePath="..\src\pauxil\HPL_indxg2lp.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pauxil\HPL_indxg2p.c"
 						>
 					</File>
@@ -593,10 +585,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pfact\HPL_dlocswpN.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pfact\HPL_dlocswpT.c"
 						>
 					</File>
@@ -609,15 +597,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pfact\HPL_pdpancrN.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pfact\HPL_pdpancrT.c"
-						>
-					</File>
-					<File
-						RelativePath="..\src\pfact\HPL_pdpanllN.c"
 						>
 					</File>
 					<File
@@ -625,15 +605,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pfact\HPL_pdpanrlN.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pfact\HPL_pdpanrlT.c"
-						>
-					</File>
-					<File
-						RelativePath="..\src\pfact\HPL_pdrpancrN.c"
 						>
 					</File>
 					<File
@@ -641,15 +613,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pfact\HPL_pdrpanllN.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pfact\HPL_pdrpanllT.c"
-						>
-					</File>
-					<File
-						RelativePath="..\src\pfact\HPL_pdrpanrlN.c"
 						>
 					</File>
 					<File
@@ -842,6 +806,26 @@
 				Name="setup"
 				>
 				<File
+					RelativePath="..\makes\Make.auxil"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.blas"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.comm"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.gesv"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.grid"
+					>
+				</File>
+				<File
 					RelativePath="..\setup\Make.LOEWE-CSC_cpu"
 					>
 				</File>
@@ -866,6 +850,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\makes\Make.matgen"
+					>
+				</File>
+				<File
 					RelativePath="..\setup\Make.openSUSE112_caldgemm_GotoBLAS"
 					>
 				</File>
@@ -875,6 +863,46 @@
 				</File>
 				<File
 					RelativePath="..\setup\Make.openSUSE113_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.panel"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.pauxil"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.pfact"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.pgesv"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.pmatgen"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.ptest"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.ptimer"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.test"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.units"
+					>
+				</File>
+				<File
+					RelativePath="..\makes\Make.util"
 					>
 				</File>
 			</Filter>

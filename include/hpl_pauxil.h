@@ -251,8 +251,6 @@
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-void HPL_indxg2lp( int *, int *, const int, const int, const int, const int, const int );
-int HPL_indxg2l( const int, const int, const int, const int, const int );
 int HPL_indxg2p( const int, const int, const int, const int, const int );
 int HPL_indxl2g( const int, const int, const int, const int, const int, const int );
 void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int * );

@@ -75,11 +75,6 @@
 #define HPL_TRUE 'T'
 #define HPL_FALSE 'F'
 
-#define HPL_INDXG2P_ROUT "HPL_indxg2p"
-#define HPL_INDXG2L_ROUT "HPL_indxg2l"
-#define HPL_INDXL2G_ROUT "HPL_indxl2g"
-#define HPL_NUMROC_ROUT "HPL_numroc"
-#define HPL_NUMROCI_ROUT "HPL_numrocI"
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
