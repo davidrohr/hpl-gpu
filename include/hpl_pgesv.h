@@ -137,7 +137,6 @@ typedef struct HPL_S_pmat
  * ---------------------------------------------------------------------
  */
 void HPL_pipid( HPL_T_panel *, int *, int * );
-void HPL_plindx0( HPL_T_panel *, const int, int *, int *, int *, int * );
 void HPL_pdlaswp00N( HPL_T_panel *, int *, HPL_T_panel *, const int );
 void HPL_pdlaswp00T( HPL_T_panel *, int *, HPL_T_panel *, const int );
 
