@@ -128,7 +128,9 @@ void HPL_ptimer( const int I )
  * ---------------------------------------------------------------------
  */ 
   double cpu_tmp_time, wall_tmp_time;
-  char timer_name[256];
+#ifdef CALDGEMM_TEST
+      char timer_name[256];
+#endif
 /* ..
  * .. Executable Statements ..
  */

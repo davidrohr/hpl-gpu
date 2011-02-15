@@ -63,10 +63,10 @@ namespace
 
     int HPL_init_laswp()
     {
-        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         int num_threads = tbb::task_scheduler_init::automatic;
         
 #ifndef RESTRICT_CORES
+        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         if (num_threads_string) {
             num_threads = atoi(num_threads_string);
             //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
