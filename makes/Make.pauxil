@@ -73,7 +73,7 @@ HPL_pauobj       = \
    HPL_indxl2g.o          HPL_infog2l.o          HPL_numroc.o           \
    HPL_numrocI.o          HPL_dlaswp00N.o        HPL_dlaswp10N.o        \
    HPL_dlaswp01T.o        HPL_dlaswp06T.o        HPL_pwarn.o            \
-   HPL_pabort.o           HPL_pdlaprnt.o         HPL_pdlamch.o          \
+   HPL_pabort.o           HPL_pdlamch.o          \
    HPL_pdlange.o          permutationhelper.o    laswp_globals.o
 #
 ## Targets #############################################################

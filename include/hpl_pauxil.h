@@ -275,7 +275,6 @@ void HPL_dlaswp06T( const int, const int, double *, const int, double *, const i
 
 void HPL_pabort( int, const char *, const char *, ...);
 void HPL_pwarn( FILE *, int, const char *, const char *, ... );
-void HPL_pdlaprnt( const HPL_T_grid *, const int, const int, const int, double *, const int, const int, const int, const char * );
 double HPL_pdlamch( MPI_Comm, const HPL_T_MACH );
 double HPL_pdlange( const HPL_T_grid *, const HPL_T_NORM, const int, const int, const int, const double *, const int );
 
