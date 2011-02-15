@@ -537,10 +537,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pauxil\HPL_indxl2g.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pauxil\HPL_infog2l.c"
 						>
 					</File>

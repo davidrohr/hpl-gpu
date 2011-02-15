@@ -252,7 +252,6 @@
  * ---------------------------------------------------------------------
  */
 int HPL_indxg2p( const int, const int, const int, const int, const int );
-int HPL_indxl2g( const int, const int, const int, const int, const int, const int );
 void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int * );
 int HPL_numroc( const int, const int, const int, const int, const int, const int );
 int HPL_numrocI( const int, const int, const int, const int, const int, const int, const int );
