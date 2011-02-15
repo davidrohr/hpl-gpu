@@ -383,7 +383,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	}
 #endif /* HPL_PRINT_INTERMEDIATE */
 
-	//Allocate a panel list of length depth1;
+	//Allocate the panel list
 	panel = (HPL_T_panel **)malloc((size_t)(depth1+1) * sizeof(HPL_T_panel *));
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
@@ -399,8 +399,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Create main panel
 	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
-	
-	//Main loop over the columns of A
 	
 #ifdef HPL_START_PERCENTAGE
 	double fullwork = N;
@@ -418,6 +416,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	const int startrow = 0;
 #endif
 	
+	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
 		n = N - j;
@@ -429,8 +428,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 #endif
 
 #ifdef HPL_PRINT_INTERMEDIATE
-		// there is still a triangle containing n rows to compute
-		// a trapezoid containing j rows has already been computed
+		// there are still n rows to compute
+		// j rows have already been computed
 		if( GRID->myrow == 0 && GRID->mycol == 0 )
 		{
 			uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
