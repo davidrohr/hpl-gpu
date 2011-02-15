@@ -201,10 +201,6 @@
 					RelativePath="..\caldgemm\caldgemm.il"
 					>
 				</File>
-				<File
-					RelativePath="..\caldgemm\calutil.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="hpl"
@@ -473,10 +469,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\grid\HPL_pnum.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\grid\HPL_reduce.c"
 						>
 					</File>
@@ -578,10 +570,6 @@
 					</File>
 					<File
 						RelativePath="..\src\pauxil\HPL_pdlange.c"
-						>
-					</File>
-					<File
-						RelativePath="..\src\pauxil\HPL_pdlaprnt.c"
 						>
 					</File>
 					<File
