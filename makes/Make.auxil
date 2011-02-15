@@ -77,7 +77,7 @@ INCdep           = \
 #
 HPL_au0obj       = \
    HPL_dlacpy.o           HPL_dlatcpy.o          HPL_fprintf.o          \
-   HPL_warn.o             HPL_abort.o            HPL_dlaprnt.o          \
+   HPL_warn.o             HPL_abort.o            \
    HPL_dlange.o
 HPL_au1obj       = \
    HPL_dlamch.o
