@@ -67,7 +67,7 @@ INCdep           = \
 ## Object files ########################################################
 #
 HPL_griobj       = \
-   HPL_grid_init.o        HPL_pnum.o             HPL_grid_info.o        \
+   HPL_grid_init.o        HPL_grid_info.o        \
    HPL_grid_exit.o        HPL_broadcast.o        HPL_reduce.o           \
    HPL_all_reduce.o       HPL_barrier.o          HPL_min.o              \
    HPL_max.o              HPL_sum.o

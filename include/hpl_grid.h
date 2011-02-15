@@ -142,7 +142,6 @@ int HPL_grid_init( MPI_Comm, const HPL_T_ORDER, const int, const int, HPL_T_grid
 int HPL_grid_exit( HPL_T_grid *);
 
 int HPL_grid_info( const HPL_T_grid *, int *, int *, int *, int * );
-int HPL_pnum( const HPL_T_grid *, const int, const int );
 
 int HPL_barrier( MPI_Comm );
 int HPL_broadcast( void *, const int, const HPL_T_TYPE, const int, MPI_Comm );
