@@ -248,22 +248,22 @@ START_TRACE( PLINDX0 )
    for( i = 0; i < K; i += 2 )
    {
       src = IPID[i];
-      Mindxg2p( src, nb, nb, srcrow, 0, nprow ); LLEN[ srcrow ]++;
+      Mindxg2p( src, nb, nb, srcrow, nprow ); LLEN[ srcrow ]++;
 
       if( myrow == srcrow )
       {
-         Mindxg2l( il, src, nb, nb, myrow, 0, nprow );
+         Mindxg2l( il, src, nb, nb, myrow, nprow );
          LINDXA[ip] = il - iroff; dst = IPID[i+1];
 
          if( myrow == icurrow )
          {
-            Mindxg2p( dst, nb, nb, dstrow, 0, nprow );
+            Mindxg2p( dst, nb, nb, dstrow, nprow );
             if( dstrow == icurrow )
             {
                if( dst - ia < jb ) { LINDXAU[ip] = dst - ia; }
                else
                {
-                  Mindxg2l( il, dst, nb, nb, myrow, 0, nprow );
+                  Mindxg2l( il, dst, nb, nb, myrow, nprow );
                   LINDXAU[ip] = iroff - il;
                }
             }

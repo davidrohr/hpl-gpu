@@ -158,8 +158,8 @@ START_TRACE( PDPANEL_INIT )
 
    HPL_infog2l( IA, JA, nb, nb, nb, nb, 0, 0, myrow, mycol,
                 nprow, npcol, &ii, &jj, &icurrow, &icurcol );
-   mp = HPL_numrocI( M, IA, nb, nb, myrow, 0, nprow );
-   nq = HPL_numrocI( N, JA, nb, nb, mycol, 0, npcol );
+   mp = HPL_numrocI( M, IA, nb, nb, myrow, nprow );
+   nq = HPL_numrocI( N, JA, nb, nb, mycol, npcol );
                                          /* ptr to trailing part of A */
    PANEL->A       = Mptr( (double *)(A->A), ii, jj, A->ld );
 /*

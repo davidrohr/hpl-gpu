@@ -70,7 +70,6 @@ int HPL_numroc
    const int                        INB,
    const int                        NB,
    const int                        PROC,
-   const int                        SRCPROC,
    const int                        NPROCS
 )
 {
@@ -117,7 +116,7 @@ int HPL_numroc
 /* ..
  * .. Executable Statements ..
  */
-   return( HPL_numrocI( N, 0, INB, NB, PROC, SRCPROC, NPROCS ) );
+   return( HPL_numrocI( N, 0, INB, NB, PROC, NPROCS ) );
 /*
  * End of HPL_numroc
  */

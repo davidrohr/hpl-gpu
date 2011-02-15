@@ -142,10 +142,10 @@ START_TRACE( PLINDX10 )
  
    for( i = 0; i < K; i += 2 )
    {
-      src = IPID[i]; Mindxg2p( src, nb, nb, srcrow, 0, nprow );
+      src = IPID[i]; Mindxg2p( src, nb, nb, srcrow, nprow );
       if( srcrow == icurrow )
       {
-         dst = IPID[i+1]; Mindxg2p( dst, nb, nb, dstrow, 0, nprow );
+         dst = IPID[i+1]; Mindxg2p( dst, nb, nb, dstrow, nprow );
          if( ( dstrow != srcrow ) || ( dst - ia < jb ) ) IPLEN[dstrow+1]++;
       }
    }

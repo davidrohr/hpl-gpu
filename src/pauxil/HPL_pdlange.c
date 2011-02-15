@@ -134,8 +134,8 @@ double HPL_pdlange
    Rcomm = GRID->row_comm; Ccomm = GRID->col_comm;
    Acomm = GRID->all_comm;
 
-   Mnumroc( mp, M, NB, NB, myrow, 0, nprow );
-   Mnumroc( nq, N, NB, NB, mycol, 0, npcol );
+   Mnumroc( mp, M, NB, NB, myrow, nprow );
+   Mnumroc( nq, N, NB, NB, mycol, npcol );
 
    if( Mmin( M, N ) == 0 ) { return( v0 ); }
    else if( NORM == HPL_NORM_A )

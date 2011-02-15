@@ -77,24 +77,22 @@
  * Mindxg2p returns the process coodinate owning the entry globally in-
  * dexed by ig_.
  */
-#define Mindxg2p( ig_, inb_, nb_, proc_, src_, nprocs_ ) \
+#define Mindxg2p( ig_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
-		 if( ( (ig_) >= (inb_) ) && ( (src_) >= 0 ) && \
-		 ( (nprocs_) > 1 ) ) \
+		 if( ( (ig_) >= (inb_) ) && ( (nprocs_) > 1 ) ) \
 			 { \
-			 proc_ = (src_) + 1 + ( (ig_)-(inb_) ) / (nb_); \
+			 proc_ = 1 + ( (ig_)-(inb_) ) / (nb_); \
 			 proc_ -= ( proc_ / (nprocs_) ) * (nprocs_); \
 			 } \
 			 else \
 			 { \
-			 proc_ = (src_); \
+			 proc_ = 0; \
 			 } \
 		 }
 
-#define Mindxg2l( il_, ig_, inb_, nb_, proc_, src_, nprocs_ ) \
+#define Mindxg2l( il_, ig_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
-		 if( ( (ig_) < (inb_) ) || ( (src_) == -1 ) || \
-		 ( (nprocs_) == 1 ) ) { il_ = (ig_); } \
+		 if( ( (ig_) < (inb_) ) || ( (nprocs_) == 1 ) ) { il_ = (ig_); } \
 			 else \
 			 { \
 			 int i__, j__; \
@@ -105,47 +103,25 @@
 			 } \
 		 }
 
-#define Mindxg2lp( il_, proc_, ig_, inb_, nb_, src_, nprocs_ ) \
-		 { \
-		 if( ( (ig_) < (inb_) ) || ( (src_) == -1 ) || \
-		 ( (nprocs_) == 1 ) ) \
-			 { il_ = (ig_); proc_ = (src_); } \
-			 else \
-			 { \
-			 int i__, j__; \
-			 j__ = ( i__ = ( (ig_)-(inb_) ) / (nb_) ) / (nprocs_); \
-			 il_ = (nb_)*(j__-i__) + \
-			 ( ( i__ + 1 - ( j__ + 1 ) * (nprocs_) ) ? \
-			 (ig_) - (inb_) : (ig_) ); \
-			 proc_ = (src_) + 1 + i__; \
-			 proc_ -= ( proc_ / (nprocs_) ) * (nprocs_); \
-			 } \
-		 }
 /*
  * Mindxl2g computes the global index ig_ corresponding to the local
  * index il_ in process proc_.
  */
-#define Mindxl2g( ig_, il_, inb_, nb_, proc_, src_, nprocs_ ) \
+#define Mindxl2g( ig_, il_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
-		 if( ( (src_) >= 0 ) && ( (nprocs_) > 1 ) ) \
+		 if( ( ( (nprocs_) > 1 ) ) \
 			 { \
-			 if( (proc_) == (src_) ) \
+			 if( (proc_) == 0 ) \
 				 { \
 				 if( (il_) < (inb_) ) ig_ = (il_); \
 					else ig_ = (il_) + \
 					(nb_)*((nprocs_)-1)*(((il_)-(inb_))/(nb_) + 1); \
 				 } \
-				 else if( (proc_) < (src_) ) \
-				 { \
-				 ig_ = (il_) + (inb_) + \
-				 (nb_)*( ((nprocs_)-1)*((il_)/(nb_)) + \
-				 (proc_)-(src_)-1+(nprocs_) ); \
-				 } \
 				 else \
 				 { \
 				 ig_ = (il_) + (inb_) + \
 				 (nb_)*( ((nprocs_)-1)*((il_)/(nb_)) + \
-				 (proc_)-(src_)-1 ); \
+				 (proc_)--1 ); \
 				 } \
 			 } \
 			 else \
@@ -160,15 +136,15 @@
  * src_, and that the indexes are distributed from src_ using the para-
  * meters inb_, nb_ and nprocs_.
  */
-#define MnumrocI( np_, n_, i_, inb_, nb_, proc_, src_, nprocs_ ) \
+#define MnumrocI( np_, n_, i_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
-		 if( ( (src_) >= 0 ) && ( (nprocs_) > 1 ) ) \
+		 if( ( (nprocs_) > 1 ) ) \
 			 { \
 			 int inb__, mydist__, n__, nblk__, quot__, src__; \
 			 if( ( inb__ = (inb_) - (i_) ) <= 0 ) \
 				 { \
 				 nblk__ = (-inb__) / (nb_) + 1; \
-				 src__ = (src_) + nblk__; \
+				 src__ = nblk__; \
 				 src__ -= ( src__ / (nprocs_) ) * (nprocs_); \
 				 inb__ += nblk__*(nb_); \
 				 if( ( n__ = (n_) - inb__ ) <= 0 ) \
@@ -207,19 +183,19 @@
 				 { \
 				 if( ( n__ = (n_) - inb__ ) <= 0 ) \
 					{ \
-					if( (proc_) == (src_) ) np_ = (n_); \
+					if( (proc_) == 0 ) np_ = (n_); \
 					 else np_ = 0; \
 					} \
 					else \
 					{ \
-					if( ( mydist__ = (proc_) - (src_) ) < 0 ) \
+					if( ( mydist__ = (proc_) ) < 0 ) \
 					mydist__ += (nprocs_); \
 					nblk__ = n__ / (nb_) + 1; \
 					mydist__ -= nblk__ - \
 					( quot__ = (nblk__ / (nprocs_)) )*(nprocs_); \
 					if( mydist__ < 0 ) \
 					 { \
-					 if( (proc_) != (src_) ) \
+					 if( (proc_) != 0 ) \
 					 np_ = (nb_) + (nb_) * quot__; \
 						 else \
 						 np_ = inb__ + (nb_) * quot__; \
@@ -230,7 +206,7 @@
 					 } \
 					 else \
 					 { \
-					 if( (proc_) != (src_) ) \
+					 if( (proc_) != 0 ) \
 					 np_ = n__ +(nb_)+(nb_)*(quot__ - nblk__); \
 						 else \
 						 np_ = (n_)+ (nb_)*(quot__ - nblk__); \
@@ -244,17 +220,17 @@
 			 } \
 		 }
 
-#define Mnumroc( np_, n_, inb_, nb_, proc_, src_, nprocs_ ) \
-	MnumrocI( np_, n_, 0, inb_, nb_, proc_, src_, nprocs_ )
+#define Mnumroc( np_, n_, inb_, nb_, proc_, nprocs_ ) \
+	MnumrocI( np_, n_, 0, inb_, nb_, proc_, nprocs_ )
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-int HPL_indxg2p( const int, const int, const int, const int, const int );
+int HPL_indxg2p( const int, const int, const int, const int );
 void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int * );
-int HPL_numroc( const int, const int, const int, const int, const int, const int );
-int HPL_numrocI( const int, const int, const int, const int, const int, const int, const int );
+int HPL_numroc( const int, const int, const int, const int, const int );
+int HPL_numrocI( const int, const int, const int, const int, const int, const int );
 
 void HPL_dlaswp00N( const int, const int, double *, const int, const int * );
 void HPL_dlaswp10N( const int, const int, double *, const int, const int * );

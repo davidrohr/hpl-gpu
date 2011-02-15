@@ -133,8 +133,8 @@ void HPL_pdtrsv
 /*
  * Move the rhs in the process column owning the last column of A.
  */
-   Mnumroc( Anp, n, nb, nb, myrow, 0, nprow );
-   Mnumroc( Anq, n, nb, nb, mycol, 0, npcol );
+   Mnumroc( Anp, n, nb, nb, myrow, nprow );
+   Mnumroc( Anq, n, nb, nb, mycol, npcol );
 
    tmp1  = ( n - 1 ) / nb;
    Alrow = tmp1 - ( tmp1 / nprow ) * nprow;
@@ -142,7 +142,7 @@ void HPL_pdtrsv
    kb    = n    - tmp1 * nb;
 
    Aptr = (double *)(A); XC = Mptr( Aptr, 0, Anq, lda );
-   Mindxg2p( n, nb, nb, Bcol, 0, npcol );
+   Mindxg2p( n, nb, nb, Bcol, npcol );
 
    if( ( Anp > 0 ) && ( Alcol != Bcol ) )
    {
@@ -169,7 +169,7 @@ void HPL_pdtrsv
 
    Anpprev = Anp; Xdprev = XR; Aprev = Aptr = Mptr( Aptr, 0, Anq, lda );
    tmp1    = n - kb; tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-   MnumrocI( n1pprev, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, 0, nprow );
+   MnumrocI( n1pprev, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
 
    if( myrow == Alrow ) { Anpprev = ( Anp -= kb ); }
    if( mycol == Alcol )
@@ -187,7 +187,7 @@ void HPL_pdtrsv
    colprev = Alcol; Alcol = MModSub1( Alcol, npcol );
    kbprev  = kb; n -= kb;
    tmp1    = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-   MnumrocI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, 0, nprow );
+   MnumrocI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
 /*
  * Start the operations
  */
@@ -274,7 +274,7 @@ void HPL_pdtrsv
       n1pprev = n1p;   kbprev  = kb; n -= kb;
       Alrow = MModSub1( Alrow, nprow ); Alcol = MModSub1( Alcol, npcol );
       tmp1  = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-      MnumrocI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, 0, nprow );
+      MnumrocI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
 
       Rmsgid = ( Rmsgid+2 > MSGID_END_PTRSV ? 
                  MSGID_BEGIN_PTRSV   : Rmsgid+2 );

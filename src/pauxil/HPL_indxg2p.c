@@ -65,7 +65,6 @@ int HPL_indxg2p
    const int                        IG,
    const int                        INB,
    const int                        NB,
-   const int                        SRCPROC,
    const int                        NPROCS
 )
 {
@@ -110,18 +109,18 @@ int HPL_indxg2p
 /* ..
  * .. Executable Statements ..
  */
-   if( ( IG < INB ) || ( SRCPROC == -1 ) || ( NPROCS == 1 ) )
+   if( ( IG < INB ) || ( NPROCS == 1 ) )
 /*
  * IG  belongs  to the first block,  or the data is not distributed,  or
  * there is just one process in this dimension of the grid.
  */
-      return( SRCPROC );
+      return( 0 );
 /*
  * Otherwise,  IG is in block 1 + ( IG - INB ) / NB. Add this to SRCPROC
  * and take the NPROCS  modulo (definition of the block-cyclic data dis-
  * tribution).
  */
-   proc = SRCPROC + 1 + ( IG - INB ) / NB;
+   proc = 1 + ( IG - INB ) / NB;
    return( MPosMod( proc, NPROCS ) );
 /*
  * End of HPL_indxg2p

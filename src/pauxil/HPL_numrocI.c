@@ -71,7 +71,6 @@ int HPL_numrocI
    const int                        INB,
    const int                        NB,
    const int                        PROC,
-   const int                        SRCPROC,
    const int                        NPROCS
 )
 {
@@ -126,7 +125,7 @@ int HPL_numrocI
 /* ..
  * .. Executable Statements ..
  */
-   if( ( SRCPROC == -1 ) || ( NPROCS == 1 ) )
+   if( ( NPROCS == 1 ) )
 /*
  * The data is not distributed, or there is just one process in this di-
  * mension of the grid.
@@ -135,7 +134,7 @@ int HPL_numrocI
 /*
  * Compute coordinate of process owning I and corresponding INB
  */
-   srcproc = SRCPROC;
+   srcproc = 0;
 
    if( ( inb = INB - I ) <= 0 )
    {

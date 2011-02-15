@@ -139,8 +139,8 @@ void HPL_pdmatgen
 /*
  * Generate an M by N matrix starting in process (0,0)
  */
-   Mnumroc( mp, M, NB, NB, myrow, 0, nprow );
-   Mnumroc( nq, N, NB, NB, mycol, 0, npcol );
+   Mnumroc( mp, M, NB, NB, myrow, nprow );
+   Mnumroc( nq, N, NB, NB, mycol, npcol );
 
    if( ( mp <= 0 ) || ( nq <= 0 ) ) return;
 /*
