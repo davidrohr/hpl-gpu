@@ -106,7 +106,7 @@ GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(TOPdir)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
 LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
-LAlib        = $(CALDGEMMlib) $(GOTOlib) -laticalrt -laticalcl
+LAlib        = $(GOTOlib) -laticalrt -laticalcl
 
 #
 # ----------------------------------------------------------------------
@@ -189,5 +189,9 @@ isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
 ifeq ("$(call isenabled,-DHPL_NO_MPI_LIB)", "no")
 HPL_INCLUDES += -I $(MPinc)
 HPL_LIBS += $(MPlib)
+endif
+
+ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
+LALIB += $(CALDGEMMlib)
 endif
 # ----------------------------------------------------------------------
