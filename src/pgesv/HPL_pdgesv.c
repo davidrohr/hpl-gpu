@@ -300,7 +300,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
-		HPL_CALDGEMM_wrapper_icurcol = MModAdd1(factorize, Grid->npcol);
+		HPL_CALDGEMM_wrapper_icurcol = factorize;
 #endif
 		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
 #ifdef HPL_CALL_CALDGEMM
@@ -332,8 +332,8 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 #ifndef HPL_CALL_CALDGEMM
 		if (factorize != -1)
 		{
-			HPL_pdgesv_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
-			HPL_pdgesv_broadcast(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
+			HPL_pdgesv_factorize(Grid, PBCST, factorize);
+			HPL_pdgesv_broadcast(Grid, PBCST, factorize);
 		}
 #endif
 
@@ -346,8 +346,8 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	}
 	else if (factorize != -1)
 	{
-		HPL_pdgesv_factorize(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
-		HPL_pdgesv_broadcast(Grid, PBCST, MModAdd1(factorize, Grid->npcol));
+		HPL_pdgesv_factorize(Grid, PBCST, factorize);
+		HPL_pdgesv_broadcast(Grid, PBCST, factorize);
 	}
 
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
@@ -359,7 +359,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
-	int N, depth1, depth2, icurcol=0, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
 	uint64_t time_start;
@@ -416,6 +416,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
+		icurcol = MColToPCol(j, nb, npcol);
 		n = N - j;
 		jb = Mmin(n, nb);
 #ifdef HPL_DETAILED_TIMING
@@ -473,7 +474,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, nb, mycol, npcol) : 0;
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? icurcol : -1, depth2);
+		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol) : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
@@ -488,7 +489,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		{
 			nq -= jb;
 		}
-		icurcol = MModAdd1(icurcol, npcol);
 	}
 
 	//Clean-up: Release panels and panel list

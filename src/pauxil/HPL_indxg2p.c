@@ -121,7 +121,7 @@ int HPL_indxg2p_col
  * tribution).
  */
    proc = 1 + ( IG - INB ) / NB;
-   return( MPosMod( proc, NPROCS ) );
+   return( proc % NPROCS );
 /*
  * End of HPL_indxg2p
  */

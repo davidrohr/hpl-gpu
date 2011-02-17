@@ -119,8 +119,6 @@ typedef void (*HPL_T_OP)
  * except MPosMod assume arguments are < d (i.e., arguments are themsel-
  * ves within modulo range).
  */
- /* decrement with mod */
-#define MPosMod(I, d) ( (I) - ((I)/(d))*(d) )
  /* add two numbers */
 #define MModAdd(I1, I2, d) \
  ( ( (I1) + (I2) < (d) ) ? (I1) + (I2) : (I1) + (I2) - (d) )
@@ -131,6 +129,8 @@ typedef void (*HPL_T_OP)
  ( ( (I1) < (I2) ) ? (d) + (I1) - (I2) : (I1) - (I2) )
  /* sub 1 from # */
 #define MModSub1(I, d) ( ((I)!=0) ? (I)-1 : (d)-1 )
+
+#define MColToPCol(matrix_row, nb, npcol) (((matrix_row) / (nb)) % (nocol))
 /*
  * ---------------------------------------------------------------------
  * grid function prototypes
