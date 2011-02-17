@@ -250,29 +250,30 @@ int HPL_numcolI (const int N, const int I, const int INB, const int NB, const in
 	if (INB != NB) exit(1);
 	int numcols = 0;
 	int i = I;
+	int n = N + I;
 	if (i % NB)
 	{
 		if (grid->col_mapping[I / NB] == PROC)
 		{
-			if (i / NB == N / NB)
+			if (i / NB == n / NB)
 			{
-				numcols += N - i;
+				numcols += n - i;
 			}
 			else
 			{
 				numcols += NB - i % NB;
 			}
 		}
-		if (i / NB == N / NB)
+		if (i / NB == n / NB)
 		{
 			return(numcols);
 		}
 		i += NB - i % NB;
 	}
-	for (;i < N - N % NB;i += NB)
+	for (;i < n - n % NB;i += NB)
 	{
-		if (grid->col_mapping[I / NB] == PROC) numcols += NB;
+		if (grid->col_mapping[i / NB] == PROC) numcols += NB;
 	}
-	if (N % NB && grid->col_mapping[N / NB] == PROC) numcols += N - N % NB;
+	if (n % NB && grid->col_mapping[n / NB] == PROC) numcols += n % NB;
 	return(numcols);
 }
