@@ -124,7 +124,7 @@ void HPL_dlocmax
       nprow  = PANEL->grid->nprow;
       nb     = PANEL->nb;
       kk     = PANEL->ii + II + ( ilindx = HPL_idamax( N, A, 1 ) );
-      Mindxl2g( igindx, kk, nb, nb, myrow, nprow );
+      Mindxl2g_row( igindx, kk, nb, nb, myrow, nprow );
 /*
  * WORK[0] := local maximum absolute value scalar,
  * WORK[1] := corresponding local  row index,

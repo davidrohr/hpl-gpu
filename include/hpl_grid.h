@@ -119,11 +119,7 @@ typedef void (*HPL_T_OP)
  * except MPosMod assume arguments are < d (i.e., arguments are themsel-
  * ves within modulo range).
  */
- /* increment with mod */
-#define MModInc(I, d) if(++(I) == (d)) (I) = 0
  /* decrement with mod */
-#define MModDec(I, d) (I) = ((I) == 0 ? (d) : (I)) - 1
- /* positive modulo */
 #define MPosMod(I, d) ( (I) - ((I)/(d))*(d) )
  /* add two numbers */
 #define MModAdd(I1, I2, d) \

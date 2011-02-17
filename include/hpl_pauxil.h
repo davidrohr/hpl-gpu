@@ -77,7 +77,7 @@
  * Mindxg2p returns the process coodinate owning the entry globally in-
  * dexed by ig_.
  */
-#define Mindxg2p( ig_, inb_, nb_, proc_, nprocs_ ) \
+#define Mindxg2p_col( ig_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
 		 if( ( (ig_) >= (inb_) ) && ( (nprocs_) > 1 ) ) \
 			 { \
@@ -90,7 +90,20 @@
 			 } \
 		 }
 
-#define Mindxg2l( il_, ig_, inb_, nb_, proc_, nprocs_ ) \
+#define Mindxg2p_row( ig_, inb_, nb_, proc_, nprocs_ ) \
+		 { \
+		 if( ( (ig_) >= (inb_) ) && ( (nprocs_) > 1 ) ) \
+			 { \
+			 proc_ = 1 + ( (ig_)-(inb_) ) / (nb_); \
+			 proc_ -= ( proc_ / (nprocs_) ) * (nprocs_); \
+			 } \
+			 else \
+			 { \
+			 proc_ = 0; \
+			 } \
+		 }
+
+#define Mindxg2l_row( il_, ig_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
 		 if( ( (ig_) < (inb_) ) || ( (nprocs_) == 1 ) ) { il_ = (ig_); } \
 			 else \
@@ -107,7 +120,7 @@
  * Mindxl2g computes the global index ig_ corresponding to the local
  * index il_ in process proc_.
  */
-#define Mindxl2g( ig_, il_, inb_, nb_, proc_, nprocs_ ) \
+#define Mindxl2g_row( ig_, il_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
 		 if( ( (nprocs_) > 1 ) ) \
 			 { \
@@ -137,7 +150,7 @@
  * src_, and that the indexes are distributed from src_ using the para-
  * meters inb_, nb_ and nprocs_.
  */
-#define MnumrocI( np_, n_, i_, inb_, nb_, proc_, nprocs_ ) \
+#define MnumrowI( np_, n_, i_, inb_, nb_, proc_, nprocs_ ) \
 		 { \
 		 if( ( (nprocs_) > 1 ) ) \
 			 { \
@@ -221,17 +234,24 @@
 			 } \
 		 }
 
-#define Mnumroc( np_, n_, inb_, nb_, proc_, nprocs_ ) \
-	MnumrocI( np_, n_, 0, inb_, nb_, proc_, nprocs_ )
+#define Mnumrow( np_, n_, inb_, nb_, proc_, nprocs_ ) \
+	MnumrowI( np_, n_, 0, inb_, nb_, proc_, nprocs_ )
+
+#define Mnumcol( np_, n_, inb_, nb_, proc_, nprocs_ ) \
+	{ \
+	np_ = HPL_numcol(n_, inb_, nb_, proc_, nprocs_); \
+	}
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-int HPL_indxg2p( const int, const int, const int, const int );
+int HPL_indxg2p_col( const int, const int, const int, const int );
 void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int * );
-int HPL_numroc( const int, const int, const int, const int, const int );
-int HPL_numrocI( const int, const int, const int, const int, const int, const int );
+int HPL_numrow( const int, const int, const int, const int, const int );
+int HPL_numrowI( const int, const int, const int, const int, const int, const int );
+int HPL_numcol( const int, const int, const int, const int, const int );
+int HPL_numcolI( const int, const int, const int, const int, const int, const int );
 
 void HPL_dlaswp00N( const int, const int, double *, const int, const int * );
 void HPL_dlaswp10N( const int, const int, double *, const int, const int * );

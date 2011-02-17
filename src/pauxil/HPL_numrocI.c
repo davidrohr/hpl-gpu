@@ -64,7 +64,7 @@
  */
 #include "hpl.h"
 
-int HPL_numrocI
+int HPL_numrowI
 (
    const int                        N,
    const int                        I,
@@ -242,4 +242,45 @@ int HPL_numrocI
 /*
  * End of HPL_numrocI
  */
+}
+
+
+int HPL_numcolI (const int N, const int I, const int INB, const int NB, const int PROC, const int NPROCS)
+{
+   int                        ilocblk, inb, mydist, nblocks, srcproc;
+   if( ( NPROCS == 1 ) )
+      return( N );
+   srcproc = 0;
+
+   if( ( inb = INB - I ) <= 0 )
+   {
+      srcproc += ( nblocks = (-inb) / NB + 1 ); 
+      srcproc -= ( srcproc / NPROCS ) * NPROCS;
+      inb     += nblocks * NB;
+   }
+   if( PROC == srcproc )
+   {
+      if( N <= inb ) return( N );
+      nblocks = ( N - inb ) / NB + 1;
+      if( nblocks < NPROCS ) return( inb );
+ 
+      ilocblk = nblocks / NPROCS;
+      return( ( nblocks - ilocblk * NPROCS ) ? inb + ilocblk * NB :
+              N + ( ilocblk - nblocks ) * NB );
+   }
+   else
+   {
+      if( N <= inb ) return( 0 );
+      nblocks = ( N - inb ) / NB + 1;
+      if( ( mydist = PROC - srcproc ) < 0 ) mydist += NPROCS;
+      if( nblocks < NPROCS )
+         return( ( mydist < nblocks ) ? NB : ( ( mydist > nblocks ) ? 0 :
+                 N - inb + NB * ( 1 - nblocks ) ) );
+ 
+      ilocblk = nblocks / NPROCS;
+      mydist -= nblocks - ilocblk * NPROCS;
+      return( ( mydist < 0 ) ? ( ilocblk + 1 ) * NB :
+              ( ( mydist > 0 ) ? ilocblk * NB :
+                N - inb + NB * ( ilocblk - nblocks + 1 ) ) );
+   }
 }

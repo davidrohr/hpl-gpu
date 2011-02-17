@@ -187,13 +187,13 @@ START_TRACE( PLDINDX1 )
    {
       for( i = 0, ip = 0, ipU = 0; i < K; i += 2 )
       {
-         src = IPID[i]; Mindxg2p( src, nb, nb, srcrow, nprow );
+         src = IPID[i]; Mindxg2p_row( src, nb, nb, srcrow, nprow );
  
          if( srcrow == icurrow )
          {
-            dst = IPID[i+1]; Mindxg2p( dst, nb, nb, dstrow, nprow );
+            dst = IPID[i+1]; Mindxg2p_row( dst, nb, nb, dstrow, nprow );
  
-            Mindxg2l( il, src, nb, nb, myrow, nprow );
+            Mindxg2l_row( il, src, nb, nb, myrow, nprow );
             LINDXA[ip] = il - iroff;
  
             if( ( dstrow == icurrow ) && ( dst - ia < jb ) )
@@ -214,7 +214,7 @@ START_TRACE( PLDINDX1 )
             }
             else if( ( dstrow == icurrow ) && ( dst - ia >= jb ) )
             {
-               Mindxg2l( il, dst, nb, nb, myrow, nprow );
+               Mindxg2l_row( il, dst, nb, nb, myrow, nprow );
                LINDXAU[ip] = iroff - il;
             }
             ip++;
@@ -226,14 +226,14 @@ START_TRACE( PLDINDX1 )
    {
       for( i = 0, ip = 0, ipU = 0; i < K; i += 2 )
       {
-         src = IPID[i  ]; Mindxg2p( src, nb, nb, srcrow, nprow );
-         dst = IPID[i+1]; Mindxg2p( dst, nb, nb, dstrow, nprow );
+         src = IPID[i  ]; Mindxg2p_row( src, nb, nb, srcrow, nprow );
+         dst = IPID[i+1]; Mindxg2p_row( dst, nb, nb, dstrow, nprow );
 /*
  * LINDXA[i] is the local index of the row of A that belongs into U
  */
          if( myrow == dstrow )
          {
-            Mindxg2l( il, dst, nb, nb, myrow, nprow );
+            Mindxg2l_row( il, dst, nb, nb, myrow, nprow );
             LINDXA[ip] = il - iroff; ip++;
          }
 /*

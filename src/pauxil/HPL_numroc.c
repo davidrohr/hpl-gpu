@@ -64,7 +64,7 @@
  */
 #include "hpl.h"
 
-int HPL_numroc
+int HPL_numrow
 (
    const int                        N,
    const int                        INB,
@@ -116,8 +116,20 @@ int HPL_numroc
 /* ..
  * .. Executable Statements ..
  */
-   return( HPL_numrocI( N, 0, INB, NB, PROC, NPROCS ) );
+   return( HPL_numrowI( N, 0, INB, NB, PROC, NPROCS ) );
 /*
  * End of HPL_numroc
  */
+}
+
+int HPL_numcol
+(
+   const int                        N,
+   const int                        INB,
+   const int                        NB,
+   const int                        PROC,
+   const int                        NPROCS
+)
+{
+   return( HPL_numcolI( N, 0, INB, NB, PROC, NPROCS ) );
 }

@@ -60,7 +60,7 @@
  */
 #include "hpl.h"
 
-int HPL_indxg2p
+int HPL_indxg2p_col
 (
    const int                        IG,
    const int                        INB,
