@@ -149,7 +149,7 @@ void HPL_pdtrsv
    {
       if( mycol == Bcol  )
       { (void) HPL_send( XC, Anp, Alcol_process, Rmsgid, Rcomm ); }
-      else if( mycol == Alcol )
+      else if( mycol == Alcol_process )
       { (void) HPL_recv( XC, Anp, Bcol,  Rmsgid, Rcomm ); }
    }
    Rmsgid = ( Rmsgid + 2 >
