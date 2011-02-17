@@ -249,6 +249,7 @@ label_end_of_npqs: ;
 /*
  * Print ending messages, close output file, exit.
  */
+   free(test.node_perf);
    if( rank == 0 )
    {
       test.ktest = test.kpass + test.kfail + test.kskip;

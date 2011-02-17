@@ -241,6 +241,40 @@ void HPL_pdinfo
  */
    TEST->outfp = stderr; TEST->epsil = 2.0e-16; TEST->thrsh = 16.0;
    TEST->kfail = TEST->kpass = TEST->kskip = TEST->ktest = 0;
+   
+   //Read node-performance files
+   TEST->node_perf = (float*) malloc(size * sizeof(float));
+   float node_perf = 1.;
+   if (infp = fopen("node-perf.dat", "r"))
+   {
+     char hostname[256];
+     gethostname(hostname, 255);
+     
+     char buffer[256];
+     char tmpname[256];
+     float tmpperf;
+     while (!feof(infp))
+     {
+        fgets(buffer, 256, infp);
+        sscanf(buffer, "%s %f", tmpname, &tmpperf);
+        if (strcmp(tmpname, hostname) == 0 && tmpperf > 0 && tmpperf <= 1.)
+        {
+           node_perf = tmpperf;
+           break;
+        }
+     }
+     fclose(infp);
+   }
+   MPI_Allgather(&node_perf, 1, MPI_FLOAT, TEST->node_perf, 1, MPI_FLOAT, MPI_COMM_WORLD);
+   
+   if ( rank == 0)
+   {
+      for (int i = 0;i < size;i++)
+      {
+         HPL_fprintf( TEST->outfp, "Performance of rank %d: %f\n", i, TEST->node_perf[i]);
+      }
+   }
+   
 /*
  * Process 0 reads the input data, broadcasts to other processes and
  * writes needed information to TEST->outfp.

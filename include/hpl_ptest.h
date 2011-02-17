@@ -88,6 +88,7 @@ typedef struct HPL_S_test
 	int                 kpass;                    /* # of tests passed */
 	int                 kskip;                   /* # of tests skipped */
 	int                 ktest;                /* total number of tests */
+	float*              node_perf;		//Performance of participating nodes
 } HPL_T_test;
 
 /*
