@@ -649,10 +649,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\pgesv\HPL_plindx0.c"
-						>
-					</File>
-					<File
 						RelativePath="..\src\pgesv\HPL_plindx1.c"
 						>
 					</File>
@@ -777,10 +773,6 @@
 				</File>
 				<File
 					RelativePath="..\caldgemm\caldgemm_config_load.h"
-					>
-				</File>
-				<File
-					RelativePath="..\caldgemm\calutil.h"
 					>
 				</File>
 			</Filter>
