@@ -134,16 +134,16 @@ void HPL_pdtrsv
  * Move the rhs in the process column owning the last column of A.
  */
    Mnumrow( Anp, n, nb, nb, myrow, nprow );
-   Mnumcol( Anq, n, nb, nb, mycol, npcol );
+   Mnumcol( Anq, n, nb, nb, mycol, npcol, GRID );
 
    tmp1  = ( n - 1 ) / nb;
    Alrow = tmp1 - ( tmp1 / nprow ) * nprow;
    Alcol_matrix = tmp1;
-   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol);
+   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
    kb    = n    - tmp1 * nb;
 
    Aptr = (double *)(A); XC = Mptr( Aptr, 0, Anq, lda );
-   Mindxg2p_col( n, nb, nb, Bcol, npcol );
+   Mindxg2p_col( n, nb, nb, Bcol, npcol, GRID );
 
    if( ( Anp > 0 ) && ( Alcol_process != Bcol ) )
    {
@@ -187,7 +187,7 @@ void HPL_pdtrsv
    rowprev = Alrow; Alrow = MModSub1( Alrow, nprow );
    colprev = Alcol_process;
    Alcol_matrix--;
-   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol);
+   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
    kbprev  = kb; n -= kb;
    tmp1    = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
    MnumrowI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
@@ -277,7 +277,7 @@ void HPL_pdtrsv
       n1pprev = n1p;   kbprev  = kb; n -= kb;
       Alrow = MModSub1( Alrow, nprow );
 	  Alcol_matrix--;
-	  Alcol_process = MColBlockToPCol(Alcol_matrix, npcol);
+	  Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
       tmp1  = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
       MnumrowI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
 

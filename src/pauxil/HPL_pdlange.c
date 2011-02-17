@@ -135,7 +135,7 @@ double HPL_pdlange
    Acomm = GRID->all_comm;
 
    Mnumrow( mp, M, NB, NB, myrow, nprow );
-   Mnumcol( nq, N, NB, NB, mycol, npcol );
+   Mnumcol( nq, N, NB, NB, mycol, npcol, GRID );
 
    if( Mmin( M, N ) == 0 ) { return( v0 ); }
    else if( NORM == HPL_NORM_A )

@@ -65,7 +65,8 @@ int HPL_indxg2p_col
    const int                        IG,
    const int                        INB,
    const int                        NB,
-   const int                        NPROCS
+   const int                        NPROCS,
+   HPL_T_grid*					    GRID
 )
 {
 /* 

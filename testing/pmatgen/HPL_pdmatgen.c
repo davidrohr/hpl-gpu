@@ -140,7 +140,7 @@ void HPL_pdmatgen
  * Generate an M by N matrix starting in process (0,0)
  */
    Mnumrow( mp, M, NB, NB, myrow, nprow );
-   Mnumcol( nq, N, NB, NB, mycol, npcol );
+   Mnumcol( nq, N, NB, NB, mycol, npcol, GRID );
 
    if( ( mp <= 0 ) || ( nq <= 0 ) ) return;
 /*

@@ -214,7 +214,7 @@ void HPL_pdtest
 
    mat.n  = N; mat.nb = NB; mat.info = 0;
    mat.mp = HPL_numrow( N, NB, NB, myrow, nprow );
-   nq     = HPL_numcol( N, NB, NB, mycol, npcol );
+   nq     = HPL_numcol( N, NB, NB, mycol, npcol, GRID );
    mat.nq = nq + 1;
 /*
  * Allocate matrix, right-hand-side, and vector solution x. [ A | b ] is
@@ -426,7 +426,7 @@ void HPL_pdtest
  * for the entries of B, it is very likely that BnormI (<=,~) 0.5.
  */
    Bptr = Mptr( mat.A, 0, nq, mat.ld );
-   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol ) ){
+   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol, GRID ) ){
       if( mat.mp > 0 )
       {
          BnormI = Bptr[HPL_idamax( mat.mp, Bptr, 1 )]; BnormI = Mabs( BnormI );
@@ -439,12 +439,12 @@ void HPL_pdtest
                              GRID->col_comm );
    }
    (void) HPL_broadcast( (void *)(&BnormI), 1, HPL_DOUBLE,
-                          HPL_indxg2p_col( N, NB, NB, npcol ),
+                          HPL_indxg2p_col( N, NB, NB, npcol, GRID ),
                           GRID->row_comm );
 /*
  * If I own b, compute ( b - A x ) and ( - A x ) otherwise
  */
-   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol ) )
+   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol, GRID ) )
    {
       HPL_dgemv( HplColumnMajor, HplNoTrans, mat.mp, nq, -HPL_rone,
                  mat.A, mat.ld, mat.X, 1, HPL_rone, Bptr, 1 );

@@ -128,8 +128,9 @@ int HPL_numcol
    const int                        INB,
    const int                        NB,
    const int                        PROC,
-   const int                        NPROCS
+   const int                        NPROCS,
+   HPL_T_grid*						GRID
 )
 {
-   return( HPL_numcolI( N, 0, INB, NB, PROC, NPROCS ) );
+   return( HPL_numcolI( N, 0, INB, NB, PROC, NPROCS, GRID ) );
 }

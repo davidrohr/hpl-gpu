@@ -77,7 +77,7 @@
  * Mindxg2p returns the process coodinate owning the entry globally in-
  * dexed by ig_.
  */
-#define Mindxg2p_col( ig_, inb_, nb_, proc_, nprocs_ ) \
+#define Mindxg2p_col( ig_, inb_, nb_, proc_, nprocs_, grid ) \
 		 { \
 		 if( ( (ig_) >= (inb_) ) && ( (nprocs_) > 1 ) ) \
 			 { \
@@ -237,21 +237,21 @@
 #define Mnumrow( np_, n_, inb_, nb_, proc_, nprocs_ ) \
 	MnumrowI( np_, n_, 0, inb_, nb_, proc_, nprocs_ )
 
-#define Mnumcol( np_, n_, inb_, nb_, proc_, nprocs_ ) \
+#define Mnumcol( np_, n_, inb_, nb_, proc_, nprocs_, grid ) \
 	{ \
-	np_ = HPL_numcol(n_, inb_, nb_, proc_, nprocs_); \
+	np_ = HPL_numcol(n_, inb_, nb_, proc_, nprocs_, grid); \
 	}
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-int HPL_indxg2p_col( const int, const int, const int, const int );
-void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int * );
+int HPL_indxg2p_col( const int, const int, const int, const int, HPL_T_grid* );
+void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, HPL_T_grid* );
 int HPL_numrow( const int, const int, const int, const int, const int );
 int HPL_numrowI( const int, const int, const int, const int, const int, const int );
-int HPL_numcol( const int, const int, const int, const int, const int );
-int HPL_numcolI( const int, const int, const int, const int, const int, const int );
+int HPL_numcol( const int, const int, const int, const int, const int, HPL_T_grid* );
+int HPL_numcolI( const int, const int, const int, const int, const int, const int, HPL_T_grid* );
 
 void HPL_dlaswp00N( const int, const int, double *, const int, const int * );
 void HPL_dlaswp10N( const int, const int, double *, const int, const int * );

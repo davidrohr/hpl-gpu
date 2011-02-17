@@ -385,7 +385,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
-	nq = HPL_numcol(N+1, nb, nb, mycol, npcol);
+	nq = HPL_numcol(N+1, nb, nb, mycol, npcol, GRID);
 	nn = N;
 
 	if (depth1)
@@ -471,7 +471,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		}
 		
 
-		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, nb, mycol, npcol) : 0;
+		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, nb, mycol, npcol, GRID) : 0;
 
 		//Finish the latest update and broadcast the current panel
 		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol) : -1, depth2);

@@ -245,7 +245,7 @@ int HPL_numrowI
 }
 
 
-int HPL_numcolI (const int N, const int I, const int INB, const int NB, const int PROC, const int NPROCS)
+int HPL_numcolI (const int N, const int I, const int INB, const int NB, const int PROC, const int NPROCS, HPL_T_grid* grid)
 {
    int                        ilocblk, inb, mydist, nblocks, srcproc;
    if( ( NPROCS == 1 ) )

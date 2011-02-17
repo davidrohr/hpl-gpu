@@ -77,7 +77,8 @@ void HPL_infog2l
    int *                            II,
    int *                            JJ,
    int *                            PROW,
-   int *                            PCOL
+   int *                            PCOL,
+   HPL_T_grid*						GRID
 )
 {
 /* 
