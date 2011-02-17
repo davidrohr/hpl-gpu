@@ -298,76 +298,9 @@ void HPL_infog2l
          }
       }
    }
-/*
- * Idem for the columns
- */
-   inb   = INB;
-   *PCOL = CSRC;
 
-   if( ( *PCOL == -1 ) || ( NPCOL == 1 ) )
-   {
-      *JJ = J;
-   }
-   else if( J < inb )
-   {
-      *JJ = ( MYCOL == *PCOL ? J : 0 );
-   }
-   else
-   {
-      nb   = NB;
-      csrc = *PCOL;
-
-      if( MYCOL == csrc )
-      {
-         nblocks = ( J - inb ) / nb + 1;
-         *PCOL  += nblocks;
-         *PCOL  -= ( *PCOL / NPCOL ) * NPCOL;
-
-         if( nblocks < NPCOL )
-         {
-            *JJ = inb;
-         }
-         else
-         {
-            ilocblk = nblocks / NPCOL;
-            if( ilocblk * NPCOL >= nblocks )
-            {
-               *JJ = ( ( MYCOL == *PCOL ) ?
-                       J   + ( ilocblk - nblocks ) * nb :
-                       inb + ( ilocblk - 1       ) * nb );
-            }
-            else
-            {
-               *JJ = inb + ilocblk * nb;
-            }
-         }
-      }
-      else
-      {
-         nblocks = ( J -= inb ) / nb + 1;
-         *PCOL  += nblocks;
-         *PCOL  -= ( *PCOL / NPCOL ) * NPCOL;
-
-         if( ( mydist = MYCOL - csrc ) < 0 ) mydist += NPCOL;
-
-         if( nblocks < NPCOL )
-         {
-            mydist -= nblocks;
-            *JJ     = ( ( mydist < 0 ) ? nb : ( ( MYCOL == *PCOL ) ?
-                        J + ( 1 - nblocks )*nb : 0 ) );
-         }
-         else
-         {
-            ilocblk = nblocks / NPCOL;
-            mydist -= nblocks - ilocblk * NPCOL;
-            *JJ     = ( ( mydist < 0 ) ? ( ilocblk + 1 ) * nb :
-                        ( ( MYCOL == *PCOL ) ?
-                          ( ilocblk - nblocks + 1 ) * nb + J :
-                          ilocblk * nb ) );
-         }
-      }
-   }
-/*
- * End of HPL_infog2l
- */
+   //Calculate columns
+   if (NB != INB) exit(1);
+   *PCOL = HPL_indxg2p(J, INB, NB, -1, GRID);
+   *JJ = HPL_numcol(J, INB, NB, PROC, -1, GRID);
 }

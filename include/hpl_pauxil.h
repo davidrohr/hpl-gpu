@@ -79,15 +79,8 @@
  */
 #define Mindxg2p_col( ig_, inb_, nb_, proc_, nprocs_, grid ) \
 		 { \
-		 if( ( (ig_) >= (inb_) ) && ( (nprocs_) > 1 ) ) \
-			 { \
-			 proc_ = 1 + ( (ig_)-(inb_) ) / (nb_); \
-			 proc_ -= ( proc_ / (nprocs_) ) * (nprocs_); \
-			 } \
-			 else \
-			 { \
-			 proc_ = 0; \
-			 } \
+			if (nb_ != inb_) exit(1); \
+			proc_ = grid->col_mapping[(ig_) / (nb_)]; \
 		 }
 
 #define Mindxg2p_row( ig_, inb_, nb_, proc_, nprocs_ ) \

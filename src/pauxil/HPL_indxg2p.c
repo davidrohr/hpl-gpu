@@ -106,24 +106,6 @@ int HPL_indxg2p_col
 /*
  * .. Local Variables ..
  */
-   int                        proc;
-/* ..
- * .. Executable Statements ..
- */
-   if( ( IG < INB ) || ( NPROCS == 1 ) )
-/*
- * IG  belongs  to the first block,  or the data is not distributed,  or
- * there is just one process in this dimension of the grid.
- */
-      return( 0 );
-/*
- * Otherwise,  IG is in block 1 + ( IG - INB ) / NB. Add this to SRCPROC
- * and take the NPROCS  modulo (definition of the block-cyclic data dis-
- * tribution).
- */
-   proc = 1 + ( IG - INB ) / NB;
-   return( proc % NPROCS );
-/*
- * End of HPL_indxg2p
- */
+	if (NB != INB) exit(1);
+	return(GRID->col_mapping[IG / NB]);
 }

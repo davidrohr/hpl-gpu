@@ -265,7 +265,7 @@ void HPL_pdinfo
         }
      }
      fclose(infp);
-        node_perf = 1. / (float) (rank + 1);
+        //node_perf = 1. / (float) (rank + 1);
    }
    MPI_Allgather(&node_perf, 1, MPI_FLOAT, TEST->node_perf, 1, MPI_FLOAT, MPI_COMM_WORLD);
    

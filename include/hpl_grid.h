@@ -130,8 +130,8 @@ typedef void (*HPL_T_OP)
  /* sub 1 from # */
 #define MModSub1(I, d) ( ((I)!=0) ? (I)-1 : (d)-1 )
 
-#define MColToPCol(matrix_col, nb, npcol, grid) (((matrix_col) / (nb)) % (npcol))
-#define MColBlockToPCol(matrix_colblock, npcol, grid) ((matrix_colblock) % (npcol))
+#define MColToPCol(matrix_col, nb, npcol, grid) (grid->col_mapping[(matrix_col) / (nb)])
+#define MColBlockToPCol(matrix_colblock, npcol, grid) (grid->col_mapping[matrix_colblock])
 /*
  * ---------------------------------------------------------------------
  * grid function prototypes

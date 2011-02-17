@@ -247,40 +247,32 @@ int HPL_numrowI
 
 int HPL_numcolI (const int N, const int I, const int INB, const int NB, const int PROC, const int NPROCS, HPL_T_grid* grid)
 {
-   int                        ilocblk, inb, mydist, nblocks, srcproc;
-   if( ( NPROCS == 1 ) )
-      return( N );
-   srcproc = 0;
-
-   if( ( inb = INB - I ) <= 0 )
-   {
-      srcproc += ( nblocks = (-inb) / NB + 1 ); 
-      srcproc -= ( srcproc / NPROCS ) * NPROCS;
-      inb     += nblocks * NB;
-   }
-   if( PROC == srcproc )
-   {
-      if( N <= inb ) return( N );
-      nblocks = ( N - inb ) / NB + 1;
-      if( nblocks < NPROCS ) return( inb );
- 
-      ilocblk = nblocks / NPROCS;
-      return( ( nblocks - ilocblk * NPROCS ) ? inb + ilocblk * NB :
-              N + ( ilocblk - nblocks ) * NB );
-   }
-   else
-   {
-      if( N <= inb ) return( 0 );
-      nblocks = ( N - inb ) / NB + 1;
-      if( ( mydist = PROC - srcproc ) < 0 ) mydist += NPROCS;
-      if( nblocks < NPROCS )
-         return( ( mydist < nblocks ) ? NB : ( ( mydist > nblocks ) ? 0 :
-                 N - inb + NB * ( 1 - nblocks ) ) );
- 
-      ilocblk = nblocks / NPROCS;
-      mydist -= nblocks - ilocblk * NPROCS;
-      return( ( mydist < 0 ) ? ( ilocblk + 1 ) * NB :
-              ( ( mydist > 0 ) ? ilocblk * NB :
-                N - inb + NB * ( ilocblk - nblocks + 1 ) ) );
-   }
+	if (INB != NB) exit(1);
+	int numcols = 0;
+	int i = I;
+	if (i % NB)
+	{
+		if (grid->col_mapping[I / NB] == PROC)
+		{
+			if (i / NB == N / NB)
+			{
+				numcols += N - i;
+			}
+			else
+			{
+				numcols += NB - i % NB;
+			}
+		}
+		if (i / NB == N / NB)
+		{
+			return(numcols);
+		}
+		i += NB - i % NB;
+	}
+	for (;i < N - N % NB;i += NB)
+	{
+		if (grid->col_mapping[I / NB] == PROC) numcols += NB;
+	}
+	if (N % NB && grid->col_mapping[N / NB] == PROC) numcols += N - N % NB;
+	return(numcols);
 }
