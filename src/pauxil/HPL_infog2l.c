@@ -298,9 +298,12 @@ void HPL_infog2l
          }
       }
    }
-
-   //Calculate columns
-   if (NB != INB) exit(1);
+   
+   //Do columns
    *PCOL = HPL_indxg2p_col(J, INB, NB, -1, GRID);
-   *JJ = HPL_numcol(J, INB, NB, PCOL, -1, GRID);
+   *JJ = HPL_numcol(J, INB, NB, MYCOL, -1, GRID);
+ 
+/*
+ * End of HPL_infog2l
+ */
 }
