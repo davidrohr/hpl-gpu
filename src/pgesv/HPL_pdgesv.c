@@ -416,7 +416,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
-		icurcol = MColToPCol(j, nb, npcol);
+		icurcol = MColToPCol(j, nb, npcol, GRID);
 		n = N - j;
 		jb = Mmin(n, nb);
 #ifdef HPL_DETAILED_TIMING
@@ -474,7 +474,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, nb, mycol, npcol, GRID) : 0;
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol) : -1, depth2);
+		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol, GRID) : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
