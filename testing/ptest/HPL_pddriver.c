@@ -229,8 +229,73 @@ HPLinpack benchmark input file
 #endif
 
 			  fprintfct(stderr, "(Problem: N %d NB %d)(Network: BCAST %d LOOKAHEAD %d) (Factorization: NBMIN %d NBDIV %d PFACT %d RFACT %d)\n", nval[in], nbval[inb], algo.btopo, algo.depth, algo.nbmin, algo.nbdiv, algo.pfact, algo.rfact);
+			  
+   int mcols = (nval[in] + nbval[inb] - 1) / nbval[inb];
+   grid.col_mapping = (int*) malloc(mcols * sizeof(int));
+   grid.mcols_per_pcol = (int*) malloc(npcol * sizeof(int));
+   
+   if (rank == 0)
+   {
+      float* cols = malloc(npcol * sizeof(float));
+      int nprocs = npcol * nprow;
+      for (int i = 0;i < npcol;i++) cols[i] = 1.;
+      for (int i = 0;i < nprocs;i++)
+      {
+         if (pmapping == HPL_ROW_MAJOR)
+         {
+            HPL_fprintf(test.outfp, "Node %d col %d perf %f/%f\n", i, i % npcol, test.node_perf[i], cols[i % npcol]);
+            if (test.node_perf[i] < cols[i % npcol]) cols[i % npcol] = test.node_perf[i];
+         }
+         else
+         {
+            HPL_fprintf(test.outfp, "Node %d col %d perf %f/%f\n", i, i / nprow, test.node_perf[i], cols[i / nprow]);
+            if (test.node_perf[i] < cols[i / nprow]) cols[i / nprow] = test.node_perf[i];
+         }
+      }
+      float max_perf = 0;
+      for (int i = 0;i < npcol;i++) if (cols[i] > max_perf) max_perf = cols[i];
+      for (int i = 0;i < npcol;i++) cols[i] /= max_perf;
+      max_perf = 0;
+      for (int i = 0;i < npcol;i++) max_perf += cols[i];
+      for (int i = 0;i < npcol;i++)
+      {
+         HPL_fprintf(test.outfp, "Process Col %d Performance %f (of %f total)\n", i, cols[i], max_perf);
+      }
+      
+      for (int i = 0;i < npcol;i++) grid.mcols_per_pcol[i] = 0;
+      int j = 0;
+      for (int i = 0;i < mcols;i++)
+      {
+         int jstart = j;
+         int round1 = 1;
+         while (i && (cols[j] / max_perf * (float) (i + 1) < (float) grid.mcols_per_pcol[j] + 0.5 * (float) round1))
+         {
+            HPL_fprintf(test.outfp, "Skipping process col %d (desired mcols %f, present mcols %d)\n", j, cols[j] / max_perf * (float) (i + 1), grid.mcols_per_pcol[j]);
+            j++;
+            j = j % npcol;
+            if (j == jstart) round1 = 0;
+         }
+         grid.col_mapping[i] = j;
+         grid.mcols_per_pcol[j]++;
+         HPL_fprintf(test.outfp, "Matrix col %d processed by process col %d (%d total matrix cols)\n", i, j, grid.mcols_per_pcol[j]);
+         j++;
+      }
+      
+      for (int i = 0;i < npcol;i++)
+      {
+         HPL_fprintf(test.outfp, "Process col %d process %d matrix cols\n", i, grid.mcols_per_pcol[i]);
+      }
+      
+      free(cols);
+   }
+   
+   MPI_Bcast(grid.col_mapping, mcols, MPI_INT, 0, grid.all_comm);
+   MPI_Bcast(grid.mcols_per_pcol, npcol, MPI_INT, 0, grid.all_comm);
+			  
 
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
+              free(grid.col_mapping);
+              free(grid.mcols_per_pcol);
 
 #ifdef TRACE_CALLS
               writeTraceCounters( "trace_counters", run, rank );
@@ -286,7 +351,7 @@ label_end_of_npqs: ;
       HPL_fprintf( test.outfp, "%s%s\n",
                    "----------------------------------------",
                    "----------------------------------------" );
-      HPL_fprintf( test.outfp, "\nEnd of Tests.\n" );
+      HPL_fprintf( test.outfp, "\nEnd of tests.\n" );
       HPL_fprintf( test.outfp, "%s%s\n",
                    "========================================",
                    "========================================" );

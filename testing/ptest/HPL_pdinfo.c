@@ -59,6 +59,7 @@
  * Include files
  */
 #include "hpl.h"
+#include <unistd.h>
 
 void HPL_pdinfo
 (
@@ -245,7 +246,7 @@ void HPL_pdinfo
    //Read node-performance files
    TEST->node_perf = (float*) malloc(size * sizeof(float));
    float node_perf = 1.;
-   if (infp = fopen("node-perf.dat", "r"))
+   if ((infp = fopen("node-perf.dat", "r")) != 0)
    {
      char hostname[256];
      gethostname(hostname, 255);
@@ -264,12 +265,13 @@ void HPL_pdinfo
         }
      }
      fclose(infp);
+        node_perf = 1. / (float) (rank + 1);
    }
    MPI_Allgather(&node_perf, 1, MPI_FLOAT, TEST->node_perf, 1, MPI_FLOAT, MPI_COMM_WORLD);
    
    if ( rank == 0)
    {
-      for (int i = 0;i < size;i++)
+      for (i = 0;i < size;i++)
       {
          HPL_fprintf( TEST->outfp, "Performance of rank %d: %f\n", i, TEST->node_perf[i]);
       }

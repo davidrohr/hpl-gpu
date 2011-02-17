@@ -96,6 +96,8 @@ typedef struct HPL_S_grid
 	int col_hdim; /* col_ip2 procs hypercube dimension */
 	int col_ip2m1; /* largest power of two <= npcol-1 */
 	int col_mask; /* col_ip2m1 procs hypercube mask */
+	int* col_mapping;
+	int* mcols_per_pcol;
 } HPL_T_grid;
 
 /*

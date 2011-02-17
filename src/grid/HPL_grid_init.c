@@ -59,7 +59,6 @@
  * Include files
  */
 #include "hpl.h"
-
 #include "util_timer.h"
 #include "util_trace.h"
 
@@ -141,6 +140,7 @@ int HPL_grid_init
    }
    GRID->iam   = rank;  GRID->myrow = myrow; GRID->mycol  = mycol;
    GRID->nprow = NPROW; GRID->npcol = NPCOL; GRID->nprocs = nprocs;
+   
 /*
  * row_ip2   : largest power of two <= nprow;
  * row_hdim  : row_ip2 procs hypercube dim;
