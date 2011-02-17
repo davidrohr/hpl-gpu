@@ -279,6 +279,7 @@ HPLinpack benchmark input file
          grid.mcols_per_pcol[j]++;
          HPL_fprintf(test.outfp, "Matrix col %d processed by process col %d (%d total matrix cols)\n", i, j, grid.mcols_per_pcol[j]);
          j++;
+         j = j % npcol;
       }
       
       for (int i = 0;i < npcol;i++)
