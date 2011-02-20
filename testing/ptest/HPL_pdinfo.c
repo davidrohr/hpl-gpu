@@ -254,14 +254,14 @@ void HPL_pdinfo
      char buffer[256];
      char tmpname[256];
      float tmpperf;
-     int tmpperf;
+     int tmprank;
      while (!feof(infp))
      {
         fgets(buffer, 256, infp);
         if (buffer[0] == '#') continue;
         if (buffer[0] == '/')
         {
-           sscanf(buffer, "/%d %f", &tmprank, &tmpperf)
+           sscanf(buffer, "/%d %f", &tmprank, &tmpperf);
            if (tmprank == rank)
            {
               node_perf = tmprank;
