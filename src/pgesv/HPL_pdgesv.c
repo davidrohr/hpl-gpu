@@ -357,6 +357,9 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
+#ifndef QON_TEST
+return;
+#endif
     for (int i = 0;i < A->n;i++)
     {
 	for (int j = 0;j < A->n + 1;j++)
@@ -404,6 +407,10 @@ void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 
 void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
+#ifndef QON_TEST
+return;
+#endif
+    //Currently only works with P=1 (probably)
     if (GRID->iam == 0) fprintf(stderr, "\n");
     double* buffer = malloc(A->n * sizeof(double));
     for (int i = 0;i < GRID->npcol;i++)

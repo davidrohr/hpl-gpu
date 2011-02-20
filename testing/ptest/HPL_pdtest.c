@@ -264,7 +264,24 @@ void HPL_pdtest
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
+#ifndef QON_TEST
    fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
+#else
+   srand(453534);
+   for (int i = 0;i < mat.n;i++)
+   {
+	for (int j = 0;j < mat.n + 1;j++)
+	{
+	    int II, JJ, P, Q;
+	    HPL_infog2l(i, j, mat.nb, mat.nb, mat.nb, mat.nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, &II, &JJ, &P, &Q, GRID);
+	    double rval = (double) rand() / (double) RAND_MAX - 0.5;
+	    if (P == GRID->myrow && Q == GRID->mycol)
+	    {
+		mat.A[JJ * mat.ld + II] = rval;
+	    }
+	}
+    }
+#endif
 #endif
 
 /*
