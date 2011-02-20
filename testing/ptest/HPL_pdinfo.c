@@ -264,7 +264,7 @@ void HPL_pdinfo
            sscanf(buffer, "/%d %f", &tmprank, &tmpperf);
            if (tmprank == rank)
            {
-              node_perf = tmprank;
+              node_perf = tmpperf;
               break;
            }
         }
