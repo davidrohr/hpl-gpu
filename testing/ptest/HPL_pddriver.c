@@ -264,19 +264,26 @@ HPLinpack benchmark input file
       
       for (int i = 0;i < npcol;i++) grid.mcols_per_pcol[i] = 0;
       int j = 0;
+      int lastcol = -1;
+      float relax = 0;
       for (int i = 0;i < mcols;i++)
       {
          int jstart = j;
          int round1 = 1;
-         while (i && (cols[j] / max_perf * (float) (i + 1) < (float) grid.mcols_per_pcol[j] + 0.5 * (float) round1))
+         while (i && (j == lastcol || cols[j] / max_perf * (float) (i + 1) < (float) grid.mcols_per_pcol[j] + 0.5 * (float) round1 - relax)))
          {
             HPL_fprintf(test.outfp, "Skipping process col %d (desired mcols %f, present mcols %d)\n", j, cols[j] / max_perf * (float) (i + 1), grid.mcols_per_pcol[j]);
             j++;
             j = j % npcol;
-            if (j == jstart) round1 = 0;
+            if (j == jstart)
+            {
+               if (round1 > 0) round1 = 0;
+               else relax += 0.1;
          }
          grid.col_mapping[i] = j;
          grid.mcols_per_pcol[j]++;
+         lastcol = j;
+         relax = 0;
          HPL_fprintf(test.outfp, "Matrix col %d processed by process col %d (%d total matrix cols)\n", i, j, grid.mcols_per_pcol[j]);
          j++;
          j = j % npcol;
