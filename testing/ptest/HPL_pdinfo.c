@@ -254,18 +254,31 @@ void HPL_pdinfo
      char buffer[256];
      char tmpname[256];
      float tmpperf;
+     int tmpperf;
      while (!feof(infp))
      {
         fgets(buffer, 256, infp);
-        sscanf(buffer, "%s %f", tmpname, &tmpperf);
-        if (strcmp(tmpname, hostname) == 0 && tmpperf > 0 && tmpperf <= 1.)
+        if (buffer[0] == '#') continue;
+        if (buffer[0] == '/')
         {
-           node_perf = tmpperf;
-           break;
+           sscanf(buffer, "/%d %f", &tmprank, &tmpperf)
+           if (tmprank == rank)
+           {
+              node_perf = tmprank;
+              break;
+           }
+        }
+        else
+        {
+           sscanf(buffer, "%s %f", tmpname, &tmpperf);
+           if (strcmp(tmpname, hostname) == 0 && tmpperf > 0 && tmpperf <= 1.)
+           {
+              node_perf = tmpperf;
+              break;
+           }
         }
      }
      fclose(infp);
-        //node_perf = 1. / (float) (rank + 1);
    }
    MPI_Allgather(&node_perf, 1, MPI_FLOAT, TEST->node_perf, 1, MPI_FLOAT, MPI_COMM_WORLD);
    
