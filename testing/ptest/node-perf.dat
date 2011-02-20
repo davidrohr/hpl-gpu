@@ -1,0 +1,12 @@
+#Define relative performance per node
+#Relative performance must be between 0.01 and 1.0
+#e.g.
+#localhost 0.5
+#fasthost 1.0
+#
+#Can also identify an MPIrank by /rank
+#e.g.
+#/0 0.5
+#/1 1.0
+#
+#The first match is used
