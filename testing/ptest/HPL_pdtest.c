@@ -127,6 +127,24 @@ void fastmatgen(int SEED, double* A, size_t size)
     sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 }
 
+void debugmatgen(HPL_T_grid* GRID, HPL_T_pmat* A)
+{
+   srand(453534);
+   for (int i = 0;i < A->n;i++)
+   {
+	for (int j = 0;j < A->n + 1;j++)
+	{
+	    int II, JJ, P, Q;
+	    HPL_infog2l(i, j, A->nb, A->nb, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, &II, &JJ, &P, &Q, GRID);
+	    double rval = (double) rand() / (double) RAND_MAX - 0.5;
+	    if (P == GRID->myrow && Q == GRID->mycol)
+	    {
+		A->A[JJ * A->ld + II] = rval;
+	    }
+	}
+    }
+}
+
 void HPL_pdtest
 (
    HPL_T_test *                     TEST,
@@ -267,20 +285,7 @@ void HPL_pdtest
 #ifndef QON_TEST
    fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
 #else
-   srand(453534);
-   for (int i = 0;i < mat.n;i++)
-   {
-	for (int j = 0;j < mat.n + 1;j++)
-	{
-	    int II, JJ, P, Q;
-	    HPL_infog2l(i, j, mat.nb, mat.nb, mat.nb, mat.nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, &II, &JJ, &P, &Q, GRID);
-	    double rval = (double) rand() / (double) RAND_MAX - 0.5;
-	    if (P == GRID->myrow && Q == GRID->mycol)
-	    {
-		mat.A[JJ * mat.ld + II] = rval;
-	    }
-	}
-    }
+   debugmatgen(GRID, &mat);
 #endif
 #endif
 
@@ -426,7 +431,11 @@ void HPL_pdtest
 #if !defined(HPL_FASTINIT) | !defined(HPL_FASTVERIFY)
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
+#ifndef QON_TEST
    fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
+#else
+   debugmatgen(GRID, &mat);
+#endif
 #endif
 
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );
