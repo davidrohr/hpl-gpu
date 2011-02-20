@@ -268,6 +268,12 @@ HPLinpack benchmark input file
       float relax = 0;
       for (int i = 0;i < mcols;i++)
       {
+         if (npcol == 1)
+         {
+            grid.col_mapping[i] = i % npcol;
+            grid.mcols_per_pcol[i % npcol]++;
+	    continue;
+         }
          int jstart = j;
          int round1 = 1;
          while (i && (j == lastcol || cols[j] / max_perf * (float) (i + 1) < (float) grid.mcols_per_pcol[j] + 0.5 * (float) round1 - relax)))
