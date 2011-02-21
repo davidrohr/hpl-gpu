@@ -60,11 +60,7 @@
  */
 #include "hpl.h"
 
-void HPL_pdtrsv
-(
-   HPL_T_grid *                     GRID,
-   HPL_T_pmat *                     AMAT
-)
+void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 {
 /* 
  * Purpose
@@ -107,195 +103,208 @@ void HPL_pdtrsv
  *
  * ---------------------------------------------------------------------
  */ 
-/*
- * .. Local Variables ..
- */
-   MPI_Comm                   Ccomm, Rcomm;
-   double                     * A=NULL, * Aprev=NULL, * Aptr, * XC=NULL,
-                              * XR=NULL, * Xd=NULL, * Xdprev=NULL,
-                              * W=NULL;
-   int                        Alcol_matrix, Alcol_process, Alrow, Anpprev, Anp, Anq, Bcol,
-                              Cmsgid, GridIsNotPx1, GridIsNot1xQ, Rmsgid,
-                              Wfr=0, colprev, kb, kbprev, lda, mycol,
-                              myrow, n, n1, n1p, n1pprev=0, nb, npcol,
-                              nprow, rowprev, tmp1, tmp2;
-/* ..
- * .. Executable Statements ..
- */
-   HPL_ptimer_detail( HPL_TIMING_PTRSV );
-   if( ( n = AMAT->n ) <= 0 ) return;
-   nb = AMAT->nb; lda = AMAT->ld; A = AMAT->A; XR = AMAT->X;
+//Local Variables
+	MPI_Comm Ccomm, Rcomm;
+	double *A=NULL, *Aprev=NULL, *Aptr, *XC=NULL, *XR=NULL, *Xd=NULL, *Xdprev=NULL, *W=NULL;
+	int Alcol_matrix, Alcol_process, Alrow, Anpprev, Anp, Anq, Bcol, Cmsgid, GridIsNotPx1, GridIsNot1xQ, Rmsgid,
+		Wfr=0, colprev, kb, kbprev, lda, mycol,	myrow, n, n1, n1p, n1pprev=0, nb, npcol, nprow, rowprev, tmp1, tmp2;
 
-   (void) HPL_grid_info( GRID, &nprow, &npcol, &myrow, &mycol );
-   Rcomm = GRID->row_comm; Rmsgid = MSGID_BEGIN_PTRSV;
-   Ccomm = GRID->col_comm; Cmsgid = MSGID_BEGIN_PTRSV + 1;
-   GridIsNot1xQ = ( nprow > 1 ); GridIsNotPx1 = ( npcol > 1 );
-/*
- * Move the rhs in the process column owning the last column of A.
- */
-   Mnumrow( Anp, n, nb, nb, myrow, nprow );
-   Mnumcol( Anq, n, nb, nb, mycol, npcol, GRID );
+//Executable Statements
+	HPL_ptimer_detail( HPL_TIMING_PTRSV );
+	if ((n = AMAT->n) <= 0) return;
+	nb = AMAT->nb;
+	lda = AMAT->ld;
+	A = AMAT->A;
+	XR = AMAT->X;
 
-   tmp1  = ( n - 1 ) / nb;
-   Alrow = tmp1 - ( tmp1 / nprow ) * nprow;
-   Alcol_matrix = tmp1;
-   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
-   kb    = n    - tmp1 * nb;
+	(void) HPL_grid_info(GRID, &nprow, &npcol, &myrow, &mycol);
+	Rcomm = GRID->row_comm;
+	Rmsgid = MSGID_BEGIN_PTRSV;
+	Ccomm = GRID->col_comm;
+	Cmsgid = MSGID_BEGIN_PTRSV + 1;
+	GridIsNot1xQ = ( nprow > 1 );
+	GridIsNotPx1 = ( npcol > 1 );
 
-   Aptr = (double *)(A); XC = Mptr( Aptr, 0, Anq, lda );
-   Mindxg2p_col( n, nb, nb, Bcol, npcol, GRID );
+//Move the rhs in the process column owning the last column of A.
+	Mnumrow(Anp, n, nb, nb, myrow, nprow);
+	Mnumcol(Anq, n, nb, nb, mycol, npcol, GRID);
 
-   if( ( Anp > 0 ) && ( Alcol_process != Bcol ) )
-   {
-      if( mycol == Bcol  )
-      { (void) HPL_send( XC, Anp, Alcol_process, Rmsgid, Rcomm ); }
-      else if( mycol == Alcol_process )
-      { (void) HPL_recv( XC, Anp, Bcol,  Rmsgid, Rcomm ); }
-   }
-   Rmsgid = ( Rmsgid + 2 >
-              MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid + 2 );
-   if( mycol != Alcol_process )
-   { for( tmp1=0; tmp1 < Anp; tmp1++ ) XC[tmp1] = HPL_rzero; }
-/*
- * Set up lookahead
- */
-   n1 = ( npcol - 1 ) * nb; n1 = Mmax( n1, nb );
-   if( Anp > 0 )
-   {
-      W = (double*)malloc( (size_t)(Mmin( n1, Anp )) * sizeof( double ) );
-      if( W == NULL )
-      { HPL_pabort( __LINE__, "HPL_pdtrsv", "Memory allocation failed" ); }
-      Wfr = 1;
-   }
+	tmp1 = (n - 1) / nb;
+	Alrow = tmp1 - (tmp1 / nprow) * nprow;
+	Alcol_matrix = tmp1;
+	Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
+	kb = n - tmp1 * nb;
 
-   Anpprev = Anp; Xdprev = XR; Aprev = Aptr = Mptr( Aptr, 0, Anq, lda );
-   tmp1    = n - kb; tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-   MnumrowI( n1pprev, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
+	Aptr = (double *) (A);
+	XC = Mptr(Aptr, 0, Anq, lda);
+	Mindxg2p_col(n, nb, nb, Bcol, npcol, GRID);
 
-   if( myrow == Alrow ) { Anpprev = ( Anp -= kb ); }
-   if( mycol == Alcol_process )
-   {
-      Aprev = ( Aptr -= lda * kb ); Anq -= kb; Xdprev = ( Xd = XR + Anq );
-      if( myrow == Alrow )
-      {
-         HPL_dtrsv( HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit,
-                    kb, Aptr+Anp, lda, XC+Anp, 1 );
-         HPL_dcopy( kb, XC+Anp, 1, Xd, 1 );
-      }
-   }
+	if((Anp > 0) && (Alcol_process != Bcol))
+	{
+		if(mycol == Bcol)
+		{
+			(void) HPL_send(XC, Anp, Alcol_process, Rmsgid, Rcomm);
+		}
+		else if(mycol == Alcol_process)
+		{
+			(void) HPL_recv(XC, Anp, Bcol,  Rmsgid, Rcomm);
+		}
+	}
+	Rmsgid = (Rmsgid + 2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid + 2);
+	if(mycol != Alcol_process)
+	{
+		for(tmp1=0; tmp1 < Anp; tmp1++) XC[tmp1] = HPL_rzero;
+	}
 
-   rowprev = Alrow; Alrow = MModSub1( Alrow, nprow );
-   colprev = Alcol_process;
-   Alcol_matrix--;
-   Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
-   kbprev  = kb; n -= kb;
-   tmp1    = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-   MnumrowI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
-/*
- * Start the operations
- */
-   while( n > 0 )
-   {
-      if( mycol == Alcol_process ) { Aptr -= lda * kb; Anq -= kb; Xd = XR + Anq; }
-      if( myrow == Alrow ) { Anp -= kb; }
+//Set up lookahead
+	n1 = (npcol - 1) * nb;
+	n1 = Mmax(n1, nb);
+	if (Anp > 0)
+	{
+		W = (double*) malloc((size_t) (Mmin(n1, Anp)) * sizeof(double));
+		if (W == NULL)
+		{
+			HPL_pabort(__LINE__, "HPL_pdtrsv", "Memory allocation failed");
+		}
+		Wfr = 1;
+	}
+
+	Anpprev = Anp;
+	Xdprev = XR;
+	Aprev = Aptr = Mptr(Aptr, 0, Anq, lda);
+	tmp1 = n - kb;
+	tmp1 -= (tmp2 = Mmin(tmp1, n1));
+	MnumrowI(n1pprev, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
+
+	if (myrow == Alrow)
+	{
+		Anpprev = (Anp -= kb);
+	}
+	if (mycol == Alcol_process)
+	{
+		Aprev = (Aptr -= lda * kb);
+		Anq -= kb;
+		Xdprev = (Xd = XR + Anq);
+		if (myrow == Alrow)
+		{
+			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
+			HPL_dcopy(kb, XC+Anp, 1, Xd, 1);
+		}
+	}
+
+	rowprev = Alrow;
+	Alrow = MModSub1(Alrow, nprow);
+	colprev = Alcol_process;
+	Alcol_matrix--;
+	Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
+	kbprev  = kb; n -= kb;
+	tmp1    = n - (kb = nb);
+	tmp1 -= (tmp2 = Mmin(tmp1, n1));
+	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
+
+// Start the operations
+	while(n > 0)
+	{
+		if(mycol == Alcol_process)
+		{
+			Aptr -= lda * kb;
+			Anq -= kb;
+			Xd = XR + Anq;
+		}
+		if(myrow == Alrow)
+		{
+			Anp -= kb;
+		}
 /*
  * Broadcast  (decreasing-ring)  of  previous solution block in previous
  * process column,  compute  partial update of current block and send it
  * to current process column.
  */
-      if( mycol == colprev )
-      {
-/*
- * Send previous solution block in process row above
- */
-         if( myrow == rowprev )
-         {
-            if( GridIsNot1xQ )
-               (void) HPL_send( Xdprev, kbprev, MModSub1( myrow, nprow ),
-                                Cmsgid, Ccomm );
-         }
-         else
-         {
-            (void) HPL_recv( Xdprev, kbprev, MModAdd1( myrow, nprow ),
-                             Cmsgid, Ccomm );
-         } 
+		if (mycol == colprev)
+		{
+//Send previous solution block in process row above
+			if (myrow == rowprev)
+			{
+				if(GridIsNot1xQ)
+				{
+					(void) HPL_send( Xdprev, kbprev, MModSub1( myrow, nprow ), Cmsgid, Ccomm );
+				}
+			}
+			else
+			{
+				(void) HPL_recv(Xdprev, kbprev, MModAdd1(myrow, nprow), Cmsgid, Ccomm);
+			} 
 /*
  * Compute partial update of previous solution block and send it to cur-
  * rent column
  */
-         if( n1pprev > 0 )
-         {
-            tmp1 = Anpprev - n1pprev;
-            HPL_dgemv( HplColumnMajor, HplNoTrans, n1pprev, kbprev,
-                       -HPL_rone, Aprev+tmp1, lda, Xdprev, 1, HPL_rone,
-                       XC+tmp1, 1 );
-            if( GridIsNotPx1 )
-               (void) HPL_send( XC+tmp1, n1pprev, Alcol_process, Rmsgid, Rcomm );
-         }
-/*
- * Finish  the (decreasing-ring) broadcast of the solution block in pre-
- * vious process column
- */
-         if( ( myrow != rowprev ) &&
-             ( myrow != MModAdd1( rowprev, nprow ) ) )
-            (void) HPL_send( Xdprev, kbprev, MModSub1( myrow, nprow ),
-                             Cmsgid, Ccomm );
-      }
-      else if( mycol == Alcol_process )
-      {
-/*
- * Current  column  receives  and accumulates partial update of previous
- * solution block
- */
-         if( n1pprev > 0 )
-         {
-            (void) HPL_recv( W, n1pprev, colprev, Rmsgid, Rcomm );
-            HPL_daxpy( n1pprev, HPL_rone, W, 1, XC+Anpprev-n1pprev, 1 );
-         }
-      }
-/*
- * Solve current diagonal block 
- */
-      if( ( mycol == Alcol_process ) && ( myrow == Alrow ) )
-      {
-         HPL_dtrsv( HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit,
-                    kb, Aptr+Anp, lda, XC+Anp, 1 );
-         HPL_dcopy( kb, XC+Anp, 1, XR+Anq, 1 );
-      }
-/*
-*  Finish previous update
-*/
-      if( ( mycol == colprev ) && ( ( tmp1 = Anpprev - n1pprev ) > 0 ) )
-         HPL_dgemv( HplColumnMajor, HplNoTrans, tmp1, kbprev, -HPL_rone,
-                    Aprev, lda, Xdprev, 1, HPL_rone, XC, 1 );
-/*
-*  Save info of current step and update info for the next step
-*/
-      if( mycol == Alcol_process ) { Xdprev   = Xd; Aprev = Aptr; }
-      if( myrow == Alrow ) { Anpprev -= kb; }
-      rowprev = Alrow; colprev = Alcol_process;
-      n1pprev = n1p;   kbprev  = kb; n -= kb;
-      Alrow = MModSub1( Alrow, nprow );
-	  Alcol_matrix--;
-	  Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
-      tmp1  = n - ( kb = nb ); tmp1 -= ( tmp2 = Mmin( tmp1, n1 ) );
-      MnumrowI( n1p, tmp2, Mmax( 0, tmp1 ), nb, nb, myrow, nprow );
+			if(n1pprev > 0)
+			{
+				tmp1 = Anpprev - n1pprev;
+				HPL_dgemv(HplColumnMajor, HplNoTrans, n1pprev, kbprev, -HPL_rone, Aprev+tmp1, lda, Xdprev, 1, HPL_rone, XC+tmp1, 1 );
+				if(GridIsNotPx1)
+				{
+					(void) HPL_send(XC+tmp1, n1pprev, Alcol_process, Rmsgid, Rcomm);
+				}
+			}
+//Finish  the (decreasing-ring) broadcast of the solution block in previous process column
+			if((myrow != rowprev) && (myrow != MModAdd1(rowprev, nprow)))
+			{
+				(void) HPL_send(Xdprev, kbprev, MModSub1( myrow, nprow ), Cmsgid, Ccomm);
+			}
+		}
+		else if(mycol == Alcol_process)
+		{
+//Current  column  receives  and accumulates partial update of previous solution block
+			if(n1pprev > 0)
+			{
+				(void) HPL_recv(W, n1pprev, colprev, Rmsgid, Rcomm);
+				HPL_daxpy(n1pprev, HPL_rone, W, 1, XC+Anpprev-n1pprev, 1);
+			}
+		}
+//Solve current diagonal block 
+		if((mycol == Alcol_process) && (myrow == Alrow))
+		{
+			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
+			HPL_dcopy(kb, XC+Anp, 1, XR+Anq, 1);
+		}
+//Finish previous update
+		if((mycol == colprev) && ((tmp1 = Anpprev - n1pprev ) > 0))
+		{
+			HPL_dgemv(HplColumnMajor, HplNoTrans, tmp1, kbprev, -HPL_rone, Aprev, lda, Xdprev, 1, HPL_rone, XC, 1);
+		}
 
-      Rmsgid = ( Rmsgid+2 > MSGID_END_PTRSV ? 
-                 MSGID_BEGIN_PTRSV   : Rmsgid+2 );
-      Cmsgid = ( Cmsgid+2 > MSGID_END_PTRSV ?
-                 MSGID_BEGIN_PTRSV+1 : Cmsgid+2 );
-   }
-/*
- * Replicate last solution block
- */
-   if( mycol == colprev )
-      (void) HPL_broadcast( (void *)(XR), kbprev, HPL_DOUBLE, rowprev,
-                            Ccomm );
+//Save info of current step and update info for the next step
+		if (mycol == Alcol_process)
+		{
+			Xdprev = Xd;
+			Aprev = Aptr;
+		}
+		if (myrow == Alrow)
+		{
+			Anpprev -= kb;
+		}
+		rowprev = Alrow;
+		colprev = Alcol_process;
+		n1pprev = n1p;
+		kbprev  = kb; n -= kb;
+		Alrow = MModSub1(Alrow, nprow);
+		Alcol_matrix--;
+		Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
+		tmp1 = n - (kb = nb);
+		tmp1 -= (tmp2 = Mmin(tmp1, n1));
+		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
 
-   if( Wfr  ) free( W  );
-   HPL_ptimer_detail( HPL_TIMING_PTRSV );
-/*
- * End of HPL_pdtrsv
- */
+		Rmsgid = (Rmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid+2);
+		Cmsgid = (Cmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV+1 : Cmsgid+2);
+	}
+//Replicate last solution block
+	if (mycol == colprev)
+	{
+		(void) HPL_broadcast((void *) (XR), kbprev, HPL_DOUBLE, rowprev, Ccomm);
+	}
+
+	if (Wfr) free(W);
+	HPL_ptimer_detail(HPL_TIMING_PTRSV);
+//End of HPL_pdtrsv
 }

@@ -358,87 +358,87 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
 #ifndef QON_TEST
-return;
+	return;
 #endif
-    for (int i = 0;i < A->n;i++)
-    {
-	for (int j = 0;j < A->n + 1;j++)
+	for (int i = 0;i < A->n;i++)
 	{
-	    int tmp[6];
-	    HPL_infog2l(i, j, A->nb, A->nb, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, tmp, tmp+1, tmp+2, tmp+3, GRID);
-	    if (GRID->myrow == 0 && GRID->mycol == 0)
-	    {
-		if (tmp[2] || tmp[3])
+		for (int j = 0;j < A->n + 1;j++)
 		{
-		    int rank;
-		    if (GRID->order == HPL_ROW_MAJOR)
-		    {
-			rank = tmp[2] * GRID->npcol + tmp[3];
-		    }
-		    else
-		    {
-			rank = tmp[3] * GRID->nprow + tmp[2];
-		    }
-		    
-		    MPI_Recv(tmp, 6, MPI_INT, rank, i * A->n + j, GRID->all_comm, MPI_STATUS_IGNORE);
-		    //fprintf(stderr, "Guessing Row %d Col %d Rank %d\n", tmp[2], tmp[3], rank);
+			int tmp[6];
+			HPL_infog2l(i, j, A->nb, A->nb, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, tmp, tmp+1, tmp+2, tmp+3, GRID);
+			if (GRID->myrow == 0 && GRID->mycol == 0)
+			{
+				if (tmp[2] || tmp[3])
+				{
+					int rank;
+					if (GRID->order == HPL_ROW_MAJOR)
+					{
+						rank = tmp[2] * GRID->npcol + tmp[3];
+					}
+					else
+					{
+						rank = tmp[3] * GRID->nprow + tmp[2];
+					}
+
+					MPI_Recv(tmp, 6, MPI_INT, rank, i * A->n + j, GRID->all_comm, MPI_STATUS_IGNORE);
+					//fprintf(stderr, "Guessing Row %d Col %d Rank %d\n", tmp[2], tmp[3], rank);
+				}
+				else
+				{
+					*((double*) (tmp+4)) = A->A[tmp[1] * A->ld + tmp[0]];
+				}
+			}
+			else if (tmp[2] == GRID->myrow && tmp[3] == GRID->mycol)
+			{
+				//fprintf(stderr, "Row %d Col %d Rank %d\n", tmp[2], tmp[3], GRID->iam);
+				*((double*) (tmp+4)) = A->A[tmp[1] * A->ld + tmp[0]];
+				MPI_Send(tmp, 6, MPI_INT, 0, i * A->n + j, GRID->all_comm);
+			}
+			if (GRID->iam == 0)
+			{
+				//fprintf(stderr, "i %d j %d Row %d Col %d II %d JJ %d entry %lf\n", i, j, tmp[2], tmp[3], tmp[0], tmp[1], *((double*) (tmp+4)));
+				fprintf(stderr, "%lf\t", *((double*) (tmp+4)));
+			}
 		}
-		else
-		{
-		    *((double*) (tmp+4)) = A->A[tmp[1] * A->ld + tmp[0]];
-		}
-	    }
-	    else if (tmp[2] == GRID->myrow && tmp[3] == GRID->mycol)
-	    {
-		//fprintf(stderr, "Row %d Col %d Rank %d\n", tmp[2], tmp[3], GRID->iam);
-		*((double*) (tmp+4)) = A->A[tmp[1] * A->ld + tmp[0]];
-		MPI_Send(tmp, 6, MPI_INT, 0, i * A->n + j, GRID->all_comm);
-	    }
-	    if (GRID->iam == 0)
-	    {
-		//fprintf(stderr, "i %d j %d Row %d Col %d II %d JJ %d entry %lf\n", i, j, tmp[2], tmp[3], tmp[0], tmp[1], *((double*) (tmp+4)));
-		fprintf(stderr, "%lf\t", *((double*) (tmp+4)));
-	    }
+		if (GRID->iam == 0) fprintf(stderr, "\n");
 	}
 	if (GRID->iam == 0) fprintf(stderr, "\n");
-    }
-    if (GRID->iam == 0) fprintf(stderr, "\n");
 }
 
 void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
 #ifndef QON_TEST
-return;
+	return;
 #endif
-    //Currently only works with P=1 (probably)
-    if (GRID->iam == 0) fprintf(stderr, "\n");
-    double* buffer = malloc(A->n * sizeof(double));
-    for (int i = 0;i < GRID->npcol;i++)
-    {
-	if (i == 0)
-	{
-	    for (int j = 0;j < A->n;j++) buffer[j] = A->X[j];
-	}
-	else
-	{
-	    if (GRID->iam == 0)
-	    {
-		MPI_Recv(buffer, A->n, MPI_DOUBLE, i, 0, GRID->all_comm, MPI_STATUS_IGNORE);
-	    }
-	    else if (GRID->mycol == i)
-	    {
-		MPI_Send(A->X, A->n, MPI_DOUBLE, 0, 0, GRID->all_comm);
-	    }
-	}
-	if (GRID->iam == 0) fprintf(stderr, "Rank %d:\t", i);
-	for (int j = 0;j < A->n;j++)
-	{
-	    if (GRID->iam == 0) fprintf(stderr, "%lf\t", buffer[j]);
-	}
+	//Currently only works with P=1 (probably)
 	if (GRID->iam == 0) fprintf(stderr, "\n");
-    }
-    free(buffer);
-    if (GRID->iam == 0) fprintf(stderr, "\n");
+	double* buffer = malloc(A->n * sizeof(double));
+	for (int i = 0;i < GRID->npcol;i++)
+	{
+		if (i == 0)
+		{
+			for (int j = 0;j < A->n;j++) buffer[j] = A->X[j];
+		}
+		else
+		{
+			if (GRID->iam == 0)
+			{
+				MPI_Recv(buffer, A->n, MPI_DOUBLE, i, 0, GRID->all_comm, MPI_STATUS_IGNORE);
+			}
+			else if (GRID->mycol == i)
+			{
+				MPI_Send(A->X, A->n, MPI_DOUBLE, 0, 0, GRID->all_comm);
+			}
+		}
+		if (GRID->iam == 0) fprintf(stderr, "Rank %d:\t", i);
+		for (int j = 0;j < A->n;j++)
+		{
+			if (GRID->iam == 0) fprintf(stderr, "%lf\t", buffer[j]);
+		}
+		if (GRID->iam == 0) fprintf(stderr, "\n");
+	}
+	free(buffer);
+	if (GRID->iam == 0) fprintf(stderr, "\n");
 }
 
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
