@@ -122,7 +122,7 @@ int HPL_numcol
    const int                        N,
    const int                        NB,
    const int                        PROC,
-   HPL_T_grid*						GRID
+   const HPL_T_grid*						GRID
 )
 {
    return( HPL_numcolI( N, 0, NB, PROC, GRID ) );

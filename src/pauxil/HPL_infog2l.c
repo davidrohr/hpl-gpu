@@ -160,7 +160,7 @@ void HPL_infog2l
 /*
  * .. Local Variables ..
  */
-   int            ilocblk, imb, mb, mydist, nb, nblocks, csrc, rsrc;
+   int            ilocblk, imb, mb, mydist, nblocks, rsrc;
 /* ..
  * .. Executable Statements ..
  */

@@ -241,11 +241,11 @@
  */
 int HPL_indxg2p_col( const int, const int, HPL_T_grid* );
 void 
-HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, HPL_T_grid* );
+HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, const HPL_T_grid* );
 int HPL_numrow( const int, const int, const int, const int );
 int HPL_numrowI( const int, const int, const int, const int, const int );
-int HPL_numcol( const int, const int, const int, HPL_T_grid* );
-int HPL_numcolI( const int, const int, const int, const int, HPL_T_grid* );
+int HPL_numcol( const int, const int, const int, const HPL_T_grid* );
+int HPL_numcolI( const int, const int, const int, const int, const HPL_T_grid* );
 
 void HPL_dlaswp00N( const int, const int, double *, const int, const int * );
 void HPL_dlaswp10N( const int, const int, double *, const int, const int * );

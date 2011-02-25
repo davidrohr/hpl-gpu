@@ -60,7 +60,7 @@
  */
 #include "hpl.h"
 
-int HPL_indxg2p_col(const int IG, const int NB, HPL_T_grid* GRID)
+int HPL_indxg2p_col(const int IG, const int NB, const HPL_T_grid* GRID)
 {
 /* 
  * Purpose

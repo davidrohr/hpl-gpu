@@ -240,7 +240,7 @@ int HPL_numrowI
 }
 
 
-int HPL_numcolI (const int N, const int I, const int NB, const int PROC, HPL_T_grid* grid)
+int HPL_numcolI (const int N, const int I, const int NB, const int PROC, const HPL_T_grid* grid)
 {
 	int numcols = 0;
 	int i = I;
