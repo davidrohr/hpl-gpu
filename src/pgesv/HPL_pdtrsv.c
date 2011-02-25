@@ -128,8 +128,8 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	GridIsNotPx1 = (npcol > 1);
 
 //Move the rhs in the process column owning the last column of A.
-	Mnumrow(Anp, n, nb, nb, myrow, nprow);
-	Mnumcol(Anq, n, nb, nb, mycol, 0, GRID);
+	Mnumrow(Anp, n, nb, myrow, nprow);
+	Mnumcol(Anq, n, nb, mycol, GRID);
 	fprintfqt(stderr, "Rank %d Anq %d Anp %d\n", GRID->iam, Anq, Anp);
 
 	tmp1 = (n - 1) / nb;
@@ -182,7 +182,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	Aprev = Aptr = Mptr(Aptr, 0, Anq, lda);
 	tmp1 = n - kb;
 	tmp1 -= (tmp2 = Mmin(tmp1, n1));
-	MnumrowI(n1pprev, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
+	MnumrowI(n1pprev, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
 
 	if (myrow == Alrow)
 	{
@@ -209,7 +209,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	n -= kb;
 	tmp1 = n - (kb = nb);
 	tmp1 -= (tmp2 = Mmin(tmp1, n1));
-	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
+	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
 
 // Start the operations
 	while(n > 0)
@@ -308,7 +308,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 		tmp1 = n - (kb = nb);
 		tmp1 -= (tmp2 = Mmin(tmp1, n1));
-		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
+		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
 
 		Rmsgid = (Rmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid+2);
 		Cmsgid = (Cmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV+1 : Cmsgid+2);

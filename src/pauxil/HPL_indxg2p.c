@@ -60,14 +60,7 @@
  */
 #include "hpl.h"
 
-int HPL_indxg2p_col
-(
-   const int                        IG,
-   const int                        INB,
-   const int                        NB,
-   const int                        NPROCS,
-   HPL_T_grid*					    GRID
-)
+int HPL_indxg2p_col(const int IG, const int NB, HPL_T_grid* GRID)
 {
 /* 
  * Purpose
@@ -83,29 +76,14 @@ int HPL_indxg2p_col
  *         On entry, IG specifies the global index of the matrix  entry.
  *         IG must be at least zero.
  *
- * INB     (input)                       const int
- *         On entry,  INB  specifies  the size of the first block of the
- *         global matrix. INB must be at least one.
- *
  * NB      (input)                       const int
  *         On entry,  NB specifies the blocking factor used to partition
  *         and distribute the matrix A. NB must be larger than one.
- *
- * SRCPROC (input)                       const int
- *         On entry,  SRCPROC  specifies  the coordinate of the  process
- *         that possesses the first row or column of the matrix. SRCPROC
- *         must be at least zero and strictly less than NPROCS.
- *
- * NPROCS  (input)                       const int
- *         On entry,  NPROCS  specifies the total number of process rows
- *         or columns over which the matrix is distributed.  NPROCS must
- *         be at least one.
  *
  * ---------------------------------------------------------------------
  */ 
 /*
  * .. Local Variables ..
  */
-	if (NB != INB) exit(1);
 	return(GRID->col_mapping[IG / NB]);
 }

@@ -156,10 +156,10 @@ START_TRACE( PDPANEL_INIT )
    myrow = GRID->myrow; mycol = GRID->mycol;
    nprow = GRID->nprow; npcol = GRID->npcol; nb = A->nb;
 
-   HPL_infog2l( IA, JA, nb, nb, nb, nb, 0, 0, myrow, mycol,
+   HPL_infog2l( IA, JA, nb, nb, 0, 0, myrow, mycol,
                 nprow, npcol, &ii, &jj, &icurrow, &icurcol, GRID );
-   mp = HPL_numrowI( M, IA, nb, nb, myrow, nprow );
-   nq = HPL_numcolI( N, JA, nb, nb, mycol, npcol, GRID );
+   mp = HPL_numrowI( M, IA, nb, myrow, nprow );
+   nq = HPL_numcolI( N, JA, nb, mycol, GRID );
                                          /* ptr to trailing part of A */
    PANEL->A       = Mptr( (double *)(A->A), ii, jj, A->ld );
 /*

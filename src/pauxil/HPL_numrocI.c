@@ -68,7 +68,6 @@ int HPL_numrowI
 (
    const int                        N,
    const int                        I,
-   const int                        INB,
    const int                        NB,
    const int                        PROC,
    const int                        NPROCS
@@ -92,10 +91,6 @@ int HPL_numrowI
  * I       (input)                       const int
  *         On entry, I  specifies the global index of the matrix  entry
  *         I must be at least zero.
- *
- * INB     (input)                       const int
- *         On entry,  INB  specifies  the size of the first block of th
- *         global matrix. INB must be at least one.
  *
  * NB      (input)                       const int
  *         On entry,  NB specifies the blocking factor used to partition
@@ -136,7 +131,7 @@ int HPL_numrowI
  */
    srcproc = 0;
 
-   if( ( inb = INB - I ) <= 0 )
+   if( ( inb = NB - I ) <= 0 )
    {
 /*
  * I is not in the first block, find out which process has it and update
@@ -245,9 +240,8 @@ int HPL_numrowI
 }
 
 
-int HPL_numcolI (const int N, const int I, const int INB, const int NB, const int PROC, const int NPROCS, HPL_T_grid* grid)
+int HPL_numcolI (const int N, const int I, const int NB, const int PROC, HPL_T_grid* grid)
 {
-	if (INB != NB) exit(1);
 	int numcols = 0;
 	int i = I;
 	int n = N + I;

@@ -67,7 +67,6 @@
 int HPL_numrow
 (
    const int                        N,
-   const int                        INB,
    const int                        NB,
    const int                        PROC,
    const int                        NPROCS
@@ -87,10 +86,6 @@ int HPL_numrow
  * N       (input)                       const int
  *         On entry, N  specifies the number of rows/columns being dealt
  *         out. N must be at least zero.
- *
- * INB     (input)                       const int
- *         On entry,  INB  specifies  the size of the first block of the
- *         global matrix. INB must be at least one.
  *
  * NB      (input)                       const int
  *         On entry,  NB specifies the blocking factor used to partition
@@ -116,7 +111,7 @@ int HPL_numrow
 /* ..
  * .. Executable Statements ..
  */
-   return( HPL_numrowI( N, 0, INB, NB, PROC, NPROCS ) );
+   return( HPL_numrowI( N, 0, NB, PROC, NPROCS ) );
 /*
  * End of HPL_numroc
  */
@@ -125,12 +120,10 @@ int HPL_numrow
 int HPL_numcol
 (
    const int                        N,
-   const int                        INB,
    const int                        NB,
    const int                        PROC,
-   const int                        NPROCS,
    HPL_T_grid*						GRID
 )
 {
-   return( HPL_numcolI( N, 0, INB, NB, PROC, NPROCS, GRID ) );
+   return( HPL_numcolI( N, 0, NB, PROC, GRID ) );
 }

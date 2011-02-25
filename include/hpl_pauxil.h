@@ -143,12 +143,12 @@
  * src_, and that the indexes are distributed from src_ using the para-
  * meters inb_, nb_ and nprocs_.
  */
-#define MnumrowI( np_, n_, i_, inb_, nb_, proc_, nprocs_ ) \
+#define MnumrowI( np_, n_, i_, nb_, proc_, nprocs_ ) \
 		 { \
 		 if( ( (nprocs_) > 1 ) ) \
 			 { \
 			 int inb__, mydist__, n__, nblk__, quot__, src__; \
-			 if( ( inb__ = (inb_) - (i_) ) <= 0 ) \
+			 if( ( inb__ = (nb_) - (i_) ) <= 0 ) \
 				 { \
 				 nblk__ = (-inb__) / (nb_) + 1; \
 				 src__ = nblk__; \
@@ -227,24 +227,25 @@
 			 } \
 		 }
 
-#define Mnumrow( np_, n_, inb_, nb_, proc_, nprocs_ ) \
-	MnumrowI( np_, n_, 0, inb_, nb_, proc_, nprocs_ )
+#define Mnumrow( np_, n_, nb_, proc_, nprocs_ ) \
+	MnumrowI( np_, n_, 0, nb_, proc_, nprocs_ )
 
-#define Mnumcol( np_, n_, inb_, nb_, proc_, nprocs_, grid ) \
+#define Mnumcol( np_, n_, nb_, proc_, grid ) \
 	{ \
-	np_ = HPL_numcol(n_, inb_, nb_, proc_, nprocs_, grid); \
+	np_ = HPL_numcol(n_, nb_, proc_, grid); \
 	}
 /*
  * ---------------------------------------------------------------------
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-int HPL_indxg2p_col( const int, const int, const int, const int, HPL_T_grid* );
-void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, HPL_T_grid* );
-int HPL_numrow( const int, const int, const int, const int, const int );
-int HPL_numrowI( const int, const int, const int, const int, const int, const int );
-int HPL_numcol( const int, const int, const int, const int, const int, HPL_T_grid* );
-int HPL_numcolI( const int, const int, const int, const int, const int, const int, HPL_T_grid* );
+int HPL_indxg2p_col( const int, const int, HPL_T_grid* );
+void 
+HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, HPL_T_grid* );
+int HPL_numrow( const int, const int, const int, const int );
+int HPL_numrowI( const int, const int, const int, const int, const int );
+int HPL_numcol( const int, const int, const int, HPL_T_grid* );
+int HPL_numcolI( const int, const int, const int, const int, HPL_T_grid* );
 
 void HPL_dlaswp00N( const int, const int, double *, const int, const int * );
 void HPL_dlaswp10N( const int, const int, double *, const int, const int * );

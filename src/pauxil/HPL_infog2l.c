@@ -64,9 +64,7 @@ void HPL_infog2l
 (
    int                              I,
    int                              J,
-   const int                        IMB,
    const int                        MB,
-   const int                        INB,
    const int                        NB,
    const int                        RSRC,
    const int                        CSRC,
@@ -101,18 +99,10 @@ void HPL_infog2l
  *         On entry,  J  specifies the global column index of the matrix
  *         entry. J must be at least zero.
  *
- * IMB     (global input)                const int
- *         On entry,  IMB  specifies  the size of the first row block of
- *         the global matrix. IMB must be at least one.
- *
  * MB      (global input)                const int
  *         On entry,  MB specifies the blocking factor used to partition
  *         and  distribute the rows of the matrix A.  MB  must be larger
  *         than one.
- *
- * INB     (global input)                const int
- *         On entry, INB specifies the size of the first column block of
- *         the global matrix. INB must be at least one.
  *
  * NB      (global input)                const int
  *         On entry,  NB specifies the blocking factor used to partition
@@ -170,11 +160,11 @@ void HPL_infog2l
 /*
  * .. Local Variables ..
  */
-   int            ilocblk, imb, inb, mb, mydist, nb, nblocks, csrc, rsrc;
+   int            ilocblk, imb, mb, mydist, nb, nblocks, csrc, rsrc;
 /* ..
  * .. Executable Statements ..
  */
-   imb   = IMB;
+   imb   = MB;
    *PROW = RSRC;
 
    if( ( *PROW == -1 ) || ( NPROW == 1 ) )
@@ -300,8 +290,8 @@ void HPL_infog2l
    }
    
    //Do columns
-   *PCOL = HPL_indxg2p_col(J, INB, NB, -1, GRID);
-   *JJ = HPL_numcol(J, INB, NB, MYCOL, -1, GRID);
+   *PCOL = HPL_indxg2p_col(J, NB, GRID);
+   *JJ = HPL_numcol(J, NB, MYCOL, GRID);
  
 /*
  * End of HPL_infog2l

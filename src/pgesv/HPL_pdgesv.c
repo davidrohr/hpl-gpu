@@ -365,7 +365,7 @@ void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 		for (int j = 0;j < A->n + 1;j++)
 		{
 			int tmp[6];
-			HPL_infog2l(i, j, A->nb, A->nb, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, tmp, tmp+1, tmp+2, tmp+3, GRID);
+			HPL_infog2l(i, j, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, tmp, tmp+1, tmp+2, tmp+3, GRID);
 			if (GRID->myrow == 0 && GRID->mycol == 0)
 			{
 				if (tmp[2] || tmp[3])
@@ -472,7 +472,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
-	nq = HPL_numcol(N+1, nb, nb, mycol, npcol, GRID);
+	nq = HPL_numcol(N+1, nb, mycol, GRID);
 	nn = N;
 
 	if (depth1)
@@ -559,7 +559,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
 		}
 		
-		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, nb, mycol, npcol, GRID) : 0;
+		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, mycol, GRID) : 0;
 
 		//Finish the latest update and broadcast the current panel
 		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol, GRID) : -1, depth2);

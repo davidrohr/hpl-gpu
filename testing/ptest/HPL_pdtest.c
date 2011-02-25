@@ -135,7 +135,7 @@ void debugmatgen(HPL_T_grid* GRID, HPL_T_pmat* A)
 	for (int j = 0;j < A->n + 1;j++)
 	{
 	    int II, JJ, P, Q;
-	    HPL_infog2l(i, j, A->nb, A->nb, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, &II, &JJ, &P, &Q, GRID);
+	    HPL_infog2l(i, j, A->nb, A->nb, 0, 0, GRID->myrow, GRID->mycol, GRID->nprow, GRID->npcol, &II, &JJ, &P, &Q, GRID);
 	    double rval = (double) rand() / (double) RAND_MAX - 0.5;
 	    if (P == GRID->myrow && Q == GRID->mycol)
 	    {
@@ -231,8 +231,8 @@ void HPL_pdtest
    (void) HPL_grid_info( GRID, &nprow, &npcol, &myrow, &mycol );
 
    mat.n  = N; mat.nb = NB; mat.info = 0;
-   mat.mp = HPL_numrow( N, NB, NB, myrow, nprow );
-   nq     = HPL_numcol( N, NB, NB, mycol, npcol, GRID );
+   mat.mp = HPL_numrow( N, NB, myrow, nprow );
+   nq     = HPL_numcol( N, NB, mycol, GRID );
    mat.nq = nq + 1;
 /*
  * Allocate matrix, right-hand-side, and vector solution x. [ A | b ] is
@@ -452,7 +452,7 @@ void HPL_pdtest
  * for the entries of B, it is very likely that BnormI (<=,~) 0.5.
  */
    Bptr = Mptr( mat.A, 0, nq, mat.ld );
-   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol, GRID ) ){
+   if( mycol == HPL_indxg2p_col( N, NB, GRID ) ){
       if( mat.mp > 0 )
       {
          BnormI = Bptr[HPL_idamax( mat.mp, Bptr, 1 )]; BnormI = Mabs( BnormI );
@@ -464,13 +464,11 @@ void HPL_pdtest
       (void) HPL_all_reduce( (void *)(&BnormI), 1, HPL_DOUBLE, HPL_max,
                              GRID->col_comm );
    }
-   (void) HPL_broadcast( (void *)(&BnormI), 1, HPL_DOUBLE,
-                          HPL_indxg2p_col( N, NB, NB, npcol, GRID ),
-                          GRID->row_comm );
+   (void) HPL_broadcast( (void *)(&BnormI), 1, HPL_DOUBLE, HPL_indxg2p_col( N, NB, GRID ), GRID->row_comm );
 /*
  * If I own b, compute ( b - A x ) and ( - A x ) otherwise
  */
-   if( mycol == HPL_indxg2p_col( N, NB, NB, npcol, GRID ) )
+   if( mycol == HPL_indxg2p_col( N, NB, GRID ) )
    {
       HPL_dgemv( HplColumnMajor, HplNoTrans, mat.mp, nq, -HPL_rone,
                  mat.A, mat.ld, mat.X, 1, HPL_rone, Bptr, 1 );
