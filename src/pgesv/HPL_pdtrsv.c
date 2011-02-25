@@ -118,42 +118,50 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	XR = AMAT->X;
 
 	(void) HPL_grid_info(GRID, &nprow, &npcol, &myrow, &mycol);
+	//if (mycol >= 2) return;
+	//npcol = 2;
 	Rcomm = GRID->row_comm;
 	Rmsgid = MSGID_BEGIN_PTRSV;
 	Ccomm = GRID->col_comm;
 	Cmsgid = MSGID_BEGIN_PTRSV + 1;
-	GridIsNot1xQ = ( nprow > 1 );
-	GridIsNotPx1 = ( npcol > 1 );
+	GridIsNot1xQ = (nprow > 1);
+	GridIsNotPx1 = (npcol > 1);
 
 //Move the rhs in the process column owning the last column of A.
 	Mnumrow(Anp, n, nb, nb, myrow, nprow);
-	Mnumcol(Anq, n, nb, nb, mycol, npcol, GRID);
+	Mnumcol(Anq, n, nb, nb, mycol, 0, GRID);
+	fprintfqt(stderr, "Rank %d Anq %d Anp %d\n", GRID->iam, Anq, Anp);
 
 	tmp1 = (n - 1) / nb;
-	Alrow = tmp1 - (tmp1 / nprow) * nprow;
+	Alrow = tmp1 % nprow;
 	Alcol_matrix = tmp1;
-	Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
+	Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 	kb = n - tmp1 * nb;
 
 	Aptr = (double *) (A);
 	XC = Mptr(Aptr, 0, Anq, lda);
-	Mindxg2p_col(n, nb, nb, Bcol, npcol, GRID);
+	Mindxg2p_col(n, nb, nb, Bcol, 0, GRID);
 
-	if((Anp > 0) && (Alcol_process != Bcol))
+	if ((Anp > 0) && (Alcol_process != Bcol))
 	{
 		if(mycol == Bcol)
 		{
 			(void) HPL_send(XC, Anp, Alcol_process, Rmsgid, Rcomm);
+			fprintfqt(stderr, "Send 1: %d to %d\n", GRID->iam, Alcol_process);
 		}
 		else if(mycol == Alcol_process)
 		{
-			(void) HPL_recv(XC, Anp, Bcol,  Rmsgid, Rcomm);
+			(void) HPL_recv(XC, Anp, Bcol, Rmsgid, Rcomm);
+			fprintfqt(stderr, "Recv 1: %d from %d\n", GRID->iam, Bcol);
 		}
 	}
 	Rmsgid = (Rmsgid + 2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid + 2);
-	if(mycol != Alcol_process)
+	if (mycol != Alcol_process)
 	{
-		for(tmp1=0; tmp1 < Anp; tmp1++) XC[tmp1] = HPL_rzero;
+		for(tmp1 = 0; tmp1 < Anp; tmp1++)
+		{
+			XC[tmp1] = HPL_rzero;
+		}
 	}
 
 //Set up lookahead
@@ -196,9 +204,10 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	Alrow = MModSub1(Alrow, nprow);
 	colprev = Alcol_process;
 	Alcol_matrix--;
-	Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
-	kbprev  = kb; n -= kb;
-	tmp1    = n - (kb = nb);
+	Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+	kbprev  = kb;
+	n -= kb;
+	tmp1 = n - (kb = nb);
 	tmp1 -= (tmp2 = Mmin(tmp1, n1));
 	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
 
@@ -222,22 +231,22 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
  */
 		if (mycol == colprev)
 		{
-//Send previous solution block in process row above
+			//Send previous solution block in process row above
 			if (myrow == rowprev)
 			{
-				if(GridIsNot1xQ)
+				if (GridIsNot1xQ)
 				{
-					(void) HPL_send( Xdprev, kbprev, MModSub1( myrow, nprow ), Cmsgid, Ccomm );
+					(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
+					fprintfqt(stderr, "Send 2: %d to %d\n", GRID->iam, MModSub1(myrow, nprow));
 				}
 			}
 			else
 			{
 				(void) HPL_recv(Xdprev, kbprev, MModAdd1(myrow, nprow), Cmsgid, Ccomm);
+				fprintfqt(stderr, "Recv 2: %d from %d\n", GRID->iam, MModAdd1(myrow, nprow));
 			} 
-/*
- * Compute partial update of previous solution block and send it to cur-
- * rent column
- */
+
+			//Compute partial update of previous solution block and send it to current column
 			if(n1pprev > 0)
 			{
 				tmp1 = Anpprev - n1pprev;
@@ -245,36 +254,42 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 				if(GridIsNotPx1)
 				{
 					(void) HPL_send(XC+tmp1, n1pprev, Alcol_process, Rmsgid, Rcomm);
+					fprintfqt(stderr, "Send 3: %d to %d\n", GRID->iam, Alcol_process);
 				}
 			}
-//Finish  the (decreasing-ring) broadcast of the solution block in previous process column
+
+			//Finish the (decreasing-ring) broadcast of the solution block in previous process column
 			if((myrow != rowprev) && (myrow != MModAdd1(rowprev, nprow)))
 			{
-				(void) HPL_send(Xdprev, kbprev, MModSub1( myrow, nprow ), Cmsgid, Ccomm);
+				(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
+				fprintfqt(stderr, "Send 4: %d to %d\n", GRID->iam, MModSub1(myrow, nprow));
 			}
 		}
-		else if(mycol == Alcol_process)
+		else if (mycol == Alcol_process)
 		{
-//Current  column  receives  and accumulates partial update of previous solution block
-			if(n1pprev > 0)
+			//Current column receives and accumulates partial update of previous solution block
+			if (n1pprev > 0)
 			{
 				(void) HPL_recv(W, n1pprev, colprev, Rmsgid, Rcomm);
+				fprintfqt(stderr, "Recv 5: %d from %d\n", GRID->iam, colprev);
 				HPL_daxpy(n1pprev, HPL_rone, W, 1, XC+Anpprev-n1pprev, 1);
 			}
 		}
-//Solve current diagonal block 
+		
+		//Solve current diagonal block 
 		if((mycol == Alcol_process) && (myrow == Alrow))
 		{
 			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
 			HPL_dcopy(kb, XC+Anp, 1, XR+Anq, 1);
 		}
-//Finish previous update
+
+		//Finish previous update
 		if((mycol == colprev) && ((tmp1 = Anpprev - n1pprev ) > 0))
 		{
 			HPL_dgemv(HplColumnMajor, HplNoTrans, tmp1, kbprev, -HPL_rone, Aprev, lda, Xdprev, 1, HPL_rone, XC, 1);
 		}
 
-//Save info of current step and update info for the next step
+		//Save info of current step and update info for the next step
 		if (mycol == Alcol_process)
 		{
 			Xdprev = Xd;
@@ -290,7 +305,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		kbprev  = kb; n -= kb;
 		Alrow = MModSub1(Alrow, nprow);
 		Alcol_matrix--;
-		Alcol_process = MColBlockToPCol(Alcol_matrix, npcol, GRID);
+		Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 		tmp1 = n - (kb = nb);
 		tmp1 -= (tmp2 = Mmin(tmp1, n1));
 		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, nb, myrow, nprow);
@@ -298,13 +313,15 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		Rmsgid = (Rmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid+2);
 		Cmsgid = (Cmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV+1 : Cmsgid+2);
 	}
-//Replicate last solution block
+	//Replicate last solution block
 	if (mycol == colprev)
 	{
 		(void) HPL_broadcast((void *) (XR), kbprev, HPL_DOUBLE, rowprev, Ccomm);
+		fprintfqt(stderr, "Bcase 6: %d to %d\n", rowprev, GRID->iam);
 	}
 
 	if (Wfr) free(W);
 	HPL_ptimer_detail(HPL_TIMING_PTRSV);
-//End of HPL_pdtrsv
+
+	//End of HPL_pdtrsv
 }

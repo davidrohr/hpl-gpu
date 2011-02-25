@@ -119,6 +119,12 @@
 #define fprintfctd(...)
 #endif
 
+#ifdef QON_TEST
+#define fprintfqt fprintf
+#else
+#define fprintfqt(...)
+#endif
+
 #endif
 /*
 * End of hpl.h
