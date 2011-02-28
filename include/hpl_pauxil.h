@@ -239,9 +239,8 @@
  * Function prototypes
  * ---------------------------------------------------------------------
  */
-int HPL_indxg2p_col( const int, const int, HPL_T_grid* );
-void 
-HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, const HPL_T_grid* );
+int HPL_indxg2p_col( const int, const int, const HPL_T_grid* );
+void HPL_infog2l( int, int, const int, const int, const int, const int, const int, const int, const int, const int, int *, int *, int *, int *, const HPL_T_grid* );
 int HPL_numrow( const int, const int, const int, const int );
 int HPL_numrowI( const int, const int, const int, const int, const int );
 int HPL_numcol( const int, const int, const int, const HPL_T_grid* );

@@ -60,6 +60,23 @@
  */
 #include "hpl.h"
 
+int HPL_n1(int matrix_col, int nb, const HPL_T_grid* GRID)
+{
+	int cols = 0;
+	if (matrix_col)
+	{
+		int process_col = GRID->col_mapping[matrix_col];
+		matrix_col--;
+		while (matrix_col >= 0 && GRID->col_mapping[matrix_col] != process_col)
+		{
+			cols++;
+			matrix_col--;
+		}
+	}
+	if (cols == 0) cols = 1;
+	return(cols * nb);
+}
+
 void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 {
 /* 
@@ -165,8 +182,9 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	}
 
 //Set up lookahead
-	n1 = (npcol - 1) * nb;
-	n1 = Mmax(n1, nb);
+	//n1 = (npcol - 1) * nb;
+	//n1 = Mmax(n1, nb);
+	n1 = HPL_n1(Alcol_matrix, nb, GRID);
 	if (Anp > 0)
 	{
 		W = (double*) malloc((size_t) (Mmin(n1, Anp)) * sizeof(double));
@@ -302,10 +320,12 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		rowprev = Alrow;
 		colprev = Alcol_process;
 		n1pprev = n1p;
-		kbprev  = kb; n -= kb;
+		kbprev  = kb;
+		n -= kb;
 		Alrow = MModSub1(Alrow, nprow);
 		Alcol_matrix--;
 		Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+		n1 = HPL_n1(Alcol_matrix, nb, GRID);
 		tmp1 = n - (kb = nb);
 		tmp1 -= (tmp2 = Mmin(tmp1, n1));
 		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
