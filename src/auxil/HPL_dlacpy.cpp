@@ -148,14 +148,19 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
    }
 
    const size_t M = _M;
-   const size_t MM = M & ~7;
+   size_t MM = M & ~7;
    const size_t N = _N;
    const size_t LDA = _LDA;
    const size_t LDB = _LDB;
 
    // B_ij = A_ji
 
-   if (multithread)
+   if (LDA & 1 || LDB & 1)
+   {
+    MM = 0;
+    goto Unaligned;
+   }
+   else if (multithread)
    {
     tbb::parallel_for( Range(0, MM), HPL_dlacpy_impl( N, A, LDA, B, LDB ), tbb::auto_partitioner() );
    }
@@ -166,6 +171,7 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
 
    if ( M & 7 )
    {
+Unaligned:
 	  for ( size_t j = 0; j < N; ++j )
 	  {
 		 for ( size_t i = MM; i < M; ++i )
