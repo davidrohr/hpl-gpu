@@ -62,6 +62,7 @@
 
 int HPL_n1(int matrix_col, int nb, const HPL_T_grid* GRID)
 {
+	//return(7 * nb);
 	int cols = 0;
 	if (matrix_col)
 	{
@@ -124,7 +125,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	MPI_Comm Ccomm, Rcomm;
 	double *A=NULL, *Aprev=NULL, *Aptr, *XC=NULL, *XR=NULL, *Xd=NULL, *Xdprev=NULL, *W=NULL;
 	int Alcol_matrix, Alcol_process, Alrow, Anpprev, Anp, Anq, Bcol, Cmsgid, GridIsNotPx1, GridIsNot1xQ, Rmsgid,
-		Wfr=0, colprev, kb, kbprev, lda, mycol,	myrow, n, n1, n1p, n1pprev=0, nb, npcol, nprow, rowprev, tmp1, tmp2;
+		colprev, kb, kbprev, lda, mycol, myrow, n, n1, n1p, n1pprev=0, nb, npcol, nprow, rowprev, tmp1, tmp2, Wsize;
 
 //Executable Statements
 	HPL_ptimer_detail( HPL_TIMING_PTRSV );
@@ -147,7 +148,6 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 //Move the rhs in the process column owning the last column of A.
 	Mnumrow(Anp, n, nb, myrow, nprow);
 	Mnumcol(Anq, n, nb, mycol, GRID);
-	fprintfqt(stderr, "Rank %d Anq %d Anp %d\n", GRID->iam, Anq, Anp);
 
 	tmp1 = (n - 1) / nb;
 	Alrow = tmp1 % nprow;
@@ -164,12 +164,10 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if(mycol == Bcol)
 		{
 			(void) HPL_send(XC, Anp, Alcol_process, Rmsgid, Rcomm);
-			fprintfqt(stderr, "Send 1: %d to %d\n", GRID->iam, Alcol_process);
 		}
 		else if(mycol == Alcol_process)
 		{
 			(void) HPL_recv(XC, Anp, Bcol, Rmsgid, Rcomm);
-			fprintfqt(stderr, "Recv 1: %d from %d\n", GRID->iam, Bcol);
 		}
 	}
 	Rmsgid = (Rmsgid + 2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid + 2);
@@ -185,14 +183,14 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	//n1 = (npcol - 1) * nb;
 	//n1 = Mmax(n1, nb);
 	n1 = HPL_n1(Alcol_matrix, nb, GRID);
-	if (Anp > 0)
+	Wsize = Mmin(n1, Anp);
+	if (Wsize > 0)
 	{
-		W = (double*) malloc((size_t) (Mmin(n1, Anp)) * sizeof(double));
+		W = (double*) malloc((size_t) Wsize * sizeof(double));
 		if (W == NULL)
 		{
 			HPL_pabort(__LINE__, "HPL_pdtrsv", "Memory allocation failed");
 		}
-		Wfr = 1;
 	}
 
 	Anpprev = Anp;
@@ -214,6 +212,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if (myrow == Alrow)
 		{
 			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
+			fprintfqt(stderr, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
 			HPL_dcopy(kb, XC+Anp, 1, Xd, 1);
 		}
 	}
@@ -255,13 +254,15 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 				if (GridIsNot1xQ)
 				{
 					(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
-					fprintfqt(stderr, "Send 2: %d to %d\n", GRID->iam, MModSub1(myrow, nprow));
+					//fprintfqt(stderr, "Send 2: %d to %d\n", GRID->iam, MModSub1(myrow, nprow));
+					fprintfqt(stderr, "Error\n");
 				}
 			}
 			else
 			{
 				(void) HPL_recv(Xdprev, kbprev, MModAdd1(myrow, nprow), Cmsgid, Ccomm);
-				fprintfqt(stderr, "Recv 2: %d from %d\n", GRID->iam, MModAdd1(myrow, nprow));
+				//fprintfqt(stderr, "Recv 2: %d from %d\n", GRID->iam, MModAdd1(myrow, nprow));
+				fprintfqt(stderr, "Error\n");
 			} 
 
 			//Compute partial update of previous solution block and send it to current column
@@ -269,10 +270,11 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 			{
 				tmp1 = Anpprev - n1pprev;
 				HPL_dgemv(HplColumnMajor, HplNoTrans, n1pprev, kbprev, -HPL_rone, Aprev+tmp1, lda, Xdprev, 1, HPL_rone, XC+tmp1, 1 );
+				fprintfqt(stderr, "Process %d: dgemv %d rows starting from %d\n", GRID->iam, n1pprev, tmp1);
 				if(GridIsNotPx1)
 				{
 					(void) HPL_send(XC+tmp1, n1pprev, Alcol_process, Rmsgid, Rcomm);
-					fprintfqt(stderr, "Send 3: %d to %d\n", GRID->iam, Alcol_process);
+					fprintfqt(stderr, "Process %d: sending to %d (%d bytes starting from %d, partial update)\n", GRID->iam, Alcol_process, n1pprev, tmp1);
 				}
 			}
 
@@ -280,7 +282,8 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 			if((myrow != rowprev) && (myrow != MModAdd1(rowprev, nprow)))
 			{
 				(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
-				fprintfqt(stderr, "Send 4: %d to %d\n", GRID->iam, MModSub1(myrow, nprow));
+				//fprintfqt(stderr, "Process %d, sending to %d (%d bytes starting from %d, ring broadcast)\n", GRID->iam, MModSub1(myrow, nprow));
+				fprintfqt(stderr, "Error\n");
 			}
 		}
 		else if (mycol == Alcol_process)
@@ -289,7 +292,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 			if (n1pprev > 0)
 			{
 				(void) HPL_recv(W, n1pprev, colprev, Rmsgid, Rcomm);
-				fprintfqt(stderr, "Recv 5: %d from %d\n", GRID->iam, colprev);
+				fprintfqt(stderr, "Process %d: receiving from %d (%d bytes starting from %d)\n", GRID->iam, colprev, n1pprev, Anpprev - n1pprev);
 				HPL_daxpy(n1pprev, HPL_rone, W, 1, XC+Anpprev-n1pprev, 1);
 			}
 		}
@@ -298,6 +301,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if((mycol == Alcol_process) && (myrow == Alrow))
 		{
 			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
+			fprintfqt(stderr, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
 			HPL_dcopy(kb, XC+Anp, 1, XR+Anq, 1);
 		}
 
@@ -305,6 +309,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if((mycol == colprev) && ((tmp1 = Anpprev - n1pprev ) > 0))
 		{
 			HPL_dgemv(HplColumnMajor, HplNoTrans, tmp1, kbprev, -HPL_rone, Aprev, lda, Xdprev, 1, HPL_rone, XC, 1);
+			fprintfqt(stderr, "Process %d: dgemv (%d rows starting from %d, finishing)\n", GRID->iam, tmp1, 0);
 		}
 
 		//Save info of current step and update info for the next step
@@ -326,6 +331,18 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		Alcol_matrix--;
 		Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 		n1 = HPL_n1(Alcol_matrix, nb, GRID);
+		
+		if (Mmin(n1, Anp) > Wsize)
+		{
+			fprintfqt(stderr, "Reallocating W\n");
+			Wsize = Mmin(n1, Anp);
+			W = (double*) realloc(W, (size_t) Wsize * sizeof(double));
+			if (W == NULL)
+			{
+				HPL_pabort(__LINE__, "HPL_pdtrsv", "Memory allocation failed");
+			}
+		}
+
 		tmp1 = n - (kb = nb);
 		tmp1 -= (tmp2 = Mmin(tmp1, n1));
 		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
@@ -337,10 +354,10 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	if (mycol == colprev)
 	{
 		(void) HPL_broadcast((void *) (XR), kbprev, HPL_DOUBLE, rowprev, Ccomm);
-		fprintfqt(stderr, "Bcase 6: %d to %d\n", rowprev, GRID->iam);
+		//fprintfqt(stderr, "Bcast 6: %d to %d\n", rowprev, GRID->iam);
 	}
 
-	if (Wfr) free(W);
+	if (Wsize) free(W);
 	HPL_ptimer_detail(HPL_TIMING_PTRSV);
 
 	//End of HPL_pdtrsv
