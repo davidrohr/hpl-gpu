@@ -243,12 +243,12 @@ HPLinpack benchmark input file
       {
          if (pmapping == HPL_ROW_MAJOR)
          {
-            HPL_fprintf(test.outfp, "Node %d col %d perf %f/%f\n", i, i % npcol, test.node_perf[i], cols[i % npcol]);
+            fprintfctd(test.outfp, "Node %d col %d perf %f/%f\n", i, i % npcol, test.node_perf[i], cols[i % npcol]);
             if (test.node_perf[i] < cols[i % npcol]) cols[i % npcol] = test.node_perf[i];
          }
          else
          {
-            HPL_fprintf(test.outfp, "Node %d col %d perf %f/%f\n", i, i / nprow, test.node_perf[i], cols[i / nprow]);
+            fprintfctd(test.outfp, "Node %d col %d perf %f/%f\n", i, i / nprow, test.node_perf[i], cols[i / nprow]);
             if (test.node_perf[i] < cols[i / nprow]) cols[i / nprow] = test.node_perf[i];
          }
       }
@@ -259,7 +259,7 @@ HPLinpack benchmark input file
       for (int i = 0;i < npcol;i++) max_perf += cols[i];
       for (int i = 0;i < npcol;i++)
       {
-         HPL_fprintf(test.outfp, "Process Col %d Performance %f (of %f total)\n", i, cols[i], max_perf);
+         fprintfctd(test.outfp, "Process Col %d Performance %f (of %f total)\n", i, cols[i], max_perf);
       }
       
       for (int i = 0;i < npcol;i++) grid.mcols_per_pcol[i] = 0;
@@ -278,7 +278,7 @@ HPLinpack benchmark input file
          int round1 = 1;
          while (i && (j == lastcol || cols[j] / max_perf * (float) (i + 1) < (float) grid.mcols_per_pcol[j] + 0.5 * (float) round1 - relax))
          {
-            //HPL_fprintf(test.outfp, "Skipping process col %d (desired mcols %f, present mcols %d)\n", j, cols[j] / max_perf * (float) (i + 1), grid.mcols_per_pcol[j]);
+            fprintfctd(test.outfp, "Skipping process col %d (desired mcols %f, present mcols %d)\n", j, cols[j] / max_perf * (float) (i + 1), grid.mcols_per_pcol[j]);
             j++;
             j = j % npcol;
             if (j == jstart)
@@ -291,14 +291,14 @@ HPLinpack benchmark input file
          grid.mcols_per_pcol[j]++;
          lastcol = j;
          relax = 0;
-         HPL_fprintf(test.outfp, "Matrix col %d processed by process col %d (%d total matrix cols)\n", i, j, grid.mcols_per_pcol[j]);
+         fprintfctd(test.outfp, "Matrix col %d processed by process col %d (%d total matrix cols)\n", i, j, grid.mcols_per_pcol[j]);
          j++;
          j = j % npcol;
       }
       
       for (int i = 0;i < npcol;i++)
       {
-         HPL_fprintf(test.outfp, "Process col %d process %d matrix cols\n", i, grid.mcols_per_pcol[i]);
+         fprintfct(test.outfp, "Process col %d process %d matrix cols\n", i, grid.mcols_per_pcol[i]);
       }
       
       free(cols);

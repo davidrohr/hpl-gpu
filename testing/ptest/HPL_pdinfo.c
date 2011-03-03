@@ -286,7 +286,7 @@ void HPL_pdinfo
    {
       for (i = 0;i < size;i++)
       {
-         HPL_fprintf( TEST->outfp, "Performance of rank %d: %f\n", i, TEST->node_perf[i]);
+         fprintfctd( TEST->outfp, "Performance of rank %d: %f\n", i, TEST->node_perf[i]);
       }
    }
    

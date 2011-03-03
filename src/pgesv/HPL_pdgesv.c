@@ -357,9 +357,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
-#ifndef QON_TESTa
-	return;
-#endif
 	for (int i = 0;i < A->n;i++)
 	{
 		for (int j = 0;j < A->n + 1;j++)
@@ -407,9 +404,6 @@ void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 
 void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
-#ifndef QON_TESTa
-	return;
-#endif
 	//Currently only works with P=1 (probably)
 	if (GRID->iam == 0) fprintf(stderr, "\n");
 	double* buffer = malloc(A->n * sizeof(double));
@@ -503,8 +497,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
-		PrintMatrix(GRID, A);
-		
 		icurcol = MColToPCol(j, nb, npcol, GRID);
 		n = N - j;
 		jb = Mmin(n, nb);
@@ -578,8 +570,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			nq -= jb;
 		}
 	}
-	PrintMatrix(GRID, A);
-
 	//Clean-up: Release panels and panel list
 	if(depth1)
 	{
@@ -590,7 +580,4 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	
 	//Solve upper triangular system
 	if( A->info == 0 ) HPL_pdtrsv( GRID, A );
-	PrintMatrix(GRID, A);
-	PrintVector(GRID, A);
-
 }
