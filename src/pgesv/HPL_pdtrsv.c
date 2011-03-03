@@ -62,7 +62,6 @@
 
 int HPL_n1(int matrix_col, int nb, const HPL_T_grid* GRID)
 {
-	//return(7 * nb);
 	int cols = 0;
 	if (matrix_col)
 	{
@@ -225,6 +224,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 	kbprev  = kb;
 	n -= kb;
+	n1 = HPL_n1(Alcol_matrix, nb, GRID);
 	tmp1 = n - (kb = nb);
 	tmp1 -= (tmp2 = Mmin(tmp1, n1));
 	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
