@@ -154,8 +154,8 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
    const size_t LDB = _LDB;
 
    // B_ij = A_ji
-
-   if (LDA & 1 || LDB & 1)
+   
+   if (LDA & 1 || LDB & 1 || ((size_t) A) & 15 || ((size_t) B) % 15)
    {
     MM = 0;
     goto Unaligned;
@@ -168,7 +168,6 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
    {
     dlacpy_worker(A, B, N, 0, MM, LDA, LDB);
    }
-
    if ( M & 7 )
    {
 Unaligned:
