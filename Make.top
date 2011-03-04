@@ -131,7 +131,6 @@ build_tst: refresh_tst
 	@echo "  print intermediate performance results:                   $(call isenabled,-DHPL_PRINT_INTERMEDIATE)"
 	@echo "  show average memory usage per node of the matrix:         $(call isenabled,-DHPL_PRINT_AVG_MATRIX_SIZE)"
 	@echo "  MPI calls only from main thread:                          $(call isenabled,-DHPL_MPI_FUNNELED_THREADING)"
-	@echo "  Verify that MPI calls are from the main thread:           $(call isenabled,-DHPL_CHECK_MPI_THREADS)"
 	@echo "  Skip MPI thread capabilities check; just call MPI_Init:   $(call isenabled,-DHPL_NO_MPI_THREAD_CHECK)"
 	@echo "  Do not use the hacked ATI lib:                            $(call isenabled,-DHPL_NO_HACKED_LIB)"
 	@echo "  Use PREFETCHW instruction (AMD CPUs only):                $(call isenabled,-DHPL_HAVE_PREFETCHW)"
