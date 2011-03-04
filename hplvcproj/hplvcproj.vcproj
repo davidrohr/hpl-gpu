@@ -417,6 +417,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\comm\HPL_mpi.c"
+						>
+					</File>
+					<File
 						RelativePath="..\src\comm\HPL_packL.c"
 						>
 					</File>
@@ -798,6 +802,70 @@
 				Name="setup"
 				>
 				<File
+					RelativePath="..\setup\Make.LOEWE-CSC_cpu"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE-CSC_gpu"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_mvapich"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.LOEWE_mvapich2"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE112_caldgemm_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE112_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE113_caldgemm_GotoBLAS_AMD"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.openSUSE113_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.OSX"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.SLES11SP1"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.Ubuntu904_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.Ubuntu910_caldgemm_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.Ubuntu910_GotoBLAS"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\Make.UNKNOWN.in"
+					>
+				</File>
+				<File
+					RelativePath="..\setup\make_generic"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="build"
+				>
+				<File
 					RelativePath="..\makes\Make.auxil"
 					>
 				</File>
@@ -818,43 +886,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\setup\Make.LOEWE-CSC_cpu"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.LOEWE-CSC_gpu"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.LOEWE_mvapich"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.LOEWE_mvapich2"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.LOEWE_noATIhack"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.LOEWE_verbose"
-					>
-				</File>
-				<File
 					RelativePath="..\makes\Make.matgen"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.openSUSE112_caldgemm_GotoBLAS"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.openSUSE112_GotoBLAS"
-					>
-				</File>
-				<File
-					RelativePath="..\setup\Make.openSUSE113_GotoBLAS"
 					>
 				</File>
 				<File

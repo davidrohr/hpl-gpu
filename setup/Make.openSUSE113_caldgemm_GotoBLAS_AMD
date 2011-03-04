@@ -106,7 +106,7 @@ GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(TOPdir)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
 LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
-LAlib        = $(GOTOlib) -laticalrt -laticalcl
+LAlib        = $(GOTOlib)
 
 #
 # ----------------------------------------------------------------------
@@ -172,7 +172,6 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) not use PREFETCHW instruction
 #    *) use MPI
 #
-
 #
 # ----------------------------------------------------------------------
 #
@@ -211,6 +210,6 @@ HPL_LIBS += $(MPlib)
 endif
 
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
-LALIB += $(CALDGEMMlib)
+LALIB += $(CALDGEMMlib) -laticalrt -laticalcl
 endif
 # ----------------------------------------------------------------------
