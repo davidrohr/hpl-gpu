@@ -71,7 +71,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = openSUSE113_caldgemm_GotoBLAS
+ARCH         = openSUSE113_caldgemm_GotoBLAS_AMD
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -119,6 +119,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # - Compile time options -----------------------------------------------
 #
 # -DHPL_COPY_L           force the copy of the panel L before bcast;
+# -DHPL_NO_MPI_DATATYPE  Do not use custom MPI types
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
@@ -151,13 +152,31 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
+#    *) use custom MPI types
 #    *) not display detailed timing information.
+#    *) not use CALDGEMM
+#    *) not trace calls
+#    *) use improved LASWP
+#    *) not trace LASWP arrays
+#    *) use original initialization and verification
+#    *) not use pagelocked memory
+#    *) not use huge tables
+#    *) set GPU to quiet mode
+#    *) not sent U padding
+#    *) not verify CALDGEMM results
+#    *) not print intermediate results nor matrix size
+#    *) use serialized MPI threading
+#    *) do not print throttling nodes
+#    *) break if MPI library does not provide the required threading support
+#    *) use the hacked AMD driver
+#    *) not use PREFETCHW instruction
+#    *) use MPI
 #
 
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_GPU_TIMING -DHPL_NO_MPI_THREAD_CHECK -DHPL_PRINT_INTERMEDIATE
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_NO_MPI_DATATYPE -DHPL_COPY_L -DHPL_SEND_U_PADDING -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_GPU_TIMING -DHPL_NO_MPI_THREAD_CHECK -DHPL_PRINT_INTERMEDIATE -DHPL_HAVE_PREFETCHW
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
