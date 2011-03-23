@@ -10,3 +10,6 @@
 #/1 1.0
 #
 #The first match is used
+#
+#Each process columns is assigned the performance of the slowest node belonging to it.
+#Thus, it is suggested to order the nodes by performance and use colmajor process ordering.
