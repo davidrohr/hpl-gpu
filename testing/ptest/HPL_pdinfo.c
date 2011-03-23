@@ -373,6 +373,18 @@ void HPL_pdinfo
                        "Value of NB less than 1" );
             error = 1; goto label_error;
          }
+#ifdef HPL_CALL_CALDGEMM
+#ifndef HPL_GPU_MAX_NB
+		 if (NB[i] > 1024)
+#else
+		 if (NB[i] > HPL_GPU_MAX_NB)
+#endif
+		 {
+			HPL_pwarn( stderr, __LINE__, "HPL_pdinfo", "Value of NB exceeds HPL_GPU_MAX_NB" );
+			error = 1;
+			goto label_error;
+		 }
+#endif
       }
 /*
  * Process grids, mapping, (>=1) (P, Q)

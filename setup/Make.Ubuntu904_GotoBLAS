@@ -146,6 +146,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib)
 # -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
 # -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
 # -DHPL_NO_MPI_LIB           No MPI, one single node run possible.
+# -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -168,6 +169,7 @@ HPL_LIBS     = $(HPLlib) $(LAlib)
 #    *) use the hacked AMD driver
 #    *) not use PREFETCHW instruction
 #    *) use MPI
+#    *) max GPU NB is 1024
 #
 #
 # ----------------------------------------------------------------------

@@ -125,7 +125,11 @@ int CALDGEMM_Init()
 	cal_info.DisplayTiming = CAL_TRUE;
 #endif
 	//cal_info.DeviceNum = 0;
+#ifndef HPL_GPU_MAX_NB
 	cal_info.Width = 1024; //k for matrix multiply
+#else
+	cal_info.Width = HPL_GPU_MAX_NB;
+#endif
 	//cal_info.SlowCPU = false;
 	//cal_info.Height = 4096;
 	//cal_info.AutoHeight = CAL_TRUE;
