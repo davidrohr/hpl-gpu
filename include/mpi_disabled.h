@@ -68,10 +68,12 @@ typedef int MPI_Status;
 #define MPI_BYTE NULL
 #define MPI_INT NULL
 #define MPI_DOUBLE NULL
+#define MPI_FLOAT NULL
 #define MPI_UNDEFINED NULL
 #define MPI_COMM_NULL NULL
 #define MPI_COMM_WORLD NULL
 #define MPI_THREAD_SERIALIZED NULL
+#define MPI_STATUS_IGNORE NULL
 
 static inline int MPI_Send_init(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
 static inline int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
@@ -94,6 +96,8 @@ static inline int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int 
 static inline int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm){return(MPI_SUCCESS);}
 static inline int MPI_Comm_free(MPI_Comm *comm){return(MPI_SUCCESS);}
 static inline int MPI_Abort(MPI_Comm comm, int errorcode){return(MPI_SUCCESS);}
+static inline int MPI_Allgather(void *sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Get_count(MPI_Status* status, MPI_Datatype datatype, int* count){*count = 0;return(MPI_SUCCESS);}
 static inline double MPI_Wtime(void)
 {
     struct timespec t;
