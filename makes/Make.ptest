@@ -84,10 +84,13 @@ dexe    : dexe.grd
 #
 $(BINdir)/HPL.dat : ../HPL.dat
 	( $(CP) ../HPL.dat $(BINdir) )
+
+$(BINdir)/node-perf.dat : ../node-perf.dat
+	( $(CP) ../node-perf.dat $(BINdir) )
 #
 dexe.grd: $(HPL_pteobj) $(HPLlib)
 	$(LINKER) $(LINKFLAGS) -o $(xhpl) $(HPL_pteobj) $(HPL_LIBS)
-	$(MAKE) $(BINdir)/HPL.dat
+	$(MAKE) $(BINdir)/HPL.dat $(BINdir)/node-perf.dat
 	$(TOUCH) dexe.grd
 #
 # ######################################################################
