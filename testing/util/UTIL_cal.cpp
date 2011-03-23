@@ -126,6 +126,7 @@ int CALDGEMM_Init()
 #endif
 	//cal_info.DeviceNum = 0;
 	cal_info.Width = 1024; //k for matrix multiply
+	//cal_info.SlowCPU = false;
 	//cal_info.Height = 4096;
 	//cal_info.AutoHeight = CAL_TRUE;
 	//cal_info.Iterations = 1;
