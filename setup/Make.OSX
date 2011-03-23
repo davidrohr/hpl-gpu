@@ -207,6 +207,6 @@ HPL_LIBS += $(MPlib)
 endif
 
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
-LALIB += $(CALDGEMMlib) -laticalrt -laticalcl
+LAlib += $(CALDGEMMlib) -laticalrt -laticalcl
 endif
 # ----------------------------------------------------------------------
