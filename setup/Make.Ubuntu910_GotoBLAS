@@ -204,7 +204,7 @@ isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
 
 # Set include paths and lib paths according to HPL_DEFS options
 ifeq ("$(call isenabled,-DHPL_NO_MPI_LIB)", "no")
-HPL_INCLUDES += -I $(MPinc)
+HPL_INCLUDES += -isystem $(MPinc)
 HPL_LIBS += $(MPlib)
 endif
 

@@ -105,7 +105,7 @@ GOTOdir      = $(HOME)/GotoBLAS2
 GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(HOME)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/caldgemm.o
-LAinc        = -I$(CALDGEMMdir) -I$(ATISTREAMSDKROOT)/include -I$(GOTOdir)
+LAinc        = -isystem $(CALDGEMMdir) -isystem $(ATISTREAMSDKROOT)/include -isystem $(GOTOdir)
 LAlib        = $(GOTOlib)
 #
 # ----------------------------------------------------------------------
@@ -207,7 +207,7 @@ isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
 
 # Set include paths and lib paths according to HPL_DEFS options
 ifeq ("$(call isenabled,-DHPL_NO_MPI_LIB)", "no")
-HPL_INCLUDES += -I $(MPinc)
+HPL_INCLUDES += -isystem $(MPinc)
 HPL_LIBS += $(MPlib)
 endif
 
