@@ -55,7 +55,7 @@
 # ======================================================================
 
 arch             = UNKNOWN
-export HPL_VERSION          = 1.0.1
+export HPL_VERSION          = 1.1.0
 
 export TOPdir       := $(CURDIR)
 
