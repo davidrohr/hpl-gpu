@@ -144,7 +144,17 @@ int CALDGEMM_Init()
 	cal_info.SlowCPU = true;
 #endif
 
+#ifndef HPL_RESTRICT_CPUS
+#define HPL_RESTRICT_CPUS YES
+
+#if HPL_RESTRICT_CPUS = YES
 	cal_info.HPLFactorizeRestrictCPUs = 1;
+#elif HPL_RESTRICT_CPUS = DYNAMIC
+	cal_info.HPLFactorizeRestrictCPUs = 2;
+#else
+	cal_info.HPLFactorizeRestrictCPUs = 0;
+#endif
+	
 	//cal_info.Height = 4096;
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
