@@ -146,10 +146,11 @@ int CALDGEMM_Init()
 
 #ifndef HPL_RESTRICT_CPUS
 #define HPL_RESTRICT_CPUS YES
+#endif
 
-#if HPL_RESTRICT_CPUS = YES
+#if HPL_RESTRICT_CPUS == YES
 	cal_info.HPLFactorizeRestrictCPUs = 1;
-#elif HPL_RESTRICT_CPUS = DYNAMIC
+#elif HPL_RESTRICT_CPUS == DYNAMIC
 	cal_info.HPLFactorizeRestrictCPUs = 2;
 #else
 	cal_info.HPLFactorizeRestrictCPUs = 0;
