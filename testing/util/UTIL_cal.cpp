@@ -112,49 +112,64 @@ void funneled_broadcast_wrapper()
 int CALDGEMM_Init()
 {
 #ifdef HPL_GPU_VERIFY
-	cal_info.Verify = CAL_TRUE;
+	cal_info.Verify = true;
 #endif
-	//cal_info.Disassemble = CAL_FALSE;
-	cal_info.TabularTiming = CAL_TRUE;
+
+	//cal_info.Disassemble = false;
+	cal_info.TabularTiming = true;
+
 #if defined(TRACE_CALLS) | defined(HPL_GPU_NOT_QUIET)
-	cal_info.Quiet = CAL_FALSE;
+	cal_info.Quiet = false;
 #else
-	cal_info.Quiet = CAL_TRUE;
+	cal_info.Quiet = true;
 #endif
+
 #ifdef HPL_GPU_TIMING
-	cal_info.DisplayTiming = CAL_TRUE;
+	cal_info.DisplayTiming = true;
 #endif
-	//cal_info.DeviceNum = 0;
+
+#ifdef HPL_MULTI_GPU
+	cal_info.DeviceNum = -1;
+#else
+	cal_info.DeviceNum = 0;
+#endif
+
 #ifndef HPL_GPU_MAX_NB
 	cal_info.Width = 1024; //k for matrix multiply
 #else
 	cal_info.Width = HPL_GPU_MAX_NB;
 #endif
-	//cal_info.SlowCPU = false;
+
+#ifdef HPL_SLOW_CPU
+	cal_info.SlowCPU = true;
+#endif
+
+	cal_info.HPLFactorizeRestrictCPUs = 1;
 	//cal_info.Height = 4096;
-	//cal_info.AutoHeight = CAL_TRUE;
+	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
 	//cal_info.DstMemory = 'c';
-	//cal_info.VerboseTiming = CAL_FALSE;
-	//cal_info.Debug = CAL_TRUE;
-	//cal_info.MultiThread = CAL_TRUE;
-	//cal_info.UseGPU = CAL_TRUE;
-	//cal_info.UseCPU = CAL_TRUE;
+	//cal_info.VerboseTiming = false;
+	//cal_info.Debug = true;
+	//cal_info.MultiThread = true;
+	//cal_info.UseGPU = true;
+	//cal_info.UseCPU = true;
 	//cal_info.GPURatio = -1;
-	//cal_info.DynamicSched = CAL_TRUE;
-	//cal_info.MemPolicy = CAL_TRUE;
-	//cal_info.DumpMatrix = CAL_FALSE;
-#ifdef HPL_NO_PERFORMANCE_WARNINGS
-	cal_info.NoPerformanceWarnings = CAL_TRUE;
+	//cal_info.DynamicSched = false;
+	//cal_info.MemPolicy = true;
+	//cal_info.DumpMatrix = false;
+	
+#ifdef HPL_GPU_PERFORMANCE_WARNINGS
+	cal_info.NoPerformanceWarnings = false;
 #else
-	cal_info.NoPerformanceWarnings = CAL_TRUE;
+	cal_info.NoPerformanceWarnings = true;
 #endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	
 #ifdef HPL_NO_HACKED_LIB
-	cal_info.KeepBuffersMapped = CAL_FALSE;
+	cal_info.KeepBuffersMapped = false;
 #else
-	cal_info.KeepBuffersMapped = CAL_TRUE;
+	cal_info.KeepBuffersMapped = true;
 #endif
 	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
 	cal_info.PreOut = PreOutput;

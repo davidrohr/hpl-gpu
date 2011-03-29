@@ -397,7 +397,7 @@ void HPL_pdtest
  */
       if( HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG] > HPL_rzero )
          HPL_fprintf( TEST->outfp,
-                      "Max aggregated wall time up tr sv  . : %18.2f %6.2f %4.2f\n",
+                      "Max aggregated wall time pdtrsv  . : %18.2f %6.2f %4.2f\n",
                       HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG], HPL_c[HPL_TIMING_PTRSV-HPL_TIMING_BEG],
                       HPL_c[HPL_TIMING_PTRSV-HPL_TIMING_BEG] / HPL_w[HPL_TIMING_PTRSV-HPL_TIMING_BEG]
                  );

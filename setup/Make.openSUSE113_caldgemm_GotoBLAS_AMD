@@ -132,6 +132,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_HUGE_TABLES      Allocate the memory using huge tables
 # -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
 # -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
+# -DHPL_GPU_PERFORMANCE_WARNING
+#                        Print performance warnings for suboptimal CALDGEMM execution
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DHPL_GPU_VERIFY       Verify result of caldgemm calls
 # -DCALDGEMM_TEST        Activate Test Debug Code
@@ -150,6 +152,9 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
 # -DHPL_NO_MPI_LIB       No MPI, one single node run possible.
 # -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
+# -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
+# -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO, YES or DYNAMIC.
+# -DHPL_MULTI_GPU        Use multiple GPUs
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -163,6 +168,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) not use pagelocked memory
 #    *) not use huge tables
 #    *) set GPU to quiet mode
+#    *) not print performance warnings
 #    *) not sent U padding
 #    *) not verify CALDGEMM results
 #    *) not print intermediate results nor matrix size
@@ -173,6 +179,9 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) not use PREFETCHW instruction
 #    *) use MPI
 #    *) max GPU NB is 1024
+#    *) not set slow CPU
+#    *) restrict CPUs statically
+#    *) use the first GPU in the system only
 #
 #
 # ----------------------------------------------------------------------
