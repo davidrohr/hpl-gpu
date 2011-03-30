@@ -155,6 +155,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
 # -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO, YES or DYNAMIC.
 # -DHPL_MULTI_GPU        Use multiple GPUs
+# -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -182,6 +183,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) not set slow CPU
 #    *) restrict CPUs statically
 #    *) use the first GPU in the system only
+#    *) map all GPUs to core 0
 #
 #
 # ----------------------------------------------------------------------

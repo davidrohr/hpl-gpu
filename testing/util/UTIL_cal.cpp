@@ -130,8 +130,20 @@ int CALDGEMM_Init()
 
 #ifdef HPL_MULTI_GPU
 	cal_info.DeviceNum = -1;
+	cal_info.Height = 3072;
+	cal_info.ImprovedScheduler = true;
+	cal_info.MultiThreadDivide = true;
 #else
 	cal_info.DeviceNum = 0;
+	//cal_info.Height = 4096;
+#endif
+
+#ifdef HPL_GPU_MAPPING
+	const int mapping[] = HPL_GPU_MAPPING;
+	for (int i = 0;i < sizeof(mapping) / sizeof(int);i++)
+	{
+	    cal_info.GPUMapping[i] = mapping[i];
+	}
 #endif
 
 #ifndef HPL_GPU_MAX_NB
@@ -156,7 +168,6 @@ int CALDGEMM_Init()
 	cal_info.HPLFactorizeRestrictCPUs = 0;
 #endif
 	
-	//cal_info.Height = 4096;
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
 	//cal_info.DstMemory = 'c';
