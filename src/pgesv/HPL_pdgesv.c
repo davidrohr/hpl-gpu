@@ -554,7 +554,15 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, mycol, GRID) : 0;
 
 		//Finish the latest update and broadcast the current panel
-		HPL_pdupdateTT(GRID, panel[0], panel[depth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol, GRID) : -1, depth2);
+
+		int olddepth1 = depth1;
+#ifdef HPL_DISABLE_LOOKAHEAD
+		if (n <= HPL_DISABLE_LOOKAHEAD + nb + 1)
+		{
+			depth1 = 0;
+		}
+#endif
+		HPL_pdupdateTT(GRID, panel[0], panel[olddepth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol, GRID) : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
