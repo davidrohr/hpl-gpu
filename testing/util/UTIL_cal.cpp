@@ -140,7 +140,7 @@ int CALDGEMM_Init()
 
 #ifdef HPL_GPU_MAPPING
 	const int mapping[] = HPL_GPU_MAPPING;
-	for (int i = 0;i < sizeof(mapping) / sizeof(int);i++)
+	for (unsigned int i = 0;i < sizeof(mapping) / sizeof(int);i++)
 	{
 	    cal_info.GPUMapping[i] = mapping[i];
 	}
@@ -157,16 +157,10 @@ int CALDGEMM_Init()
 #endif
 
 #ifndef HPL_RESTRICT_CPUS
-#define HPL_RESTRICT_CPUS YES
+#define HPL_RESTRICT_CPUS 1
 #endif
 
-#if HPL_RESTRICT_CPUS == YES
-	cal_info.HPLFactorizeRestrictCPUs = 1;
-#elif HPL_RESTRICT_CPUS == DYNAMIC
-	cal_info.HPLFactorizeRestrictCPUs = 2;
-#else
-	cal_info.HPLFactorizeRestrictCPUs = 0;
-#endif
+	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
 	
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
