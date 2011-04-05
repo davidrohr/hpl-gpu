@@ -132,7 +132,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_HUGE_TABLES      Allocate the memory using huge tables
 # -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
 # -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
-# -DHPL_GPU_PERFORMANCE_WARNING
+# -DHPL_GPU_PERFORMANCE_WARNINGS
 #                        Print performance warnings for suboptimal CALDGEMM execution
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DHPL_GPU_VERIFY       Verify result of caldgemm calls
