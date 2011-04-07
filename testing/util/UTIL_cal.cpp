@@ -269,7 +269,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
             }
 	    return;
 	}
-        else if(( M >= 2048 && N >= 2048 && K >= 512 ))
+        else if (K >= 512 && (M >= 2048 || N >= 2048))
         {
             sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 #ifdef HPL_MPI_FUNNELED_THREADING

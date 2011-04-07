@@ -128,6 +128,7 @@ size_t HPL_CALDGEMM_wrapper_laswp_stepsize;
 #endif
 
 int* permU = NULL;
+int dtrtri_(char *, char *, int *, double *, int *, int *);
 
 void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
@@ -195,11 +196,40 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #endif
 		if (panel->grid->nprow == 1)
 		{
-			HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans,	HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
+#ifdef HPL_SLOW_CPU
+			if (nn > 2 * jb)
+			{
+				double* tmpa = (double*) malloc(sizeof(double) * jb * jb);
+				double* tmpb = (double*) malloc(sizeof(double) * nn * LDU);
+				HPL_dlacpy(jb, jb, L1ptr, jb, tmpa, jb, 1);
+				HPL_dlacpy(jb, nn, Uptr + i * LDU, LDU, tmpb, LDU, 1);
+			
+				int ii,jj;
+			
+				for (ii = 0;ii < jb;ii++)
+				{
+					tmpa[ii * (jb + 1)] = 1.;
+					for (jj = ii + 1;jj < jb;jj++)
+					{
+						tmpa[ii * jb + jj] = 0;
+					}
+				}
+				int tmp;
+				dtrtri_("U", "U", &jb, tmpa, &jb, &tmp);
+				HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, jb, tmpb, LDU, 0.0, Uptr + i * LDU, LDU, 0 );
+				free(tmpa);
+				free(tmpb);
+			}
+			else
+#endif
+			{
+				HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans, HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
+			}
+			
 		}
 		else
 		{
-			 HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
+			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
 #ifdef CALDGEMM_TEST_DEBUG
 		HPL_ptimer_detail( HPL_TIMING_DTRSM );
