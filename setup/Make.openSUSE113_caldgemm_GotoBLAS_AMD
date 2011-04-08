@@ -158,6 +158,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n
+# -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -187,6 +188,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) use the first GPU in the system only
 #    *) map all GPUs to core 0
 #    *) never disable lookahead
+#    *) not use GPU for factorization
 #
 #
 # ----------------------------------------------------------------------
@@ -227,5 +229,10 @@ endif
 
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
 LAlib += $(CALDGEMMlib) -laticalrt -laticalcl
+endif
+
+ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
+HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
+HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
 endif
 # ----------------------------------------------------------------------

@@ -131,6 +131,14 @@ int main
    }
 #endif
 
+#ifdef HPL_GPU_FACTORIZE
+    double* A = (double*) malloc(1024);
+    double* B = (double*) malloc(1024);
+    dtrsm('L', 'U', 'T', 'U', 1, 1, 1.0, A, 1, B, 1);
+    free(A);
+    free(B);
+#endif
+
 #ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())
    {

@@ -164,6 +164,12 @@ void HPL_pdrpanllT
 /*
  * Replicated solve - Local update - Factor current panel
  */
+#ifdef HPL_GPU_FACTORIZE
+      HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
+                 HplUnit, jb, jj, HPL_rone, L1ptr, n0, Mptr( L1ptr,
+                 jj, 0, n0 ), n0 );
+      dgemm('T', 'N', jb, m, jj, -HPL_rone, Mptr(L1ptr, jj, 0, n0), n0, Mptr(Aptr, ii, 0, lda), lda, HPL_rone, Mptr(Aptr, ii, jj, lda), lda);
+#else
       HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans,
                  HplUnit, jb, jj, HPL_rone, L1ptr, n0, Mptr( L1ptr,
                  jj, 0, n0 ), n0 );
@@ -171,6 +177,7 @@ void HPL_pdrpanllT
                  jj, -HPL_rone, Mptr( Aptr, ii, 0, lda ), lda,
                  Mptr( L1ptr, jj, 0, n0 ), n0, HPL_rone,
                  Mptr( Aptr, ii, jj, lda ), lda );
+#endif
       HPL_pdrpanllT( PANEL, m, jb, ioff, WORK );
 /*
  * Copy back upper part of A in current process row - Go the next block

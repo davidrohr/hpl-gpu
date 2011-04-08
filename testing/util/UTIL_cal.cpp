@@ -202,7 +202,12 @@ int CALDGEMM_Init()
 	cal_info.GPUClock = HPL_PRINT_THROTTLING_NODES;
 #endif
 
-	int retVal = cal_dgemm.InitCALDGEMM( &cal_info );
+#ifdef HPL_GPU_FACTORIZE
+	bool a = true;
+#else
+	bool a = false;
+#endif
+	int retVal = cal_dgemm.InitCALDGEMM( &cal_info, a );
 	
 #ifdef HPL_MPI_FUNNELED_THREADING
 	pthread_mutex_init(&startgpudgemm, NULL);
