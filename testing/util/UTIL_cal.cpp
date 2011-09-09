@@ -38,7 +38,7 @@
  
 #ifdef HPL_CALL_CALDGEMM
 
-#include <caldgemm.h>
+#include <caldgemm_cal.h>
 #include <pthread.h>
 #include <errno.h>
 #include "util_cal.h"
@@ -56,7 +56,7 @@ extern "C"
 }
 
 static caldgemm::caldgemm_config cal_info;
-static caldgemm cal_dgemm;
+static caldgemm* cal_dgemm;
 char PreOutput[64] = "";
 
 #ifdef HPL_MPI_FUNNELED_THREADING
@@ -81,7 +81,7 @@ void* gpudgemm_wrapper(void* arg)
 	while (pthread_mutex_lock(&startgpudgemm) == 0 && exitgpudgemm == 0)
 	{
 		fprintfdvv(stderr, "GPU DGEMM Thread Running\n");
-		cal_dgemm.RunCALDGEMM( gpudgemmparams.A, gpudgemmparams.B, gpudgemmparams.C, gpudgemmparams.ALPHA, gpudgemmparams.BETA, gpudgemmparams.M, gpudgemmparams.K, gpudgemmparams.N, gpudgemmparams.LDA, gpudgemmparams.LDB,
+		cal_dgemm->RunCALDGEMM( gpudgemmparams.A, gpudgemmparams.B, gpudgemmparams.C, gpudgemmparams.ALPHA, gpudgemmparams.BETA, gpudgemmparams.M, gpudgemmparams.K, gpudgemmparams.N, gpudgemmparams.LDA, gpudgemmparams.LDB,
 			gpudgemmparams.LDC, gpudgemmparams.ORDER, gpudgemmparams.TRANSA, gpudgemmparams.TRANSB, gpudgemmparams.LinpackCallbacks );
 		pthread_mutex_unlock(&gpudgemmdone);
 	}
@@ -207,7 +207,9 @@ int CALDGEMM_Init()
 #else
 	bool a = false;
 #endif
-	int retVal = cal_dgemm.InitCALDGEMM( &cal_info, a );
+	cal_dgemm = new caldgemm_cal;
+	if (cal_dgemm == NULL) return(1);
+	int retVal = cal_dgemm->InitCALDGEMM( &cal_info, a );
 	
 #ifdef HPL_MPI_FUNNELED_THREADING
 	pthread_mutex_init(&startgpudgemm, NULL);
@@ -251,7 +253,8 @@ void CALDGEMM_Shutdown()
 	pthread_mutex_destroy(&broadcastdone);
 #endif
 	
-	cal_dgemm.ExitCALDGEMM();
+	cal_dgemm->ExitCALDGEMM();
+	delete[] cal_dgemm;
 }
 
 void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
@@ -306,7 +309,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 		    {
 			    cpu_set_t old_mask, linpack_mask;
 			    CPU_ZERO(&linpack_mask);
-			    CPU_SET(cal_dgemm.broadcastcore(), &linpack_mask);
+			    CPU_SET(cal_dgemm->broadcastcore(), &linpack_mask);
 			    sched_getaffinity(0, sizeof(cpu_set_t), &old_mask);
 			    sched_setaffinity(0, sizeof(cpu_set_t), &linpack_mask);		    
 		    
@@ -321,7 +324,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	    
 	    pthread_mutex_lock(&gpudgemmdone);
 #else
-	    if (cal_dgemm.RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
+	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
 	    {
 		printf("Error in CALDGEMM Run, aborting HPL Run\n");
 		exit(1);
@@ -358,12 +361,12 @@ void* CALDGEMM_alloc(size_t size)
 #else
     bool huge_tables = false;
 #endif
-    return((void*) cal_dgemm.AllocMemory(size / sizeof(double), page_locked, huge_tables));
+    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables));
 }
 
 void CALDGEMM_free(void* ptr)
 {
-    cal_dgemm.FreeMemory((double*) ptr);
+    cal_dgemm->FreeMemory((double*) ptr);
 }
 
 void CALDGEMM_set_num_nodes(int num, int rank)
