@@ -194,11 +194,27 @@
 					>
 				</File>
 				<File
+					RelativePath="..\caldgemm\caldgemm.cl"
+					>
+				</File>
+				<File
 					RelativePath="..\caldgemm\caldgemm.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\caldgemm\caldgemm.il"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\caldgemm_cal.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\caldgemm_opencl.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\timer.cpp"
 					>
 				</File>
 			</Filter>
@@ -772,11 +788,31 @@
 					>
 				</File>
 				<File
+					RelativePath="..\caldgemm\caldgemm_cal.h"
+					>
+				</File>
+				<File
 					RelativePath="..\caldgemm\caldgemm_config.h"
 					>
 				</File>
 				<File
 					RelativePath="..\caldgemm\caldgemm_config_load.h"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\caldgemm_opencl.h"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\pthread_mutex_win32_wrapper.h"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\sched_affinity_win32_wrapper.h"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\timer.h"
 					>
 				</File>
 			</Filter>
@@ -927,6 +963,30 @@
 				</File>
 				<File
 					RelativePath="..\makes\Make.util"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="caldgemm build"
+				>
+				<File
+					RelativePath="..\caldgemm\config.mak"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\makefiles\config.mak.sample"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\makefiles\i686-pc-cygwin.mak"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\makefiles\makefile"
+					>
+				</File>
+				<File
+					RelativePath="..\caldgemm\makefiles\x86_64-pc-linux-gnu.mak"
 					>
 				</File>
 			</Filter>

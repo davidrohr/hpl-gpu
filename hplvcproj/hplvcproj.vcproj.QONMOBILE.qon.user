@@ -9,9 +9,9 @@
 			Name="Debug|Win32"
 			>
 			<DebugSettings
-				Command="$(TargetPath)"
-				WorkingDirectory=""
-				CommandArguments=""
+				Command="Z:\Daten\PROGRAMM\hpl-release\release\hpl\caldgemm\dgemm_bench.exe"
+				WorkingDirectory="Z:\Daten\PROGRAMM\hpl-release\release\hpl\caldgemm"
+				CommandArguments="-g -f -v -d"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -22,7 +22,7 @@
 				SQLDebugging=""
 				Environment=""
 				EnvironmentMerge="true"
-				DebuggerFlavor=""
+				DebuggerFlavor="0"
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""
