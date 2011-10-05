@@ -62,7 +62,7 @@
 #include "util_trace.h"
 #include "util_cal.h"
 
-extern "C" int HPL_init_laswp();
+int HPL_init_laswp(void* ptr);
 
 int main
 (

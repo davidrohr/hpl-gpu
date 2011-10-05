@@ -50,6 +50,8 @@
 #define CORE_COUNT 6
 
 #define RESTRICT_CORES
+#include <unistd.h>
+
 #include "../../caldgemm/caldgemm.h"
 #endif
 
@@ -91,12 +93,12 @@ extern "C" int HPL_init_laswp(void* ptr);
         }
 #else
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
-		const int num_procs = get_num_procs();
-		for (int i = 0;i < num_procs;i++)
+		for (int i = 0;i < num_threads;i++)
 		{
 			if (cal_dgemm->cpuUsed(i) == false) CPU_SET(i, &fullMask);
 		}
 		num_threads = CPU_COUNT(&fullMask);
+		printf("Using %d threads for LASWP\n", num_threads);
 #endif
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
         sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
