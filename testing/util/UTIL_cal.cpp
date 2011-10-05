@@ -39,8 +39,11 @@
 #ifdef HPL_CALL_CALDGEMM
 
 #include <caldgemm_cal.h>
+extern "C"
+{
 typedef unsigned int blasint;
 #include <cblas.h>
+}
 #include <pthread.h>
 #include <errno.h>
 #include "util_cal.h"
