@@ -150,6 +150,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
 # -DHPL_NO_MPI_LIB           No MPI, one single node run possible.
 # -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
+# -DHPL_USE_ALL_CORES_FOR_LASWP
+#                        Use all cores for LASWP, lookahead 2 will not work well this way
 #
 # By default HPL will:
 #    *) not copy L before broadcast,

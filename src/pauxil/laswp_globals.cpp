@@ -49,7 +49,9 @@
 #define USE_CORES 3
 #define CORE_COUNT 6
 
+#ifndef HPL_USE_ALL_CORES_FOR_LASWP
 #define RESTRICT_CORES
+#endif
 #include <unistd.h>
 
 #include "../../caldgemm/caldgemm.h"
@@ -77,14 +79,14 @@ extern "C" int get_num_procs();
         CPU_ZERO(&fullMask);
 
 #ifndef RESTRICT_CORES
-        const char *num_threads_string = getenv("LASWP_NUM_THREADS");
+        /*const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         if (num_threads_string) {
             num_threads = atoi(num_threads_string);
             //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
         } else {
             //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
-        }
-        for (int i = 0; i < 64; ++i) {
+        }*/
+        for (int i = 0; i < get_num_procs(); ++i) {
             CPU_SET(i, &fullMask);
         }
         if (CPU_COUNT(&oldmask) == 1
@@ -92,6 +94,7 @@ extern "C" int get_num_procs();
                 && std::strcmp("1", std::getenv("LASWP_PIN_WORKER_THREADS")) == 0) {
             CPU_XOR(&fullMask, &fullMask, &oldmask);
         }
+		num_threads = get_num_procs();
 #else
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
 		int num_procs = get_num_procs();

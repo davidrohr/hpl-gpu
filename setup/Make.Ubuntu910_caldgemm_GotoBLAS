@@ -162,6 +162,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 # -DHPL_LOOKAHEAD2_TURNOFF=n
 #                        Same for lookahead2
 # -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
+# -DHPL_USE_ALL_CORES_FOR_LASWP
+#                        Use all cores for LASWP, lookahead 2 will not work well this way
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
