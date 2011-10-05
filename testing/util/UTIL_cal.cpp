@@ -114,6 +114,11 @@ void funneled_broadcast_wrapper()
 
 #endif
 
+void* CALDGEMM_GetObject()
+{
+	return(cal_dgemm);
+}
+
 int CALDGEMM_Init()
 {
 #ifdef HPL_GPU_VERIFY

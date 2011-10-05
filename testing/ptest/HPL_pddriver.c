@@ -62,6 +62,8 @@
 #include "util_trace.h"
 #include "util_cal.h"
 
+extern "C" int HPL_init_laswp();
+
 int main
 (
    int                        ARGC,
@@ -146,6 +148,15 @@ int main
 	return(1);
    }
 #endif
+
+#ifndef USE_ORIGINAL_LASWP
+#ifdef HPL_CALL_CALDGEMM
+	HPL_init_laswp(CALDGEMM_GetObject());
+#else
+	HPL_init_laswp(NULL);
+#endif
+#endif
+
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
 /*

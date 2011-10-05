@@ -50,7 +50,7 @@
 #define CORE_COUNT 6
 
 #define RESTRICT_CORES
-#include "../../caldgemm/caldgemm_config.h"
+#include "../../caldgemm/caldgemm.h"
 #endif
 
 namespace
@@ -61,10 +61,18 @@ namespace
             void operator()(const tbb::blocked_range<size_t> &) const {}
     };
 
-    int HPL_init_laswp()
+extern "C" int HPL_init_laswp(void* ptr);
+
+    int HPL_init_laswp(void* ptr)
     {
         int num_threads = tbb::task_scheduler_init::automatic;
         
+        // before we init TBB we must make sure that we are not pinned to a CPU
+        cpu_set_t oldmask;
+        sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
+        cpu_set_t fullMask;
+        CPU_ZERO(&fullMask);
+
 #ifndef RESTRICT_CORES
         const char *num_threads_string = getenv("LASWP_NUM_THREADS");
         if (num_threads_string) {
@@ -73,17 +81,6 @@ namespace
         } else {
             //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
         }
-#else
-        num_threads = USE_DIES * USE_CORES;
-#endif
-
-        // before we init TBB we must make sure that we are not pinned to a CPU
-        cpu_set_t oldmask;
-        sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
-        cpu_set_t fullMask;
-        CPU_ZERO(&fullMask);
-
-#ifndef RESTRICT_CORES
         for (int i = 0; i < 64; ++i) {
             CPU_SET(i, &fullMask);
         }
@@ -93,23 +90,13 @@ namespace
             CPU_XOR(&fullMask, &fullMask, &oldmask);
         }
 #else
-
-#ifdef HPL_NO_HACKED_LIB
-	for (int i = CALDGEMM_OUTPUT_THREADS_SLOW + 2;i < 64;i+=2)
-#else
-	for (int i = CALDGEMM_OUTPUT_THREADS + 2;i < 64;i+=2)
-#endif
-	{
-		CPU_SET(i, &fullMask);
-	}
-
-/*        for (int i = 0;i < USE_DIES;i++)
-        {
-    	    for (int j = 0;j < USE_CORES;j++)
-    	    {
-    		CPU_SET(i * CORE_COUNT + CORE_COUNT - j - 1, &fullMask);
-    	    }
-    	}*/
+		caldgemm* cal_dgemm = (caldgemm*) ptr;
+		const int num_procs = get_num_procs();
+		for (int i = 0;i < num_procs;i++)
+		{
+			if (cal_dgemm->cpuUsed(i) == false) CPU_SET(i, &fullMask);
+		}
+		num_threads = CPU_COUNT(&fullMask);
 #endif
         sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
         sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
@@ -123,8 +110,6 @@ namespace
 
         return 0;
     }
-
-    int _HPL_init_laswp = HPL_init_laswp();
 }
 
 #endif
