@@ -262,9 +262,8 @@ void CALDGEMM_Shutdown()
 	pthread_mutex_destroy(&startbroadcast);
 	pthread_mutex_destroy(&broadcastdone);
 #endif
-	
 	cal_dgemm->ExitCALDGEMM();
-	delete[] cal_dgemm;
+	delete cal_dgemm;
 }
 
 void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
