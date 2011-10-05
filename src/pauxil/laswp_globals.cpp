@@ -64,6 +64,7 @@ namespace
     };
 
 extern "C" int HPL_init_laswp(void* ptr);
+extern "C" int get_num_procs();
 
     int HPL_init_laswp(void* ptr)
     {
@@ -93,7 +94,8 @@ extern "C" int HPL_init_laswp(void* ptr);
         }
 #else
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
-		for (int i = 0;i < num_threads;i++)
+		int num_procs = get_num_procs();
+		for (int i = 0;i < num_procs;i++)
 		{
 			if (cal_dgemm->cpuUsed(i) == false) CPU_SET(i, &fullMask);
 		}
