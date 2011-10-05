@@ -131,6 +131,8 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 # -DHPL_HUGE_TABLES      Allocate the memory using huge tables
 # -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
 # -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
+# -DHPL_GPU_PERFORMANCE_WARNINGS
+#                        Print performance warnings for suboptimal CALDGEMM execution
 # -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
 # -DHPL_GPU_VERIFY       Verify result of caldgemm calls
 # -DCALDGEMM_TEST        Activate Test Debug Code
@@ -147,8 +149,19 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 #                        Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
 # -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
 # -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
-# -DHPL_NO_MPI_LIB           No MPI, one single node run possible.
+# -DHPL_NO_MPI_LIB       No MPI, one single node run possible.
 # -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
+# -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
+# -DHPL_FAST_GPU         Similar to slowCPU, better suited for medium CPU and fast GPU
+# -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1) or DYNAMIC (2).
+# -DHPL_MULTI_GPU        Use multiple GPUs
+# -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
+# -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
+# -DHPL_DISABLE_LOOKAHEAD=n
+#                        Disable lookahead algorithm as soon as trailing matrix size hits n
+# -DHPL_LOOKAHEAD2_TURNOFF=n
+#                        Same for lookahead2
+# -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
@@ -162,6 +175,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 #    *) not use pagelocked memory
 #    *) not use huge tables
 #    *) set GPU to quiet mode
+#    *) not print performance warnings
 #    *) not sent U padding
 #    *) not verify CALDGEMM results
 #    *) not print intermediate results nor matrix size
@@ -172,6 +186,14 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 #    *) not use PREFETCHW instruction
 #    *) use MPI
 #    *) max GPU NB is 1024
+#    *) not set slow CPU
+#    *) not set fast GPU
+#    *) restrict CPUs statically
+#    *) use the first GPU in the system only
+#    *) map all GPUs to core 0
+#    *) map GPU main thread to core 0
+#    *) never disable lookahead 1/2
+#    *) not use GPU for factorization
 #
 #
 # ----------------------------------------------------------------------

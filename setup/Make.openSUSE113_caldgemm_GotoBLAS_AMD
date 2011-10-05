@@ -153,11 +153,15 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 # -DHPL_NO_MPI_LIB       No MPI, one single node run possible.
 # -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
 # -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
+# -DHPL_FAST_GPU         Similar to slowCPU, better suited for medium CPU and fast GPU
 # -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1) or DYNAMIC (2).
 # -DHPL_MULTI_GPU        Use multiple GPUs
 # -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
+# -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n
+# -DHPL_LOOKAHEAD2_TURNOFF=n
+#                        Same for lookahead2
 # -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 #
 # By default HPL will:
@@ -184,10 +188,12 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #    *) use MPI
 #    *) max GPU NB is 1024
 #    *) not set slow CPU
+#    *) not set fast GPU
 #    *) restrict CPUs statically
 #    *) use the first GPU in the system only
 #    *) map all GPUs to core 0
-#    *) never disable lookahead
+#    *) map GPU main thread to core 0
+#    *) never disable lookahead 1/2
 #    *) not use GPU for factorization
 #
 #

@@ -155,11 +155,20 @@ int CALDGEMM_Init()
 	    cal_info.GPUMapping[i] = mapping[i];
 	}
 #endif
+#ifdef HPL_GPU_PIN_MAIN
+	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
+#endif
 
 #ifndef HPL_GPU_MAX_NB
 	cal_info.Width = 1024; //k for matrix multiply
 #else
 	cal_info.Width = HPL_GPU_MAX_NB;
+#endif
+
+#ifdef HPL_FAST_GPU
+	cal_info.SmallTiles = 1;
+	cal_info.GPURatio = 1.0;
+	cal_info.DynamicSched = false;
 #endif
 
 #ifdef HPL_SLOW_CPU
