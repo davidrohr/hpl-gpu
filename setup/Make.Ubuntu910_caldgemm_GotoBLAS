@@ -104,7 +104,7 @@ MPlib        = -L$(MPdir)/lib -lmpi
 GOTOdir      = $(HOME)/GotoBLAS2
 GOTOlib      = $(GOTOdir)/libgoto2.a
 CALDGEMMdir  = $(HOME)/caldgemm
-CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm_cal.obj
+CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm_cal.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/cmodules/timer.obj
 LAinc        = -isystem $(CALDGEMMdir) -isystem $(ATISTREAMSDKROOT)/include -isystem $(GOTOdir)
 LAlib        = $(GOTOlib)
 #

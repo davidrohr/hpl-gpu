@@ -174,7 +174,23 @@
 				Name="GotoBlas"
 				>
 				<File
+					RelativePath="..\GotoBLAS2\interface\axpy.c"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\driver\others\blas_l1_thread.c"
+					>
+				</File>
+				<File
 					RelativePath="..\GotoBLAS2\driver\others\blas_server.c"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\interface\gemm.c"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\interface\gemv.c"
 					>
 				</File>
 				<File
@@ -183,6 +199,14 @@
 				</File>
 				<File
 					RelativePath="..\GotoBLAS2\driver\others\memory.c"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\interface\scal.c"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\interface\trsm.c"
 					>
 				</File>
 			</Filter>
@@ -792,6 +816,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\caldgemm\caldgemm_common.h"
+					>
+				</File>
+				<File
 					RelativePath="..\caldgemm\caldgemm_config.h"
 					>
 				</File>
@@ -820,7 +848,15 @@
 				Name="GotoBlas"
 				>
 				<File
+					RelativePath="..\GotoBLAS2\cblas.h"
+					>
+				</File>
+				<File
 					RelativePath="..\GotoBLAS2\common.h"
+					>
+				</File>
+				<File
+					RelativePath="..\GotoBLAS2\common_thread.h"
 					>
 				</File>
 			</Filter>

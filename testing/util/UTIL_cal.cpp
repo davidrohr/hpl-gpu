@@ -84,7 +84,7 @@ void* gpudgemm_wrapper(void* arg)
 	{
 		fprintfdvv(stderr, "GPU DGEMM Thread Running\n");
 		cal_dgemm->RunCALDGEMM( gpudgemmparams.A, gpudgemmparams.B, gpudgemmparams.C, gpudgemmparams.ALPHA, gpudgemmparams.BETA, gpudgemmparams.M, gpudgemmparams.K, gpudgemmparams.N, gpudgemmparams.LDA, gpudgemmparams.LDB,
-			gpudgemmparams.LDC, gpudgemmparams.ORDER, gpudgemmparams.TRANSA, gpudgemmparams.TRANSB, gpudgemmparams.LinpackCallbacks );
+			gpudgemmparams.LDC, gpudgemmparams.ORDER == CblasColMajor, gpudgemmparams.TRANSA == CblasTrans, gpudgemmparams.TRANSB == CblasTrans, gpudgemmparams.LinpackCallbacks );
 		pthread_mutex_unlock(&gpudgemmdone);
 	}
 	fprintfdvv(stderr, "GPU DGEMM Thread Terminating\n");
@@ -326,7 +326,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	    
 	    pthread_mutex_lock(&gpudgemmdone);
 #else
-	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
+	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
 	    {
 		printf("Error in CALDGEMM Run, aborting HPL Run\n");
 		exit(1);
