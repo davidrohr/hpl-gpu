@@ -112,66 +112,6 @@ LAlib        = $(LAdir)/libgoto2.a
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH)
 HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(TOPdir)/lib/libtbb.so -lgfortran  -L$(TOPdir)/lib -Wl,-rpath=$(TOPdir)/lib
 #
-# - Compile time options -----------------------------------------------
-#
-# -DHPL_COPY_L           force the copy of the panel L before bcast;
-# -DHPL_NO_MPI_DATATYPE  Do not use custom MPI types
-# -DHPL_DETAILED_TIMING  enable detailed timers;
-# -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
-# -DTRACE_CALLS          function level tracing for calls that might
-#                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
-# -DUSE_ORIGINAL_LASWP   use original laswp implementation
-# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
-# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
-# -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
-# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
-# -DHPL_HUGE_TABLES      Allocate the memory using huge tables
-# -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
-# -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
-# -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
-# -DHPL_GPU_VERIFY       Verify result of caldgemm calls
-# -DCALDGEMM_TEST        Activate Test Debug Code
-# -DHPL_PRINT_INTERMEDIATE
-#                        print intermediate performance results
-# -DHPL_PRINT_AVG_MATRIX_SIZE
-#                        show how much memory the matrix uses per node on average
-# -DHPL_MPI_FUNNELED_THREADING
-#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
-# -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
-# -DHPL_NO_MPI_THREAD_CHECK
-#                        HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
-# -DHPL_START_PERCENTAGE=<float>
-#                        Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
-# -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
-# -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
-# -DHPL_NO_MPI_LIB           No MPI, one single node run possible.
-# -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
-# -DHPL_USE_ALL_CORES_FOR_LASWP
-#                        Use all cores for LASWP, lookahead 2 will not work well this way
-#
-# By default HPL will:
-#    *) not copy L before broadcast,
-#    *) use custom MPI types
-#    *) not display detailed timing information.
-#    *) not use CALDGEMM
-#    *) not trace calls
-#    *) use improved LASWP
-#    *) not trace LASWP arrays
-#    *) use original initialization and verification
-#    *) not use pagelocked memory
-#    *) not use huge tables
-#    *) set GPU to quiet mode
-#    *) not sent U padding
-#    *) not verify CALDGEMM results
-#    *) not print intermediate results nor matrix size
-#    *) use serialized MPI threading
-#    *) do not print throttling nodes
-#    *) break if MPI library does not provide the required threading support
-#    *) use the hacked AMD driver
-#    *) not use PREFETCHW instruction
-#    *) use MPI
-#    *) max GPU NB is 1024
-#
 #
 # ----------------------------------------------------------------------
 #
