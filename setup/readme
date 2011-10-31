@@ -37,7 +37,7 @@
 # -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
 # -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
 # -DHPL_FAST_GPU         Similar to slowCPU, better suited for medium CPU and fast GPU
-# -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1) or DYNAMIC (2).
+# -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1), DYNAMIC (2), or DYNAMIC WITH CUT (3).
 # -DHPL_MULTI_GPU        Use multiple GPUs
 # -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
@@ -74,7 +74,7 @@
 #    *) max GPU NB is 1024
 #    *) not set slow CPU
 #    *) not set fast GPU
-#    *) restrict CPUs statically
+#    *) restrict CPUs dynamically
 #    *) use the first GPU in the system only
 #    *) map all GPUs to core 0
 #    *) map GPU main thread to core 0

@@ -176,7 +176,7 @@ int CALDGEMM_Init()
 #endif
 
 #ifndef HPL_RESTRICT_CPUS
-#define HPL_RESTRICT_CPUS 1
+#define HPL_RESTRICT_CPUS 2
 #endif
 
 	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
