@@ -40,6 +40,7 @@
 # -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1), DYNAMIC (2), or DYNAMIC WITH CUT (3).
 # -DHPL_MULTI_GPU        Use multiple GPUs
 # -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
+# -DHPL_GPU_POSTPROCESS_MAPPING={x,y,z} Map gpu postprocess 0 to core x, 1 to y and so on
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n

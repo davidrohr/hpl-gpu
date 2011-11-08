@@ -155,6 +155,13 @@ int CALDGEMM_Init()
 	    cal_info.GPUMapping[i] = mapping[i];
 	}
 #endif
+#ifdef HPL_GPU_POSTPROCESS_MAPPING
+	const int postprocess_mapping[] = HPL_GPU_POSTPROCESS_MAPPING;
+	for (unsigned int i = 0;i < sizeof(postprocess_mapping) / sizeof(int);i++)
+	{
+	    cal_info.PostprocessMapping[i] = postprocess_mapping[i];
+	}
+#endif
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
 #endif
