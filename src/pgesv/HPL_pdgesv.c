@@ -538,6 +538,13 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
+#ifdef HPL_HALF_BLOCKING
+		if (n <= HPL_HALF_BLOCKING && n + nb > HPL_HALF_BLOCKING)
+		{
+			nb /= 2;
+		}
+#endif
+
 		icurcol = MColToPCol(j, nb, npcol, GRID);
 		n = N - j;
 		jb = Mmin(n, nb);

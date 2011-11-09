@@ -47,6 +47,7 @@
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n
 # -DHPL_LOOKAHEAD2_TURNOFF=n
 #                        Same for lookahead2
+# -DHPL_HALF_BLOCKING=n  n at which only half the blocking size is used
 # -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 # -DHPL_USE_ALL_CORES_FOR_LASWP
 #                        Use all cores for LASWP, lookahead 2 will not work well this way
