@@ -539,9 +539,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	for(j = startrow; j < N; j += nb)
 	{
 #ifdef HPL_HALF_BLOCKING
-		if (n <= HPL_HALF_BLOCKING && n + nb > HPL_HALF_BLOCKING)
+		if (n <= HPL_HALF_BLOCKING && n + nb > HPL_HALF_BLOCKING && npcol == 1 && GRID->nprow == 1 && depth1 == 0)
 		{
-			nb /= 2;
+			nb = A->nb / 2;
 		}
 #endif
 
