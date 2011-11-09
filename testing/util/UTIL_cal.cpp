@@ -166,6 +166,15 @@ int CALDGEMM_Init()
 	    cal_info.PostprocessMapping[i] = postprocess_mapping[i];
 	}
 #endif
+#ifdef HPL_GPU_ALLOC_MAPPING
+	const int alloc_mapping[] = HPL_GPU_ALLOC_MAPPING;
+	for (unsigned int i = 0;i < sizeof(alloc_mapping) / sizeof(int);i++)
+	{
+	    cal_info.AllocMapping[i] = alloc_mapping[i];
+	}
+#endif
+
+
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
 #endif

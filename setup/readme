@@ -41,6 +41,7 @@
 # -DHPL_MULTI_GPU        Use multiple GPUs
 # -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
 # -DHPL_GPU_POSTPROCESS_MAPPING={x,y,z} Map gpu postprocess 0 to core x, 1 to y and so on
+# -DHPL_GPU_ALLOCS_MAPPING={x,y,z} Same as above for allocation
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n
