@@ -148,6 +148,10 @@ int CALDGEMM_Init()
 	//cal_info.Height = 4096;
 #endif
 
+#ifdef HPL_GPU_THREADSAVE_DRIVER
+	cal_info.ThreadSaveDriver = true;
+#endif
+
 #ifdef HPL_GPU_MAPPING
 	const int mapping[] = HPL_GPU_MAPPING;
 	for (unsigned int i = 0;i < sizeof(mapping) / sizeof(int);i++)

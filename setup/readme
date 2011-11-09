@@ -49,6 +49,8 @@
 # -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 # -DHPL_USE_ALL_CORES_FOR_LASWP
 #                        Use all cores for LASWP, lookahead 2 will not work well this way
+# -DHPL_GPU_THREADSAVE_DRIVER
+#                        Assume GPU driver to be threadsave
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
