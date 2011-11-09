@@ -61,8 +61,8 @@ namespace
 {
     class HPL_init_laswp_foo
     {
-        public:
-            void operator()(const tbb::blocked_range<size_t> &) const {}
+		public:
+		    void operator()(const tbb::blocked_range<size_t> &) const {}
     };
 
 extern "C" int HPL_init_laswp(void* ptr);
@@ -70,30 +70,30 @@ extern "C" int get_num_procs();
 
     int HPL_init_laswp(void* ptr)
     {
-        int num_threads = tbb::task_scheduler_init::automatic;
-        
-        // before we init TBB we must make sure that we are not pinned to a CPU
-        cpu_set_t oldmask;
-        sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
-        cpu_set_t fullMask;
-        CPU_ZERO(&fullMask);
+		int num_threads = tbb::task_scheduler_init::automatic;
+		
+		// before we init TBB we must make sure that we are not pinned to a CPU
+		cpu_set_t oldmask;
+		sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
+		cpu_set_t fullMask;
+		CPU_ZERO(&fullMask);
 
 #ifndef RESTRICT_CORES
-        /*const char *num_threads_string = getenv("LASWP_NUM_THREADS");
-        if (num_threads_string) {
-            num_threads = atoi(num_threads_string);
-            //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
-        } else {
-            //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
-        }*/
-        for (int i = 0; i < get_num_procs(); ++i) {
-            CPU_SET(i, &fullMask);
-        }
-        if (CPU_COUNT(&oldmask) == 1
-                && std::getenv("LASWP_PIN_WORKER_THREADS")
-                && std::strcmp("1", std::getenv("LASWP_PIN_WORKER_THREADS")) == 0) {
-            CPU_XOR(&fullMask, &fullMask, &oldmask);
-        }
+		/*const char *num_threads_string = getenv("LASWP_NUM_THREADS");
+		if (num_threads_string) {
+		    num_threads = atoi(num_threads_string);
+		    //fprintf(stderr, "TBB initialized with %d threads\n", num_threads);
+		} else {
+		    //fprintf(stderr, "TBB initialized: %d threads available\n", tbb::task_scheduler_init::default_num_threads());
+		}*/
+		for (int i = 0; i < get_num_procs(); ++i) {
+		    CPU_SET(i, &fullMask);
+		}
+		if (CPU_COUNT(&oldmask) == 1
+				&& std::getenv("LASWP_PIN_WORKER_THREADS")
+				&& std::strcmp("1", std::getenv("LASWP_PIN_WORKER_THREADS")) == 0) {
+		    CPU_XOR(&fullMask, &fullMask, &oldmask);
+		}
 		num_threads = get_num_procs();
 #else
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
@@ -103,19 +103,25 @@ extern "C" int get_num_procs();
 			if (cal_dgemm->cpuUsed(i) == false) CPU_SET(i, &fullMask);
 		}
 		num_threads = CPU_COUNT(&fullMask);
-		printf("Using %d threads for LASWP\n", num_threads);
+		printf("Using %d threads for LASWP ( ", num_threads);
+		for (int i = 0;i < num_procs;i++)
+		{
+			if (CPU_ISSET(i, &fullMask)) printf("%d ", i);
+		}
+		printf(")\n");
+
 #endif
-        sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
-        sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
+		sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
+		sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
 
-        //fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
-        static tbb::task_scheduler_init init(num_threads);
-        tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
+		//fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
+		static tbb::task_scheduler_init init(num_threads);
+		tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
 
-        //fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
-        sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
+		//fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
+		sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 
-        return 0;
+		return 0;
     }
 }
 
