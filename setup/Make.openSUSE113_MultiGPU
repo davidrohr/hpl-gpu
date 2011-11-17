@@ -71,7 +71,7 @@ TOUCH        = touch
 # - Platform identifier ------------------------------------------------
 # ----------------------------------------------------------------------
 #
-ARCH         = SLES11SP1
+ARCH         = openSUSE113_caldgemm_GotoBLAS_AMD
 #
 # ----------------------------------------------------------------------
 # - HPL Directory Structure / HPL library ------------------------------
@@ -101,9 +101,9 @@ MPlib        = -L$(MPdir)/lib64 -lmpi
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-GOTOdir      = $(HOME)/GotoBLAS2
+GOTOdir      = $(TOPdir)/GotoBLAS2
 GOTOlib      = $(GOTOdir)/libgoto2.a
-CALDGEMMdir  = $(HOME)/caldgemm
+CALDGEMMdir  = $(TOPdir)/caldgemm
 CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm_cal.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/cmodules/timer.obj
 LAinc        = -isystem $(CALDGEMMdir) -isystem $(ATISTREAMSDKROOT)/include -isystem $(GOTOdir)
 LAlib        = $(GOTOlib)
@@ -119,7 +119,9 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_COPY_L -DHPL_SEND_U_PADDING -DHPL_MPI_FUNNELED_THREADING -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_PRINT_INTERMEDIATE -DHPL_NO_MPI_THREAD_CHECK #-DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_NO_MPI_DATATYPE -DHPL_COPY_L -DHPL_SEND_U_PADDING -DHPL_FASTINIT -DHPL_FASTVERIFY-DHPL_NO_MPI_THREAD_CHECK -DHPL_PRINT_INTERMEDIATE -DHPL_HAVE_PREFETCHW -DHPL_NO_MPI_LIB -DHPL_RESTRICT_CPUS=2 -DHPL_GPU_MAPPING="{1,3,12,14}" -DHPL_GPU_POSTPROCESS_MAPPING="{-1,-1,-1,-1}" -DHPL_GPU_ALLOCS_MAPPING="{0,0,12,12}" -DHPL_MULTI_GPU -DHPL_GPU_MAX_NB=2048 -DHPL_GPU_PIN_MAIN=0 -DHPL_FAST_GPU -DHPL_LOOKAHEAD2_TURNOFF=73728 -DHPL_DISABLE_LOOKAHEAD=30720 -DHPL_GPU_TIMING
+#-DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST
+#-DHPL_USE_ALL_CORES_FOR_LASWP
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
@@ -128,7 +130,7 @@ HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_
 CC           = gcc
 CXX          = g++
 CCNOOPT      = $(HPL_DEFS)
-_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=core2 -Wall -Wimplicit \
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=barcelona -Wall -Wimplicit \
                 -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
                 -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
                 -Wno-unused-function -pedantic -Wno-long-long -Wshadow
@@ -145,7 +147,6 @@ ARCHIVER     = ar
 ARFLAGS      = r
 RANLIB       = echo
 #
-# ----------------------------------------------------------------------
 isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
 
 # Set include paths and lib paths according to HPL_DEFS options
@@ -156,5 +157,10 @@ endif
 
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
 LAlib += $(CALDGEMMlib) -laticalrt -laticalcl
+endif
+
+ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
+HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
+HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
 endif
 # ----------------------------------------------------------------------

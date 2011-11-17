@@ -39,6 +39,11 @@
 #ifdef HPL_CALL_CALDGEMM
 
 #include <caldgemm_cal.h>
+extern "C"
+{
+typedef unsigned int blasint;
+#include <cblas.h>
+}
 #include <pthread.h>
 #include <errno.h>
 #include "util_cal.h"
@@ -82,7 +87,7 @@ void* gpudgemm_wrapper(void* arg)
 	{
 		fprintfdvv(stderr, "GPU DGEMM Thread Running\n");
 		cal_dgemm->RunCALDGEMM( gpudgemmparams.A, gpudgemmparams.B, gpudgemmparams.C, gpudgemmparams.ALPHA, gpudgemmparams.BETA, gpudgemmparams.M, gpudgemmparams.K, gpudgemmparams.N, gpudgemmparams.LDA, gpudgemmparams.LDB,
-			gpudgemmparams.LDC, gpudgemmparams.ORDER, gpudgemmparams.TRANSA, gpudgemmparams.TRANSB, gpudgemmparams.LinpackCallbacks );
+			gpudgemmparams.LDC, gpudgemmparams.ORDER == CblasColMajor, gpudgemmparams.TRANSA == CblasTrans, gpudgemmparams.TRANSB == CblasTrans, gpudgemmparams.LinpackCallbacks );
 		pthread_mutex_unlock(&gpudgemmdone);
 	}
 	fprintfdvv(stderr, "GPU DGEMM Thread Terminating\n");
@@ -108,6 +113,11 @@ void funneled_broadcast_wrapper()
 }
 
 #endif
+
+void* CALDGEMM_GetObject()
+{
+	return(cal_dgemm);
+}
 
 int CALDGEMM_Init()
 {
@@ -138,12 +148,35 @@ int CALDGEMM_Init()
 	//cal_info.Height = 4096;
 #endif
 
+#ifdef HPL_GPU_THREADSAVE_DRIVER
+	cal_info.ThreadSaveDriver = true;
+#endif
+
 #ifdef HPL_GPU_MAPPING
 	const int mapping[] = HPL_GPU_MAPPING;
 	for (unsigned int i = 0;i < sizeof(mapping) / sizeof(int);i++)
 	{
 	    cal_info.GPUMapping[i] = mapping[i];
 	}
+#endif
+#ifdef HPL_GPU_POSTPROCESS_MAPPING
+	const int postprocess_mapping[] = HPL_GPU_POSTPROCESS_MAPPING;
+	for (unsigned int i = 0;i < sizeof(postprocess_mapping) / sizeof(int);i++)
+	{
+	    cal_info.PostprocessMapping[i] = postprocess_mapping[i];
+	}
+#endif
+#ifdef HPL_GPU_ALLOC_MAPPING
+	const int alloc_mapping[] = HPL_GPU_ALLOC_MAPPING;
+	for (unsigned int i = 0;i < sizeof(alloc_mapping) / sizeof(int);i++)
+	{
+	    cal_info.AllocMapping[i] = alloc_mapping[i];
+	}
+#endif
+
+
+#ifdef HPL_GPU_PIN_MAIN
+	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
 #endif
 
 #ifndef HPL_GPU_MAX_NB
@@ -152,12 +185,18 @@ int CALDGEMM_Init()
 	cal_info.Width = HPL_GPU_MAX_NB;
 #endif
 
+#ifdef HPL_FAST_GPU
+	cal_info.SmallTiles = 1;
+	cal_info.GPURatio = 1.0;
+	cal_info.DynamicSched = false;
+#endif
+
 #ifdef HPL_SLOW_CPU
 	cal_info.SlowCPU = true;
 #endif
 
 #ifndef HPL_RESTRICT_CPUS
-#define HPL_RESTRICT_CPUS 1
+#define HPL_RESTRICT_CPUS 2
 #endif
 
 	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
@@ -252,9 +291,8 @@ void CALDGEMM_Shutdown()
 	pthread_mutex_destroy(&startbroadcast);
 	pthread_mutex_destroy(&broadcastdone);
 #endif
-	
 	cal_dgemm->ExitCALDGEMM();
-	delete[] cal_dgemm;
+	delete cal_dgemm;
 }
 
 void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
@@ -324,7 +362,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	    
 	    pthread_mutex_lock(&gpudgemmdone);
 #else
-	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER, TRANSA, TRANSB, LinpackCallbacks ))
+	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
 	    {
 		printf("Error in CALDGEMM Run, aborting HPL Run\n");
 		exit(1);

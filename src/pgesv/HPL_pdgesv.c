@@ -341,7 +341,11 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 #endif
 		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
 #ifdef HPL_CALL_CALDGEMM
-		if (depth2 && n >= 56 * 1024)
+		if (depth2
+#ifdef HPL_LOOKAHEAD2_TURNOFF
+		 && n >= HPL_LOOKAHEAD2_TURNOFF
+ #endif
+		 )
 		{
 		    HPL_CALDGEMM_wrapper_laswp_stepsize = 5120;
 		    CALDGEMM_enable_async_laswp(1);
@@ -534,6 +538,13 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
+#ifdef HPL_HALF_BLOCKING
+		if (n <= HPL_HALF_BLOCKING && n + nb > HPL_HALF_BLOCKING && npcol == 1 && GRID->nprow == 1 && depth1 == 0)
+		{
+			nb = A->nb / 2;
+		}
+#endif
+
 		icurcol = MColToPCol(j, nb, npcol, GRID);
 		n = N - j;
 		jb = Mmin(n, nb);

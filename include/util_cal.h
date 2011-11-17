@@ -44,6 +44,7 @@ extern "C"
 {
 #endif
 
+void* CALDGEMM_GetObject();
 int CALDGEMM_Init();
 void CALDGEMM_Shutdown();
 void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
