@@ -832,11 +832,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\caldgemm\pthread_mutex_win32_wrapper.h"
+					RelativePath="..\caldgemm\cmodules\pthread_mutex_win32_wrapper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\caldgemm\sched_affinity_win32_wrapper.h"
+					RelativePath="..\caldgemm\cmodules\sched_affinity_win32_wrapper.h"
 					>
 				</File>
 				<File
