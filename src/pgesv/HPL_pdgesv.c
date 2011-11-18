@@ -567,8 +567,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			modifier = 1. - modifier;
 			modifier = 1. + 0.1 * modifier;
 
-			uint64_t time_now = util_getTimestamp();
-			uint64_t seconds = util_getTimeDifference( time_start, time_now ) / 1e6;
+			float time_now = (float) util_getTimestamp();
+			float seconds = (float) util_getTimeDifference( time_start, time_now ) / 1e6;
 			if( seconds != 0 && j != 0 )
 			{
 				float flops = (float) gFlop / (float) seconds / modifier;
