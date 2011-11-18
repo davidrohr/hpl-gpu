@@ -538,15 +538,14 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
+		icurcol = MColToPCol(j, nb, npcol, GRID);
+		n = N - j;
 #ifdef HPL_HALF_BLOCKING
-		if (n <= HPL_HALF_BLOCKING && n + nb > HPL_HALF_BLOCKING && npcol == 1 && GRID->nprow == 1 && depth1 == 0)
+		if (n <= HPL_HALF_BLOCKING)// && n + nb > HPL_HALF_BLOCKING && npcol == 1 && GRID->nprow == 1 && depth1 == 0)
 		{
 			nb = A->nb / 2;
 		}
 #endif
-
-		icurcol = MColToPCol(j, nb, npcol, GRID);
-		n = N - j;
 		jb = Mmin(n, nb);
 #ifdef HPL_DETAILED_TIMING
 		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d Totaltime=%2.3lf\n", j, N, n, jb, HPL_ptimer_inquire( HPL_WALL_PTIME, HPL_TIMING_ITERATION ));
@@ -625,6 +624,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		{
 			nq -= jb;
 		}
+#ifdef HPL_CUSTOM_PARAMETER_CHANGE
+		HPL_CUSTOM_PARAMETER_CHANGE
+#endif
 	}
 	//Clean-up: Release panels and panel list
 	if(depth1)
