@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hplvcproj", "hplvcproj.vcproj", "{3226E491-9930-4CFF-9774-740573E046E9}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hplvcproj", "hplvcproj.vcxproj", "{3226E491-9930-4CFF-9774-740573E046E9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "caldgemm", "caldgemm\caldgemm.vcxproj", "{FBDBB590-3FE5-4B2D-A8A8-EC590A03D27D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,10 @@ Global
 		{3226E491-9930-4CFF-9774-740573E046E9}.Debug|Win32.Build.0 = Debug|Win32
 		{3226E491-9930-4CFF-9774-740573E046E9}.Release|Win32.ActiveCfg = Release|Win32
 		{3226E491-9930-4CFF-9774-740573E046E9}.Release|Win32.Build.0 = Release|Win32
+		{FBDBB590-3FE5-4B2D-A8A8-EC590A03D27D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FBDBB590-3FE5-4B2D-A8A8-EC590A03D27D}.Debug|Win32.Build.0 = Debug|Win32
+		{FBDBB590-3FE5-4B2D-A8A8-EC590A03D27D}.Release|Win32.ActiveCfg = Release|Win32
+		{FBDBB590-3FE5-4B2D-A8A8-EC590A03D27D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
