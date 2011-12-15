@@ -1,9 +1,10 @@
 hplvcproj.suo
 hplvcproj.ncb
+hplvcproj.sdf
 hplvcproj.vcproj.QONWS.qon.user
 hplvcproj.vcproj.QONMOBILE.qon.user
 *.filters
-*.users
+*.user
 Debug
 Release
 ProfilerOutput
