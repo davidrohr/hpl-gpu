@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3226E491-9930-4CFF-9774-740573E046E9}</ProjectGuid>
+    <RootNamespace>hplvcproj</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\GotoBLAS2\interface\axpy.c" />
+    <ClCompile Include="..\GotoBLAS2\driver\others\blas_l1_thread.c" />
+    <ClCompile Include="..\GotoBLAS2\driver\others\blas_server.c" />
+    <ClCompile Include="..\GotoBLAS2\interface\gemm.c" />
+    <ClCompile Include="..\GotoBLAS2\interface\gemv.c" />
+    <ClCompile Include="..\GotoBLAS2\driver\others\init.c" />
+    <ClCompile Include="..\GotoBLAS2\driver\others\memory.c" />
+    <ClCompile Include="..\GotoBLAS2\interface\scal.c" />
+    <ClCompile Include="..\GotoBLAS2\interface\trsm.c" />
+    <ClCompile Include="..\src\auxil\HPL_abort.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlacpy.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlacpy.cpp" />
+    <ClCompile Include="..\src\auxil\HPL_dlamch.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlange.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlaprnt.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlatcpy.c" />
+    <ClCompile Include="..\src\auxil\HPL_dlatcpy.cpp" />
+    <ClCompile Include="..\src\auxil\HPL_fprintf.c" />
+    <ClCompile Include="..\src\auxil\HPL_warn.c" />
+    <ClCompile Include="..\testing\matgen\HPL_dmatgen.c" />
+    <ClCompile Include="..\testing\matgen\HPL_jumpit.c" />
+    <ClCompile Include="..\testing\matgen\HPL_ladd.c" />
+    <ClCompile Include="..\testing\matgen\HPL_lmul.c" />
+    <ClCompile Include="..\testing\ptest\HPL_pddriver.c" />
+    <ClCompile Include="..\testing\ptest\HPL_pdinfo.c" />
+    <ClCompile Include="..\testing\pmatgen\HPL_pdmatgen.c" />
+    <ClCompile Include="..\testing\ptest\HPL_pdtest.c" />
+    <ClCompile Include="..\testing\ptimer\HPL_ptimer.c" />
+    <ClCompile Include="..\testing\ptimer\HPL_ptimer_cputime.c" />
+    <ClCompile Include="..\testing\ptimer\HPL_ptimer_walltime.c" />
+    <ClCompile Include="..\testing\matgen\HPL_rand.c" />
+    <ClCompile Include="..\testing\matgen\HPL_setran.c" />
+    <ClCompile Include="..\testing\timer\HPL_timer_cputime.c" />
+    <ClCompile Include="..\testing\timer\HPL_timer_walltime.c" />
+    <ClCompile Include="..\testing\matgen\HPL_xjumpm.c" />
+    <ClCompile Include="..\testing\util\UTIL_cal.cpp" />
+    <ClCompile Include="..\testing\util\UTIL_timer.c" />
+    <ClCompile Include="..\testing\util\UTIL_trace.c" />
+    <ClCompile Include="..\src\blas\HPL_daxpy.c" />
+    <ClCompile Include="..\src\blas\HPL_dcopy.c" />
+    <ClCompile Include="..\src\blas\HPL_dgemm.c" />
+    <ClCompile Include="..\src\blas\HPL_dgemv.c" />
+    <ClCompile Include="..\src\blas\HPL_dger.c" />
+    <ClCompile Include="..\src\blas\HPL_dscal.c" />
+    <ClCompile Include="..\src\blas\HPL_dswap.c" />
+    <ClCompile Include="..\src\blas\HPL_dtrsm.c" />
+    <ClCompile Include="..\src\blas\HPL_dtrsv.c" />
+    <ClCompile Include="..\src\blas\HPL_idamax.c" />
+    <ClCompile Include="..\src\comm\HPL_1ring.c" />
+    <ClCompile Include="..\src\comm\HPL_1rinM.c" />
+    <ClCompile Include="..\src\comm\HPL_2ring.c" />
+    <ClCompile Include="..\src\comm\HPL_2rinM.c" />
+    <ClCompile Include="..\src\comm\HPL_bcast.c" />
+    <ClCompile Include="..\src\comm\HPL_binit.c" />
+    <ClCompile Include="..\src\comm\HPL_blong.c" />
+    <ClCompile Include="..\src\comm\HPL_blonM.c" />
+    <ClCompile Include="..\src\comm\HPL_bwait.c" />
+    <ClCompile Include="..\src\comm\HPL_copyL.c" />
+    <ClCompile Include="..\src\comm\HPL_mpi.c" />
+    <ClCompile Include="..\src\comm\HPL_packL.c" />
+    <ClCompile Include="..\src\comm\HPL_recv.c" />
+    <ClCompile Include="..\src\comm\HPL_sdrv.c" />
+    <ClCompile Include="..\src\comm\HPL_send.c" />
+    <ClCompile Include="..\src\grid\HPL_all_reduce.c" />
+    <ClCompile Include="..\src\grid\HPL_barrier.c" />
+    <ClCompile Include="..\src\grid\HPL_broadcast.c" />
+    <ClCompile Include="..\src\grid\HPL_grid_exit.c" />
+    <ClCompile Include="..\src\grid\HPL_grid_info.c" />
+    <ClCompile Include="..\src\grid\HPL_grid_init.c" />
+    <ClCompile Include="..\src\grid\HPL_max.c" />
+    <ClCompile Include="..\src\grid\HPL_min.c" />
+    <ClCompile Include="..\src\grid\HPL_reduce.c" />
+    <ClCompile Include="..\src\grid\HPL_sum.c" />
+    <ClCompile Include="..\src\panel\HPL_pdpanel_disp.c" />
+    <ClCompile Include="..\src\panel\HPL_pdpanel_free.c" />
+    <ClCompile Include="..\src\panel\HPL_pdpanel_init.c" />
+    <ClCompile Include="..\src\panel\HPL_pdpanel_new.c" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp00N.c" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp00N.cpp" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp01T.c" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp01T.cpp" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp06T.c" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp06T.cpp" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp10N.c" />
+    <ClCompile Include="..\src\pauxil\HPL_dlaswp10N.cpp" />
+    <ClCompile Include="..\src\pauxil\HPL_indxg2p.c" />
+    <ClCompile Include="..\src\pauxil\HPL_infog2l.c" />
+    <ClCompile Include="..\src\pauxil\HPL_numroc.c" />
+    <ClCompile Include="..\src\pauxil\HPL_numrocI.c" />
+    <ClCompile Include="..\src\pauxil\HPL_pabort.c" />
+    <ClCompile Include="..\src\pauxil\HPL_pdlamch.c" />
+    <ClCompile Include="..\src\pauxil\HPL_pdlange.c" />
+    <ClCompile Include="..\src\pauxil\HPL_pwarn.c" />
+    <ClCompile Include="..\src\pauxil\laswp_globals.cpp" />
+    <ClCompile Include="..\src\pauxil\permutationhelper.cpp" />
+    <ClCompile Include="..\src\pfact\HPL_dlocmax.c" />
+    <ClCompile Include="..\src\pfact\HPL_dlocswpT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdfact.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdmxswp.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdpancrT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdpanllT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdpanrlT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdrpancrT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdrpanllT.c" />
+    <ClCompile Include="..\src\pfact\HPL_pdrpanrlT.c" />
+    <ClCompile Include="..\src\pgesv\HPL_equil.c" />
+    <ClCompile Include="..\src\pgesv\HPL_logsort.c" />
+    <ClCompile Include="..\src\pgesv\HPL_pdgesv.c" />
+    <ClCompile Include="..\src\pgesv\HPL_pdlaswp01T.c" />
+    <ClCompile Include="..\src\pgesv\HPL_pdtrsv.c" />
+    <ClCompile Include="..\src\pgesv\HPL_perm.c" />
+    <ClCompile Include="..\src\pgesv\HPL_pipid.c" />
+    <ClCompile Include="..\src\pgesv\HPL_plindx1.c" />
+    <ClCompile Include="..\src\pgesv\HPL_plindx10.c" />
+    <ClCompile Include="..\src\pgesv\HPL_rollT.c" />
+    <ClCompile Include="..\src\pgesv\HPL_spreadT.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\hpl.h" />
+    <ClInclude Include="..\include\hpl_auxil.h" />
+    <ClInclude Include="..\include\hpl_blas.h" />
+    <ClInclude Include="..\include\hpl_comm.h" />
+    <ClInclude Include="..\include\hpl_gesv.h" />
+    <ClInclude Include="..\include\hpl_grid.h" />
+    <ClInclude Include="..\include\hpl_matgen.h" />
+    <ClInclude Include="..\include\hpl_misc.h" />
+    <ClInclude Include="..\include\hpl_panel.h" />
+    <ClInclude Include="..\include\hpl_pauxil.h" />
+    <ClInclude Include="..\include\hpl_pfact.h" />
+    <ClInclude Include="..\include\hpl_pgesv.h" />
+    <ClInclude Include="..\include\hpl_pmatgen.h" />
+    <ClInclude Include="..\include\hpl_pmisc.h" />
+    <ClInclude Include="..\include\hpl_ptest.h" />
+    <ClInclude Include="..\include\hpl_ptimer.h" />
+    <ClInclude Include="..\include\hpl_test.h" />
+    <ClInclude Include="..\include\hpl_units.h" />
+    <ClInclude Include="..\include\util_cal.h" />
+    <ClInclude Include="..\include\util_timer.h" />
+    <ClInclude Include="..\include\util_trace.h" />
+    <ClInclude Include="..\GotoBLAS2\cblas.h" />
+    <ClInclude Include="..\GotoBLAS2\common.h" />
+    <ClInclude Include="..\GotoBLAS2\common_thread.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\setup\Make.LOEWE-CSC_cpu" />
+    <None Include="..\setup\Make.LOEWE-CSC_gpu" />
+    <None Include="..\setup\Make.LOEWE_mvapich" />
+    <None Include="..\setup\Make.LOEWE_mvapich2" />
+    <None Include="..\setup\Make.openSUSE112_caldgemm_GotoBLAS" />
+    <None Include="..\setup\Make.openSUSE112_GotoBLAS" />
+    <None Include="..\setup\Make.openSUSE113_caldgemm_GotoBLAS_AMD" />
+    <None Include="..\setup\Make.openSUSE113_GotoBLAS" />
+    <None Include="..\setup\Make.openSUSE113_MultiGPU" />
+    <None Include="..\setup\Make.OSX" />
+    <None Include="..\setup\Make.SLES11SP1" />
+    <None Include="..\setup\Make.Ubuntu904_GotoBLAS" />
+    <None Include="..\setup\Make.Ubuntu910_caldgemm_GotoBLAS" />
+    <None Include="..\setup\Make.Ubuntu910_GotoBLAS" />
+    <None Include="..\setup\Make.UNKNOWN.in" />
+    <None Include="..\setup\make_generic" />
+    <None Include="..\setup\readme" />
+    <None Include="..\makes\Make.auxil" />
+    <None Include="..\makes\Make.blas" />
+    <None Include="..\makes\Make.comm" />
+    <None Include="..\makes\Make.gesv" />
+    <None Include="..\makes\Make.grid" />
+    <None Include="..\makes\Make.matgen" />
+    <None Include="..\makes\Make.panel" />
+    <None Include="..\makes\Make.pauxil" />
+    <None Include="..\makes\Make.pfact" />
+    <None Include="..\makes\Make.pgesv" />
+    <None Include="..\makes\Make.pmatgen" />
+    <None Include="..\makes\Make.ptest" />
+    <None Include="..\makes\Make.ptimer" />
+    <None Include="..\makes\Make.test" />
+    <None Include="..\makes\Make.units" />
+    <None Include="..\makes\Make.util" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="caldgemm\caldgemm.vcxproj">
+      <Project>{fbdbb590-3fe5-4b2d-a8a8-ec590a03d27d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

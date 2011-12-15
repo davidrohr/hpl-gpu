@@ -4,3 +4,6 @@ hplvcproj.vcproj.QONWS.qon.user
 hplvcproj.vcproj.QONMOBILE.qon.user
 *.filters
 *.users
+Debug
+Release
+ProfilerOutput
