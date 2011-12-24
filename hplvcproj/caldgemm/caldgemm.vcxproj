@@ -63,6 +63,8 @@
     <ClCompile Include="..\..\caldgemm\benchmark.cpp" />
     <ClCompile Include="..\..\caldgemm\caldgemm.cpp" />
     <ClCompile Include="..\..\caldgemm\caldgemm_cal.cpp" />
+    <ClCompile Include="..\..\caldgemm\caldgemm_cpu.cpp" />
+    <ClCompile Include="..\..\caldgemm\caldgemm_cuda.cu" />
     <ClCompile Include="..\..\caldgemm\caldgemm_opencl.cpp" />
     <ClCompile Include="..\..\caldgemm\timer.cpp" />
   </ItemGroup>
@@ -71,6 +73,7 @@
     <None Include="..\..\caldgemm\caldgemm.il" />
     <None Include="..\..\caldgemm\caldgemm_config.sample" />
     <None Include="..\..\caldgemm\config.mak" />
+    <None Include="..\..\caldgemm\cudakernel.cu" />
     <None Include="..\..\caldgemm\makefiles\config.mak.sample" />
     <None Include="..\..\caldgemm\makefiles\i686-pc-cygwin.mak" />
     <None Include="..\..\caldgemm\makefiles\makefile" />
@@ -83,7 +86,10 @@
     <ClInclude Include="..\..\caldgemm\caldgemm_common.h" />
     <ClInclude Include="..\..\caldgemm\caldgemm_config.h" />
     <ClInclude Include="..\..\caldgemm\caldgemm_config_load.h" />
+    <ClInclude Include="..\..\caldgemm\caldgemm_cpu.h" />
+    <ClInclude Include="..\..\caldgemm\caldgemm_cuda.h" />
     <ClInclude Include="..\..\caldgemm\caldgemm_opencl.h" />
+    <ClInclude Include="..\..\caldgemm\cmodules\os_low_level_helper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\pthread_mutex_win32_wrapper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\sched_affinity_win32_wrapper.h" />
     <ClInclude Include="..\..\caldgemm\timer.h" />
