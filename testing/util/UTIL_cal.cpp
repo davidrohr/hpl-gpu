@@ -173,10 +173,26 @@ int CALDGEMM_Init()
 	    cal_info.AllocMapping[i] = alloc_mapping[i];
 	}
 #endif
-
+#ifdef HPL_GPU_EXCLUDE_CORES
+	static const int exclude_cores[] = HPL_GPU_EXCLUDE_CORES;
+	cal_info.nExcludeCPUCores = sizeof(exclude_cores) / sizeof(int);
+	cal_info.ExcludeCPUCores = (int*) exclude_cores;
+#endif
 
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
+#endif
+
+#ifdef HPL_GPU_OG
+	cal_info.DstMemory = 'g';
+	cal_info.ImplicitDriverSync = 1;
+	cal_info.KeepBuffersMapped = false;
+#else
+#ifdef HPL_NO_HACKED_LIB
+	cal_info.KeepBuffersMapped = false;
+#else
+	cal_info.KeepBuffersMapped = true;
+#endif
 #endif
 
 #ifndef HPL_GPU_MAX_NB
@@ -203,7 +219,6 @@ int CALDGEMM_Init()
 	
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
-	//cal_info.DstMemory = 'c';
 	//cal_info.VerboseTiming = false;
 	//cal_info.Debug = true;
 	//cal_info.MultiThread = true;
@@ -221,11 +236,6 @@ int CALDGEMM_Init()
 #endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
 	
-#ifdef HPL_NO_HACKED_LIB
-	cal_info.KeepBuffersMapped = false;
-#else
-	cal_info.KeepBuffersMapped = true;
-#endif
 	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
 	cal_info.PreOut = PreOutput;
 
@@ -239,6 +249,10 @@ int CALDGEMM_Init()
 
 #ifdef HPL_PRINT_THROTTLING_NODES
 	cal_info.GPUClock = HPL_PRINT_THROTTLING_NODES;
+#endif
+
+#ifdef HPL_GPU_EXTRA_CALDGEMM_OPTIONS
+HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #endif
 
 #ifdef HPL_GPU_FACTORIZE
