@@ -1097,6 +1097,12 @@ label_error:
       HPL_fprintf( TEST->outfp,       "\nSEED   :%8d",
                    *SEED );
 
+/*
+ * Config Options
+ */
+      HPL_fprintf( TEST->outfp,       "\nConfig : ");
+#include "hpl_config_option_list.h"
+
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
  * For testing only
