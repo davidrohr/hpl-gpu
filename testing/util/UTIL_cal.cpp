@@ -215,6 +215,10 @@ int CALDGEMM_Init()
 #define HPL_RESTRICT_CPUS 2
 #endif
 
+#ifdef HPL_INITIAL_GPU_RATIO
+	cal_info.GPURatio = -HPL_INITIAL_GPU_RATIO;
+#endif
+
 	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
 	
 	//cal_info.AutoHeight = true;
