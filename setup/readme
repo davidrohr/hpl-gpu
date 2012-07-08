@@ -39,9 +39,14 @@
 # -DHPL_FAST_GPU         Similar to slowCPU, better suited for medium CPU and fast GPU
 # -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1), DYNAMIC (2), or DYNAMIC WITH CUT (3).
 # -DHPL_MULTI_GPU        Use multiple GPUs
-# -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
-# -DHPL_GPU_POSTPROCESS_MAPPING={x,y,z} Map gpu postprocess 0 to core x, 1 to y and so on
-# -DHPL_GPU_ALLOCS_MAPPING={x,y,z} Same as above for allocation
+# -DHPL_GPU_MAPPING="{x,y,z}"
+#                        Map gpu 0 to core x, 1 to y and so on
+# -DHPL_GPU_POSTPROCESS_MAPPING="C{x,y,z}"
+#                        Map gpu postprocess 0 to core x, 1 to y and so on
+# -DHPL_GPU_ALLOCS_MAPPING="{x,y,z}"
+#                        Same as above for allocation
+# -DHPL_GPU_EXLUDE_CORES="{x,y}"
+#                        Exclude CPU cores x,y from processing completely
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n
@@ -55,6 +60,9 @@
 #                        Assume GPU driver to be threadsave
 # -DHPL_CUSTOM_PARAMETER_CHANGE
 #                        Custom code executed every iteration, good for changing factorization parameters
+# -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS
+#                        Extra source code that defines caldgemm options e.g. "cal_info.OutputThreads = 2;"
+
 #
 # By default HPL will:
 #    *) not copy L before broadcast,
