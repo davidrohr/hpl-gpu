@@ -137,6 +137,31 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
  * ---------------------------------------------------------------------
  */
 #ifdef NO_TRACE_CALLS
+
+#ifdef HPL_CALDGEMM_CBLAS_WRAPPER
+
+#define blasint int
+#include "caldgemm_cblas_wrapper.h"
+#undef blasint
+
+#define    HPL_dswap           cblas_dswap
+#define    HPL_dcopy           cblas_dcopy
+#define    HPL_daxpy           cblas_daxpya
+#define    HPL_dscal           cblas_dscala
+#define    HPL_idamax          cblas_idamax
+
+#define    HPL_dgemv           cblas_dgemva
+#define    HPL_dtrsv           cblas_dtrsv
+#define    HPL_dger            cblas_dger
+
+#define    HPL_dgemm           cblas_dgemma
+#ifdef HPL_CALL_CALDGEMM
+#define    HPL_gpu_dgemm       CALDGEMM_dgemm
+#else
+#define    HPL_gpu_dgemm       cblas_dgemma
+#endif
+#define    HPL_dtrsm           cblas_dtrsma
+#else
 #define    HPL_dswap           cblas_dswap
 #define    HPL_dcopy           cblas_dcopy
 #define    HPL_daxpy           cblas_daxpy
@@ -154,6 +179,7 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #define    HPL_gpu_dgemm       cblas_dgemm
 #endif
 #define    HPL_dtrsm           cblas_dtrsm
+#endif
 #endif
 
 

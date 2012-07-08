@@ -62,6 +62,8 @@
 #                        Custom code executed every iteration, good for changing factorization parameters
 # -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #                        Extra source code that defines caldgemm options e.g. "cal_info.OutputThreads = 2;"
+# -DHPL_CALDGEMM_CBLAS_WRAPPER
+#                        Wrap CBLAS calls through CALDGEMM (only for OpenMP based BLAS libraries)
 
 #
 # By default HPL will:
