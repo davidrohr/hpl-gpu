@@ -230,9 +230,14 @@ int CALDGEMM_Init()
 	//cal_info.UseCPU = true;
 	//cal_info.GPURatio = -1;
 	//cal_info.DynamicSched = false;
-	//cal_info.MemPolicy = true;
 	//cal_info.DumpMatrix = false;
 	
+#ifdef HPL_INTERLEAVE_MEMORY
+	cal_info.MemPolicy = true;
+#else
+	cal_info.MemPolicy = false;
+#endif
+
 #ifdef HPL_GPU_PERFORMANCE_WARNINGS
 	cal_info.NoPerformanceWarnings = false;
 #else
