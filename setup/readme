@@ -47,6 +47,8 @@
 #                        Same as above for allocation
 # -DHPL_GPU_EXLUDE_CORES="{x,y}"
 #                        Exclude CPU cores x,y from processing completely
+# -DHPL_GPU_DEVICE_IDS="{x,y}"
+#                        Device IDs of GPUs to use
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
 #                        Disable lookahead algorithm as soon as trailing matrix size hits n

@@ -178,6 +178,13 @@ int CALDGEMM_Init()
 	cal_info.nExcludeCPUCores = sizeof(exclude_cores) / sizeof(int);
 	cal_info.ExcludeCPUCores = (int*) exclude_cores;
 #endif
+#ifdef HPL_GPU_DEVICE_IDS
+	const int device_ids[] = HPL_GPU_DEVICE_IDS;
+	for (unsigned int i = 0;i < sizeof(device_ids) / sizeof(int);i++)
+	{
+	    cal_info.DeviceNums[i] = device_ids[i];
+	}
+#endif
 
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
