@@ -64,6 +64,14 @@
 
 int HPL_init_laswp(void* ptr);
 
+#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
+#define MPOL_DEFAULT 0
+#define MPOL_PREFERRED 1
+#define MPOL_BIND 2
+#define MPOL_INTERLEAVE 3
+#include <syscall.h>
+#endif
+
 int main
 (
    int                        ARGC,
@@ -120,8 +128,14 @@ int main
 #else
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
-   
-   if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
+
+#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
+   unsigned long nodemask = 0xffffff;
+   syscall(SYS_set_mempolicy, MPOL_INTERLEAVE, &nodemask, sizeof(nodemask) * 8);
+   #error a
+#endif
+
+    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
 	return(1);

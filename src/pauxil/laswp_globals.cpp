@@ -49,24 +49,34 @@
 #define USE_CORES 3
 #define CORE_COUNT 6
 
+extern "C" int get_num_procs();
+
 #ifndef HPL_USE_ALL_CORES_FOR_LASWP
 #define RESTRICT_CORES
 #endif
 #include <unistd.h>
 
 #include "../../caldgemm/caldgemm.h"
+#else
+
+static inline int get_num_procs()
+{
+    return(sysconf(_SC_NPROCESSORS_ONLN));
+}
+
 #endif
+
 
 namespace
 {
+    extern "C" int HPL_init_laswp(void* ptr);
+
     class HPL_init_laswp_foo
     {
 		public:
 		    void operator()(const tbb::blocked_range<size_t> &) const {}
     };
 
-extern "C" int HPL_init_laswp(void* ptr);
-extern "C" int get_num_procs();
 
     int HPL_init_laswp(void* ptr)
     {
