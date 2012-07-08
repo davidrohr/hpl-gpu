@@ -129,12 +129,6 @@ int main
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
 
-#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
-   unsigned long nodemask = 0xffffff;
-   syscall(SYS_set_mempolicy, MPOL_INTERLEAVE, &nodemask, sizeof(nodemask) * 8);
-   #error a
-#endif
-
     if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
@@ -145,6 +139,11 @@ int main
 	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
+#endif
+
+#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
+   unsigned long nodemask = 0xffffff;
+   syscall(SYS_set_mempolicy, MPOL_INTERLEAVE, &nodemask, sizeof(nodemask) * 8);
 #endif
 
 #ifdef HPL_GPU_FACTORIZE
