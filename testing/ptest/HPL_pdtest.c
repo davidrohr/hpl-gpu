@@ -63,12 +63,16 @@
 #include <sys/mman.h>
 #include "util_cal.h"
 #include <pthread.h>
+#include <unistd.h>
 
-#define FASTRAND_THREADS 24
+#define FASTRAND_THREADS nfastmatthreads
+#define FASTRAND_THREADS_MAX 64
 int fastrand_seed;
-volatile int fastrand_done[FASTRAND_THREADS];
+volatile int* fastrand_done;
 double* fastrand_A;
 size_t fastrand_size;
+
+static int nfastmatthreads;
 
 void* fastmatgen_slave(void* arg)
 {
@@ -106,6 +110,13 @@ void fastmatgen(int SEED, double* A, size_t size)
     fastrand_seed = SEED;
     fastrand_A = A;
     fastrand_size = size;
+
+    nfastmatthreads = sysconf(_SC_NPROCESSORS_CONF);
+    if (nfastmatthreads < 1) nfastmatthreads = 1;
+    if (nfastmatthreads > FASTRAND_THREADS_MAX) nfastmatthreads = FASTRAND_THREADS_MAX;
+    
+    fastrand_done = (int*) malloc(FASTRAND_THREADS * sizeof(int));
+    
     memset((void*) fastrand_done, 0, FASTRAND_THREADS * sizeof(int));
     
     cpu_set_t oldmask;
@@ -124,6 +135,7 @@ void fastmatgen(int SEED, double* A, size_t size)
 	{
 	}
     }
+    free(fastrand_done);
     sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 }
 

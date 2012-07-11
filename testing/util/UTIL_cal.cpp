@@ -43,6 +43,8 @@ extern "C"
 {
 typedef unsigned int blasint;
 #include <cblas.h>
+
+int max_gpu_nb = 1024;
 }
 #include <pthread.h>
 #include <errno.h>
@@ -203,7 +205,7 @@ int CALDGEMM_Init()
 #endif
 
 #ifndef HPL_GPU_MAX_NB
-	cal_info.Width = 1024; //k for matrix multiply
+	cal_info.Width = max_gpu_nb; //k for matrix multiply
 #else
 	cal_info.Width = HPL_GPU_MAX_NB;
 #endif

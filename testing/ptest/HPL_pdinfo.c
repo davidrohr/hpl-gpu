@@ -61,6 +61,8 @@
 #include "hpl.h"
 #include <unistd.h>
 
+extern int max_gpu_nb;
+
 void HPL_pdinfo
 (
    HPL_T_test *                     TEST,
@@ -375,15 +377,15 @@ void HPL_pdinfo
          }
 #ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
-		 if (NB[i] > 1024)
+		 if (NB[i] > max_gpu_nb) max_gpu_nb = NB[i];
 #else
 		 if (NB[i] > HPL_GPU_MAX_NB)
-#endif
 		 {
 			HPL_pwarn( stderr, __LINE__, "HPL_pdinfo", "Value of NB exceeds HPL_GPU_MAX_NB" );
 			error = 1;
 			goto label_error;
 		 }
+#endif
 #endif
       }
 /*

@@ -129,7 +129,7 @@ int main
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
 
-    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
+   if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
 	return(1);
@@ -152,22 +152,6 @@ int main
     dtrsm('L', 'U', 'T', 'U', 1, 1, 1.0, A, 1, B, 1);
     free(A);
     free(B);
-#endif
-
-#ifdef HPL_CALL_CALDGEMM
-   if (CALDGEMM_Init())
-   {
-	printf("Error initializing CALDGEMM, abborting run\n");
-	return(1);
-   }
-#endif
-
-#ifndef USE_ORIGINAL_LASWP
-#ifdef HPL_CALL_CALDGEMM
-	HPL_init_laswp(CALDGEMM_GetObject());
-#else
-	HPL_init_laswp(NULL);
-#endif
 #endif
 
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
@@ -202,6 +186,23 @@ HPLinpack benchmark input file
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
                &ntps, topval, &ndhs, ndhval, &align, &seed );
+
+#ifdef HPL_CALL_CALDGEMM
+   if (CALDGEMM_Init())
+   {
+	printf("Error initializing CALDGEMM, abborting run\n");
+	return(1);
+   }
+#endif
+
+#ifndef USE_ORIGINAL_LASWP
+#ifdef HPL_CALL_CALDGEMM
+	HPL_init_laswp(CALDGEMM_GetObject());
+#else
+	HPL_init_laswp(NULL);
+#endif
+#endif
+
 /*
  * Loop over different process grids - Define process grid. Go to bottom
  * of process grid loop if this case does not use my process.
