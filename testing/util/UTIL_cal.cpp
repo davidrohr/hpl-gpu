@@ -281,7 +281,7 @@ int CALDGEMM_Init()
 #else	
 	cal_info.linpack_factorize_function = HPL_CALDGEMM_wrapper_factorize;
 #ifdef HPL_EMULATE_MULTINODE
-	cal_info.linpack_broadcast_function = caldgemm_broadcast_fake;
+	cal_info.linpack_broadcast_function = multinode_broadcast_fake;
 	broadcast_fake_array = new float[1024 * 1024 * 2];
 #else
 	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
