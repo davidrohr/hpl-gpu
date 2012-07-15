@@ -128,8 +128,7 @@ float* broadcast_fake_array;
 
 void multinode_broadcast_fake()
 {
-	printf("Running fake broadcast %d\n", HPL_CALDGEMM_wrapper_n);
-	for (int j = 0;j < HPL_CALDGEMM_wrapper_n / 1024;j++)
+	for (int j = 0;j < HPL_CALDGEMM_wrapper_n / 64;j++)
 	{
 		for (int i = 0;i < 1024 * 1024 * 2;i++)
 		{
