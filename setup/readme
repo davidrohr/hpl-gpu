@@ -68,6 +68,8 @@
 #                        Wrap CBLAS calls through CALDGEMM reducing the number of threads for small BLAS operations for better performance (only for OpenMP based BLAS libraries)
 # -DHPL_INTERLEAVE_MEMORY
 #                        Interleave memory between NUMA nodes
+# -DHPL_EMULATE_MULTINODE
+#                        Report a multi node run to caldgemm and provide a fake function for the broadcast callback to simulate the loss due to communication overhead
 
 #
 # By default HPL will:

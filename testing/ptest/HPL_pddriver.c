@@ -218,7 +218,11 @@ HPLinpack benchmark input file
           ( mycol < 0 ) || ( mycol >= npcol ) ) goto label_end_of_npqs;
 
 #ifdef HPL_CALL_CALDGEMM
+#ifdef HPL_EMULATE_MULTINODE
+      CALDGEMM_set_num_nodes(2, 0);
+#else
       CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq], grid.iam);
+#endif
 #endif
 
       for( in = 0; in < ns; in++ )

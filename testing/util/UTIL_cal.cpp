@@ -121,6 +121,24 @@ void* CALDGEMM_GetObject()
 	return(cal_dgemm);
 }
 
+#ifdef HPL_EMULATE_MULTINODE
+extern "C" int HPL_CALDGEMM_wrapper_n;
+
+float* broadcast_fake_array;
+
+void multinode_broadcast_fake()
+{
+	printf("Running fake broadcast %d\n", HPL_CALDGEMM_wrapper_n);
+	for (int j = 0;j < HPL_CALDGEMM_wrapper_n / 1024;j++)
+	{
+		for (int i = 0;i < 1024 * 1024 * 8;i++)
+		{
+			broadcast_fake_array[i] += 1.;
+		}
+	}
+}
+#endif
+
 int CALDGEMM_Init()
 {
 #ifdef HPL_GPU_VERIFY
@@ -262,7 +280,12 @@ int CALDGEMM_Init()
 	cal_info.linpack_broadcast_function = funneled_broadcast_wrapper;
 #else	
 	cal_info.linpack_factorize_function = HPL_CALDGEMM_wrapper_factorize;
+#ifdef HPL_EMULATE_MULTINODE
+	cal_info.linpack_broadcast_function = caldgemm_broadcast_fake;
+	broadcast_fake_array = new float[1024 * 1024 * 2];
+#else
 	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
+#endif
 #endif
 
 #ifdef HPL_PRINT_THROTTLING_NODES
