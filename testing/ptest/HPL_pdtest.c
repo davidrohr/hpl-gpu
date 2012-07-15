@@ -77,7 +77,6 @@ static int nfastmatthreads;
 void* fastmatgen_slave(void* arg)
 {
    int num = (int) (size_t) arg;
-   
 
    cpu_set_t mask;
    CPU_ZERO(&mask);
@@ -115,7 +114,7 @@ void fastmatgen(int SEED, double* A, size_t size)
     if (nfastmatthreads < 1) nfastmatthreads = 1;
     if (nfastmatthreads > FASTRAND_THREADS_MAX) nfastmatthreads = FASTRAND_THREADS_MAX;
     
-    fastrand_done = (int*) malloc(FASTRAND_THREADS * sizeof(int));
+    fastrand_done = (volatile int*) malloc(FASTRAND_THREADS * sizeof(int));
     
     memset((void*) fastrand_done, 0, FASTRAND_THREADS * sizeof(int));
     
@@ -135,7 +134,7 @@ void fastmatgen(int SEED, double* A, size_t size)
 	{
 	}
     }
-    free(fastrand_done);
+    free((void*) fastrand_done);
     sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
 }
 

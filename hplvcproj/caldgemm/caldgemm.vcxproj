@@ -73,8 +73,8 @@
     <None Include="..\..\caldgemm\caldgemm.il" />
     <None Include="..\..\caldgemm\caldgemm_config.sample" />
     <None Include="..\..\caldgemm\config.mak" />
+    <None Include="..\..\caldgemm\config_options.sample" />
     <None Include="..\..\caldgemm\cudakernel.cu" />
-    <None Include="..\..\caldgemm\makefiles\config.mak.sample" />
     <None Include="..\..\caldgemm\makefiles\i686-pc-cygwin.mak" />
     <None Include="..\..\caldgemm\makefiles\makefile" />
     <None Include="..\..\caldgemm\README" />
