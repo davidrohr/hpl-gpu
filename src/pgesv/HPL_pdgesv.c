@@ -627,6 +627,12 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		{
 			nq -= jb;
 		}
+
+#ifdef HPL_PAUSE
+		HPL_ptimer( 0 );
+		usleep(HPL_PAUSE * n);
+		HPL_ptimer( 0 );
+#endif
 	}
 	//Clean-up: Release panels and panel list
 	if(depth1)
