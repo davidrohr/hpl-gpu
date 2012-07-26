@@ -44,6 +44,8 @@
 
 #include "glibc_hacks.h"
 
+#include "../../caldgemm/cmodules/affinity.h"
+
 #ifdef HPL_CALL_CALDGEMM
 #define USE_DIES 4
 #define USE_CORES 3
@@ -74,7 +76,7 @@ namespace
     class HPL_init_laswp_foo
     {
 		public:
-		    void operator()(const tbb::blocked_range<size_t> &) const {}
+		    void operator()(const tbb::blocked_range<size_t> &) const {setThreadName("LASWP");}
     };
 
 
