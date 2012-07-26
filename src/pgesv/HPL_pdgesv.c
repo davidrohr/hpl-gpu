@@ -556,7 +556,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
 #endif
 
-#ifdef HPL_PRINT_INTERMEDIATE
+#if defined(HPL_PRINT_INTERMEDIATE) & !defined(HPL_PAUSE)
 		// there are still n rows to compute
 		// j rows have already been computed
 		if( GRID->myrow == 0 && GRID->mycol == 0 )
@@ -630,6 +630,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 
 #ifdef HPL_PAUSE
 		HPL_ptimer( 0 );
+		printf("HPL_PAUSE: Sleeping for %d usec\n", HPL_PAUSE * n);
 		usleep(HPL_PAUSE * n);
 		HPL_ptimer( 0 );
 #endif
