@@ -80,7 +80,7 @@ namespace
 		public:
 		    void operator()(const tbb::blocked_range<size_t> &) const {
 #ifdef HPL_CALL_CALDGEMM
-			setThreadName("LASWP");
+			if (gettid() != getpid()) setThreadName("LASWP");
 #endif
 		    }
     };
