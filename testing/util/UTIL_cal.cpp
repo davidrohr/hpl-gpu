@@ -245,6 +245,10 @@ int CALDGEMM_Init()
 	cal_info.GPURatio = -HPL_INITIAL_GPU_RATIO;
 #endif
 
+#ifdef HPL_ALTERNATE_LOOKAHEAD
+	cal_info.AlternateLookahead = HPL_ALTERNATE_LOOKAHEAD;
+#endif
+
 	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
 	
 	//cal_info.AutoHeight = true;

@@ -71,6 +71,8 @@
 # -DHPL_EMULATE_MULTINODE
 #                        Report a multi node run to caldgemm and provide a fake function for the broadcast callback to simulate the loss due to communication overhead
 # -DHPL_PAUSE=n          Sleep during the iterations for n * NRest  micro-seconds (NRest is the remaining matrix size). Usefull if the hardware overheats. Timers are stopped during this time. Clearly not valid for official results.
+# -DHPL_ALTERNATE_LOOKAHEAD=n
+#                        Use caldgemm AlternateLookahead feature with setting n
 
 #
 # By default HPL will:
