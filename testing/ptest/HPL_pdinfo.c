@@ -1104,7 +1104,10 @@ label_error:
  */
       HPL_fprintf( TEST->outfp,       "\nConfig : ");
 #include "hpl_config_option_list.h"
-
+#ifdef HPL_CALL_CALDGEMM
+      HPL_fprintf( TEST->outfp,       "\nCALDGEM: ");
+#include "caldgemm_config_option_list.h"
+#endif
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
  * For testing only
