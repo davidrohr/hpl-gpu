@@ -128,7 +128,7 @@ float* broadcast_fake_array;
 
 void multinode_broadcast_fake()
 {
-	for (int j = 0;j < HPL_CALDGEMM_wrapper_n / 64;j++)
+	for (int j = 0;j < HPL_CALDGEMM_wrapper_n / 32;j++)
 	{
 		for (int i = 0;i < 1024 * 1024 * 2;i++)
 		{
