@@ -192,6 +192,13 @@ int CALDGEMM_Init()
 	    cal_info.AllocMapping[i] = alloc_mapping[i];
 	}
 #endif
+#ifdef HPL_GPU_DMA_MAPPING
+	const int dma_mapping[] = HPL_GPU_DMA_MAPPING;
+	for (unsigned int i = 0;i < sizeof(dma_mapping) / sizeof(int);i++)
+	{
+	    cal_info.DMAMapping[i] = dma_mapping[i];
+	}
+#endif
 #ifdef HPL_GPU_EXCLUDE_CORES
 	static const int exclude_cores[] = HPL_GPU_EXCLUDE_CORES;
 	cal_info.nExcludeCPUCores = sizeof(exclude_cores) / sizeof(int);
