@@ -356,7 +356,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		n -= kb;
 		Alrow = MModSub1(Alrow, nprow);
 		Alcol_matrix--;
-		Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+		if (Alcol_matrix >= 0) Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
 		n1 = HPL_n1(Alcol_matrix, nb, GRID);
 		
 		tmp1 = n - (kb = nb);
