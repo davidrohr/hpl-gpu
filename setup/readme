@@ -75,6 +75,8 @@
 # -DHPL_PAUSE=n          Sleep during the iterations for n * NRest  micro-seconds (NRest is the remaining matrix size). Usefull if the hardware overheats. Timers are stopped during this time. Clearly not valid for official results.
 # -DHPL_ALTERNATE_LOOKAHEAD=n
 #                        Use caldgemm AlternateLookahead feature with setting n
+# -DHPL_CALDGEMM_BACKEND=x
+#                        Use the CALDGEMM backend x, default: cal
 
 #
 # By default HPL will:

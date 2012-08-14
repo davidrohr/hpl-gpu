@@ -38,7 +38,18 @@
  
 #ifdef HPL_CALL_CALDGEMM
 
-#include <caldgemm_cal.h>
+#define mcat(a, b) a ## b
+#define mxcat(a, b) mcat(a, b)
+
+#ifndef HPL_CALDGEMM_BACKEND
+#define HPL_CALDGEMM_BACKEND cal
+#endif
+
+#define CALDGEMM_IMPL mxcat(caldgemm_, HPL_CALDGEMM_BACKEND)
+
+#define CALDGEMM_HEADER < CALDGEMM_IMPL.h >
+
+#include CALDGEMM_HEADER
 extern "C"
 {
 typedef unsigned int blasint;
@@ -311,7 +322,7 @@ HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #else
 	bool a = false;
 #endif
-	cal_dgemm = new caldgemm_cal;
+	cal_dgemm = new CALDGEMM_IMPL;
 	if (cal_dgemm == NULL) return(1);
 	int retVal = cal_dgemm->InitCALDGEMM( &cal_info, a );
 	
