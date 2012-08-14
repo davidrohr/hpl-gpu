@@ -43,8 +43,10 @@
 #                        Map gpu 0 to core x, 1 to y and so on
 # -DHPL_GPU_POSTPROCESS_MAPPING="C{x,y,z}"
 #                        Map gpu postprocess 0 to core x, 1 to y and so on
-# -DHPL_GPU_ALLOCS_MAPPING="{x,y,z}"
+# -DHPL_GPU_ALLOC_MAPPING="{x,y,z}"
 #                        Same as above for allocation
+# -DHPL_GPU_DMA_MAPPING="{x,y,z}"
+#                        Same as above for DMA
 # -DHPL_GPU_EXLUDE_CORES="{x,y}"
 #                        Exclude CPU cores x,y from processing completely
 # -DHPL_GPU_DEVICE_IDS="{x,y}"
