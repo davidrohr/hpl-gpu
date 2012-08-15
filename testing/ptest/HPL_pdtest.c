@@ -130,9 +130,7 @@ void fastmatgen(int SEED, double* A, size_t size)
 
 	for (int i = 0;i < FASTRAND_THREADS;i++)
 	{
-		while (fastrand_done[i] == 0)
-		{
-		}
+		while (fastrand_done[i] == 0);
 	}
 	free((void*) fastrand_done);
 	sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);
