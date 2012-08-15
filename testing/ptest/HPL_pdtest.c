@@ -99,7 +99,6 @@ void* fastmatgen_slave(void* arg)
 		A[i] = (double) -0.5 + (double) fastrand_num / (double)fastrand_mod;
 	}
 
-
 	fastrand_done[num] = 1;
 	return(NULL);
 }
@@ -121,7 +120,7 @@ void fastmatgen(int SEED, double* A, size_t size)
 	cpu_set_t oldmask;
 	sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
 
-	for (int i = 0;i < FASTRAND_THREADS - 1;i++)
+	for (int i = 0;i < FASTRAND_THREADS - 2;i++)
 	{
 		pthread_t thr;
 		pthread_create(&thr, NULL, fastmatgen_slave, (void*) (size_t) i);
