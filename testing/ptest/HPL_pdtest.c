@@ -64,6 +64,7 @@
 #include "util_cal.h"
 #include <pthread.h>
 #include <unistd.h>
+#include <math.h>
 
 #define FASTRAND_THREADS nfastmatthreads
 #define FASTRAND_THREADS_MAX 64
@@ -78,8 +79,6 @@ void* fastmatgen_slave(void* arg)
 {
 	int num = (int) (size_t) arg;
 	
-	printf("Running fastmatgen slave %d\n", num);
-
 	cpu_set_t mask;
 	CPU_ZERO(&mask);
 	CPU_SET(num, &mask);
@@ -235,6 +234,10 @@ void HPL_pdtest
    static int                 first=1;
    int                        ii, ip2, mycol, myrow, npcol, nprow, nq;
    char                       ctop, cpfact, crfact;
+   
+   int mp;
+   int resultnan = 0;
+   int resultinfinite = 0;
 /* ..
  * .. Executable Statements ..
  */
@@ -448,6 +451,16 @@ void HPL_pdtest
 #endif
 #endif
 
+   if( mycol == HPL_indxg2p_col( N, NB, GRID ) )
+   {
+	Mnumrow( mp, N, NB, myrow, nprow );
+	for (ii = 0;ii < mp;ii++)
+	{
+		if (isnan(mat.X[ii])) resultnan++;
+		if (isinf(mat.X[ii])) resultinfinite++;
+	}
+   }
+
    Anorm1 = HPL_pdlange( GRID, HPL_NORM_1, N, N, NB, mat.A, mat.ld );
    AnormI = HPL_pdlange( GRID, HPL_NORM_I, N, N, NB, mat.A, mat.ld );
 /*
@@ -510,22 +523,46 @@ void HPL_pdtest
    {
       resid1 = resid0 / ( TEST->epsil * ( AnormI * XnormI + BnormI ) * (double)(N) );
    }
+   
+   if( mycol == HPL_indxg2p_col( N, NB, GRID ) )
+   {
+     HPL_reduce( &resultnan, 1, HPL_INT, HPL_sum, 0, GRID->col_comm );
+     HPL_reduce( &resultinfinite, 1, HPL_INT, HPL_sum, 0, GRID->col_comm );
+   }
 
-   if( resid1 < TEST->thrsh ) (TEST->kpass)++;
+   if( resid1 < TEST->thrsh && resultnan == 0 && resultinfinite == 0) (TEST->kpass)++;
    else                       (TEST->kfail)++;
 
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
+      if (resultnan)
+      {
+        resid1 = resid0 = XnormI = Xnorm1 = NAN;
+      }
+      else if (resultinfinite)
+      {
+        resid1 = NAN;
+        resid0 = XnormI = Xnorm1 = INFINITY;
+      }
+      if (resultnan || resultinfinite) HPL_fprintf( TEST->outfp, "\n" );
+      if (resultnan)
+      {
+    	HPL_fprintf( TEST->outfp, "ERROR: NAN values in result vector: %d\n", resultnan);
+      }
+      if (resultinfinite)
+      {
+    	HPL_fprintf( TEST->outfp, "ERROR: Infinite values in result vector: %d\n", resultinfinite);
+      }
       HPL_fprintf( TEST->outfp, "%s%s\n",
                    "----------------------------------------",
                    "----------------------------------------" );
       HPL_fprintf( TEST->outfp, "%s%16.7f%s%s\n",
          "||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)= ", resid1,
-         " ...... ", ( resid1 < TEST->thrsh ? "PASSED" : "FAILED" ) );
+         " ...... ", ( resid1 < TEST->thrsh  && resultnan == 0 && resultinfinite == 0 ? "PASSED" : "FAILED" ) );
 
-      if( resid1 >= TEST->thrsh ) 
+      if( resid1 >= TEST->thrsh || 1) 
       {
-         HPL_fprintf( TEST->outfp, "%s%18.6f\n",
+         HPL_fprintf( TEST->outfp, "%s%18.6e\n",
          "||Ax-b||_oo  . . . . . . . . . . . . . . . . . = ", resid0 );
          HPL_fprintf( TEST->outfp, "%s%18.6f\n",
          "||A||_oo . . . . . . . . . . . . . . . . . . . = ", AnormI );
