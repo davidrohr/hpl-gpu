@@ -77,6 +77,8 @@ static int nfastmatthreads;
 void* fastmatgen_slave(void* arg)
 {
 	int num = (int) (size_t) arg;
+	
+	printf("Running fastmatgen slave %d\n", num);
 
 	cpu_set_t mask;
 	CPU_ZERO(&mask);
@@ -120,7 +122,7 @@ void fastmatgen(int SEED, double* A, size_t size)
 	cpu_set_t oldmask;
 	sched_getaffinity(0, sizeof(cpu_set_t), &oldmask);
 
-	for (int i = 0;i < FASTRAND_THREADS - 2;i++)
+	for (int i = 0;i < FASTRAND_THREADS - 1;i++)
 	{
 		pthread_t thr;
 		pthread_create(&thr, NULL, fastmatgen_slave, (void*) (size_t) i);
