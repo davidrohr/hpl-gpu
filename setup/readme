@@ -47,7 +47,7 @@
 #                        Same as above for allocation
 # -DHPL_GPU_DMA_MAPPING="{x,y,z}"
 #                        Same as above for DMA
-# -DHPL_GPU_EXLUDE_CORES="{x,y}"
+# -DHPL_GPU_EXCLUDE_CORES="{x,y}"
 #                        Exclude CPU cores x,y from processing completely
 # -DHPL_GPU_DEVICE_IDS="{x,y}"
 #                        Device IDs of GPUs to use
