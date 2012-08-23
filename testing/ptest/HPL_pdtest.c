@@ -451,10 +451,11 @@ void HPL_pdtest
 #endif
 #endif
 
-   if( mycol == HPL_indxg2p_col( N, NB, GRID ) )
+   Mnumrow( mp, 1, NB, myrow, nprow );
+   Mnumcol( nq, N, NB, mycol, GRID );
+   if( mp )
    {
-	Mnumrow( mp, N, NB, myrow, nprow );
-	for (ii = 0;ii < mp;ii++)
+	for (ii = 0;ii < nq;ii++)
 	{
 		if (isnan(mat.X[ii])) resultnan++;
 		if (isinf(mat.X[ii])) resultinfinite++;
@@ -524,10 +525,10 @@ void HPL_pdtest
       resid1 = resid0 / ( TEST->epsil * ( AnormI * XnormI + BnormI ) * (double)(N) );
    }
    
-   if( mycol == HPL_indxg2p_col( N, NB, GRID ) )
+   if( mp )
    {
-     HPL_reduce( &resultnan, 1, HPL_INT, HPL_sum, 0, GRID->col_comm );
-     HPL_reduce( &resultinfinite, 1, HPL_INT, HPL_sum, 0, GRID->col_comm );
+     HPL_reduce( &resultnan, 1, HPL_INT, HPL_sum, 0, GRID->row_comm );
+     HPL_reduce( &resultinfinite, 1, HPL_INT, HPL_sum, 0, GRID->row_comm );
    }
 
    if( resid1 < TEST->thrsh && resultnan == 0 && resultinfinite == 0) (TEST->kpass)++;
