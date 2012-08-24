@@ -742,6 +742,12 @@ label_error:
       for( i = 0; i < *NDHS; i++ ) { DH[i] = iwork[j]; j++; }
    }
    if( iwork ) free( iwork );
+   
+#ifdef HPL_CALL_CALDGEMM
+#ifndef HPL_GPU_MAX_NB
+   HPL_broadcast( (void*) &max_gpu_nb, 1, HPL_INT, 0, MPI_COMM_WORLD );
+#endif
+#endif
 /*
  * regurgitate input
  */
