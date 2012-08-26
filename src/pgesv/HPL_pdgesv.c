@@ -269,16 +269,37 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
+#ifdef HPL_DETAILED_TIMING
+   struct timeval tp;
+   long start, startu;
+   double time, throughput;
+#endif
+
 	int test = HPL_KEEP_TESTING;
 	fprintfctd(stderr, "Starting Broadcast\n");
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	HPL_binit(panel);
+
+#ifdef HPL_DETAILED_TIMING
+   (void) gettimeofday( &tp, NULL );
+   start  = tp.tv_sec;
+   startu = tp.tv_usec;
+#endif
+
 	do
 	{
 		HPL_bcast(panel, &test);
 	}
 	while(test != HPL_SUCCESS);
 	HPL_bwait(panel);
+
+#ifdef HPL_DETAILED_TIMING
+   (void) gettimeofday( &tp, NULL );
+   time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
+   throughput = (double) PANEL->len * sizeof(double) / time / 1000000.;
+   fprintf(stderr, "MPI Broadcast throughput: %f MB/s\n", throughput);
+#endif
+
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	fprintfctd(stderr, "Broadcast Ended\n");
 }
