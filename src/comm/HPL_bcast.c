@@ -98,6 +98,12 @@ START_TRACE( BCAST )
  */
    int                        ierr;
    HPL_T_TOP                  top;
+
+#ifdef HPL_DETAILED_TIMING
+   struct timeval tp;
+   long start, startu;
+   double time, throughput;
+#endif
 /* ..
  * .. Executable Statements ..
  */
@@ -108,6 +114,12 @@ START_TRACE( BCAST )
  * Retrieve the selected virtual broadcast topology
  */
    top = PANEL->algo->btopo;
+
+#ifdef HPL_DETAILED_TIMING
+   (void) gettimeofday( &tp, NULL );
+   start  = tp.tv_sec;
+   startu = tp.tv_usec;
+#endif
 
    switch( top )
    {
@@ -120,6 +132,13 @@ START_TRACE( BCAST )
       case HPL_MPI_BCAST   : ierr = HPL_bcast_mpi( PANEL, IFLAG );   break;
       default              : printf( "default" ); ierr = HPL_SUCCESS;
    }
+
+#ifdef HPL_DETAILED_TIMING
+   (void) gettimeofday( &tp, NULL );
+   time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
+   throughput = (double) PANEL->len * sizeof(double) / time / 1000000.;
+   fprintf(stderr, "MPI Broadcast throughput: %f MB/s\n", throughput);
+#endif
 
 END_TRACE
 
