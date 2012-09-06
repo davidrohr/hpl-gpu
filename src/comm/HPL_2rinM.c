@@ -148,19 +148,19 @@ int HPL_bcast_2rinM
  
    if( rank == root )
    {
-      ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid, comm );
+      ierr = MPI_Send_Mod( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid, comm );
 
       if( ( ierr == MPI_SUCCESS ) && ( size > 2 ) )
       {
          if( MModAdd1( next, size ) != roo2 )
          {
-            ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE,
+            ierr = MPI_Send_Mod( _M_BUFF, _M_COUNT, _M_TYPE,
                              MModAdd1( next, size ), msgid, comm );
          }
 
          if( ierr == MPI_SUCCESS )
          {
-            ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, roo2, msgid,
+            ierr = MPI_Send_Mod( _M_BUFF, _M_COUNT, _M_TYPE, roo2, msgid,
                              comm );
          }
       }
@@ -172,12 +172,12 @@ int HPL_bcast_2rinM
           ( MModSub1( prev,  size )  == root ) ) partner = root;
       else                                       partner = prev;
  
-            ierr = MPI_Recv( _M_BUFF, _M_COUNT, _M_TYPE, partner, msgid,
+            ierr = MPI_Recv_Mod( _M_BUFF, _M_COUNT, _M_TYPE, partner, msgid,
                              comm, &PANEL->status[0] );
             if( ( ierr == MPI_SUCCESS ) && ( prev != root ) &&
                 ( next != roo2        ) && ( next != root ) )
             {
-               ierr = MPI_Send( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid,
+               ierr = MPI_Send_Mod( _M_BUFF, _M_COUNT, _M_TYPE, next, msgid,
                                 comm );
             }
    }

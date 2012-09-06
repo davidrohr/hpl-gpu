@@ -147,7 +147,7 @@ int HPL_bcast_mpi( PANEL )
    root = PANEL->pcol;        msgid = PANEL->msgid;
    size = PANEL->grid->npcol;
 
-   ierr = MPI_Bcast( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
+   ierr = MPI_Bcast_Mod( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
 
 /*
  * If the message was received and being forwarded,  return HPL_SUCCESS.
