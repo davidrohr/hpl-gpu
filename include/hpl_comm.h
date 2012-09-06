@@ -121,6 +121,49 @@ int HPL_bcast_blonM ( HPL_T_panel *);
 int HPL_binit_mpi ( HPL_T_panel * );
 int HPL_bcast_mpi ( HPL_T_panel *);
 
+#ifndef HPL_MAX_MPI_SEND_SIZE
+#define HPL_MAX_MPI_SEND_SIZE (16 * 1024 * 1024)
+#endif
+#ifndef HPL_MAX_MPI_BCAST_SIZE 
+#define HPL_MAX_MPI_BCAST_SIZE HPL_MAX_MPI_SEND_SIZE
+#endif
+
+#if defined(HPL_NO_MPI_DATATYPE) & defined(HPL_MPI_WRAPPERS)
+static inline int MPI_Send_Mod(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+{
+	int i, retval;
+	for (i = 0;i < count;i += HPL_MAX_MPI_SEND_SIZE)
+	{
+		retval = MPI_Send((void*) ((char*) buf + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, dest, tag, comm);
+	}
+	return(retval);
+}
+
+static inline int MPI_Recv_Mod(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
+{
+	int i, retval;
+	for (i = 0;i < count;i += HPL_MAX_MPI_SEND_SIZE)
+	{
+		retval = MPI_Recv((void*) ((char*) buf + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, source, tag, comm, status);
+	}
+	return(retval);
+}
+
+static inline int MPI_Bcast_Mod(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
+{
+	int i, retval;
+	for (i = 0;i < count;i += HPL_MAX_MPI_BCAST_SIZE)
+	{
+		retval = MPI_Bcast((void*) ((char*) buffer + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, root, comm);
+	}
+	return(retval);
+}
+#else
+#define MPI_Send_Mod MPI_Send
+#define MPI_Recv_Mod MPI_Recv
+#define MPI_Bcast_Mod MPI_Bcast
+#endif
+
 #endif
 /*
  * End of hpl_comm.h
