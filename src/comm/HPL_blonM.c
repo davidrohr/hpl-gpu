@@ -150,25 +150,21 @@ int HPL_binit_blonM
 
 int HPL_bcast_blonM
 (
-   HPL_T_panel                * PANEL,
-   int                        * IFLAG
+   HPL_T_panel                * PANEL
 )
 { 
 /*
  * .. Local Variables ..
  */
    MPI_Comm                   comm;
-   int                        COUNT, count, go=1, ierr=MPI_SUCCESS, ibuf,
+   int                        COUNT, count, ierr=MPI_SUCCESS, ibuf,
                               ibufR, ibufS, dummy=0, indx, ip2=1, k, l,
                               lbuf, lbufR, lbufS, mask=1, msgid, mydist,
                               mydist2, next, npm1, npm2, partner, prev,
-                              rank, root, size;
+                              rank, root, size, IFLAG;
 /* ..
  * .. Executable Statements ..
  */
-   if( PANEL == NULL ) { *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-   if( ( size = PANEL->grid->npcol ) <= 1 )
-   {                     *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
 /*
  * Cast phase:  root process  sends to its right neighbor,  then spread
  * the panel on the other npcol - 2 processes.  If  I  am  not the root 
@@ -205,13 +201,7 @@ int HPL_bcast_blonM
  * messages are exchanged  in this virtual topology  causing  a hang on
  * some machines. It is currently disabled until a better understanding
  * is acquired.
- *
- *    ierr = MPI_Iprobe( root, msgid, comm, &go, &PANEL->status[0] );
  */
-      if( ierr == MPI_SUCCESS )
-      {                                  /* if panel is here, proceed */
-         if( go != 0 )
-         {
 #ifdef HPL_USE_MPI_DATATYPE
             ierr =      HPL_packL( PANEL, 0, PANEL->len, I_RECV );
 #endif
@@ -224,9 +214,6 @@ int HPL_bcast_blonM
                ierr =   MPI_Type_free( &PANEL->dtypes[I_RECV] );
             }
 #endif
-         }
-         else { *IFLAG = HPL_KEEP_TESTING; return( HPL_KEEP_TESTING ); }
-      }
    }
 /*
  * if I am just after the root, exit now. The message receive  completed
@@ -235,8 +222,8 @@ int HPL_bcast_blonM
  */
    if( ( prev == root ) || ( size == 2 ) )
    {
-      *IFLAG = ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE );
-      return( *IFLAG );
+      if (ierr != MPI_SUCCESS) {fpritnf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
+      return( IFLAG );
    }
 /*
  * Otherwise, proceed with broadcast -  Spread  the panel across process
@@ -271,15 +258,6 @@ int HPL_bcast_blonM
  * some machines. It is currently disabled until a better understanding
  * is acquired.
  */
-#if 0
-            ierr = MPI_Iprobe( partner, msgid, comm, &go, &PANEL->status[0] );
-  
-            if( ierr == MPI_SUCCESS )
-            {        /* if panel is not here, return and keep testing */
-               if( go == 0 )
-               { *IFLAG = HPL_KEEP_TESTING; return( HPL_KEEP_TESTING ); }
-            }
-#endif
             if( lbuf > 0 )
             {
 #ifdef HPL_USE_MPI_DATATYPE
@@ -437,21 +415,7 @@ int HPL_bcast_blonM
  * If the message was received and being forwarded,  return HPL_SUCCESS.
  * If an error occured in an MPI call, return HPL_FAILURE.
  */
-   *IFLAG = ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE );
-
-   return( *IFLAG );
-}
-
-int HPL_bwait_blonM
-(
-   HPL_T_panel *              PANEL
-)
-{
-/* ..
- * .. Executable Statements ..
- */
-   if( PANEL == NULL )           { return( HPL_SUCCESS ); }
-   if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
+   if (ierr != MPI_SUCCESS) {fpritnf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
 
    return( HPL_SUCCESS );
 }

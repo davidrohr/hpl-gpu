@@ -135,8 +135,7 @@ int HPL_binit_blong
 
 int HPL_bcast_blong
 (
-   HPL_T_panel                * PANEL,
-   int                        * IFLAG
+   HPL_T_panel                * PANEL
 )
 { 
 /*
@@ -146,13 +145,10 @@ int HPL_bcast_blong
    int                        COUNT, count, dummy=0, ierr=MPI_SUCCESS,
                               ibuf, ibufR, ibufS, indx, ip2, k, l, lbuf,
                               lbufR, lbufS, mask, msgid, mydist, mydist2,
-                              next, npm1, partner, prev, rank, root, size;
+                              next, npm1, partner, prev, rank, root, size, IFLAG;
 /* ..
  * .. Executable Statements ..
  */
-   if( PANEL == NULL ) { *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-   if( ( size = PANEL->grid->npcol ) <= 1 )
-   {                     *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
 /*
  * Cast phase:  If I am the root process, start spreading the panel.  If
  * I am not the root process,  test  for  message receive completion. If
@@ -190,15 +186,8 @@ int HPL_bcast_blong
  * some machines. It is currently disabled until a better understanding
  * is acquired.
  */
-#if 0
-            ierr = MPI_Iprobe( partner, msgid, comm, &go, &PANEL->status[0] );
-            if( ierr == MPI_SUCCESS )
-            {        /* if panel is not here, return and keep testing */
-               if( go == 0 )
-               { *IFLAG = HPL_KEEP_TESTING; return( HPL_KEEP_TESTING ); }
-            }
-#endif
-            if( lbuf > 0 )
+
+			if( lbuf > 0 )
             {
 #ifdef HPL_USE_MPI_DATATYPE
                if( ierr == MPI_SUCCESS )
@@ -351,16 +340,8 @@ int HPL_bcast_blong
  * If the message was received and being forwarded,  return HPL_SUCCESS.
  * If an error occured in an MPI call, return HPL_FAILURE.
  */
-   *IFLAG = ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE );
+   if (ierr != MPI_SUCCESS) {fpritnf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
 
-   return( *IFLAG );
-}
-
-int HPL_bwait_blong
-(
-   HPL_T_panel *              PANEL
-)
-{
 /* ..
  * .. Executable Statements ..
  */

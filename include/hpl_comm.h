@@ -96,38 +96,30 @@ int HPL_send( double *, int, int, int, MPI_Comm );
 int HPL_recv( double *, int, int, int, MPI_Comm );
 int HPL_sdrv( double *, int, int, double *, int, int, int, MPI_Comm );
 int HPL_binit( HPL_T_panel *);
-int HPL_bcast( HPL_T_panel *, int * );
-int HPL_bwait( HPL_T_panel * );
+int HPL_bcast( HPL_T_panel *);
 int HPL_packL( HPL_T_panel *, const int, const int, const int );
 void HPL_copyL( HPL_T_panel * );
  
 int HPL_binit_1ring ( HPL_T_panel * );
-int HPL_bcast_1ring ( HPL_T_panel *, int * );
-int HPL_bwait_1ring ( HPL_T_panel * );
+int HPL_bcast_1ring ( HPL_T_panel *);
  
 int HPL_binit_1rinM ( HPL_T_panel * );
-int HPL_bcast_1rinM ( HPL_T_panel *, int * );
-int HPL_bwait_1rinM ( HPL_T_panel * );
+int HPL_bcast_1rinM ( HPL_T_panel *);
  
 int HPL_binit_2ring ( HPL_T_panel * );
-int HPL_bcast_2ring ( HPL_T_panel *, int * );
-int HPL_bwait_2ring ( HPL_T_panel * );
+int HPL_bcast_2ring ( HPL_T_panel *);
  
 int HPL_binit_2rinM ( HPL_T_panel * );
-int HPL_bcast_2rinM ( HPL_T_panel *, int * );
-int HPL_bwait_2rinM ( HPL_T_panel * );
+int HPL_bcast_2rinM ( HPL_T_panel *);
  
 int HPL_binit_blong ( HPL_T_panel * );
-int HPL_bcast_blong ( HPL_T_panel *, int * );
-int HPL_bwait_blong ( HPL_T_panel * );
+int HPL_bcast_blong ( HPL_T_panel *);
  
 int HPL_binit_blonM ( HPL_T_panel * );
-int HPL_bcast_blonM ( HPL_T_panel *, int * );
-int HPL_bwait_blonM ( HPL_T_panel * );
+int HPL_bcast_blonM ( HPL_T_panel *);
 
 int HPL_binit_mpi ( HPL_T_panel * );
-int HPL_bcast_mpi ( HPL_T_panel *, int * );
-int HPL_bwait_mpi ( HPL_T_panel * );
+int HPL_bcast_mpi ( HPL_T_panel *);
 
 #endif
 /*

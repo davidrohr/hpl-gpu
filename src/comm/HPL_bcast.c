@@ -65,8 +65,7 @@
 
 int HPL_bcast
 (
-   HPL_T_panel *                    PANEL,
-   int *                            IFLAG
+   HPL_T_panel *                    PANEL
 )
 {
 /* 
@@ -102,9 +101,8 @@ START_TRACE( BCAST )
 /* ..
  * .. Executable Statements ..
  */
-   if( PANEL == NULL ) { *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-   if( PANEL->grid->npcol <= 1 )
-   {                     *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
+   if( PANEL == NULL ) return( HPL_SUCCESS );
+   if( PANEL->grid->npcol <= 1 ) return( HPL_SUCCESS );
 /*
  * Retrieve the selected virtual broadcast topology
  */
@@ -112,13 +110,13 @@ START_TRACE( BCAST )
 
    switch( top )
    {
-      case HPL_1RING_M     : ierr = HPL_bcast_1rinM( PANEL, IFLAG ); break;
-      case HPL_1RING       : ierr = HPL_bcast_1ring( PANEL, IFLAG ); break;
-      case HPL_2RING_M     : ierr = HPL_bcast_2rinM( PANEL, IFLAG ); break;
-      case HPL_2RING       : ierr = HPL_bcast_2ring( PANEL, IFLAG ); break;
-      case HPL_BLONG_M     : ierr = HPL_bcast_blonM( PANEL, IFLAG ); break;
-      case HPL_BLONG       : ierr = HPL_bcast_blong( PANEL, IFLAG ); break;
-      case HPL_MPI_BCAST   : ierr = HPL_bcast_mpi( PANEL, IFLAG );   break;
+      case HPL_1RING_M     : ierr = HPL_bcast_1rinM( PANEL ); break;
+      case HPL_1RING       : ierr = HPL_bcast_1ring( PANEL ); break;
+      case HPL_2RING_M     : ierr = HPL_bcast_2rinM( PANEL ); break;
+      case HPL_2RING       : ierr = HPL_bcast_2ring( PANEL ); break;
+      case HPL_BLONG_M     : ierr = HPL_bcast_blonM( PANEL ); break;
+      case HPL_BLONG       : ierr = HPL_bcast_blong( PANEL ); break;
+      case HPL_MPI_BCAST   : ierr = HPL_bcast_mpi  ( PANEL ); break;
       default              : printf( "default" ); ierr = HPL_SUCCESS;
    }
 
