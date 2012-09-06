@@ -127,8 +127,7 @@ int HPL_binit_mpi( PANEL )
 #ifdef STDC_HEADERS
 int HPL_bcast_mpi
 (
-   HPL_T_panel                * PANEL,
-   int                        * IFLAG
+   HPL_T_panel                * PANEL
 )
 #else
 int HPL_bcast_mpi( PANEL, IFLAG )
@@ -140,20 +139,11 @@ int HPL_bcast_mpi( PANEL, IFLAG )
  * .. Local Variables ..
  */
    MPI_Comm                   comm;
-   int                        ierr, msgid, rank, root, size;
+   int                        ierr, msgid, rank, root, size, IFLAG;
 /* ..
  * .. Executable Statements ..
  */
-   if( PANEL == NULL ) { *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-   if( ( size = PANEL->grid->npcol ) <= 1 )
-   {                     *IFLAG = HPL_SUCCESS; return( HPL_SUCCESS ); }
-/*
- * Cast phase:  If I am the root process, start spreading the panel.  If
- * I am not the root process, probe for message. If the message is here,
- * then receive it, and  if I am not the last process of the ring, then
- * forward it to the next.  Otherwise, inform the caller that the panel
- * has still not been received.
- */
+
    rank = PANEL->grid->mycol; comm  = PANEL->grid->row_comm;
    root = PANEL->pcol;        msgid = PANEL->msgid;
    size = PANEL->grid->npcol;
@@ -164,32 +154,8 @@ int HPL_bcast_mpi( PANEL, IFLAG )
  * If the message was received and being forwarded,  return HPL_SUCCESS.
  * If an error occured in an MPI call, return HPL_FAILURE.
  */  
-   *IFLAG = ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE );
+   if (ierr != MPI_SUCCESS) {fpritnf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
 
-   return( *IFLAG );
-}
-
-#ifdef STDC_HEADERS
-int HPL_bwait_mpi
-(
-   HPL_T_panel *              PANEL
-)
-#else
-int HPL_bwait_mpi( PANEL )
-   HPL_T_panel *              PANEL;
-#endif
-{
-#ifdef HPL_USE_MPI_DATATYPE
-/*
- * .. Local Variables ..
- */
-   int                        ierr;
-#endif
-/* ..
- * .. Executable Statements ..
- */
-   if( PANEL == NULL )           { return( HPL_SUCCESS ); }
-   if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
 /*
  * Release the arrays of request / status / data-types and buffers 
  */

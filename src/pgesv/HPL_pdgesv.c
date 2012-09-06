@@ -275,7 +275,6 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
    double time, throughput;
 #endif
 
-	int test = HPL_KEEP_TESTING;
 	fprintfctd(stderr, "Starting Broadcast\n");
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	HPL_binit(panel);
@@ -286,12 +285,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
    startu = tp.tv_usec;
 #endif
 
-	do
-	{
-		HPL_bcast(panel, &test);
-	}
-	while(test != HPL_SUCCESS);
-	HPL_bwait(panel);
+	HPL_bcast(panel);
 
 #ifdef HPL_DETAILED_TIMING
    (void) gettimeofday( &tp, NULL );

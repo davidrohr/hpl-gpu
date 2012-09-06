@@ -120,7 +120,6 @@
     <ClCompile Include="..\src\comm\HPL_binit.c" />
     <ClCompile Include="..\src\comm\HPL_blong.c" />
     <ClCompile Include="..\src\comm\HPL_blonM.c" />
-    <ClCompile Include="..\src\comm\HPL_bwait.c" />
     <ClCompile Include="..\src\comm\HPL_copyL.c" />
     <ClCompile Include="..\src\comm\HPL_mpi.c" />
     <ClCompile Include="..\src\comm\HPL_packL.c" />
