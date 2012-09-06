@@ -145,7 +145,7 @@ int HPL_bcast_blong
    int                        COUNT, count, dummy=0, ierr=MPI_SUCCESS,
                               ibuf, ibufR, ibufS, indx, ip2, k, l, lbuf,
                               lbufR, lbufS, mask, msgid, mydist, mydist2,
-                              next, npm1, partner, prev, rank, root, size, IFLAG;
+                              next, npm1, partner, prev, rank, root, size;
 /* ..
  * .. Executable Statements ..
  */

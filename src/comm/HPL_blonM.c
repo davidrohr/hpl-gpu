@@ -161,7 +161,7 @@ int HPL_bcast_blonM
                               ibufR, ibufS, dummy=0, indx, ip2=1, k, l,
                               lbuf, lbufR, lbufS, mask=1, msgid, mydist,
                               mydist2, next, npm1, npm2, partner, prev,
-                              rank, root, size, IFLAG;
+                              rank, root, size;
 /* ..
  * .. Executable Statements ..
  */
@@ -223,7 +223,7 @@ int HPL_bcast_blonM
    if( ( prev == root ) || ( size == 2 ) )
    {
       if (ierr != MPI_SUCCESS) {fprintf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
-      return( IFLAG );
+      return( HPL_SUCCESS );
    }
 /*
  * Otherwise, proceed with broadcast -  Spread  the panel across process

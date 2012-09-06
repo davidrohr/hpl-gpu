@@ -129,7 +129,7 @@ int HPL_bcast_2ring
  */
    MPI_Comm                   comm;
    int                        ierr, next, msgid, partner, rank,
-                              roo2, root, size, IFLAG;
+                              roo2, root, size;
 /* ..
  * .. Executable Statements ..
  */
