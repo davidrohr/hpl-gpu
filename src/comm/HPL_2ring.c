@@ -173,7 +173,7 @@ int HPL_bcast_2ring
  * If the message was received and being forwarded,  return HPL_SUCCESS.
  * If an error occured in an MPI call, return HPL_FAILURE.
  */
-   if (ierr != MPI_SUCCESS) {fpritnf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
+   if (ierr != MPI_SUCCESS) {fprintf(stderr, "ERROR - MPI Function returned error\n"); exit(1);}
 
 /*
  * Release the arrays of request / status / data-types and buffers
