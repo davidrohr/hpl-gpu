@@ -77,6 +77,7 @@
 #                        Use caldgemm AlternateLookahead feature with setting n
 # -DHPL_CALDGEMM_BACKEND=x
 #                        Use the CALDGEMM backend x, default: cal
+# -DHPL_LOOKAHEAD_2B     Enable lookahead mode 2b
 
 #
 # By default HPL will:
