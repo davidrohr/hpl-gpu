@@ -129,7 +129,7 @@ int HPL_bcast_1rinM
  */
    MPI_Comm                   comm;
    int                        ierr, next, msgid, partner, prev,
-                              rank, root, size, IFLAG;
+                              rank, root, size;
 /* ..
  * .. Executable Statements ..
  */

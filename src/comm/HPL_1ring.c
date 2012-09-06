@@ -126,7 +126,7 @@ int HPL_bcast_1ring
  */
    MPI_Comm                   comm;
    int                        ierr, next, msgid, prev, rank, root,
-                              size, IFLAG;
+                              size;
 /* ..
  * .. Executable Statements ..
  */

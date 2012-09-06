@@ -130,16 +130,15 @@ int HPL_bcast_mpi
    HPL_T_panel                * PANEL
 )
 #else
-int HPL_bcast_mpi( PANEL, IFLAG )
+int HPL_bcast_mpi( PANEL )
    HPL_T_panel                * PANEL;
-   int                        * IFLAG;
 #endif
 {
 /*
  * .. Local Variables ..
  */
    MPI_Comm                   comm;
-   int                        ierr, msgid, rank, root, size, IFLAG;
+   int                        ierr, msgid, rank, root, size;
 /* ..
  * .. Executable Statements ..
  */
