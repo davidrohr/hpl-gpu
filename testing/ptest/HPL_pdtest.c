@@ -560,8 +560,9 @@ void HPL_pdtest
       HPL_fprintf( TEST->outfp, "%s%16.7f%s%s\n",
          "||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)= ", resid1,
          " ...... ", ( resid1 < TEST->thrsh  && resultnan == 0 && resultinfinite == 0 ? "PASSED" : "FAILED" ) );
-
-      if( resid1 >= TEST->thrsh || 1) 
+#ifndef CALDGEMM_TEST
+      if( resid1 >= TEST->thrsh) 
+#endif
       {
          HPL_fprintf( TEST->outfp, "%s%18.6e\n",
          "||Ax-b||_oo  . . . . . . . . . . . . . . . . . = ", resid0 );
@@ -577,6 +578,9 @@ void HPL_pdtest
          "||b||_oo . . . . . . . . . . . . . . . . . . . = ", BnormI );
       }
    }
+    HPL_fprintf( TEST->outfp, "%s%s\n",
+      "========================================",
+      "========================================" );
    if( vptr ) CALDGEMM_free( vptr );
 /*
  * End of HPL_pdtest
