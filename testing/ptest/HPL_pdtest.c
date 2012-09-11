@@ -577,10 +577,10 @@ void HPL_pdtest
          HPL_fprintf( TEST->outfp, "%s%18.6f\n",
          "||b||_oo . . . . . . . . . . . . . . . . . . . = ", BnormI );
       }
+      HPL_fprintf( TEST->outfp, "%s%s\n",
+         "========================================",
+         "========================================" );
    }
-    HPL_fprintf( TEST->outfp, "%s%s\n",
-      "========================================",
-      "========================================" );
    if( vptr ) CALDGEMM_free( vptr );
 /*
  * End of HPL_pdtest

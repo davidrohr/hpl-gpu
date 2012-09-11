@@ -52,10 +52,11 @@
 #include CALDGEMM_HEADER
 extern "C"
 {
-typedef unsigned int blasint;
-#include <cblas.h>
 
-int max_gpu_nb = 1024;
+	typedef unsigned int blasint;
+#include <cblas.h>
+	int max_gpu_nb = 1024;
+	extern int HPL_CALDGEMM_gpu_height;
 }
 #include <pthread.h>
 #include <errno.h>
@@ -382,6 +383,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	{
             if (cal_info.LinpackSwapN != NULL)
             {
+        	HPL_CALDGEMM_gpu_height = 0;
         	HPL_CALDGEMM_wrapper_swap();
             }
             if (LinpackCallbacks)
@@ -450,6 +452,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
             // Use plain cblas
             if (cal_info.LinpackSwapN != NULL)
             {
+        	HPL_CALDGEMM_gpu_height = 0;
         	HPL_CALDGEMM_wrapper_swap();
             }
             cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );

@@ -370,16 +370,6 @@ label_end_of_npqs: ;
    if( rank == 0 )
    {
       test.ktest = test.kpass + test.kfail + test.kskip;
-#ifndef HPL_DETAILED_TIMING
-      HPL_fprintf( test.outfp, "%s%s\n",
-                   "========================================",
-                   "========================================" );
-#else
-      if( test.thrsh > HPL_rzero )
-         HPL_fprintf( test.outfp, "%s%s\n",
-                      "========================================",
-                      "========================================" );
-#endif
 
       HPL_fprintf( test.outfp, "\n%s %6d %s\n", "Finished", test.ktest,
                    "tests with the following results:" );

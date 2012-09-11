@@ -117,6 +117,7 @@
 
 #ifdef HPL_CALL_CALDGEMM
 extern volatile size_t HPL_CALDGEMM_swap_current_n;
+extern int HPL_CALDGEMM_gpu_height;
 volatile size_t HPL_CALDGEMM_swap_current_n;
 
 HPL_T_grid* HPL_CALDGEMM_wrapper_grid = NULL;
@@ -124,7 +125,6 @@ HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
 HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
-size_t HPL_CALDGEMM_wrapper_laswp_stepsize;
 #endif
 
 int* permU = NULL;
@@ -161,7 +161,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	int* ipiv = panel->IWORK;
 	
-#ifndef HPL_CALL_CALDGEMM
+#ifdef HPL_CALL_CALDGEMM
+	size_t HPL_CALDGEMM_wrapper_laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
+#else
 	const size_t HPL_CALDGEMM_wrapper_laswp_stepsize = n;
 #endif
 
@@ -245,7 +247,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
 		
-		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
+		fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
 
 #ifndef CALDGEMM_TEST_DEBUG
@@ -368,12 +370,11 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
  #endif
 		 )
 		{
-		    HPL_CALDGEMM_wrapper_laswp_stepsize = 5120;
 		    CALDGEMM_enable_async_laswp(1);
 		}
 		else
 		{
-		    HPL_CALDGEMM_wrapper_laswp_stepsize = n;
+		    HPL_CALDGEMM_gpu_height = 0;
 		    CALDGEMM_enable_async_laswp(0);
 #endif
 		    HPL_pdgesv_swap(Grid, PANEL, n);
