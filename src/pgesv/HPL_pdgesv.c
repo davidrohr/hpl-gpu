@@ -280,18 +280,24 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	HPL_binit(panel);
 
 #ifdef HPL_DETAILED_TIMING
-   (void) gettimeofday( &tp, NULL );
-   start  = tp.tv_sec;
-   startu = tp.tv_usec;
+   if (panel->grid->mycol == panel->pcol)
+   {
+	(void) gettimeofday( &tp, NULL );
+	start  = tp.tv_sec;
+	startu = tp.tv_usec;
+   }
 #endif
 
 	HPL_bcast(panel);
 
 #ifdef HPL_DETAILED_TIMING
-   (void) gettimeofday( &tp, NULL );
-   time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
-   throughput = (double) panel->len * sizeof(double) / time / 1000000.;
-   fprintf(stderr, "MPI Broadcast throughput: %f MB/s\n", throughput);
+   if (panel->grid->mycol == panel->pcol)
+   {
+	(void) gettimeofday( &tp, NULL );
+	time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
+	throughput = (double) panel->len * sizeof(double) / time / 1000000.;
+	fprintf(stderr, "MPI Broadcast: size=%f MB - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., throughput);
+   }
 #endif
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
