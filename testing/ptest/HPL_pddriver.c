@@ -186,6 +186,9 @@ HPLinpack benchmark input file
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
                &ntps, topval, &ndhs, ndhval, &align, &seed );
+               
+   fflush(stdout);
+   MPI_Barrier(MPI_COMM_WORLD);
 
 #ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())

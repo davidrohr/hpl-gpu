@@ -247,7 +247,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
 		
-		fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
+		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
 
 #ifndef CALDGEMM_TEST_DEBUG
