@@ -61,6 +61,9 @@
 #include "hpl.h"
 #include "util_timer.h"
 #include "util_cal.h"
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+#include "util_adl.h"
+#endif
 /* 
  * Purpose
  * =======
@@ -329,6 +332,9 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
 	int * ipiv;
 	int curr, i, iroff, jb, lda, ldl2, mp, n, nb;
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+	double temperature;
+#endif
 	//.. Executable Statements ..
 	fprintfctd(stderr, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
@@ -387,6 +393,18 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+		if (adl_temperature_check_run(&temperature, 1))
+		{
+			fprintf(stderr, "Error running temperature check\n");
+			exit(1);
+		}
+		if (temperature >= HPL_GPU_TEMPERATURE_THRESHOLD)
+		{
+			fprintf(stderr, "GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
+			exit(1);
+		}
+#endif
 #else
 		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 #endif

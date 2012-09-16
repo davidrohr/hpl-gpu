@@ -61,6 +61,9 @@
 #include "hpl.h"
 #include "util_trace.h"
 #include "util_cal.h"
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+#include "util_adl.h"
+#endif
 
 int HPL_init_laswp(void* ptr);
 
@@ -195,6 +198,14 @@ HPLinpack benchmark input file
    {
 	printf("Error initializing CALDGEMM, abborting run\n");
 	return(1);
+   }
+#endif
+
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+   if (adl_temperature_check_init())
+   {
+      printf("Error initializing ADL temperature check\n");
+      return(1);
    }
 #endif
 
@@ -406,6 +417,13 @@ label_end_of_npqs: ;
    }
 #ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Shutdown();
+#endif
+#ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+   if (adl_temperature_check_exit())
+   {
+      printf("Error uninitializing ADL temperature check\n");
+      return(1);
+   }
 #endif
 #ifdef TRACE_CALLS
    releaseTraceCounters();

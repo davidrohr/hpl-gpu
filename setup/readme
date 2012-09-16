@@ -78,6 +78,8 @@
 # -DHPL_CALDGEMM_BACKEND=x
 #                        Use the CALDGEMM backend x, default: cal
 # -DHPL_LOOKAHEAD_2B     Enable lookahead mode 2b
+# -DHPL_GPU_TEMPERATURE_THRESHOLD=temp
+#                        Temperature threshold where the run is stopped
 
 #
 # By default HPL will:
