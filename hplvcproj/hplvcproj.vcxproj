@@ -171,7 +171,6 @@
     <ClCompile Include="..\src\pgesv\HPL_equil.c" />
     <ClCompile Include="..\src\pgesv\HPL_logsort.c" />
     <ClCompile Include="..\src\pgesv\HPL_pdgesv.c" />
-    <ClCompile Include="..\src\pgesv\HPL_pdlaswp01T.c" />
     <ClCompile Include="..\src\pgesv\HPL_pdtrsv.c" />
     <ClCompile Include="..\src\pgesv\HPL_perm.c" />
     <ClCompile Include="..\src\pgesv\HPL_pipid.c" />

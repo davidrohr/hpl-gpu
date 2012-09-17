@@ -77,14 +77,6 @@
  * #typedefs and data structures
  * ---------------------------------------------------------------------
  */
-typedef enum
-{
-	HPL_SWAP00 = 451, /* Use HPL_pdlaswp00 */
-	HPL_SWAP01 = 452, /* Use HPL_pdlaswp01 */
-	HPL_SW_MIX = 453, /* Use HPL_pdlaswp00_ for small number of */
-	/* columns, and HPL_pdlaswp01_ otherwise. */
-	HPL_NO_SWP = 499
-} HPL_T_SWAP;
 
 typedef struct HPL_S_palg
 {

@@ -130,29 +130,7 @@ int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
 #endif
 
-int* permU = NULL;
 int dtrtri_(char *, char *, int *, double *, int *, int *);
-
-void HPL_pdgesv_swap_prepare(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
-{
-	fprintfctd(stderr, "Starting LASWP/DTRSM\n");
-	
-	if (panel->grid->nprow > 1)
-	{
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		permU = HPL_pdlaswp01T( panel, n );
-		/*const size_t LDU = panel->grid->nprow == 1 ? panel->lda : (n + (8 - n % 8) % 8 + (((n + (8 - n % 8) % 8) % 16) == 0) * 8);
-		double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
-		HPL_dlaswp10N( n, panel->jb, Uptr, LDU, permU );*/
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-	}
-	/*else
-	{
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		HPL_dlaswp00N( panel->jb, n, panel->A, panel->lda, panel->IWORK );
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-	}*/
-}
 
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
@@ -163,6 +141,51 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	double* L1ptr = panel->L1;
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	int* ipiv = panel->IWORK;
+
+	double *A, *U;
+	int *ipID, *iplen, *ipmap, *ipmapm1, *iwork, *lindxA = NULL, *lindxAU, *permU;
+	int icurrow, *iflag, *ipA, *ipl, k, myrow, nprow;
+
+	//Quick return if there is nothing to do
+	if( ( n <= 0 ) || ( jb <= 0 ) ) return(NULL);
+
+	if (panel->grid->nprow > 1)
+	{
+		//Initialize former pdlaswp01T
+
+		//Retrieve parameters from the PANEL data structure
+		nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;
+		A     = PANEL->A;   U       = PANEL->U;     iflag  = PANEL->IWORK;
+		icurrow = PANEL->prow;
+
+		/* Compute ipID (if not already done for this panel). lindxA and lindxAU
+		* are of length at most 2*jb - iplen is of size nprow+1, ipmap, ipmapm1
+		* are of size nprow,  permU is of length jb, and  this function needs a 
+		* workspace of size max( 2 * jb (plindx1), nprow+1(equil)): 
+		* 1(iflag) + 1(ipl) + 1(ipA) + 9*jb + 3*nprow + 1 + MAX(2*jb,nprow+1)
+		* i.e. 4 + 9*jb + 3*nprow + max(2*jb, nprow+1); */
+		k = (int)((unsigned int)(jb) << 1);  ipl = iflag + 1; ipID = ipl + 1;
+		ipA     = ipID + ((unsigned int)(k) << 1); lindxA = ipA + 1;
+		lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
+		ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
+
+		int HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
+
+		if (__builtin_expect(*iflag, 1) == 1)
+		{
+#ifndef NO_EQUILIBRATION
+			//we were called before: only re-compute IPLEN, IPMAP 
+			HPL_plindx10( PANEL, *ipl, ipID, iplen, ipmap, ipmapm1 );
+#endif
+		}
+		else
+		{ // no index arrays have been computed so far
+			HPL_pipid(   PANEL,  ipl, ipID );
+			HPL_plindx1( PANEL, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
+				ipmap, ipmapm1, permU, iwork );
+			*iflag = 1;
+		}
+	}
 	
 #ifdef HPL_CALL_CALDGEMM
 	size_t HPL_CALDGEMM_wrapper_laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
@@ -193,6 +216,28 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		}
 		else
 		{
+			//Copy into U the rows to be spread (local to icurrow)
+			if( myrow == icurrow )
+			{
+				HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU );
+			}
+
+			/* Spread U - optionally probe for column panel */
+			HPL_spreadT( PANEL, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 );
+
+			/* Local exchange (everywhere but in process row icurrow) */
+			if( myrow != icurrow )
+			{
+				k = ipmapm1[myrow];
+				HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA );
+			}
+#ifndef NO_EQUILIBRATION
+			/* Equilibration */
+			HPL_equil( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
+#endif
+			/* Rolling phase */
+			HPL_rollT( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
+
 			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
 		}
 #ifdef CALDGEMM_TEST_DEBUG
@@ -367,9 +412,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_panel = PBCST;
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = factorize;
-#endif
-		HPL_pdgesv_swap_prepare(Grid, PANEL, n);
-#ifdef HPL_CALL_CALDGEMM
+
 		if (depth2
 #ifdef HPL_LOOKAHEAD2_TURNOFF
 		 && n >= HPL_LOOKAHEAD2_TURNOFF
