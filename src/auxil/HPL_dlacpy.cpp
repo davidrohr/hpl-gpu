@@ -155,9 +155,10 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
 
    // B_ij = A_ji
    
-   if (LDA & 1 || LDB & 1 || ((size_t) A) & 15 || ((size_t) B) % 15)
+   if (LDA & 1 || LDB & 1 || ((size_t) A) & 15 || ((size_t) B) & 15)
    {
     MM = 0;
+    printf("WARNING, parameters unaligned, using slow copy routing LDA %lld LDB %lld A %lld B %lld\n", (long long int) LDA, (long long int) LDB, (long long int) (size_t) A, (long long int) (size_t) B);
     goto Unaligned;
    }
    else if (multithread)
