@@ -169,7 +169,13 @@ int* HPL_pdlaswp01T
    if( myrow != icurrow )
    {
       k = ipmapm1[myrow];
-      HPL_dlaswp06T( iplen[k+1]-iplen[k], n, A, lda, Mptr( U, 0, iplen[k], LDU ), LDU, lindxA );
+	int nremain = n;
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	{
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		nremain -= nn;
+		HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA );
+	}
    }
 #ifndef NO_EQUILIBRATION
    /* Equilibration */
