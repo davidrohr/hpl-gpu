@@ -187,10 +187,24 @@ int* HPL_pdlaswp01T
    }
 #ifndef NO_EQUILIBRATION
    /* Equilibration */
-   HPL_equil( PANEL, n, U, LDU, iplen, ipmap, ipmapm1, iwork );
+   {
+	int nremain = n;
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	{
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		nremain -= nn;
+
+   HPL_equil( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
+   }}
 #endif
    /* Rolling phase */
-   HPL_rollT( PANEL, n, U, LDU, iplen, ipmap, ipmapm1 );
+{	int nremain = n;
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	{
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		nremain -= nn;
+   HPL_rollT( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
+   }}
    /* Permute U in every process row */
    //HPL_dlaswp10N( n, jb, U, LDU, permU ); //Moved into caldgemm callback
    return(permU);
