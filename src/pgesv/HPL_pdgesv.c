@@ -132,6 +132,29 @@ int HPL_CALDGEMM_wrapper_n = -1;
 
 int dtrtri_(char *, char *, int *, double *, int *, int *);
 
+#ifndef NO_EQUILIBRATION
+#define HPL_PDGESV_U_BCAST_EQUIL \
+	HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
+#else
+#define HPL_PDGESV_U_BCAST_EQUIL
+#endif
+
+#define HPL_PDGESV_U_BCAST \
+	if( myrow == icurrow ) \
+	{ \
+		HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU ); \
+	} \
+	 \
+	HPL_spreadT( panel, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 ); \
+	 \
+	if( myrow != icurrow ) \
+	{ \
+		k = ipmapm1[myrow]; \
+		HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA ); \
+	} \
+	HPL_PDGESV_U_BCAST_EQUIL \
+	HPL_rollT( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
+
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
 	int jb = panel->jb;
@@ -146,17 +169,29 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int *ipID, *iplen, *ipmap, *ipmapm1, *iwork, *lindxA = NULL, *lindxAU, *permU;
 	int icurrow, *iflag, *ipA, *ipl, k, myrow, nprow;
 
+#if !defined(HPL_CALL_CALDGEMM)
+	size_t laswp_stepsize = n;
+#elif !defined(HPL_LOOKAHEAD_2B)
+	size_t laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
+#elif defined(HPL_LOOKAHEAD_2B_FIXED_STEPSIZE)
+	size_t laswp_stepsize = HPL_LOOKAHEAD_2B_FIXED_STEPSIZE;
+#else
+	int tmp_stepsize1 = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
+	int tmp_stepsize2;
+	MPI_Allreduce(&tmp_stepsize1, &tmp_stepsize2, 1, MPI_INT, MPI_MIN, Grid->col_comm);
+	size_t laswp_stepsize = tmp_stepsize2;
+#endif
 	//Quick return if there is nothing to do
-	if( ( n <= 0 ) || ( jb <= 0 ) ) return(NULL);
+	if( ( n <= 0 ) || ( jb <= 0 ) ) return;
 
 	if (panel->grid->nprow > 1)
 	{
 		//Initialize former pdlaswp01T
 
 		//Retrieve parameters from the PANEL data structure
-		nprow = PANEL->grid->nprow; myrow = PANEL->grid->myrow;
-		A     = PANEL->A;   U       = PANEL->U;     iflag  = PANEL->IWORK;
-		icurrow = PANEL->prow;
+		nprow = panel->grid->nprow; myrow = panel->grid->myrow;
+		A     = panel->A;   U       = panel->U;     iflag  = panel->IWORK;
+		icurrow = panel->prow;
 
 		/* Compute ipID (if not already done for this panel). lindxA and lindxAU
 		* are of length at most 2*jb - iplen is of size nprow+1, ipmap, ipmapm1
@@ -169,39 +204,40 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
 		ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
 
-		int HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
-
 		if (__builtin_expect(*iflag, 1) == 1)
 		{
 #ifndef NO_EQUILIBRATION
 			//we were called before: only re-compute IPLEN, IPMAP 
-			HPL_plindx10( PANEL, *ipl, ipID, iplen, ipmap, ipmapm1 );
+			HPL_plindx10( panel, *ipl, ipID, iplen, ipmap, ipmapm1 );
 #endif
 		}
 		else
 		{ // no index arrays have been computed so far
-			HPL_pipid(   PANEL,  ipl, ipID );
-			HPL_plindx1( PANEL, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
+			HPL_pipid(   panel,  ipl, ipID );
+			HPL_plindx1( panel, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
 				ipmap, ipmapm1, permU, iwork );
 			*iflag = 1;
 		}
+#ifndef HPL_LOOKAHEAD_2B
+		{
+			const int i = 0;
+			const int nn = n;
+			HPL_ptimer_detail( HPL_TIMING_LASWP );
+			HPL_PDGESV_U_BCAST
+			HPL_ptimer_detail( HPL_TIMING_LASWP );
+		}
+#endif
 	}
 	
-#ifdef HPL_CALL_CALDGEMM
-	size_t HPL_CALDGEMM_wrapper_laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
-#else
-	const size_t HPL_CALDGEMM_wrapper_laswp_stepsize = n;
-#endif
-
 #ifndef CALDGEMM_TEST_DEBUG
 	HPL_ptimer_detail( HPL_TIMING_DTRSM );
 #endif
 	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	for (size_t i = 0;i < n;i += laswp_stepsize)
 	{
 #ifdef HPL_CALL_CALDGEMM
-		if (i) HPL_CALDGEMM_wrapper_laswp_stepsize *= 3;
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		if (i) laswp_stepsize *= 3;
+		const int nn = Mmin(nremain, laswp_stepsize);
 #else
 		const int nn = nremain;
 #endif
@@ -216,28 +252,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		}
 		else
 		{
-			//Copy into U the rows to be spread (local to icurrow)
-			if( myrow == icurrow )
-			{
-				HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU );
-			}
-
-			/* Spread U - optionally probe for column panel */
-			HPL_spreadT( PANEL, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 );
-
-			/* Local exchange (everywhere but in process row icurrow) */
-			if( myrow != icurrow )
-			{
-				k = ipmapm1[myrow];
-				HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA );
-			}
-#ifndef NO_EQUILIBRATION
-			/* Equilibration */
-			HPL_equil( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
+#ifdef HPL_LOOKAHEAD_2B
+			HPL_PDGESV_U_BCAST
 #endif
-			/* Rolling phase */
-			HPL_rollT( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
-
 			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
 		}
 #ifdef CALDGEMM_TEST_DEBUG
@@ -273,7 +290,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 				}
 				int tmp;
 				dtrtri_("U", "U", &jb, tmpa, &tmp_lda, &tmp);
-				HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU, 0 );
+				HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU, 0);
 				free(tmpa);
 				free(tmpb);
 			}

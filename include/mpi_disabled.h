@@ -4,8 +4,9 @@
 #include <time.h>
 
 typedef void* MPI_Comm;
-typedef void* MPI_Datatype;
+typedef size_t MPI_Datatype;
 typedef void* MPI_Request;
+typedef void* MPI_Op;
 typedef int MPI_Status;
 
 #define MPI_SUCCESS                   0
@@ -65,15 +66,16 @@ typedef int MPI_Status;
 #define MPI_ERR_LASTCODE              54
 #define MPI_ERR_SYSRESOURCE          -2
 
-#define MPI_BYTE NULL
-#define MPI_INT NULL
-#define MPI_DOUBLE NULL
-#define MPI_FLOAT NULL
+#define MPI_BYTE 1
+#define MPI_INT 4
+#define MPI_DOUBLE 8
+#define MPI_FLOAT 4
 #define MPI_UNDEFINED NULL
 #define MPI_COMM_NULL NULL
 #define MPI_COMM_WORLD NULL
 #define MPI_THREAD_SERIALIZED NULL
 #define MPI_STATUS_IGNORE NULL
+#define MPI_MIN NULL
 
 static inline int MPI_Send_init(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
 static inline int MPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request){return(MPI_SUCCESS);}
@@ -96,8 +98,10 @@ static inline int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int 
 static inline int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm){return(MPI_SUCCESS);}
 static inline int MPI_Comm_free(MPI_Comm *comm){return(MPI_SUCCESS);}
 static inline int MPI_Abort(MPI_Comm comm, int errorcode){return(MPI_SUCCESS);}
-static inline int MPI_Allgather(void *sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Allgather(void *sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm){memcpy(recvbuf, sendbuf, sendcount * sendtype);return(MPI_SUCCESS);}
 static inline int MPI_Get_count(MPI_Status* status, MPI_Datatype datatype, int* count){*count = 0;return(MPI_SUCCESS);}
+static inline int MPI_Allreduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm){memcpy(recvbuf, sendbuf, datatype * count);return(MPI_SUCCESS);}
+static inline int MPI_Barrier(MPI_Comm comm){return(MPI_SUCCESS);}
 static inline double MPI_Wtime(void)
 {
     struct timespec t;

@@ -125,6 +125,10 @@
 #define fprintfqt(...)
 #endif
 
+#if defined(HPL_LOOKAHEAD_2B) & defined(HPL_SEND_U_PADDING)
+#error Lookahead 2B cannot be used in combination with HPL_SEND_U_PADDING
+#endif
+
 #endif
 /*
 * End of hpl.h

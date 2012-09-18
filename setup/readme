@@ -78,6 +78,8 @@
 # -DHPL_CALDGEMM_BACKEND=x
 #                        Use the CALDGEMM backend x, default: cal
 # -DHPL_LOOKAHEAD_2B     Enable lookahead mode 2b
+# -DHPL_LOOKAHEAD_2B_FIXED_STEPSIZE=n
+#                        Use a fixed starting stepsize for lookahead 2b instead of doing an mpi_allreduce to determine the minimum stepsize
 # -DHPL_GPU_TEMPERATURE_THRESHOLD=temp
 #                        Temperature threshold where the run is stopped
 # -DHPL_MPI_WRAPPERS     Use MPI Wrappers to limit Max MPI Message size. Message size can be controlled via HPL_MAX_MPI_SEND_SIZE and HPL_MAX_MPI_BCAST_SIZE
