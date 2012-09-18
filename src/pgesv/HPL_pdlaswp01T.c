@@ -163,12 +163,20 @@ int* HPL_pdlaswp01T
    }
 
    /* Spread U - optionally probe for column panel */
-   HPL_spreadT( PANEL, HplRight, n, U, LDU, 0, iplen, ipmap, ipmapm1 );
+   {
+	int nremain = n;
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	{
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		nremain -= nn;
+		HPL_spreadT( PANEL, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 );
+	}
+   }
 
    /* Local exchange (everywhere but in process row icurrow) */
    if( myrow != icurrow )
    {
-      k = ipmapm1[myrow];
+	k = ipmapm1[myrow];
 	int nremain = n;
 	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
 	{
