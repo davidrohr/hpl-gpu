@@ -150,61 +150,33 @@ int* HPL_pdlaswp01T
       *iflag = 1;
    }
 
+int nremain = n;
+for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+{
+const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+nremain -= nn;
    //Copy into U the rows to be spread (local to icurrow)
    if( myrow == icurrow )
    {
-	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
-	{
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
-		nremain -= nn;
-		HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU );
-	}
+	HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU );
    }
 
    /* Spread U - optionally probe for column panel */
-   {
-	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
-	{
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
-		nremain -= nn;
-		HPL_spreadT( PANEL, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 );
-	}
-   }
+	HPL_spreadT( PANEL, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 );
 
    /* Local exchange (everywhere but in process row icurrow) */
    if( myrow != icurrow )
    {
 	k = ipmapm1[myrow];
-	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
-	{
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
-		nremain -= nn;
-		HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA );
-	}
+	HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA );
    }
 #ifndef NO_EQUILIBRATION
    /* Equilibration */
-   {
-	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
-	{
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
-		nremain -= nn;
-
    HPL_equil( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
-   }}
 #endif
    /* Rolling phase */
-{	int nremain = n;
-	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
-	{
-		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
-		nremain -= nn;
    HPL_rollT( PANEL, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
-   }}
+}
    /* Permute U in every process row */
    //HPL_dlaswp10N( n, jb, U, LDU, permU ); //Moved into caldgemm callback
    return(permU);
