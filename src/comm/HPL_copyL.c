@@ -92,6 +92,11 @@ void HPL_copyL
 /* ..
  * .. Executable Statements ..
  */
+#ifdef HPL_COPYL_DURING_FACT
+   const int multithread = 1;
+#else
+   const int multithread = PANEL->algo->depth == 0;
+#endif
    if( PANEL->grid->mycol == PANEL->pcol )
    {
       jb = PANEL->jb; lda = PANEL->lda;
@@ -99,12 +104,12 @@ void HPL_copyL
       if( PANEL->grid->myrow == PANEL->prow )
       {
          HPL_dlacpy( PANEL->mp-jb, jb, Mptr( PANEL->A, jb, -jb, lda ),
-                     lda, PANEL->L2, PANEL->ldl2, 1 );
+                     lda, PANEL->L2, PANEL->ldl2, multithread );
       }
       else
       {
          HPL_dlacpy( PANEL->mp,    jb, Mptr( PANEL->A,  0, -jb, lda ),
-                     lda, PANEL->L2, PANEL->ldl2, 1 );
+                     lda, PANEL->L2, PANEL->ldl2, multithread );
       }
 	  HPL_ptimer_detail(HPL_TIMING_DLACPY);
    }

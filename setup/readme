@@ -83,6 +83,8 @@
 # -DHPL_GPU_TEMPERATURE_THRESHOLD=temp
 #                        Temperature threshold where the run is stopped
 # -DHPL_MPI_WRAPPERS     Use MPI Wrappers to limit Max MPI Message size. Message size can be controlled via HPL_MAX_MPI_SEND_SIZE and HPL_MAX_MPI_BCAST_SIZE
+# -DHPL_COPYL_DURING_FACT
+#                        Perform copyL (if necessary) during factorization to allow for multithreading
 
 #
 # By default HPL will:

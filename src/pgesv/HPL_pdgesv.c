@@ -331,12 +331,11 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	{
 		HPL_pdfact(panel);    //factor current panel
 
-#if !defined(HPL_USE_MPI_DATATYPE) | defined(HPL_COPY_L)
+#ifdef HPL_COPYL_DURING_FACT
 		//Do the panel copy with the factorization to allow for multithreaded copy.
-		if (Grid->npcol > 1)
-		{
-			HPL_copyL( PANEL );
-		}
+#if !defined(HPL_USE_MPI_DATATYPE) | defined(HPL_COPY_L)
+		if (Grid->npcol > 1) HPL_copyL( PANEL );
+#endif
 #endif
 	}
 	fprintfctd(stderr, "Factorize Ended\n");
@@ -348,6 +347,10 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
    struct timeval tp;
    long start, startu;
    double time, throughput;
+#endif
+
+#ifndef HPL_COPYL_DURING_FACT
+   	if (Grid->npcol > 1) HPL_copyL( PANEL );
 #endif
 
 	fprintfctd(stderr, "Starting Broadcast\n");
