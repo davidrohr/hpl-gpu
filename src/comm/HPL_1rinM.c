@@ -83,12 +83,6 @@ int HPL_binit_1rinM
    if( PANEL == NULL )           { return( HPL_SUCCESS ); }
    if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
 #ifdef HPL_USE_MPI_DATATYPE
-#ifdef HPL_COPY_L
-/*
- * Copy the panel into a contiguous buffer
- */
-   HPL_copyL( PANEL );
-#endif
 /*
  * Create the MPI user-defined data type
  */
@@ -96,11 +90,6 @@ int HPL_binit_1rinM
 
    return( ( ierr == MPI_SUCCESS ? HPL_SUCCESS : HPL_FAILURE ) );
 #else
-/*
- * Force the copy of the panel into a contiguous buffer
- */
-   HPL_copyL( PANEL );
- 
    return( HPL_SUCCESS );
 #endif
 }

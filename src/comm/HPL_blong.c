@@ -74,24 +74,6 @@ int HPL_binit_blong
    HPL_T_panel *              PANEL
 )
 {
-/* ..
- * .. Executable Statements ..
- */
-   if( PANEL == NULL )           { return( HPL_SUCCESS ); }
-   if( PANEL->grid->npcol <= 1 ) { return( HPL_SUCCESS ); }
-#ifdef HPL_USE_MPI_DATATYPE
-#ifdef HPL_COPY_L
-/*
- * Copy the panel into a contiguous buffer
- */
-   HPL_copyL( PANEL );
-#endif
-#else
-/*
- * Force the copy of the panel into a contiguous buffer
- */
-   HPL_copyL( PANEL );
-#endif
    return( HPL_SUCCESS );
 }
 

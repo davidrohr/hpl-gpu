@@ -99,12 +99,12 @@ void HPL_copyL
       if( PANEL->grid->myrow == PANEL->prow )
       {
          HPL_dlacpy( PANEL->mp-jb, jb, Mptr( PANEL->A, jb, -jb, lda ),
-                     lda, PANEL->L2, PANEL->ldl2, PANEL->algo->depth == 0 );
+                     lda, PANEL->L2, PANEL->ldl2, 1 );
       }
       else
       {
          HPL_dlacpy( PANEL->mp,    jb, Mptr( PANEL->A,  0, -jb, lda ),
-                     lda, PANEL->L2, PANEL->ldl2, PANEL->algo->depth == 0 );
+                     lda, PANEL->L2, PANEL->ldl2, 1 );
       }
 	  HPL_ptimer_detail(HPL_TIMING_DLACPY);
    }

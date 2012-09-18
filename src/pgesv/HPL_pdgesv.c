@@ -330,6 +330,14 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	if(mycol == icurcol)
 	{
 		HPL_pdfact(panel);    //factor current panel
+
+#if !defined(HPL_USE_MPI_DATATYPE) | defined(HPL_COPY_L)
+		//Do the panel copy with the factorization to allow for multithreaded copy.
+		if (Grid->npcol > 1)
+		{
+			HPL_copyL( PANEL );
+		}
+#endif
 	}
 	fprintfctd(stderr, "Factorize Ended\n");
 }
@@ -343,9 +351,9 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 
 	fprintfctd(stderr, "Starting Broadcast\n");
-	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	HPL_binit(panel);
 
+	HPL_ptimer_detail(HPL_TIMING_BCAST);
 #ifdef HPL_DETAILED_TIMING
    if (panel->grid->mycol == panel->pcol)
    {
@@ -363,7 +371,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	(void) gettimeofday( &tp, NULL );
 	time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
 	throughput = (double) panel->len * sizeof(double) / time / 1000000.;
-	fprintf(stderr, "MPI Broadcast: size=%f MB - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., throughput);
+	fprintf(stderr, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., time, throughput);
    }
 #endif
 
