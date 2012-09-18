@@ -521,6 +521,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
 	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+	int depth1init = 0;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
 	uint64_t time_start;
@@ -553,6 +554,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	if (depth1)
 	{
 		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[0]);
+		depth1init = 1;
 	}
 
 	//Create main panel
@@ -676,11 +678,11 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 #endif
 	}
 	//Clean-up: Release panels and panel list
-	if(depth1)
+	if(depth1init)
 	{
-		HPL_pdpanel_disp( &panel[0]);
+		HPL_pdpanel_disp( &panel[1]);
 	}
-	HPL_pdpanel_disp(&panel[depth1]);
+	HPL_pdpanel_disp(&panel[0]);
 	if(panel) free(panel);
 	
 	//Solve upper triangular system
