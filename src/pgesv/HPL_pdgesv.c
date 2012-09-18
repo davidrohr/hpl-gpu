@@ -229,9 +229,8 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #endif
 	}
 	
-#ifndef CALDGEMM_TEST_DEBUG
 	HPL_ptimer_detail( HPL_TIMING_DTRSM );
-#endif
+
 	int nremain = n;
 	for (size_t i = 0;i < n;i += laswp_stepsize)
 	{
@@ -243,9 +242,6 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #endif
 		nremain -= nn;
 
-#ifdef CALDGEMM_TEST_DEBUG
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-#endif
 		if (panel->grid->nprow == 1)
 		{
 			HPL_dlaswp00N( jb, nn, Aptr + i * lda, lda, ipiv );
@@ -257,10 +253,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #endif
 			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
 		}
-#ifdef CALDGEMM_TEST_DEBUG
-		HPL_ptimer_detail( HPL_TIMING_LASWP );
-		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-#endif
+
 		if (panel->grid->nprow == 1)
 		{
 #ifdef HPL_SLOW_CPU
@@ -305,19 +298,22 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		{
 			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
-#ifdef CALDGEMM_TEST_DEBUG
-		HPL_ptimer_detail( HPL_TIMING_DTRSM );
-#endif
 #ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
-		
-		//fprintf(stderr, "Done at %lld\n", (size_t) i + nn);
 	}
 
-#ifndef CALDGEMM_TEST_DEBUG
 	HPL_ptimer_detail( HPL_TIMING_DTRSM );
+
+#ifndef HPL_ASYNC_DLATCPY
+		if (panel->grid->nprow != 1 && PANEL->grid->myrow == PANEL->prow)
+		{
+			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+			HPL_dlatcpy( panel->jb, n, panel->grid->nprow == 1 ? panel->A : panel->U, LDU, panel->A, lda );
+			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+		}
 #endif
+
 	
 	fprintfctd(stderr, "LASWP/DTRSM finished\n");
 }
@@ -423,7 +419,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	L2ptr = PANEL->L2;
 	L1ptr = PANEL->L1;
 	ldl2 = PANEL->ldl2;
-	curr = ( PANEL->grid->myrow == PANEL->prow ? 1 : 0 );
+	curr = ( PANEL->grid->myrow == PANEL->prow );
 	Uptr = PANEL->grid->nprow == 1 ? PANEL->A : PANEL->U;
 	dpiv = PANEL->DPIV;
 	ipiv = PANEL->IWORK;
@@ -480,21 +476,15 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 #endif
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
-		
-#ifndef HPL_CALL_CALDGEMM
-		if (factorize != -1)
-		{
-			HPL_pdgesv_factorize(Grid, PBCST, factorize);
-			HPL_pdgesv_broadcast(Grid, PBCST, factorize);
-		}
-#endif
 
+#ifndef HPL_ASYNC_DLATCPY
 		if (PANEL->grid->nprow != 1 && curr != 0)
 		{
 			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 			HPL_dlatcpy( jb, n, Uptr, LDU, Aptr, lda );
 			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 		}
+#endif
 	}
 	else if (factorize != -1)
 	{
