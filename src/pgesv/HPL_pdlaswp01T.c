@@ -132,6 +132,8 @@ int* HPL_pdlaswp01T
    ipA     = ipID + ((unsigned int)(k) << 1); lindxA = ipA + 1;
    lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
    ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
+   
+   int HPL_CALDGEMM_wrapper_laswp_stepsize = 2048;
 
    if (__builtin_expect(*iflag, 1) == 1)
    {
@@ -151,7 +153,13 @@ int* HPL_pdlaswp01T
    //Copy into U the rows to be spread (local to icurrow)
    if( myrow == icurrow )
    {
-       HPL_dlaswp01T( *ipA, n, A, lda, U, LDU, lindxA, lindxAU );
+	int nremain = n;
+	for (size_t i = 0;i < n;i += HPL_CALDGEMM_wrapper_laswp_stepsize)
+	{
+		const int nn = Mmin(nremain, HPL_CALDGEMM_wrapper_laswp_stepsize);
+		nremain -= nn;
+		HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU );
+	}
    }
 
    /* Spread U - optionally probe for column panel */
