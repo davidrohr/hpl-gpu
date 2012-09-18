@@ -305,13 +305,13 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 
 	HPL_ptimer_detail( HPL_TIMING_DTRSM );
 
-#ifndef HPL_ASYNC_DLATCPY
-		if (panel->grid->nprow != 1 && PANEL->grid->myrow == PANEL->prow)
-		{
-			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
-			HPL_dlatcpy( panel->jb, n, panel->grid->nprow == 1 ? panel->A : panel->U, LDU, panel->A, lda );
-			HPL_ptimer_detail( HPL_TIMING_DLATCPY );
-		}
+#ifdef HPL_ASYNC_DLATCPY
+	if (panel->grid->nprow != 1 && panel->grid->myrow == panel->prow)
+	{
+		HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+		HPL_dlatcpy( panel->jb, n, panel->grid->nprow == 1 ? panel->A : panel->U, LDU, panel->A, lda );
+		HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+	}
 #endif
 
 	
