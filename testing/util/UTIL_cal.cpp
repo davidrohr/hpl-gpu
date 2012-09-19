@@ -305,7 +305,7 @@ int CALDGEMM_Init()
 #ifdef HPL_EMULATE_MULTINODE
 	cal_info.linpack_broadcast_function = multinode_broadcast_fake;
 	broadcast_fake_array = new float[1024 * 1024 * 2];
-#else
+#elif !defined(HPL_NO_MPI_LIB)
 	cal_info.linpack_broadcast_function = HPL_CALDGEMM_wrapper_broadcast;
 #endif
 #endif
