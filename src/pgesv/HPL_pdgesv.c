@@ -339,6 +339,7 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
+#ifndef HPL_NO_MPI_LIB
 #ifdef HPL_DETAILED_TIMING
    struct timeval tp;
    long start, startu;
@@ -376,6 +377,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	fprintfctd(stderr, "Broadcast Ended\n");
+#endif
 }
 
 #ifdef HPL_CALL_CALDGEMM
