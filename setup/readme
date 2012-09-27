@@ -86,6 +86,7 @@
 # -DHPL_COPYL_DURING_FACT
 #                        Perform copyL (if necessary) during factorization to allow for multithreading
 # -DHPL_ASYNC_DLATCPY    Perform DLATCPY asynchronously during DGEMM execution
+# -DHPL_MPI_AFFINITY     Set affinity for threads created during MPI init (hopefully all mpi threads) (syntax like gpu mapping)
 
 #
 # By default HPL will:

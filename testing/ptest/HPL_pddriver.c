@@ -61,6 +61,7 @@
 #include "hpl.h"
 #include "util_trace.h"
 #include "util_cal.h"
+#include <sched.h>
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 #include "util_adl.h"
 #endif
@@ -73,6 +74,10 @@ int HPL_init_laswp(void* ptr);
 #define MPOL_BIND 2
 #define MPOL_INTERLEAVE 3
 #include <syscall.h>
+#endif
+
+#ifdef HPL_CALL_CALDGEMM
+#include "../../caldgemm/cmodules/affinity.h"
 #endif
 
 int main
@@ -132,6 +137,9 @@ int main
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 #endif
 
+#ifdef HPL_CALL_CALDGEMM
+   setUnknownNames("Unknown - Before Main");
+#endif
    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
@@ -142,6 +150,15 @@ int main
 	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
+#ifdef HPL_CALL_CALDGEMM
+#ifdef HPL_MPI_AFFINITY
+   {
+      int tmpcpus[] = HPL_MPI_AFFINITY;
+      setUnknownAffinity(sizeof(tmpcpus) / sizeof(tmpcpus[0]), tmpcpus);
+   }
+#endif
+   setUnknownNames("MPI");
+#endif
 #endif
 
 #if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
