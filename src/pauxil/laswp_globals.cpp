@@ -70,7 +70,6 @@ static inline int get_num_procs()
 
 #endif
 
-
 namespace
 {
     extern "C" int HPL_init_laswp(void* ptr);
@@ -80,6 +79,7 @@ namespace
 		public:
 		    void operator()(const tbb::blocked_range<size_t> &) const {
 #ifdef HPL_CALL_CALDGEMM
+			usleep(100000);
 			if (gettid() != getpid()) setThreadName("LASWP");
 #endif
 		    }
@@ -130,11 +130,10 @@ namespace
 
 #endif
 		sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);
-		sched_getaffinity(0, sizeof(cpu_set_t), &fullMask);
-
+		
 		//fprintf(stderr, "Pin TBB worker threads to core(s) 0x%016lX\n", fullMask.__bits[0]);
 		static tbb::task_scheduler_init init(num_threads);
-		tbb::parallel_for (tbb::blocked_range<size_t>(0, 100), HPL_init_laswp_foo());
+		tbb::parallel_for (tbb::blocked_range<size_t>(0, num_threads, 1), HPL_init_laswp_foo());
 
 		//fprintf(stderr, "       Pin main thread to core(s) 0x%016lX\n", oldmask.__bits[0]);
 		sched_setaffinity(0, sizeof(cpu_set_t), &oldmask);

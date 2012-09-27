@@ -316,6 +316,9 @@ void HPL_pdtest
                        1, 0, walltime );
    HPL_ptimer_combine( GRID->all_comm, HPL_AMAX_PTIME, HPL_CPU_TIME,
                        1, 0, cputime );
+                       
+   fflush(stdout);
+   MPI_Barrier( GRID->all_comm );
 
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
