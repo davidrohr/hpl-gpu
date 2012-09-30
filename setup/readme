@@ -89,6 +89,8 @@
 # -DHPL_MPI_AFFINITY     Set affinity for threads created during MPI init (hopefully all mpi threads) (syntax like gpu mapping)
 # -DHPL_EXCLUDE_FROM_LASWP=...
 #                        Exclude cores from laswp, syntax as for GPU mapping
+# -DHPL_DURATION_FIND_HELPER
+#                        HPL outputs linux timestamp before and after the actual calculation. In addition it adds an idle-pause of 10 secs before and after the run, this helps to find the exact duration in a power log etc.
 
 #
 # By default HPL will:

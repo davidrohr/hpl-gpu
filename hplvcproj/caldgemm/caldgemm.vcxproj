@@ -68,6 +68,7 @@
     <ClCompile Include="..\..\caldgemm\caldgemm_opencl.cpp" />
     <ClCompile Include="..\..\caldgemm\cmodules\affinity.cpp" />
     <ClCompile Include="..\..\caldgemm\cmodules\qmalloc.cpp" />
+    <ClCompile Include="..\..\caldgemm\cmodules\qsem.cpp" />
     <ClCompile Include="..\..\caldgemm\cmodules\threadserver.cpp" />
     <ClCompile Include="..\..\caldgemm\timer.cpp" />
   </ItemGroup>
@@ -97,6 +98,7 @@
     <ClInclude Include="..\..\caldgemm\cmodules\os_low_level_helper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\pthread_mutex_win32_wrapper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\qmalloc.h" />
+    <ClInclude Include="..\..\caldgemm\cmodules\qsem.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\sched_affinity_win32_wrapper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\threadserver.h" />
     <ClInclude Include="..\..\caldgemm\timer.h" />
