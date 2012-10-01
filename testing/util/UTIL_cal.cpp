@@ -227,6 +227,10 @@ int CALDGEMM_Init()
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
 #endif
+#ifdef HPL_MPI_AFFINITY
+	const int mpi_affinity[] = HPL_MPI_AFFINITY;
+	cal_info.PinBroadcastThread = mpi_affinity[0];
+#endif
 
 #ifdef HPL_GPU_OG
 	cal_info.DstMemory = 'g';

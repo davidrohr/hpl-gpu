@@ -150,15 +150,19 @@ int main
 	printf("MPI does not provide the required thread safety\n");
 	return(1);
    }
+#endif
+
 #ifdef HPL_CALL_CALDGEMM
 #ifdef HPL_MPI_AFFINITY
    {
+      double tmpval = 0;
+      MPI_Bcast(&tmpval, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);	//Some MPI calls such that threads are spawned
+      MPI_Barrier(MPI_COMM_WORLD);
       int tmpcpus[] = HPL_MPI_AFFINITY;
       setUnknownAffinity(sizeof(tmpcpus) / sizeof(tmpcpus[0]), tmpcpus);
    }
 #endif
    setUnknownNames("MPI");
-#endif
 #endif
 
 #if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
