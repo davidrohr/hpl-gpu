@@ -118,7 +118,21 @@ namespace
 		int num_procs = get_num_procs();
 		for (int i = 0;i < num_procs;i++)
 		{
-			if (cal_dgemm->cpuUsed(i) == false) CPU_SET(i, &fullMask);
+			if (cal_dgemm->cpuUsed(i)) continue;
+#ifdef HPL_EXCLUDE_FROM_LASWP
+			const int exclude[] = HPL_EXCLUDE_FROM_LASWP;
+			bool found = false;
+			for (int j = 0;j < sizeof(exclude) / sizeof(exclude[0]);j++)
+			{
+				if (exclude[j] == i)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (found) continue;
+#endif
+			CPU_SET(i, &fullMask);
 		}
 		num_threads = CPU_COUNT(&fullMask);
 		printf("Using %d threads for LASWP ( ", num_threads);

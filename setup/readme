@@ -87,6 +87,8 @@
 #                        Perform copyL (if necessary) during factorization to allow for multithreading
 # -DHPL_ASYNC_DLATCPY    Perform DLATCPY asynchronously during DGEMM execution
 # -DHPL_MPI_AFFINITY     Set affinity for threads created during MPI init (hopefully all mpi threads) (syntax like gpu mapping)
+# -DHPL_EXCLUDE_FROM_LASWP=...
+#                        Exclude cores from laswp, syntax as for GPU mapping
 
 #
 # By default HPL will:
