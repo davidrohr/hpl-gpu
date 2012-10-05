@@ -306,16 +306,22 @@ void HPL_pdtest
  * Solve linear system
  */
    HPL_ptimer_boot(); (void) HPL_barrier( GRID->all_comm );
-#ifdef DHPL_DURATION_FIND_HELPER
+#ifdef HPL_DURATION_FIND_HELPER
    usleep(1000 * 1000 * 10);
-   if (myrow == 0 && mycol == 0) HPL_fprintf( TEST->outfp, "Calculation Start Timestamp: %d\n", time());
+   if (myrow == 0 && mycol == 0)
+   {
+      HPL_fprintf( TEST->outfp, "Calculation Start Timestamp: %lld\n", (long long int) time(NULL));
+   }
    HPL_barrier( GRID->all_comm );
 #endif
    HPL_ptimer( 0 );
    HPL_pdgesv( GRID, ALGO, &mat );
    HPL_ptimer( 0 );
-#ifdef DHPL_DURATION_FIND_HELPER
-   if (myrow == 0 && mycol == 0) HPL_fprintf( TEST->outfp, "Calculation End Timestamp: %d\n", time());
+#ifdef HPL_DURATION_FIND_HELPER
+   if (myrow == 0 && mycol == 0)
+   {
+      HPL_fprintf( TEST->outfp, "Calculation End Timestamp: %lld\n", (long long int) time(NULL));
+   }
    usleep(1000 * 1000 * 10);
    HPL_barrier( GRID->all_comm );
 #endif
