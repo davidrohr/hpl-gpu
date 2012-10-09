@@ -361,7 +361,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #ifndef HPL_NO_MPI_LIB
 #ifdef HPL_DETAILED_TIMING
    struct timeval tp;
-   long __attribute__ ((unused)) start, startu;
+   long start, startu;
    double bcasttime, throughput;
 #endif
 
@@ -374,7 +374,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 #ifdef HPL_DETAILED_TIMING
-   if (panel->grid->mycol == panel->pcol)
+   if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
    {
 	(void) gettimeofday( &tp, NULL );
 	start  = tp.tv_sec;
@@ -385,7 +385,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	HPL_bcast(panel);
 
 #ifdef HPL_DETAILED_TIMING
-   if (panel->grid->mycol == panel->pcol)
+   if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
    {
 	(void) gettimeofday( &tp, NULL );
 	bcasttime = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );

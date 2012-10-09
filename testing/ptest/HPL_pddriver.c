@@ -300,8 +300,7 @@ HPLinpack benchmark input file
               resetTraceCounters();
 #endif
 
-			  fprintfct(test.outfp, "(Problem: N %d NB %d)(Network: BCAST %d LOOKAHEAD %d) (Factorization: NBMIN %d NBDIV %d PFACT %d RFACT %d)\n", nval[in], nbval[inb], algo.btopo, algo.depth, algo.nbmin, algo.nbdiv, algo.pfact, algo.rfact);
-			  
+              if (rank == 0) fprintfct(STD_OUT, "(Problem: N %d NB %d)(Network: BCAST %d LOOKAHEAD %d) (Factorization: NBMIN %d NBDIV %d PFACT %d RFACT %d)\n", nval[in], nbval[inb], algo.btopo, algo.depth, algo.nbmin, algo.nbdiv, algo.pfact, algo.rfact);
    int mcols = (nval[in] + nbval[inb]) / nbval[inb];
    grid.col_mapping = (int*) malloc(mcols * sizeof(int));
    grid.mcols_per_pcol = (int*) malloc(npcol * sizeof(int));
@@ -370,7 +369,7 @@ HPLinpack benchmark input file
       
       for (int i = 0;i < npcol;i++)
       {
-         fprintfct(test.outfp, "Process col %d process %d matrix cols\n", i, grid.mcols_per_pcol[i]);
+         fprintfct(test.outfp, "Process col %d processes %d matrix cols\n", i, grid.mcols_per_pcol[i]);
       }
       
       free(cols);
