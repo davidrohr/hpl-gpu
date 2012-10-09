@@ -131,7 +131,7 @@ int HPL_bcast_mpi ( HPL_T_panel *);
 #if defined(HPL_NO_MPI_DATATYPE) & defined(HPL_MPI_WRAPPERS)
 static inline int MPI_Send_Mod(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
 {
-	int i, retval;
+	int i, retval = MPI_SUCCESS;
 	for (i = 0;i < count;i += HPL_MAX_MPI_SEND_SIZE)
 	{
 		retval = MPI_Send((void*) ((char*) buf + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, dest, tag, comm);
@@ -141,7 +141,7 @@ static inline int MPI_Send_Mod(void *buf, int count, MPI_Datatype datatype, int 
 
 static inline int MPI_Recv_Mod(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
 {
-	int i, retval;
+	int i, retval = MPI_SUCCESS;
 	for (i = 0;i < count;i += HPL_MAX_MPI_SEND_SIZE)
 	{
 		retval = MPI_Recv((void*) ((char*) buf + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, source, tag, comm, status);
@@ -151,7 +151,7 @@ static inline int MPI_Recv_Mod(void *buf, int count, MPI_Datatype datatype, int 
 
 static inline int MPI_Bcast_Mod(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 {
-	int i, retval;
+	int i, retval = MPI_SUCCESS;
 	for (i = 0;i < count;i += HPL_MAX_MPI_BCAST_SIZE)
 	{
 		retval = MPI_Bcast((void*) ((char*) buffer + i * sizeof(double)), count - i < HPL_MAX_MPI_SEND_SIZE ? count - i : HPL_MAX_MPI_SEND_SIZE, datatype, root, comm);

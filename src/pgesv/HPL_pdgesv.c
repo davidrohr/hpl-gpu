@@ -64,6 +64,9 @@
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 #include "util_adl.h"
 #endif
+#ifdef HPL_DETAILED_TIMING
+#include <sys/time.h>
+#endif
 /* 
  * Purpose
  * =======
@@ -359,7 +362,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #ifdef HPL_DETAILED_TIMING
    struct timeval tp;
    long start, startu;
-   double time, throughput;
+   double bcasttime, throughput;
 #endif
 
 #ifndef HPL_COPYL_DURING_FACT
@@ -385,9 +388,9 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
    if (panel->grid->mycol == panel->pcol)
    {
 	(void) gettimeofday( &tp, NULL );
-	time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
-	throughput = (double) panel->len * sizeof(double) / time / 1000000.;
-	fprintf(STD_OUT, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., time, throughput);
+	bcasttime = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
+	throughput = (double) panel->len * sizeof(double) / bcasttime / 1000000.;
+	fprintf(STD_OUT, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., bcasttime, throughput);
    }
 #endif
 
@@ -425,7 +428,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	//.. Executable Statements ..
 	fprintfctd(STD_OUT, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
-	nb = PANEL->nb;
 	jb = PANEL->jb;
 	n = PANEL->nq;
 	lda = PANEL->lda;
@@ -435,7 +437,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	Aptr = PANEL->A;
 	L2ptr = PANEL->L2;
-	L1ptr = PANEL->L1;
 	ldl2 = PANEL->ldl2;
 	curr = ( PANEL->grid->myrow == PANEL->prow );
 	Uptr = PANEL->grid->nprow == 1 ? PANEL->A : PANEL->U;
@@ -599,7 +600,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p, **panel = NULL;
-	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, npcol, nq, tag=MSGID_BEGIN_FACT;
+	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, nq, tag=MSGID_BEGIN_FACT;
 	int depth1init = 0;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
@@ -610,7 +611,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	A->info = 0;
 	
 	mycol = GRID->mycol;
-	npcol = GRID->npcol;
+
 	N = A->n;
 	nb = A->nb;
 	depth1 = (ALGO->depth >= 1);
@@ -647,7 +648,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	fullwork = pow(fullwork, 1.0 / 3.0);
 	int startrow = N - fullwork;
 	if (startrow < 0) startrow = 0;
-	startrow -= startrow % (npcol * nb);
+	startrow -= startrow % (GRID->npcol * nb);
 	if( GRID->myrow == 0 && GRID->mycol == 0 )
 	{
 	    fprintf(STD_OUT, "Starting at col %d which corresponds to approx %2.1lf %% of execution time\n", startrow, 100.0 * (double) (N - startrow) * (double) (N - startrow) * (double) (N - startrow) / (double) N / (double) N / (double) N);

@@ -86,9 +86,9 @@ UTIL_timer.o            : ../UTIL_timer.c            $(INCdep)
 UTIL_trace.o    : ../UTIL_trace.c    $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../UTIL_trace.c
 UTIL_cal.o    : ../UTIL_cal.cpp    $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_cal.cpp
+	$(CXX) -o $@ -c $(CXXFLAGS) ../UTIL_cal.cpp
 UTIL_adl.o    : ../UTIL_adl.cpp    $(INCdep)
-	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_adl.cpp
+	$(CXX) -o $@ -c $(CXXFLAGS) ../UTIL_adl.cpp
 UTIL_threadcheck.o    : ../UTIL_threadcheck.cpp    $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS)  ../UTIL_threadcheck.cpp
 #

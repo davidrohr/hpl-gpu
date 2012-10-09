@@ -64,12 +64,12 @@ int adl_temperature_check_init()
             return 0;
         }
 
-        ADL_Main_Control_Create = (ADL_MAIN_CONTROL_CREATE) dlsym(hDLL,"ADL_Main_Control_Create");
-        ADL_Main_Control_Destroy = (ADL_MAIN_CONTROL_DESTROY) dlsym(hDLL,"ADL_Main_Control_Destroy");
-        ADL_Adapter_NumberOfAdapters_Get = (ADL_ADAPTER_NUMBEROFADAPTERS_GET) dlsym(hDLL,"ADL_Adapter_NumberOfAdapters_Get");
-        ADL_Adapter_AdapterInfo_Get = (ADL_ADAPTER_ADAPTERINFO_GET) dlsym(hDLL,"ADL_Adapter_AdapterInfo_Get");
-        ADL_Overdrive5_Temperature_Get = (ADL_OVERDRIVE5_TEMPERATURE_GET) dlsym(hDLL,"ADL_Overdrive5_Temperature_Get");
-        ADL_Adapter_Active_Get = (ADL_ADAPTER_ACTIVE_GET) dlsym(hDLL,"ADL_Adapter_Active_Get");
+        ADL_Main_Control_Create = (ADL_MAIN_CONTROL_CREATE) (size_t) dlsym(hDLL,"ADL_Main_Control_Create");
+        ADL_Main_Control_Destroy = (ADL_MAIN_CONTROL_DESTROY) (size_t) dlsym(hDLL,"ADL_Main_Control_Destroy");
+        ADL_Adapter_NumberOfAdapters_Get = (ADL_ADAPTER_NUMBEROFADAPTERS_GET) (size_t) dlsym(hDLL,"ADL_Adapter_NumberOfAdapters_Get");
+        ADL_Adapter_AdapterInfo_Get = (ADL_ADAPTER_ADAPTERINFO_GET) (size_t) dlsym(hDLL,"ADL_Adapter_AdapterInfo_Get");
+        ADL_Overdrive5_Temperature_Get = (ADL_OVERDRIVE5_TEMPERATURE_GET) (size_t) dlsym(hDLL,"ADL_Overdrive5_Temperature_Get");
+        ADL_Adapter_Active_Get = (ADL_ADAPTER_ACTIVE_GET) (size_t) dlsym(hDLL,"ADL_Adapter_Active_Get");
 		if ( NULL == ADL_Main_Control_Create || NULL == ADL_Main_Control_Destroy || NULL == ADL_Adapter_NumberOfAdapters_Get || NULL == ADL_Adapter_AdapterInfo_Get || NULL == ADL_Overdrive5_Temperature_Get || NULL == ADL_Adapter_Active_Get)
 		{
 	       printf("ADL's API is missing!\n");

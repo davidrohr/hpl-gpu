@@ -127,14 +127,13 @@ int HPL_bcast_mpi( PANEL )
  * .. Local Variables ..
  */
    MPI_Comm                   comm;
-   int                        ierr, msgid, rank, root, size;
+   int                        ierr, root;
 /* ..
  * .. Executable Statements ..
  */
 
-   rank = PANEL->grid->mycol; comm  = PANEL->grid->row_comm;
-   root = PANEL->pcol;        msgid = PANEL->msgid;
-   size = PANEL->grid->npcol;
+   comm  = PANEL->grid->row_comm;
+   root = PANEL->pcol;
 
    ierr = MPI_Bcast_Mod( _M_BUFF, _M_COUNT, _M_TYPE, root, comm );
 
