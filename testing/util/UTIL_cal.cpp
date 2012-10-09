@@ -150,6 +150,13 @@ void multinode_broadcast_fake()
 }
 #endif
 
+#ifdef HPL_RESTRICT_CALLBACK
+int HPL_Restrict_Callback_Function(int matrix_n)
+{
+	return(HPL_RESTRICT_CALLBACK(matrix_n));
+}
+#endif
+
 int CALDGEMM_Init()
 {
 #ifdef HPL_GPU_VERIFY
@@ -273,6 +280,9 @@ int CALDGEMM_Init()
 #endif
 
 	cal_info.HPLFactorizeRestrictCPUs = HPL_RESTRICT_CPUS;
+#ifdef HPL_RESTRICT_CALLBACK
+	cal_info.HPLFactorizeRestrictCallback = HPL_Restrict_Callback_Function;
+#endif
 	
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
