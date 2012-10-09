@@ -152,7 +152,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	tmp1 = (n - 1) / nb;
 	Alrow = tmp1 % nprow;
 	Alcol_matrix = tmp1;
-	Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+	Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
 	kb = n - tmp1 * nb;
 
 	Aptr = (double *) (A);
@@ -221,7 +221,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	Alrow = MModSub1(Alrow, nprow);
 	colprev = Alcol_process;
 	Alcol_matrix--;
-	Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+	Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
 	kbprev  = kb;
 	n -= kb;
 	n1 = HPL_n1(Alcol_matrix, nb, GRID);
@@ -356,7 +356,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		n -= kb;
 		Alrow = MModSub1(Alrow, nprow);
 		Alcol_matrix--;
-		if (Alcol_matrix >= 0) Alcol_process = MColBlockToPCol(Alcol_matrix, 0, GRID);
+		if (Alcol_matrix >= 0) Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
 		n1 = HPL_n1(Alcol_matrix, nb, GRID);
 		
 		tmp1 = n - (kb = nb);

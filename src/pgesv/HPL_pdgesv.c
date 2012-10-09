@@ -361,7 +361,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #ifndef HPL_NO_MPI_LIB
 #ifdef HPL_DETAILED_TIMING
    struct timeval tp;
-   long start, startu;
+   long __attribute__ ((unused)) start, startu;
    double bcasttime, throughput;
 #endif
 
@@ -419,9 +419,9 @@ void HPL_CALDGEMM_wrapper_swap()
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize, int depth2)
 {
 	//.. Local Variables ..
-	double * Aptr, * L1ptr, * L2ptr, * Uptr, * dpiv;
+	double * Aptr, * L2ptr, * Uptr, * dpiv;
 	int * ipiv;
-	int curr, i, iroff, jb, lda, ldl2, mp, n, nb;
+	int curr, i, iroff, jb, lda, ldl2, mp, n;
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 	double temperature;
 #endif
@@ -660,7 +660,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
-		icurcol = MColToPCol(j, nb, npcol, GRID);
+		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)// && n + nb > HPL_HALF_BLOCKING && npcol == 1 && GRID->nprow == 1 && depth1 == 0)
@@ -734,7 +734,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 			depth1 = 0;
 		}
 #endif
-		HPL_pdupdateTT(GRID, panel[0], panel[olddepth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, npcol, GRID) : -1, depth2);
+		HPL_pdupdateTT(GRID, panel[0], panel[olddepth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, GRID) : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );
 		//Switch panel pointers
