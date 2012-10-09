@@ -94,17 +94,17 @@ struct gpudgemmparamstruct
 
 void* gpudgemm_wrapper(void* arg)
 {
-	fprintfdvv(stderr, "GPU DGEMM Thread Started\n");
+	fprintfdvv(STD_OUT, "GPU DGEMM Thread Started\n");
 	pthread_mutex_lock(&startgpudgemm);
-	fprintfdvv(stderr, "GPU DGEMM Thread waiting for commands\n");
+	fprintfdvv(STD_OUT, "GPU DGEMM Thread waiting for commands\n");
 	while (pthread_mutex_lock(&startgpudgemm) == 0 && exitgpudgemm == 0)
 	{
-		fprintfdvv(stderr, "GPU DGEMM Thread Running\n");
+		fprintfdvv(STD_OUT, "GPU DGEMM Thread Running\n");
 		cal_dgemm->RunCALDGEMM( gpudgemmparams.A, gpudgemmparams.B, gpudgemmparams.C, gpudgemmparams.ALPHA, gpudgemmparams.BETA, gpudgemmparams.M, gpudgemmparams.K, gpudgemmparams.N, gpudgemmparams.LDA, gpudgemmparams.LDB,
 			gpudgemmparams.LDC, gpudgemmparams.ORDER == CblasColMajor, gpudgemmparams.TRANSA == CblasTrans, gpudgemmparams.TRANSB == CblasTrans, gpudgemmparams.LinpackCallbacks );
 		pthread_mutex_unlock(&gpudgemmdone);
 	}
-	fprintfdvv(stderr, "GPU DGEMM Thread Terminating\n");
+	fprintfdvv(STD_OUT, "GPU DGEMM Thread Terminating\n");
 	pthread_mutex_unlock(&gpudgemmdone);
 	
 	return(NULL);
@@ -112,18 +112,18 @@ void* gpudgemm_wrapper(void* arg)
 
 void funneled_factorize_wrapper()
 {
-	fprintfdvv(stderr, "Factorize Funneled Wrapper\n");
+	fprintfdvv(STD_OUT, "Factorize Funneled Wrapper\n");
 	pthread_mutex_unlock(&startfactorize);
 	pthread_mutex_lock(&factorizedone);
-	fprintfdvv(stderr, "Factorize Funneled Wrapper Ended\n");
+	fprintfdvv(STD_OUT, "Factorize Funneled Wrapper Ended\n");
 }
 
 void funneled_broadcast_wrapper()
 {
-        fprintfdvv(stderr, "Broadcast Funneled Wrapper\n");
+        fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper\n");
 	pthread_mutex_unlock(&startbroadcast);
 	pthread_mutex_lock(&broadcastdone);
-        fprintfdvv(stderr, "Broadcast Funneled Wrapper Ended\n");
+        fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper Ended\n");
 }
 
 #endif
@@ -349,10 +349,10 @@ HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 	pthread_mutex_init(&startbroadcast, NULL);
 	pthread_mutex_init(&broadcastdone, NULL);
 	pthread_t thr;
-	fprintfdvv(stderr, "Starting wrapper thread\n");
+	fprintfdvv(STD_OUT, "Starting wrapper thread\n");
 	pthread_create(&thr, NULL, gpudgemm_wrapper, NULL);
 	while (pthread_mutex_trylock(&startgpudgemm) != EBUSY) pthread_mutex_unlock(&startgpudgemm);
-	fprintfdvv(stderr, "Wrapper started sucessfully\n");
+	fprintfdvv(STD_OUT, "Wrapper started sucessfully\n");
 	pthread_mutex_lock(&startfactorize);
 	pthread_mutex_lock(&startbroadcast);
 	pthread_mutex_lock(&factorizedone);
@@ -426,11 +426,11 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	    gpudgemmparams.TRANSA = TRANSA;
 	    gpudgemmparams.TRANSB = TRANSB;
 	    gpudgemmparams.LinpackCallbacks = LinpackCallbacks;
-	    fprintfdvv(stderr, "Running GPU dgemm\n");
+	    fprintfdvv(STD_OUT, "Running GPU dgemm\n");
 	    if (pthread_mutex_unlock(&startgpudgemm)) fprintf(STD_OUT, "Mutex Error: %s - %d\n", __FILE__, __LINE__);
 	    if (LinpackCallbacks)
 	    {
-		    fprintfdvv(stderr, "Waiting to factorize\n");
+		    fprintfdvv(STD_OUT, "Waiting to factorize\n");
 		    pthread_mutex_lock(&startfactorize);
 		    HPL_CALDGEMM_wrapper_factorize();
 		    pthread_mutex_unlock(&factorizedone);
@@ -443,13 +443,13 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 			    sched_getaffinity(0, sizeof(cpu_set_t), &old_mask);
 			    sched_setaffinity(0, sizeof(cpu_set_t), &linpack_mask);		    
 		    
-			    fprintfdvv(stderr, "Waiting to broadcast\n");
+			    fprintfdvv(STD_OUT, "Waiting to broadcast\n");
 			    pthread_mutex_lock(&startbroadcast);
 			    HPL_CALDGEMM_wrapper_broadcast();
 			    pthread_mutex_unlock(&broadcastdone);
 			    sched_setaffinity(0, sizeof(cpu_set_t), &old_mask);
 		    }
-		    fprintfdvv(stderr, "Factorize and broadcast done\n");
+		    fprintfdvv(STD_OUT, "Factorize and broadcast done\n");
 	    }
 	    
 	    pthread_mutex_lock(&gpudgemmdone);

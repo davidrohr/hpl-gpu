@@ -107,6 +107,12 @@
 #define HPL_ptimer_detail(arg)
 #endif
 
+#ifdef HPL_DETAILED2_TIMING
+#define HPL_ptimer_detail2(arg) HPL_ptimer(arg)
+#else
+#define HPL_ptimer_detail2(arg)
+#endif
+
 #ifdef CALDGEMM_TEST
 #define fprintfct fprintf
 #else
@@ -127,6 +133,10 @@
 
 #if defined(HPL_LOOKAHEAD_2B) & defined(HPL_SEND_U_PADDING)
 #error Lookahead 2B cannot be used in combination with HPL_SEND_U_PADDING
+#endif
+
+#ifndef STD_OUT
+#define STD_OUT stdout
 #endif
 
 #endif

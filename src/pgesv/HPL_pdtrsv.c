@@ -212,7 +212,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if (myrow == Alrow)
 		{
 			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
-			//fprintfqt(stderr, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
+			//fprintfqt(STD_OUT, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
 			HPL_dcopy(kb, XC+Anp, 1, Xd, 1);
 		}
 	}
@@ -270,7 +270,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 				//Compute partial update of previous solution block and send it to current column
 				tmp1 = Anpprev - n1pprev;
 				HPL_dgemv(HplColumnMajor, HplNoTrans, n1pprev, kbprev, -HPL_rone, Aprev+tmp1, lda, Xdprev, 1, HPL_rone, XC+tmp1, 1 );
-				//fprintfqt(stderr, "Process %d: dgemv %d rows starting from %d\n", GRID->iam, n1pprev, tmp1);
+				//fprintfqt(STD_OUT, "Process %d: dgemv %d rows starting from %d\n", GRID->iam, n1pprev, tmp1);
 				sendcol_matrix = Alcol_matrix;
 			}
 			
@@ -296,7 +296,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 					tmp1 = 0;
 				}
 				
-				//fprintfqt(stderr, "Process %d: sending to %d (%d bytes starting from %d, partial update)\n", GRID->iam, Alcol_process, tmp1, tmp2);
+				//fprintfqt(STD_OUT, "Process %d: sending to %d (%d bytes starting from %d, partial update)\n", GRID->iam, Alcol_process, tmp1, tmp2);
 				(void) MPI_Send(XC+tmp2, tmp1, MPI_DOUBLE, Alcol_process, Rmsgid, Rcomm);
 			}
 		}
@@ -316,10 +316,10 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 			{
 				MPI_Status tmpstatus;
 				int recvsize;
-				//fprintfqt(stderr, "Process %d starting receive from %d (buffer %d)\n", GRID->iam, i, Wsize);
+				//fprintfqt(STD_OUT, "Process %d starting receive from %d (buffer %d)\n", GRID->iam, i, Wsize);
 				MPI_Recv(W, Wsize, MPI_DOUBLE, i, Rmsgid, Rcomm, &tmpstatus);
 				MPI_Get_count(&tmpstatus, MPI_DOUBLE, &recvsize);
-				//fprintfqt(stderr, "Process %d: received from %d (%d bytes starting from %d)\n", GRID->iam, i, recvsize, Anpprev - recvsize);
+				//fprintfqt(STD_OUT, "Process %d: received from %d (%d bytes starting from %d)\n", GRID->iam, i, recvsize, Anpprev - recvsize);
 				HPL_daxpy(recvsize, HPL_rone, W, 1, XC+Anpprev-recvsize, 1);
 			}
 		}
@@ -328,7 +328,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if((mycol == Alcol_process) && (myrow == Alrow))
 		{
 			HPL_dtrsv(HplColumnMajor, HplUpper, HplNoTrans, HplNonUnit, kb, Aptr+Anp, lda, XC+Anp, 1);
-			//fprintfqt(stderr, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
+			//fprintfqt(STD_OUT, "Process %d: dtrsv, offset %d\n", GRID->iam, Anp);
 			HPL_dcopy(kb, XC+Anp, 1, XR+Anq, 1);
 		}
 
@@ -336,7 +336,7 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		if((mycol == colprev) && ((tmp1 = Anpprev - n1pprev ) > 0))
 		{
 			HPL_dgemv(HplColumnMajor, HplNoTrans, tmp1, kbprev, -HPL_rone, Aprev, lda, Xdprev, 1, HPL_rone, XC, 1);
-			//fprintfqt(stderr, "Process %d: dgemv (%d rows starting from %d, finishing)\n", GRID->iam, tmp1, 0);
+			//fprintfqt(STD_OUT, "Process %d: dgemv (%d rows starting from %d, finishing)\n", GRID->iam, tmp1, 0);
 		}
 
 		//Save info of current step and update info for the next step

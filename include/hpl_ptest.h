@@ -113,13 +113,15 @@ typedef struct HPL_S_test
 #define    HPL_TIMING_UPDATE     14
 #define    HPL_TIMING_LASWP      15
 #define    HPL_TIMING_PTRSV      16
-#define    HPL_TIMING_DGEMM	 17
-#define    HPL_TIMING_DTRSM	 18
+#define    HPL_TIMING_DGEMM	     17
+#define    HPL_TIMING_DTRSM	     18
 #define    HPL_TIMING_DLATCPY	 19
-#define    HPL_TIMING_BCAST	 20
+#define    HPL_TIMING_BCAST	     20
 #define    HPL_TIMING_BCASTUPD	 21
 #define    HPL_TIMING_ITERATION  22
-#define    HPL_TIMING_DLACPY  23
+#define    HPL_TIMING_DLACPY     23
+#define    HPL_TIMING_UBCAST     24
+#define    HPL_TIMING_PIPELINE   25
 #endif
 /*
  * ---------------------------------------------------------------------

@@ -134,7 +134,9 @@ int dtrtri_(char *, char *, int *, double *, int *, int *);
 
 #ifndef NO_EQUILIBRATION
 #define HPL_PDGESV_U_BCAST_EQUIL \
-	HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork );
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
+	HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork ); \
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 #else
 #define HPL_PDGESV_U_BCAST_EQUIL
 #endif
@@ -142,18 +144,26 @@ int dtrtri_(char *, char *, int *, double *, int *, int *);
 #define HPL_PDGESV_U_BCAST \
 	if( myrow == icurrow ) \
 	{ \
+		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 		HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU ); \
+		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 	} \
 	 \
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
 	HPL_spreadT( panel, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 ); \
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
 	 \
 	if( myrow != icurrow ) \
 	{ \
 		k = ipmapm1[myrow]; \
+		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 		HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA ); \
+		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 	} \
 	HPL_PDGESV_U_BCAST_EQUIL \
-	HPL_rollT( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1 );
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
+	HPL_rollT( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1 ); \
+	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
@@ -222,14 +232,12 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		{
 			const int i = 0;
 			const int nn = n;
-			HPL_ptimer_detail( HPL_TIMING_LASWP );
 			HPL_PDGESV_U_BCAST
-			HPL_ptimer_detail( HPL_TIMING_LASWP );
 		}
 #endif
 	}
 	
-	HPL_ptimer_detail( HPL_TIMING_DTRSM );
+	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
 	int nremain = n;
 	for (size_t i = 0;i < n;i += laswp_stepsize)
@@ -244,16 +252,24 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 
 		if (panel->grid->nprow == 1)
 		{
+			HPL_ptimer_detail2( HPL_TIMING_LASWP );
 			HPL_dlaswp00N( jb, nn, Aptr + i * lda, lda, ipiv );
+			HPL_ptimer_detail2( HPL_TIMING_LASWP );
 		}
 		else
 		{
 #ifdef HPL_LOOKAHEAD_2B
 			HPL_PDGESV_U_BCAST
 #endif
-			if (permU) HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
+			if (permU)
+			{
+				HPL_ptimer_detail2( HPL_TIMING_LASWP );
+				HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
+				HPL_ptimer_detail2( HPL_TIMING_LASWP );
+			}
 		}
 
+		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
 		if (panel->grid->nprow == 1)
 		{
 #ifdef HPL_SLOW_CPU
@@ -292,18 +308,18 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 			{
 				HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans, HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
 			}
-			
 		}
 		else
 		{
 			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
+		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
 #ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
 	}
 
-	HPL_ptimer_detail( HPL_TIMING_DTRSM );
+	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
 #ifdef HPL_ASYNC_DLATCPY
 	if (panel->grid->nprow != 1 && panel->grid->myrow == panel->prow)
@@ -315,14 +331,14 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #endif
 
 	
-	fprintfctd(stderr, "LASWP/DTRSM finished\n");
+	fprintfctd(STD_OUT, "LASWP/DTRSM finished\n");
 }
 
 
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	int mycol = Grid->mycol;
-	fprintfctd(stderr, "Running Factorize\n");
+	fprintfctd(STD_OUT, "Running Factorize\n");
 	if(mycol == icurcol)
 	{
 		HPL_pdfact(panel);    //factor current panel
@@ -334,7 +350,7 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 #endif
 	}
-	fprintfctd(stderr, "Factorize Ended\n");
+	fprintfctd(STD_OUT, "Factorize Ended\n");
 }
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
@@ -350,7 +366,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
    	if (Grid->npcol > 1) HPL_copyL( panel );
 #endif
 
-	fprintfctd(stderr, "Starting Broadcast\n");
+	fprintfctd(STD_OUT, "Starting Broadcast\n");
 	HPL_binit(panel);
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
@@ -371,12 +387,12 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 	(void) gettimeofday( &tp, NULL );
 	time = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
 	throughput = (double) panel->len * sizeof(double) / time / 1000000.;
-	fprintf(stderr, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., time, throughput);
+	fprintf(STD_OUT, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., time, throughput);
    }
 #endif
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
-	fprintfctd(stderr, "Broadcast Ended\n");
+	fprintfctd(STD_OUT, "Broadcast Ended\n");
 #endif
 }
 
@@ -407,7 +423,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 	double temperature;
 #endif
 	//.. Executable Statements ..
-	fprintfctd(stderr, "Running pdupdateTT\n");
+	fprintfctd(STD_OUT, "Running pdupdateTT\n");
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 	nb = PANEL->nb;
 	jb = PANEL->jb;
@@ -465,12 +481,12 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 		if (adl_temperature_check_run(&temperature, 1))
 		{
-			fprintf(stderr, "Error running temperature check\n");
+			fprintf(STD_OUT, "Error running temperature check\n");
 			exit(1);
 		}
 		if (temperature >= HPL_GPU_TEMPERATURE_THRESHOLD)
 		{
-			fprintf(stderr, "GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
+			fprintf(STD_OUT, "GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
 			exit(1);
 		}
 #endif
@@ -496,7 +512,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	HPL_ptimer_detail( HPL_TIMING_UPDATE );
 
-	fprintfctd(stderr, "pdupdateTT ended\n");
+	fprintfctd(STD_OUT, "pdupdateTT ended\n");
 }
 
 void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
@@ -522,7 +538,7 @@ void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 					}
 
 					MPI_Recv(tmp, 6, MPI_INT, rank, i * A->n + j, GRID->all_comm, MPI_STATUS_IGNORE);
-					//fprintf(stderr, "Guessing Row %d Col %d Rank %d\n", tmp[2], tmp[3], rank);
+					//fprintf(STD_OUT, "Guessing Row %d Col %d Rank %d\n", tmp[2], tmp[3], rank);
 				}
 				else
 				{
@@ -531,25 +547,25 @@ void PrintMatrix(HPL_T_grid* GRID, HPL_T_pmat* A)
 			}
 			else if (tmp[2] == GRID->myrow && tmp[3] == GRID->mycol)
 			{
-				//fprintf(stderr, "Row %d Col %d Rank %d\n", tmp[2], tmp[3], GRID->iam);
+				//fprintf(STD_OUT, "Row %d Col %d Rank %d\n", tmp[2], tmp[3], GRID->iam);
 				*((double*) (tmp+4)) = A->A[tmp[1] * A->ld + tmp[0]];
 				MPI_Send(tmp, 6, MPI_INT, 0, i * A->n + j, GRID->all_comm);
 			}
 			if (GRID->iam == 0)
 			{
-				//fprintf(stderr, "i %d j %d Row %d Col %d II %d JJ %d entry %lf\n", i, j, tmp[2], tmp[3], tmp[0], tmp[1], *((double*) (tmp+4)));
-				fprintf(stderr, "%lf\t", *((double*) (tmp+4)));
+				//fprintf(STD_OUT, "i %d j %d Row %d Col %d II %d JJ %d entry %lf\n", i, j, tmp[2], tmp[3], tmp[0], tmp[1], *((double*) (tmp+4)));
+				fprintf(STD_OUT, "%lf\t", *((double*) (tmp+4)));
 			}
 		}
-		if (GRID->iam == 0) fprintf(stderr, "\n");
+		if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 	}
-	if (GRID->iam == 0) fprintf(stderr, "\n");
+	if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 }
 
 void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
 	//Currently only works with P=1 (probably)
-	if (GRID->iam == 0) fprintf(stderr, "\n");
+	if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 	double* buffer = malloc(A->n * sizeof(double));
 	for (int i = 0;i < GRID->npcol;i++)
 	{
@@ -568,15 +584,15 @@ void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 				MPI_Send(A->X, A->n, MPI_DOUBLE, 0, 0, GRID->all_comm);
 			}
 		}
-		if (GRID->iam == 0) fprintf(stderr, "Rank %d:\t", i);
+		if (GRID->iam == 0) fprintf(STD_OUT, "Rank %d:\t", i);
 		for (int j = 0;j < A->n;j++)
 		{
-			if (GRID->iam == 0) fprintf(stderr, "%lf\t", buffer[j]);
+			if (GRID->iam == 0) fprintf(STD_OUT, "%lf\t", buffer[j]);
 		}
-		if (GRID->iam == 0) fprintf(stderr, "\n");
+		if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 	}
 	free(buffer);
-	if (GRID->iam == 0) fprintf(stderr, "\n");
+	if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 }
 
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
@@ -634,7 +650,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	startrow -= startrow % (npcol * nb);
 	if( GRID->myrow == 0 && GRID->mycol == 0 )
 	{
-	    fprintf(stderr, "Starting at col %d which corresponds to approx %2.1lf %% of execution time\n", startrow, 100.0 * (double) (N - startrow) * (double) (N - startrow) * (double) (N - startrow) / (double) N / (double) N / (double) N);
+	    fprintf(STD_OUT, "Starting at col %d which corresponds to approx %2.1lf %% of execution time\n", startrow, 100.0 * (double) (N - startrow) * (double) (N - startrow) * (double) (N - startrow) / (double) N / (double) N / (double) N);
 	}
 #else
 	const int startrow = 0;
@@ -656,9 +672,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 #endif
 		jb = Mmin(n, nb);
 #ifdef HPL_DETAILED_TIMING
-		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d Totaltime=%2.3lf\n", j, N, n, jb, HPL_ptimer_inquire( HPL_WALL_PTIME, HPL_TIMING_ITERATION ));
+		fprintfct(STD_OUT, "Iteration j=%d N=%d n=%d jb=%d Totaltime=%2.3lf\n", j, N, n, jb, HPL_ptimer_inquire( HPL_WALL_PTIME, HPL_TIMING_ITERATION ));
 #else
-		fprintfct(stderr, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
+		fprintfct(STD_OUT, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
 #endif
 
 #if defined(HPL_PRINT_INTERMEDIATE) & !defined(HPL_PAUSE)
