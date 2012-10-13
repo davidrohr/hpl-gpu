@@ -234,6 +234,8 @@ void HPL_pdinfo
    char                       * lineptr;
    int                        error=0, fid, i, j, lwork, maxp, nprocs,
                               rank, size;
+
+   char                       output_buffer[16384];
 /* ..
  * .. Executable Statements ..
  */
@@ -801,298 +803,314 @@ label_error:
 /*
  * Problem size
  */
-      HPL_fprintf( TEST->outfp,       "\nN      :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nN      :" );
       for( i = 0; i < Mmin( 8, *NS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", N[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", N[i]  );
       if( *NS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", N[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", N[i]  );
          if( *NS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", N[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", N[i]  );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Distribution blocking factor
  */
-      HPL_fprintf( TEST->outfp,       "\nNB     :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nNB     :" );
       for( i = 0; i < Mmin( 8, *NBS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", NB[i] );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", NB[i] );
       if( *NBS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NBS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", NB[i] );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", NB[i] );
          if( *NBS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NBS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", NB[i] );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", NB[i] );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Process mapping
  */
-      HPL_fprintf( TEST->outfp,       "\nPMAP   :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nPMAP   :" );
       if(      *PMAPPIN == HPL_ROW_MAJOR    )
-         HPL_fprintf( TEST->outfp, " Row-major process mapping" );
+         sprintf( output_buffer + strlen(output_buffer), " Row-major process mapping" );
       else if( *PMAPPIN == HPL_COLUMN_MAJOR )
-         HPL_fprintf( TEST->outfp, " Column-major process mapping" );
+         sprintf( output_buffer + strlen(output_buffer), " Column-major process mapping" );
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Process grid
  */
-      HPL_fprintf( TEST->outfp,       "\nP      :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nP      :" );
       for( i = 0; i < Mmin( 8, *NPQS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", P[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", P[i]  );
       if( *NPQS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NPQS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", P[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", P[i]  );
          if( *NPQS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NPQS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", P[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", P[i]  );
          }
       }
-      HPL_fprintf( TEST->outfp,       "\nQ      :" );
+      sprintf( output_buffer + strlen(output_buffer),       "\nQ      :" );
       for( i = 0; i < Mmin( 8, *NPQS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", Q[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", Q[i]  );
       if( *NPQS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NPQS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", Q[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", Q[i]  );
          if( *NPQS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NPQS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", Q[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", Q[i]  );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Panel Factorization
  */
-      HPL_fprintf( TEST->outfp,       "\nPFACT  :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nPFACT  :" );
       for( i = 0; i < Mmin( 8, *NPFS ); i++ )
       {
          if(      PF[i] == HPL_LEFT_LOOKING  )
-            HPL_fprintf( TEST->outfp,       "    Left " );
+            sprintf( output_buffer + strlen(output_buffer),       "    Left " );
          else if( PF[i] == HPL_CROUT         )
-            HPL_fprintf( TEST->outfp,       "   Crout " );
+            sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
          else if( PF[i] == HPL_RIGHT_LOOKING )
-            HPL_fprintf( TEST->outfp,       "   Right " );
+            sprintf( output_buffer + strlen(output_buffer),       "   Right " );
       }
       if( *NPFS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NPFS ); i++ )
          {
             if(      PF[i] == HPL_LEFT_LOOKING  )
-               HPL_fprintf( TEST->outfp,       "    Left " );
+               sprintf( output_buffer + strlen(output_buffer),       "    Left " );
             else if( PF[i] == HPL_CROUT         )
-               HPL_fprintf( TEST->outfp,       "   Crout " );
+               sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
             else if( PF[i] == HPL_RIGHT_LOOKING )
-               HPL_fprintf( TEST->outfp,       "   Right " );
+               sprintf( output_buffer + strlen(output_buffer),       "   Right " );
          }
          if( *NPFS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NPFS; i++ )
             {
                if(      PF[i] == HPL_LEFT_LOOKING  )
-                  HPL_fprintf( TEST->outfp,       "    Left " );
+                  sprintf( output_buffer + strlen(output_buffer),       "    Left " );
                else if( PF[i] == HPL_CROUT         )
-                  HPL_fprintf( TEST->outfp,       "   Crout " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
                else if( PF[i] == HPL_RIGHT_LOOKING )
-                  HPL_fprintf( TEST->outfp,       "   Right " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   Right " );
             }
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Recursive stopping criterium
  */
-      HPL_fprintf( TEST->outfp,       "\nNBMIN  :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nNBMIN  :" );
       for( i = 0; i < Mmin( 8, *NBMS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", NBM[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", NBM[i]  );
       if( *NBMS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NBMS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", NBM[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", NBM[i]  );
          if( *NBMS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NBMS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", NBM[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", NBM[i]  );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Number of panels in recursion
  */
-      HPL_fprintf( TEST->outfp,       "\nNDIV   :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nNDIV   :" );
       for( i = 0; i < Mmin( 8, *NDVS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", NDV[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", NDV[i]  );
       if( *NDVS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NDVS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", NDV[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", NDV[i]  );
          if( *NDVS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NDVS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", NDV[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", NDV[i]  );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Recursive Factorization
  */
-      HPL_fprintf( TEST->outfp,       "\nRFACT  :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nRFACT  :" );
       for( i = 0; i < Mmin( 8, *NRFS ); i++ )
       {
          if(      RF[i] == HPL_LEFT_LOOKING  )
-            HPL_fprintf( TEST->outfp,       "    Left " );
+            sprintf( output_buffer + strlen(output_buffer),       "    Left " );
          else if( RF[i] == HPL_CROUT         )
-            HPL_fprintf( TEST->outfp,       "   Crout " );
+            sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
          else if( RF[i] == HPL_RIGHT_LOOKING )
-            HPL_fprintf( TEST->outfp,       "   Right " );
+            sprintf( output_buffer + strlen(output_buffer),       "   Right " );
       }
       if( *NRFS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NRFS ); i++ )
          {
             if(      RF[i] == HPL_LEFT_LOOKING  )
-               HPL_fprintf( TEST->outfp,       "    Left " );
+               sprintf( output_buffer + strlen(output_buffer),       "    Left " );
             else if( RF[i] == HPL_CROUT         )
-               HPL_fprintf( TEST->outfp,       "   Crout " );
+               sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
             else if( RF[i] == HPL_RIGHT_LOOKING )
-               HPL_fprintf( TEST->outfp,       "   Right " );
+               sprintf( output_buffer + strlen(output_buffer),       "   Right " );
          }
          if( *NRFS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NRFS; i++ )
             {
                if(      RF[i] == HPL_LEFT_LOOKING  )
-                  HPL_fprintf( TEST->outfp,       "    Left " );
+                  sprintf( output_buffer + strlen(output_buffer),       "    Left " );
                else if( RF[i] == HPL_CROUT         )
-                  HPL_fprintf( TEST->outfp,       "   Crout " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   Crout " );
                else if( RF[i] == HPL_RIGHT_LOOKING )
-                  HPL_fprintf( TEST->outfp,       "   Right " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   Right " );
             }
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Broadcast topology
  */
-      HPL_fprintf( TEST->outfp,       "\nBCAST  :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nBCAST  :" );
       for( i = 0; i < Mmin( 8, *NTPS ); i++ )
       {
          if(      TP[i] == HPL_1RING   )
-            HPL_fprintf( TEST->outfp,       "   1ring " );
+            sprintf( output_buffer + strlen(output_buffer),       "   1ring " );
          else if( TP[i] == HPL_1RING_M )
-            HPL_fprintf( TEST->outfp,       "  1ringM " );
+            sprintf( output_buffer + strlen(output_buffer),       "  1ringM " );
          else if( TP[i] == HPL_2RING   )
-            HPL_fprintf( TEST->outfp,       "   2ring " );
+            sprintf( output_buffer + strlen(output_buffer),       "   2ring " );
          else if( TP[i] == HPL_2RING_M )
-            HPL_fprintf( TEST->outfp,       "  2ringM " );
+            sprintf( output_buffer + strlen(output_buffer),       "  2ringM " );
          else if( TP[i] == HPL_BLONG   )
-            HPL_fprintf( TEST->outfp,       "   Blong " );
+            sprintf( output_buffer + strlen(output_buffer),       "   Blong " );
          else if( TP[i] == HPL_BLONG_M )
-            HPL_fprintf( TEST->outfp,       "  BlongM " );
+            sprintf( output_buffer + strlen(output_buffer),       "  BlongM " );
          else if( TP[i] == HPL_MPI_BCAST )
-            HPL_fprintf( TEST->outfp,       "     MPI " );
+            sprintf( output_buffer + strlen(output_buffer),       "     MPI " );
       }
       if( *NTPS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NTPS ); i++ )
          {
             if(      TP[i] == HPL_1RING   )
-               HPL_fprintf( TEST->outfp,       "   1ring " );
+               sprintf( output_buffer + strlen(output_buffer),       "   1ring " );
             else if( TP[i] == HPL_1RING_M )
-               HPL_fprintf( TEST->outfp,       "  1ringM " );
+               sprintf( output_buffer + strlen(output_buffer),       "  1ringM " );
             else if( TP[i] == HPL_2RING   )
-               HPL_fprintf( TEST->outfp,       "   2ring " );
+               sprintf( output_buffer + strlen(output_buffer),       "   2ring " );
             else if( TP[i] == HPL_2RING_M )
-               HPL_fprintf( TEST->outfp,       "  2ringM " );
+               sprintf( output_buffer + strlen(output_buffer),       "  2ringM " );
             else if( TP[i] == HPL_BLONG   )
-               HPL_fprintf( TEST->outfp,       "   Blong " );
+               sprintf( output_buffer + strlen(output_buffer),       "   Blong " );
             else if( TP[i] == HPL_BLONG_M )
-               HPL_fprintf( TEST->outfp,       "  BlongM " );
+               sprintf( output_buffer + strlen(output_buffer),       "  BlongM " );
             else if( TP[i] == HPL_MPI_BCAST )
-               HPL_fprintf( TEST->outfp,       "     MPI " );
+               sprintf( output_buffer + strlen(output_buffer),       "     MPI " );
          }
          if( *NTPS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NTPS; i++ )
             {
                if(      TP[i] == HPL_1RING   )
-                  HPL_fprintf( TEST->outfp,       "   1ring " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   1ring " );
                else if( TP[i] == HPL_1RING_M )
-                  HPL_fprintf( TEST->outfp,       "  1ringM " );
+                  sprintf( output_buffer + strlen(output_buffer),       "  1ringM " );
                else if( TP[i] == HPL_2RING   )
-                  HPL_fprintf( TEST->outfp,       "   2ring " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   2ring " );
                else if( TP[i] == HPL_2RING_M )
-                  HPL_fprintf( TEST->outfp,       "  2ringM " );
+                  sprintf( output_buffer + strlen(output_buffer),       "  2ringM " );
                else if( TP[i] == HPL_BLONG   )
-                  HPL_fprintf( TEST->outfp,       "   Blong " );
+                  sprintf( output_buffer + strlen(output_buffer),       "   Blong " );
                else if( TP[i] == HPL_BLONG_M )
-                  HPL_fprintf( TEST->outfp,       "  BlongM " );
+                  sprintf( output_buffer + strlen(output_buffer),       "  BlongM " );
                else if( TP[i] == HPL_MPI_BCAST )
-                  HPL_fprintf( TEST->outfp,       "     MPI " );
+                  sprintf( output_buffer + strlen(output_buffer),       "     MPI " );
             }
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Lookahead depths
  */
-      HPL_fprintf( TEST->outfp,       "\nDEPTH  :" );
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nDEPTH  :" );
       for( i = 0; i < Mmin( 8, *NDHS ); i++ )
-         HPL_fprintf( TEST->outfp,       "%8d ", DH[i]  );
+         sprintf( output_buffer + strlen(output_buffer),       "%8d ", DH[i]  );
       if( *NDHS > 8 )
       {
-         HPL_fprintf( TEST->outfp,    "\n        " );
+         sprintf( output_buffer + strlen(output_buffer),    "\n        " );
          for( i = 8; i < Mmin( 16, *NDHS ); i++ )
-            HPL_fprintf( TEST->outfp,    "%8d ", DH[i]  );
+            sprintf( output_buffer + strlen(output_buffer),    "%8d ", DH[i]  );
          if( *NDHS > 16 )
          {
-            HPL_fprintf( TEST->outfp, "\n        " );
+            sprintf( output_buffer + strlen(output_buffer), "\n        " );
             for( i = 16; i < *NDHS; i++ )
-               HPL_fprintf( TEST->outfp, "%8d ", DH[i]  );
+               sprintf( output_buffer + strlen(output_buffer), "%8d ", DH[i]  );
          }
       }
+      HPL_fprintf( TEST->outfp, "%s", output_buffer );
 /*
  * Swapping algorithm
  */
-      HPL_fprintf( TEST->outfp,       "\nSWAP   :" );
-      HPL_fprintf( TEST->outfp, " Spread-roll (long)" );
+      HPL_fprintf( TEST->outfp,       "\nSWAP   : Spread-roll (long)" );
 /*
  * L1 storage form
  */
-      HPL_fprintf( TEST->outfp,       "\nL1     :" );
-      HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp,       "\nL1     : transposed form" );
 /*
  * U  storage form
  */
-      HPL_fprintf( TEST->outfp,       "\nU      :" );
-      HPL_fprintf( TEST->outfp, " transposed form" );
+      HPL_fprintf( TEST->outfp,       "\nU      : transposed form" );
 /*
  * Equilibration
  */
-      HPL_fprintf( TEST->outfp,       "\nEQUIL  :" );
 #ifndef NO_EQUILIBRATION
-      HPL_fprintf( TEST->outfp, " yes" );
+      HPL_fprintf( TEST->outfp,       "\nEQUIL  : yes" );
 #else
-      HPL_fprintf( TEST->outfp, " no" );
+      HPL_fprintf( TEST->outfp,       "\nEQUIL  : no" );
 #endif
 /*
  * Alignment
@@ -1108,12 +1126,17 @@ label_error:
 /*
  * Config Options
  */
-      HPL_fprintf( TEST->outfp,       "\nConfig : ");
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nConfig : ");
 #include "hpl_config_option_list.h"
+      fprintf( TEST->outfp, "%s", output_buffer );
 #ifdef HPL_CALL_CALDGEMM
-      HPL_fprintf( TEST->outfp,       "\nCALDGEM: ");
+
+      output_buffer[0] = 0;
+      sprintf( output_buffer + strlen(output_buffer),       "\nCALDGEM: ");
 #include "caldgemm_config_option_list.h"
 #endif
+      fprintf( TEST->outfp, "%s", output_buffer );
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*
  * For testing only

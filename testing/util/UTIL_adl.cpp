@@ -21,7 +21,13 @@
 
 #include <stdio.h>
 
+#ifndef MAINPROG
 #include "util_adl.h"
+#endif
+
+#ifndef STD_OUT
+#define STD_OUT stdout
+#endif
 
 // Definitions of the used function pointers. Add more if you use other ADL APIs
 typedef int ( *ADL_MAIN_CONTROL_CREATE )(ADL_MAIN_MALLOC_CALLBACK, int );
@@ -30,6 +36,8 @@ typedef int ( *ADL_ADAPTER_NUMBEROFADAPTERS_GET ) ( int* );
 typedef int ( *ADL_ADAPTER_ADAPTERINFO_GET ) ( LPAdapterInfo, int );
 typedef int ( *ADL_OVERDRIVE5_TEMPERATURE_GET ) ( int, int , ADLTemperature * );
 typedef int ( *ADL_ADAPTER_ACTIVE_GET ) ( int, int* );
+typedef int ( *ADL_ADAPTER_VIDEOBIOSINFO_GET ) ( int, ADLBiosInfo* );
+typedef int ( *ADL_ADAPTER_ID_GET) ( int, int* );
 
 // Memory allocation function
 void* __stdcall ADL_Main_Memory_Alloc ( int iSize )
@@ -43,7 +51,9 @@ ADL_MAIN_CONTROL_DESTROY         ADL_Main_Control_Destroy;
 ADL_ADAPTER_NUMBEROFADAPTERS_GET ADL_Adapter_NumberOfAdapters_Get;
 ADL_ADAPTER_ADAPTERINFO_GET      ADL_Adapter_AdapterInfo_Get;
 ADL_OVERDRIVE5_TEMPERATURE_GET   ADL_Overdrive5_Temperature_Get;
-ADL_ADAPTER_ACTIVE_GET   ADL_Adapter_Active_Get;
+ADL_ADAPTER_ACTIVE_GET           ADL_Adapter_Active_Get;
+ADL_ADAPTER_VIDEOBIOSINFO_GET    ADL_Adapter_VideoBiosInfo_Get;
+ADL_ADAPTER_ID_GET               ADL_Adapter_ID_Get;
 
 int nAdapters;
 int* nAdapterIndizes;
@@ -55,6 +65,8 @@ int adl_temperature_check_init()
 	
     LPAdapterInfo     lpAdapterInfo = NULL;
     int  iNumberAdapters;
+    
+    setenv("DISPLAY", ":0", 1);
 
     hDLL = dlopen( "libatiadlxx.so", RTLD_LAZY|RTLD_GLOBAL);
 
@@ -70,26 +82,30 @@ int adl_temperature_check_init()
         ADL_Adapter_AdapterInfo_Get = (ADL_ADAPTER_ADAPTERINFO_GET) (size_t) dlsym(hDLL,"ADL_Adapter_AdapterInfo_Get");
         ADL_Overdrive5_Temperature_Get = (ADL_OVERDRIVE5_TEMPERATURE_GET) (size_t) dlsym(hDLL,"ADL_Overdrive5_Temperature_Get");
         ADL_Adapter_Active_Get = (ADL_ADAPTER_ACTIVE_GET) (size_t) dlsym(hDLL,"ADL_Adapter_Active_Get");
-		if ( NULL == ADL_Main_Control_Create || NULL == ADL_Main_Control_Destroy || NULL == ADL_Adapter_NumberOfAdapters_Get || NULL == ADL_Adapter_AdapterInfo_Get || NULL == ADL_Overdrive5_Temperature_Get || NULL == ADL_Adapter_Active_Get)
+        ADL_Adapter_VideoBiosInfo_Get = (ADL_ADAPTER_VIDEOBIOSINFO_GET) (size_t) dlsym(hDLL, "ADL_Adapter_VideoBiosInfo_Get");
+        ADL_Adapter_ID_Get = (ADL_ADAPTER_ID_GET) (size_t) dlsym(hDLL, "ADL_Adapter_ID_Get");
+        
+        
+		if ( NULL == ADL_Main_Control_Create || NULL == ADL_Main_Control_Destroy || NULL == ADL_Adapter_NumberOfAdapters_Get || NULL == ADL_Adapter_AdapterInfo_Get || NULL == ADL_Overdrive5_Temperature_Get || NULL == ADL_Adapter_Active_Get || NULL == ADL_Adapter_VideoBiosInfo_Get || NULL == ADL_Adapter_ID_Get)
 		{
-	       printf("ADL's API is missing!\n");
-		   return 0;
+			printf("ADL's API is missing!\n");
+			return 0;
 		}
 
         // Initialize ADL. The second parameter is 1, which means:
         // retrieve adapter information only for adapters that are physically present and enabled in the system
         if ( ADL_OK != ADL_Main_Control_Create (ADL_Main_Memory_Alloc, 1) )
-		{
-	       printf("ADL Initialization Error!\n");
-		   return 0;
-		}
+	{
+		printf("ADL Initialization Error!\n");
+		return 0;
+	}
 
         // Obtain the number of adapters for the system
         if ( ADL_OK != ADL_Adapter_NumberOfAdapters_Get ( &iNumberAdapters ) )
-		{
-	       printf("Cannot get the number of adapters!\n");
-		   return 0;
-		}
+	{
+		printf("Cannot get the number of adapters!\n");
+		return 0;
+	}
 		
 	if (iNumberAdapters == 0)
 	{
@@ -117,7 +133,17 @@ int adl_temperature_check_init()
 			}
 			if (status == ADL_TRUE)
 			{
-				if (j) nAdapterIndizes[nAdapters] = lpAdapterInfo[i].iAdapterIndex;
+				if (j)
+				{
+					nAdapterIndizes[nAdapters] = lpAdapterInfo[i].iAdapterIndex;
+#ifdef VERBOSE
+					ADLBiosInfo biosInfo;
+					ADL_Adapter_VideoBiosInfo_Get(nAdapterIndizes[nAdapters], &biosInfo);
+					int UID;
+					ADL_Adapter_ID_Get(nAdapterIndizes[nAdapters], &UID);
+					printf("Adapter %d Info: Bios %s %s %s, UID %d\n", nAdapters, biosInfo.strPartNumber, biosInfo.strVersion, biosInfo.strDate, UID);
+#endif
+				}
 				nAdapters++;
 			}
 		}
@@ -130,7 +156,8 @@ int adl_temperature_check_init()
 int adl_temperature_check_run(double* max_temperature, int verbose)
 {
 	*max_temperature = 0.;
-	if (verbose) printf("Temperatures:");
+	char tmpbuffer[128];
+	if (verbose) strcpy(tmpbuffer, "Temperatures:");
 	for (int i = 0;i < nAdapters;i++)
 	{
 		ADLTemperature temp;
@@ -141,10 +168,10 @@ int adl_temperature_check_run(double* max_temperature, int verbose)
 			return(1);
 		}
 		const double temperature = temp.iTemperature / 1000.;
-		if (verbose) printf(" %f", temperature);
+		if (verbose) sprintf(tmpbuffer + strlen(tmpbuffer), " %f", temperature);
 		if (temperature > *max_temperature) *max_temperature = temperature;
         }
-        if (verbose) printf("\n");
+        if (verbose) fprintf(STD_OUT, "%s\n", tmpbuffer);
         return(0);
 }
 

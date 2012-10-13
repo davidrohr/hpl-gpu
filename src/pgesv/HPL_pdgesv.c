@@ -699,7 +699,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 				uint64_t eta = (seconds / ratio - seconds) * modifier;
 				uint64_t wall_now = util_getWalltime() / 1e3;
 				//printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
-				printf( "[%ld] %.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", wall_now, ratio * 100, j, N, flops, eta );
+				HPL_fprintf( STD_OUT, "[%ld] %.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", wall_now, ratio * 100, j, N, flops, eta );
 			}
 		}
 #endif /* HPL_PRINT_INTERMEDIATE */
@@ -752,7 +752,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 
 #ifdef HPL_PAUSE
 		HPL_ptimer( 0 );
-		printf("HPL_PAUSE: Sleeping for %d usec\n", HPL_PAUSE * n);
+		fprintf(STD_OUT, "HPL_PAUSE: Sleeping for %d usec\n", HPL_PAUSE * n);
 		usleep(HPL_PAUSE * n);
 		HPL_ptimer( 0 );
 #endif
