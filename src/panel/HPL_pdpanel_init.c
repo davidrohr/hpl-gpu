@@ -221,7 +221,7 @@ START_TRACE( PDPANEL_INIT )
 		if (PANEL->WORK)
 		{
 			 CALDGEMM_free(PANEL->WORK);
-			 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 		}
 		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
 		{
@@ -263,7 +263,7 @@ START_TRACE( PDPANEL_INIT )
 		if (PANEL->WORK)
 		{
 			 CALDGEMM_free(PANEL->WORK);
-			 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 		}
     		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
     		{
@@ -348,7 +348,7 @@ START_TRACE( PDPANEL_INIT )
      if (PANEL->IWORK)
 	 {
 		 CALDGEMM_free(PANEL->IWORK);
-		 fprintf(stderr, "WARNING, reallocating Panel memory\n");
+		 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 	 }
          PANEL->IWORK = (int *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( int ) );
 	 PANEL->memallocI = lwork;
