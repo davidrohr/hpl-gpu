@@ -135,12 +135,14 @@ namespace
 			CPU_SET(i, &fullMask);
 		}
 		num_threads = CPU_COUNT(&fullMask);
+#ifdef CALDGEMM_TEST
 		printf("Using %d threads for LASWP ( ", num_threads);
 		for (int i = 0;i < num_procs;i++)
 		{
 			if (CPU_ISSET(i, &fullMask)) printf("%d ", i);
 		}
 		printf(")\n");
+#endif
 
 #endif
 		sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);

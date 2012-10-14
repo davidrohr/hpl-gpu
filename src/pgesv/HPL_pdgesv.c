@@ -480,7 +480,11 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
+#ifdef CALDGEMM_TEST
 		if (adl_temperature_check_run(&temperature, 1))
+#else
+		if (adl_temperature_check_run(&temperature, 0))
+#endif
 		{
 			fprintf(STD_OUT, "Error running temperature check\n");
 			exit(1);
