@@ -137,10 +137,10 @@ int HPL_CALDGEMM_wrapper_n = -1;
 #ifndef NO_EQUILIBRATION
 #define HPL_PDGESV_U_BCAST_EQUIL \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
-	HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork ); \
+	int* iplenmod = HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork ) ? iwork : iplen; \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 #else
-#define HPL_PDGESV_U_BCAST_EQUIL
+#define HPL_PDGESV_U_BCAST_EQUIL const int* iplenmod = iplen;
 #endif
 
 #define HPL_PDGESV_U_BCAST \
@@ -164,7 +164,7 @@ int HPL_CALDGEMM_wrapper_n = -1;
 	} \
 	HPL_PDGESV_U_BCAST_EQUIL \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
-	HPL_rollT( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1 ); \
+	HPL_rollT( panel, nn, U + i, LDU, iplenmod, ipmap, ipmapm1 ); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 	
 #ifdef HPL_SLOW_CPU
@@ -251,20 +251,11 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		lindxAU = lindxA + k; iplen = lindxAU + k; ipmap = iplen + nprow + 1;
 		ipmapm1 = ipmap + nprow; permU = ipmapm1 + nprow; iwork = permU + jb;
 
-		if (__builtin_expect(*iflag, 1) == 1)
-		{
-#ifndef NO_EQUILIBRATION
-			//we were called before: only re-compute IPLEN, IPMAP 
-			HPL_plindx10( panel, *ipl, ipID, iplen, ipmap, ipmapm1 );
-#endif
-		}
-		else
-		{ // no index arrays have been computed so far
-			HPL_pipid(   panel,  ipl, ipID );
-			HPL_plindx1( panel, *ipl, ipID, ipA, lindxA, lindxAU, iplen,
-				ipmap, ipmapm1, permU, iwork );
-			*iflag = 1;
-		}
+		// compute index arrays
+		HPL_pipid(   panel,  ipl, ipID );
+		HPL_plindx1( panel, *ipl, ipID, ipA, lindxA, lindxAU, iplen, ipmap, ipmapm1, permU, iwork );
+		*iflag = 1;		//signal that index array is calculated, not sure if this is needed anymore but anyway...
+		
 #ifndef HPL_LOOKAHEAD_2B
 		{
 			const int i = 0;
@@ -329,7 +320,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
 	}
-
+free(tmp);
 	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
 #ifdef HPL_ASYNC_DLATCPY

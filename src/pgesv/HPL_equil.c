@@ -60,7 +60,7 @@
  */
 #include "hpl.h"
 
-void HPL_equil
+int HPL_equil
 (
    HPL_T_panel *                    PANEL,
    const int                        N,
@@ -130,7 +130,7 @@ void HPL_equil
 /* ..
  * .. Executable Statements ..
  */
-   if( ( npm1 = ( nprow = PANEL->grid->nprow ) - 1 ) <= 1 ) return;
+   if( ( npm1 = ( nprow = PANEL->grid->nprow ) - 1 ) <= 1 ) return(0);
 /*
  * If the current distribution of the pieces of U is already optimal for
  * the rolling phase, then return imediately.  The  optimal distribution
@@ -147,7 +147,7 @@ void HPL_equil
       ll = IPLEN[iprow+1] - IPLEN[iprow]; iprow++;
    } while( ( iprow < nprow ) && ( ( ll == smin ) || ( ll == smax ) ) );
 
-   if( iprow == nprow ) return;
+   if( iprow == nprow ) return(0);
 /*
  * Now,  we are sure  the distribution of the pieces of U is not optimal
  * with respect to the rolling phase,  thus  perform  equilibration.  Go
@@ -204,7 +204,10 @@ void HPL_equil
  * Finally update  IPLEN  with the indexes corresponding to the new dis-
  * tribution of U - IPLEN[nprow] remained unchanged.
  */
-   for( i = 0; i < nprow; i++ ) IPLEN[i] = ( i < ip ? i*smax : i*smin + ip );
+   //Store updated iplen to iwork which will be used by following calls to spreadT, this way iplen is conserved for the next equip iteration in the pipeline
+   for( i = 0; i < nprow; i++ ) IWORK[i] = ( i < ip ? i*smax : i*smin + ip );
+   IWORK[nprow] = IPLEN[nprow];
+   return(1);
 /*
  * End of HPL_equil
  */
