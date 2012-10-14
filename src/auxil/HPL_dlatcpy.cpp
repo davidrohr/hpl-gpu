@@ -58,6 +58,9 @@
 /*
  * Include files
  */
+#ifndef STD_OUT
+#define STD_OUT stdout
+#endif
 #include "util_trace.h"
 
 #include "../pauxil/helpers.h"
@@ -259,6 +262,11 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
 
    if ( _M <= 0 || _N <= 0 ) {
       return;
+   }
+   if ((_LDA & 1) || (_LDB & 1))
+   {
+      fprintf(STD_OUT, "ERROR: Uneven leading dimension not supported by dlatcpy\n");
+      exit(1);
    }
 
    const size_t M = _M;

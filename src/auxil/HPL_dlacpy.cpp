@@ -58,6 +58,9 @@
 /*
  * Include files
  */
+#ifndef STD_OUT
+#define STD_OUT stdout
+#endif
 #include "util_trace.h"
 
 #include "../pauxil/helpers.h"
@@ -146,6 +149,12 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
    if ( _M <= 0 || _N <= 0 ) {
 	  return;
    }
+   
+   if ((_LDA & 1) || (_LDB & 1))
+   {
+      fprintf(STD_OUT, "ERROR: Uneven leading dimension not supported by dlacpy\n");
+      exit(1);
+   }
 
    const size_t M = _M;
    size_t MM = M & ~7;
@@ -158,7 +167,7 @@ extern "C" void HPL_dlacpy(const int _M, const int _N, const double *A, const in
    if (LDA & 1 || LDB & 1 || ((size_t) A) & 15 || ((size_t) B) & 15)
    {
     MM = 0;
-    printf("WARNING, parameters unaligned, using slow copy routing LDA %lld LDB %lld A %lld B %lld\n", (long long int) LDA, (long long int) LDB, (long long int) (size_t) A, (long long int) (size_t) B);
+    fprintf(STD_OUT, "WARNING, parameters unaligned, using slow copy routing LDA %lld LDB %lld A %lld B %lld\n", (long long int) LDA, (long long int) LDB, (long long int) (size_t) A, (long long int) (size_t) B);
     goto Unaligned;
    }
    else if (multithread)

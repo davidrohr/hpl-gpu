@@ -133,7 +133,6 @@ int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
 #endif
 
-int dtrtri_(char *, char *, int *, double *, int *, int *);
 
 #ifndef NO_EQUILIBRATION
 #define HPL_PDGESV_U_BCAST_EQUIL \
@@ -167,6 +166,41 @@ int dtrtri_(char *, char *, int *, double *, int *, int *);
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
 	HPL_rollT( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1 ); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
+	
+#ifdef HPL_SLOW_CPU
+int dtrtri_(char *, char *, int *, double *, int *, int *);
+
+inline void HPL_dtrsm_GPUMOD(int jb, int nn, double* L1ptr, double* Uptr, size_t LDU, int i)
+{
+	int tmp_lda = jb;
+	if (tmp_lda % 8) tmp_lda += (8 - tmp_lda % 8);
+	if (((tmp_lda / 8) & 1) == 0) tmp_lda += 8;
+	int tmp_ldb = jb;
+	if (tmp_ldb % 8) tmp_ldb += (8 - tmp_ldb % 8);
+	if (((tmp_ldb / 8) & 1) == 0) tmp_ldb += 8;
+	
+	double* tmpa = (double*) malloc(sizeof(double) * jb * tmp_lda);
+	double* tmpb = (double*) malloc(sizeof(double) * nn * tmp_ldb);
+	HPL_dlacpy(jb, jb, L1ptr, jb, tmpa, tmp_lda, 1);
+	HPL_dlacpy(jb, nn, Uptr + i * LDU, LDU, tmpb, tmp_ldb, 1);
+
+	int ii,jj;
+
+	for (ii = 0;ii < jb;ii++)
+	{
+		tmpa[ii * (tmp_lda + 1)] = 1.;
+		for (jj = ii + 1;jj < jb;jj++)
+		{
+			tmpa[ii * tmp_lda + jj] = 0;
+		}
+	}
+	int tmp;
+	dtrtri_("U", "U", &jb, tmpa, &tmp_lda, &tmp);
+	HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU, 0);
+	free(tmpa);
+	free(tmpb);
+}
+#endif
 
 void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 {
@@ -278,33 +312,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 #ifdef HPL_SLOW_CPU
 			if (nn > 2 * jb)
 			{
-				int tmp_lda = jb;
-				if (tmp_lda % 8) tmp_lda += (8 - tmp_lda % 8);
-				if (((tmp_lda / 8) & 1) == 0) tmp_lda += 8;
-				int tmp_ldb = jb;
-				if (tmp_ldb % 8) tmp_ldb += (8 - tmp_ldb % 8);
-				if (((tmp_ldb / 8) & 1) == 0) tmp_ldb += 8;
-				
-				double* tmpa = (double*) malloc(sizeof(double) * jb * tmp_lda);
-				double* tmpb = (double*) malloc(sizeof(double) * nn * tmp_ldb);
-				HPL_dlacpy(jb, jb, L1ptr, jb, tmpa, tmp_lda, 1);
-				HPL_dlacpy(jb, nn, Uptr + i * LDU, LDU, tmpb, tmp_ldb, 1);
-			
-				int ii,jj;
-			
-				for (ii = 0;ii < jb;ii++)
-				{
-					tmpa[ii * (tmp_lda + 1)] = 1.;
-					for (jj = ii + 1;jj < jb;jj++)
-					{
-						tmpa[ii * tmp_lda + jj] = 0;
-					}
-				}
-				int tmp;
-				dtrtri_("U", "U", &jb, tmpa, &tmp_lda, &tmp);
-				HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU, 0);
-				free(tmpa);
-				free(tmpb);
+				HPL_dtrsm_GPUMOD(jb, nn, L1ptr, Uptr, LDU, i);
 			}
 			else
 #endif
