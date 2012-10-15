@@ -320,7 +320,6 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_CALDGEMM_swap_current_n = i + nn;
 #endif
 	}
-free(tmp);
 	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
 #ifdef HPL_ASYNC_DLATCPY
@@ -488,7 +487,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 			fprintf(STD_OUT, "Error running temperature check\n");
 			exit(1);
 		}
-		if (temperature >= HPL_GPU_TEMPERATURE_THRESHOLD)
+		if (temperature >= HPL_GPU_TEMPERATURE_THRESHOLD && temperature < 500)		//Sometimes Temperature=511 is falsely reported
 		{
 			fprintf(STD_OUT, "GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
 			exit(1);
