@@ -62,7 +62,7 @@
 #include "util_timer.h"
 #include "util_cal.h"
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
-#include "util_adl.h"
+#include "../../caldgemm/cmodules/util_adl.h"
 #endif
 #ifdef HPL_DETAILED_TIMING
 #include <sys/time.h>

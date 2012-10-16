@@ -63,7 +63,7 @@
 #include "util_cal.h"
 #include <sched.h>
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
-#include "util_adl.h"
+#include "../../caldgemm/cmodules/util_adl.h"
 #endif
 
 int HPL_init_laswp(void* ptr);
