@@ -217,21 +217,24 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		}
 	}
 
-	rowprev = Alrow;
-	Alrow = MModSub1(Alrow, nprow);
-	colprev = Alcol_process;
-	Alcol_matrix--;
-	Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
-	kbprev  = kb;
 	n -= kb;
-	n1 = HPL_n1(Alcol_matrix, nb, GRID);
-	tmp1 = n - (kb = nb);
-	tmp1 -= (tmp2 = Mmin(tmp1, n1));
-	MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
+	colprev = Alcol_process;
+	kbprev = kb;
+	rowprev = Alrow;
 
 // Start the operations
 	while(n > 0)
 	{
+		rowprev = Alrow;
+		Alrow = MModSub1(Alrow, nprow);
+		colprev = Alcol_process;
+		Alcol_matrix--;
+		Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
+		kbprev = kb;
+		n1 = HPL_n1(Alcol_matrix, nb, GRID);
+		tmp1 = n - (kb = nb);
+		tmp1 -= (tmp2 = Mmin(tmp1, n1));
+		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
 		if(mycol == Alcol_process)
 		{
 			Aptr -= lda * kb;
@@ -349,20 +352,8 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		{
 			Anpprev -= kb;
 		}
-		rowprev = Alrow;
-		colprev = Alcol_process;
-		n1pprev = n1p;
-		kbprev  = kb;
 		n -= kb;
-		Alrow = MModSub1(Alrow, nprow);
-		Alcol_matrix--;
-		if (Alcol_matrix >= 0) Alcol_process = MColBlockToPCol(Alcol_matrix, GRID);
-		n1 = HPL_n1(Alcol_matrix, nb, GRID);
-		
-		tmp1 = n - (kb = nb);
-		tmp1 -= (tmp2 = Mmin(tmp1, n1));
-		MnumrowI(n1p, tmp2, Mmax(0, tmp1), nb, myrow, nprow);
-
+		n1pprev = n1p;
 		Rmsgid = (Rmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid+2);
 		Cmsgid = (Cmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV+1 : Cmsgid+2);
 	}
