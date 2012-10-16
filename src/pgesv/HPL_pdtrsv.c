@@ -218,9 +218,6 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 	}
 
 	n -= kb;
-	colprev = Alcol_process;
-	kbprev = kb;
-	rowprev = Alrow;
 
 // Start the operations
 	while(n > 0)
@@ -352,11 +349,15 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 		{
 			Anpprev -= kb;
 		}
-		n -= kb;
 		n1pprev = n1p;
+		n -= kb;
 		Rmsgid = (Rmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV : Rmsgid+2);
 		Cmsgid = (Cmsgid+2 > MSGID_END_PTRSV ? MSGID_BEGIN_PTRSV+1 : Cmsgid+2);
 	}
+	rowprev = Alrow;
+	colprev = Alcol_process;
+	kbprev = kb;
+
 	//Replicate last solution block
 	if (mycol == colprev)
 	{

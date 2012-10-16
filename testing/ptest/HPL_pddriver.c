@@ -304,7 +304,6 @@ HPLinpack benchmark input file
    int mcols = (nval[in] + nbval[inb]) / nbval[inb];
    grid.col_mapping = (int*) malloc(mcols * sizeof(int));
    grid.mcols_per_pcol = (int*) malloc(npcol * sizeof(int));
-   
    if (rank == 0)
    {
       float* cols = malloc(npcol * sizeof(float));
