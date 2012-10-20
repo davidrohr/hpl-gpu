@@ -306,7 +306,8 @@ void HPL_pdtrsv(HPL_T_grid* GRID, HPL_T_pmat* AMAT)
 			//Finish the (decreasing-ring) broadcast of the solution block in previous process column
 			if((myrow != rowprev) && (myrow != MModAdd1(rowprev, nprow)))
 			{
-				(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
+				//(void) HPL_send(Xdprev, kbprev, MModSub1(myrow, nprow), Cmsgid, Ccomm);
+				MPI_Send(Xdprev, kbprev, MPI_DOUBLE, MModSub1(myrow, nprow), Cmsgid, Ccomm);
 			}
 		}
 		else if (mycol == Alcol_process)
