@@ -195,7 +195,7 @@ START_TRACE( SPREAD_T )
                      ierr =   MPI_Type_commit( &type );
                   }
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
+                     ierr =   MPI_Recv_Mod( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[npm1-partner], Cmsgid, comm,
                                         &status );
                   }
@@ -207,7 +207,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
+                     ierr =   MPI_Recv_Mod( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm, &status );
                   }
@@ -230,7 +230,7 @@ START_TRACE( SPREAD_T )
                      ierr =   MPI_Type_commit( &type );
                   }
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
+                     ierr =   MPI_Send_Mod( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[npm1-partner], Cmsgid, comm );
                   }
                   if( ierr == MPI_SUCCESS ) {
@@ -241,7 +241,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
+                     ierr =   MPI_Send_Mod( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[npm1-partner],
                                         Cmsgid, comm );
                   }
@@ -299,7 +299,7 @@ START_TRACE( SPREAD_T )
                      ierr =   MPI_Type_commit( &type );
                   }
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), 1, type,
+                     ierr =   MPI_Recv_Mod( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[SRCDIST+partner], Cmsgid,
                                         comm, &status );
                   }
@@ -311,7 +311,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Recv( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
+                     ierr =   MPI_Recv_Mod( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm, &status );
                   }
@@ -334,7 +334,7 @@ START_TRACE( SPREAD_T )
                      ierr =   MPI_Type_commit( &type );
                   }
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), 1, type,
+                     ierr =   MPI_Send_Mod( Mptr( U, 0, ibuf, LDU ), 1, type,
                                         IPMAP[SRCDIST+partner], Cmsgid,
                                         comm );
                   }
@@ -346,7 +346,7 @@ START_TRACE( SPREAD_T )
  * In our case, LDU is N - do not use the MPI Datatypes
  */
                   if( ierr == MPI_SUCCESS ) {
-                     ierr =   MPI_Send( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
+                     ierr =   MPI_Send_Mod( Mptr( U, 0, ibuf, LDU ), lbuf*LDU,
                                         MPI_DOUBLE, IPMAP[SRCDIST+partner],
                                         Cmsgid, comm );
                   }
