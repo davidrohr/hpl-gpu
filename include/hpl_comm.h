@@ -149,10 +149,10 @@ static inline int MPI_Recv_Mod(void *buf, const int count, MPI_Datatype datatype
 	return(retval);
 }
 
-static inline int MPI_Sendrecv_Mod(void *sbuf, const int scount, MPI_Datatype sdatatype, const int source, const int stag, void *rbuf, const int rcount, MPI_Datatype rdatatype, const int source, const int rtag, MPI_Comm comm, MPI_Status *status)
+static inline int MPI_Sendrecv_Mod(void *sbuf, const int scount, MPI_Datatype sdatatype, const int dest, const int stag, void *rbuf, const int rcount, MPI_Datatype rdatatype, const int source, const int rtag, MPI_Comm comm, MPI_Status *status)
 {
 	int i, retval = MPI_SUCCESS;
-	for (i = 0;i < (scount > rcound ? scount : rcount);i += HPL_MAX_MPI_SEND_SIZE)
+	for (i = 0;i < (scount > rcount ? scount : rcount);i += HPL_MAX_MPI_SEND_SIZE)
 	{
 		if (i < scount && i < rcount)
 		{
