@@ -170,6 +170,7 @@ void HPL_ptimer( const int I )
 		case 23: sprintf(timer_name, "DLACPY");break;
 		case 24: sprintf(timer_name, "UBCAST");break;
 		case 25: sprintf(timer_name, "PIPELINE");break;
+		case 26: sprintf(timer_name, "PREPIPELINE");break;
         default: sprintf(timer_name, "Unknown");break;
       }
       if (I != 13 && I != 12) fprintf(STD_OUT, "Timer %s (%d) CPU Time %2.5lf Wall Time %2.5lf\n", timer_name, I, cpu_tmp_time, wall_tmp_time);

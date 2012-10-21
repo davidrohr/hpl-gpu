@@ -258,9 +258,11 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		
 #ifndef HPL_LOOKAHEAD_2B
 		{
+			HPL_ptimer_detail( HPL_TIMING_PREPIPELINE );
 			const int i = 0;
 			const int nn = n;
 			HPL_PDGESV_U_BCAST
+			HPL_ptimer_detail( HPL_TIMING_PREPIPELINE );
 		}
 #endif
 	}

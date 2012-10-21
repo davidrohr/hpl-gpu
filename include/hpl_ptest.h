@@ -122,6 +122,7 @@ typedef struct HPL_S_test
 #define    HPL_TIMING_DLACPY     23
 #define    HPL_TIMING_UBCAST     24
 #define    HPL_TIMING_PIPELINE   25
+#define    HPL_TIMING_PREPIPELINE   26
 #endif
 /*
  * ---------------------------------------------------------------------
