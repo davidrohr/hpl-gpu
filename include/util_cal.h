@@ -52,7 +52,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
    const int,       const double,    const double *,  const int,
    const double *,  const int,       const double,    double *,
    const int, int LinpackCallbacks );
-void* CALDGEMM_alloc(size_t size);
+void* CALDGEMM_alloc(size_t size, interleave);
 void CALDGEMM_free(void* ptr);
 void CALDGEMM_set_num_nodes(int num, int rank);
 void CALDGEMM_enable_async_laswp(int enable);

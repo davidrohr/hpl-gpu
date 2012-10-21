@@ -478,7 +478,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
         }
 }
 
-void* CALDGEMM_alloc(size_t size)
+void* CALDGEMM_alloc(size_t size, int interleaved)
 {
     if (size % sizeof(double)) size += sizeof(double);
 #ifdef HPL_PAGELOCKED_MEM
@@ -492,7 +492,7 @@ void* CALDGEMM_alloc(size_t size)
 #else
     bool huge_tables = false;
 #endif
-    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables));
+    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, false, false, interleaved));
 }
 
 void CALDGEMM_free(void* ptr)
@@ -512,13 +512,13 @@ void CALDGEMM_enable_async_laswp(int enable)
 #else
 #include <stdlib.h>
 extern "C" void CALDGEMM_free(void* ptr);
-extern "C" void* CALDGEMM_alloc(size_t size);
+extern "C" void* CALDGEMM_alloc(size_t size, int interleaved);
 
 void CALDGEMM_free(void* ptr)
 {
     free(ptr);
 }
-void* CALDGEMM_alloc(size_t size)
+void* CALDGEMM_alloc(size_t size, int interleaved)
 {
     return malloc(size);
 }
