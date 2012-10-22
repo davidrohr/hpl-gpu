@@ -223,7 +223,7 @@ START_TRACE( PDPANEL_INIT )
 			 CALDGEMM_free(PANEL->WORK);
 			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 		}
-		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
+		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ), 0) ) )
 		{
 			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
 		}
@@ -265,7 +265,7 @@ START_TRACE( PDPANEL_INIT )
 			 CALDGEMM_free(PANEL->WORK);
 			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 		}
-    		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ) ) ) )
+    		if( !( PANEL->WORK = (void *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( double ),0 ) ) )
     		{
         	    HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
     		}
@@ -350,7 +350,7 @@ START_TRACE( PDPANEL_INIT )
 		 CALDGEMM_free(PANEL->IWORK);
 		 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 	 }
-         PANEL->IWORK = (int *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( int ) );
+         PANEL->IWORK = (int *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( int ), 0 );
 	 PANEL->memallocI = lwork;
    }
    if( PANEL->IWORK == NULL )

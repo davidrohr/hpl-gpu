@@ -1,5 +1,4 @@
-/*
- *  -- High Performance Computing Linpack Benchmark (HPL-GPU)
+/* *  -- High Performance Computing Linpack Benchmark (HPL-GPU)
  *     HPL-GPU - 1.1 - 2011
  *
  *     David Rohr
@@ -491,7 +490,9 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		}
 		if (temperature >= HPL_GPU_TEMPERATURE_THRESHOLD && temperature < 500)		//Sometimes Temperature=511 is falsely reported
 		{
-			fprintf(STD_OUT, "GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
+			char hostname[256];
+			gethostname(hostname, 255);
+			fprintf(STD_OUT, "%s: GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", hostname, (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
 			exit(1);
 		}
 #endif

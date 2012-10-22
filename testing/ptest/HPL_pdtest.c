@@ -273,7 +273,7 @@ void HPL_pdtest
  * Allocate dynamic memory
  */
    /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq) ) * sizeof(double) );*/
-#ifdef DHPL_INTERLEAVE_C
+#ifdef HPL_INTERLEAVE_C
    int interleave = 1;
 #else
    int interleave = 0;
