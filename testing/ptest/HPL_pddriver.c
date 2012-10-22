@@ -145,7 +145,7 @@ int main
 	printf("Error initializing MPI\n");
 	return(1);
    }
-   if (mpiavail != MPI_REQUIRE_THREAD_SAFETY)
+   if (mpiavail != MPI_REQUIRE_THREAD_SAFETY && mpiavail != MPI_THREAD_SERIALIZED && mpiavail != MPI_THREAD_MULTIPLE)
    {
 	printf("MPI does not provide the required thread safety\n");
 	return(1);

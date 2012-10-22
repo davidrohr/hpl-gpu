@@ -273,7 +273,12 @@ void HPL_pdtest
  * Allocate dynamic memory
  */
    /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq) ) * sizeof(double) );*/
-   vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double) );
+#ifdef HPL_INTERLEAVE_C
+   int interleave = 1;
+#else
+   int interleave = 0;
+#endif
+   vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double), interleave);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
