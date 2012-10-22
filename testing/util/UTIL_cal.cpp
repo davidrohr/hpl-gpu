@@ -187,7 +187,9 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_GPU_THREADSAVE_DRIVER
-	cal_info.ThreadSaveDriver = true;
+	cal_info.ThreadSaveDriver = 1;
+#elif defined(HPL_GPU_GLOBAL_DRIVER_MUTEX)
+	cal_info.ThreadSaveDriver = -1;
 #endif
 
 #ifdef HPL_GPU_MAPPING

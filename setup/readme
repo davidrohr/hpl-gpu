@@ -65,6 +65,8 @@
 #                        Use all cores for LASWP, lookahead 2 will not work well this way
 # -DHPL_GPU_THREADSAVE_DRIVER
 #                        Assume GPU driver to be threadsave
+# -DHPL_GPU_GLOBAL_DRIVER_MUTEX
+#                        The opposite, use one global mutex to protect all amd driver calls
 # -DHPL_CUSTOM_PARAMETER_CHANGE
 #                        Custom code executed every iteration, good for changing factorization parameters
 # -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS
