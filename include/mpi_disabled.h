@@ -102,6 +102,7 @@ static inline int MPI_Allgather(void *sendbuf, int sendcount, MPI_Datatype sendt
 static inline int MPI_Get_count(MPI_Status* status, MPI_Datatype datatype, int* count){*count = 0;return(MPI_SUCCESS);}
 static inline int MPI_Allreduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm){memcpy(recvbuf, sendbuf, datatype * count);return(MPI_SUCCESS);}
 static inline int MPI_Barrier(MPI_Comm comm){return(MPI_SUCCESS);}
+static inline int MPI_Sendrecv(void *sbuf, const int scount, MPI_Datatype sdatatype, const int dest, const int stag, void *rbuf, const int rcount, MPI_Datatype rdatatype, const int source, const int rtag, MPI_Comm comm, MPI_Status *status) {return(MPI_SUCCESS);}
 static inline double MPI_Wtime(void)
 {
     struct timespec t;
