@@ -122,7 +122,7 @@ int HPL_binit_mpi ( HPL_T_panel * );
 int HPL_bcast_mpi ( HPL_T_panel *);
 
 #ifndef HPL_MAX_MPI_SEND_SIZE
-#define HPL_MAX_MPI_SEND_SIZE (512 * 1024)
+#define HPL_MAX_MPI_SEND_SIZE (4 * 1024 * 1024)
 #endif
 #ifndef HPL_MAX_MPI_BCAST_SIZE 
 #define HPL_MAX_MPI_BCAST_SIZE HPL_MAX_MPI_SEND_SIZE

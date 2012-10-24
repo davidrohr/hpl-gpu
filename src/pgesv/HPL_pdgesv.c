@@ -272,7 +272,10 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	for (size_t i = 0;i < n;i += laswp_stepsize)
 	{
 #ifdef HPL_CALL_CALDGEMM
-		if (i) laswp_stepsize *= 3;
+#ifndef HPL_LOOKAHEAD_2B_MULTIPLIER
+#define HPL_LOOKAHEAD_2B_MULTIPLIER 3
+#endif
+		if (i) laswp_stepsize *= HPL_LOOKAHEAD_2B_MULTIPLIER;
 		const int nn = Mmin(nremain, laswp_stepsize);
 #else
 		const int nn = nremain;
