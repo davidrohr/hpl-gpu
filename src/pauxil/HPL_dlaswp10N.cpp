@@ -87,6 +87,7 @@ class dlaswp10N_impl
                     }
                 }
             }
+            _mm_mfence();
         }
 };
 
@@ -141,6 +142,7 @@ const int M = _M;
     }
 
     tbb::parallel_for (Range10N(0, M & ~15), dlaswp10N_impl(N, A, LDA, IPIV));
+    _mm_mfence();
 #endif
 
 END_TRACE

@@ -118,6 +118,7 @@ class dlaswp01T_impl
                     }
                 }
             }
+    	    _mm_mfence();
         }
 };
 #endif /* USE_ORIGINAL_LASWP */
@@ -171,7 +172,7 @@ START_TRACE( DLASWP01T )
             }
         }
     }
-    _mm_sfence();
+    _mm_mfence();
 
 #endif
 
