@@ -123,6 +123,7 @@ if __name__ == "__main__":
 	parser.add_option( '-p', '--performance', metavar='performance', default=500, type=int, help='Performance of one node in Gflops' )
 	parser.add_option( '-r', '--relaxed', metavar='relaxed', action='store_true', default=False, help='Do not apply tiling restricitons, simply give maximum matrix size and posible process configurations' )
 	parser.add_option( '-f', '--flat', metavar='relaxed', action='store_true', default=False, help='Enable flat configurations' )
+	parser.add_option( '-n', '--nb', metavar='nb', default=1024, type=int, help='Set blocking size' )
 
 
 #	parser.add_option('dirs', metavar='dir', nargs='+', help='The direcotories to scan for HPL*out files' )
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 		exit -1
 
 	nodes = int( tmp[0] )
-	nb = 1024
+	nb = args.nb
 
 	memPerNode = args.memory
 	perfPerNode = args.performance

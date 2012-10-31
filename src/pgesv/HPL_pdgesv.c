@@ -604,10 +604,26 @@ void PrintVector(HPL_T_grid* GRID, HPL_T_pmat* A)
 	if (GRID->iam == 0) fprintf(STD_OUT, "\n");
 }
 
+static HPL_T_panel** panel = NULL;
+
+void HPL_pdgesv_prepare_panel(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
+{
+	//Allocate the panel list
+	int depth1 = (ALGO->depth >= 1);
+	panel = (HPL_T_panel **)malloc((size_t)(depth1+1) * sizeof(HPL_T_panel *));
+	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
+
+	//Create and initialize the lookahead panel
+	if (depth1)
+	{
+		HPL_pdpanel_new(GRID, ALGO, A->n, A->n+1, Mmin(A->n, A->nb), A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
+	}
+}
+
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 {
 	//.. Local Variables ..
-	HPL_T_panel *p, **panel = NULL;
+	HPL_T_panel *p;
 	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, nq, tag=MSGID_BEGIN_FACT;
 	int depth1init = 0;
 #ifdef HPL_PRINT_INTERMEDIATE
@@ -624,26 +640,20 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	nb = A->nb;
 	depth1 = (ALGO->depth >= 1);
 	depth2 = (ALGO->depth >= 2);
-	
 
 #ifdef HPL_PRINT_INTERMEDIATE
 	total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
 	time_start = util_getTimestamp();
 #endif /* HPL_PRINT_INTERMEDIATE */
 
-	//Allocate the panel list
-	panel = (HPL_T_panel **)malloc((size_t)(depth1+1) * sizeof(HPL_T_panel *));
-	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
-
-	//Create and initialize the lookahead panel
 	nq = HPL_numcol(N+1, nb, mycol, GRID);
 	nn = N;
 
-	if (depth1)
+	if (panel == NULL)
 	{
-		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[0]);
-		depth1init = 1;
+		HPL_pdgesv_prepare_panel(GRID, ALGO, A);
 	}
+	if (depth1) depth1init = 1;
 
 	//Create main panel
 	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
@@ -772,6 +782,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	}
 	HPL_pdpanel_disp(&panel[0]);
 	if(panel) free(panel);
+	panel = NULL;
 	
 	//Solve upper triangular system
 	if( A->info == 0 ) HPL_pdtrsv( GRID, A );

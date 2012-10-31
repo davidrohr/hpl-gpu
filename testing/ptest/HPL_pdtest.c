@@ -278,7 +278,8 @@ void HPL_pdtest
 #else
    int interleave = 0;
 #endif
-   vptr = CALDGEMM_alloc( ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double), interleave);
+   size_t matrix_bytes = ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double);
+   vptr = CALDGEMM_alloc( matrix_bytes, interleave);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,
@@ -292,11 +293,38 @@ void HPL_pdtest
       (TEST->kskip)++;
       return;
    }
+
+#ifdef HPL_MPI_INIT_RUNS
+   if (npcol > 1)
+   {
+	//Some fake MPI transfer such that MPI creates its internal buffers, this should not be counted as computation time
+	int testsize = ((matrix_bytes > (size_t) 128 * 1024 * 1024) ? 128 * 1024 * 1024 : matrix_bytes) / sizeof(double);
+	int testsize_use;
+	MPI_Allreduce(&testsize, &testsize_use, 1, MPI_INT, MPI_MIN, GRID->row_comm);
+	for (int i = 0;i < npcol;i++)
+	{
+	    MPI_Bcast_Mod(vptr, testsize_use, MPI_DOUBLE, i, GRID->row_comm);
+	    if (i == 0) continue;
+	    if (mycol == 0)
+	    {
+		MPI_Send_Mod(vptr, testsize_use, MPI_DOUBLE, i, 0, GRID->row_comm);
+		MPI_Recv_Mod(vptr, testsize_use, MPI_DOUBLE, i, 0, GRID->row_comm, NULL);
+	    }
+	    else if (mycol == i)
+	    {
+		MPI_Recv_Mod(vptr, testsize_use, MPI_DOUBLE, 0, 0, GRID->row_comm, NULL);
+		MPI_Send_Mod(vptr, testsize_use, MPI_DOUBLE, 0, 0, GRID->row_comm);
+	    }
+	}
+   }
+#endif
+   
 /*
  * generate matrix and right-hand-side, [ A | b ] which is N by N+1.
  */
    mat.A  = (double *) HPL_PTR( vptr, ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
+   
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
@@ -310,7 +338,10 @@ void HPL_pdtest
 /*
  * Solve linear system
  */
-   HPL_ptimer_boot(); (void) HPL_barrier( GRID->all_comm );
+   HPL_ptimer_boot();
+   
+   HPL_pdgesv_prepare_panel( GRID, ALGO, &mat );
+   HPL_barrier( GRID->all_comm );
 #ifdef HPL_DURATION_FIND_HELPER
    usleep(1000 * 1000 * 10);
    if (myrow == 0 && mycol == 0)
