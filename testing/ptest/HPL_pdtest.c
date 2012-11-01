@@ -279,6 +279,13 @@ void HPL_pdtest
    int interleave = 0;
 #endif
    size_t matrix_bytes = ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double);
+#ifdef HPL_ALLOC_LIST
+   {
+      char hostname[64];
+      gethostname(hostname, 64);
+      printf("Row %d Col %d Host %s Size %lld\n", myrow, mycol, hostname, (long long int) matrix_bytes);
+   }
+#endif
    vptr = CALDGEMM_alloc( matrix_bytes, interleave);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
