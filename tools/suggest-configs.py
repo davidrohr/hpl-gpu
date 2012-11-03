@@ -89,7 +89,7 @@ class Configuration:
 
 	def memoryPerNode( self ):
 		""" Calculate the memory used per node in GiB """
-		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
+		return float( self.n**2 ) * 8 / self.p / self.q / 1000**3
 
 	def eta( self, gflopsPerNode ):
 		""" Calculate estimated computation time in seconds """
@@ -97,7 +97,7 @@ class Configuration:
 
 	def memoryPerNode( self ):
 		""" Calculate the memory used per node in GiB """
-		return float( self.n**2 ) * 8 / self.p / self.q / 1024**3
+		return float( self.n**2 ) * 8 / self.p / self.q / 1000**3
 
 def splitIn2Factors( n, flat=False ):
 	factors = []
