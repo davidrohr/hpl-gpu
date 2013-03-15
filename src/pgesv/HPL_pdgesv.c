@@ -136,7 +136,9 @@ int HPL_CALDGEMM_wrapper_n = -1;
 #ifndef NO_EQUILIBRATION
 #define HPL_PDGESV_U_BCAST_EQUIL \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
+	VT_USER_START_A("U-BCAST Equilibration"); \
 	int* iplenmod = HPL_equil( panel, nn, U + i, LDU, iplen, ipmap, ipmapm1, iwork ) ? iwork : iplen; \
+	VT_USER_END_A("U-BCAST Equilibration"); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 #else
 #define HPL_PDGESV_U_BCAST_EQUIL const int* iplenmod = iplen;
@@ -146,24 +148,32 @@ int HPL_CALDGEMM_wrapper_n = -1;
 	if( myrow == icurrow ) \
 	{ \
 		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
+		VT_USER_START_A("LASWP"); \
 		HPL_dlaswp01T( *ipA, nn, A + i * lda, lda, U + i, LDU, lindxA, lindxAU ); \
+		VT_USER_END_A("LASWP"); \
 		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 	} \
 	 \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
+	VT_USER_START_A("U-BCAST Spreat"); \
 	HPL_spreadT( panel, HplRight, nn, U + i, LDU, 0, iplen, ipmap, ipmapm1 ); \
+	VT_USER_END_A("U-BCAST Spreat"); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
 	 \
 	if( myrow != icurrow ) \
 	{ \
 		k = ipmapm1[myrow]; \
 		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
+		VT_USER_START_A("LASWP"); \
 		HPL_dlaswp06T( iplen[k+1]-iplen[k], nn, A + i * lda, lda, Mptr( U, 0, iplen[k], LDU ) + i, LDU, lindxA ); \
+		VT_USER_END_A("LASWP"); \
 		HPL_ptimer_detail2( HPL_TIMING_LASWP ); \
 	} \
 	HPL_PDGESV_U_BCAST_EQUIL \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST ); \
+	VT_USER_START_A("U-BCAST Roll"); \
 	HPL_rollT( panel, nn, U + i, LDU, iplenmod, ipmap, ipmapm1 ); \
+	VT_USER_END_A("U-BCAST Roll"); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 	
 #ifdef HPL_SLOW_CPU
@@ -285,7 +295,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		if (panel->grid->nprow == 1)
 		{
 			HPL_ptimer_detail2( HPL_TIMING_LASWP );
+			VT_USER_START_A("LASWP");
 			HPL_dlaswp00N( jb, nn, Aptr + i * lda, lda, ipiv );
+			VT_USER_END_A("LASWP");
 			HPL_ptimer_detail2( HPL_TIMING_LASWP );
 		}
 		else
@@ -296,12 +308,15 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 			if (permU)
 			{
 				HPL_ptimer_detail2( HPL_TIMING_LASWP );
+				VT_USER_START_A("LASWP");
 				HPL_dlaswp10N( nn, jb, Uptr + i, LDU, permU );
+				VT_USER_END_A("LASWP");
 				HPL_ptimer_detail2( HPL_TIMING_LASWP );
 			}
 		}
 
 		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
+		VT_USER_START_A("DTRSM");
 		if (panel->grid->nprow == 1)
 		{
 #ifdef HPL_SLOW_CPU
@@ -319,6 +334,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		{
 			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
+		VT_USER_END_A("DTRSM");
 		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
 #ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
@@ -330,7 +346,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	if (panel->grid->nprow != 1 && panel->grid->myrow == panel->prow)
 	{
 		HPL_ptimer_detail( HPL_TIMING_DLATCPY );
+		VT_USER_START_A("DLATCPY");
 		HPL_dlatcpy( panel->jb, n, panel->grid->nprow == 1 ? panel->A : panel->U, LDU, panel->A, lda );
+		VT_USER_END_A("DLATCPY");
 		HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 	}
 #endif
@@ -362,40 +380,41 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 #ifndef HPL_NO_MPI_LIB
 #ifdef HPL_DETAILED_TIMING
-   struct timeval tp;
-   long start, startu;
-   double bcasttime, throughput;
+	struct timeval tp;
+	long start, startu;
+	double bcasttime, throughput;
 #endif
 
 #ifndef HPL_COPYL_DURING_FACT
-   	if (Grid->npcol > 1) HPL_copyL( panel );
+	if (Grid->npcol > 1) HPL_copyL( panel );
 #endif
 
 	fprintfctd(STD_OUT, "Starting Broadcast\n");
 	HPL_binit(panel);
 
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
+	VT_USER_START_A("Panel-BCAST");
 #ifdef HPL_DETAILED_TIMING
-   if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
-   {
-	(void) gettimeofday( &tp, NULL );
-	start  = tp.tv_sec;
-	startu = tp.tv_usec;
-   }
+	if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
+	{
+		(void) gettimeofday( &tp, NULL );
+		start  = tp.tv_sec;
+		startu = tp.tv_usec;
+	}
 #endif
 
 	HPL_bcast(panel);
 
 #ifdef HPL_DETAILED_TIMING
-   if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
-   {
-	(void) gettimeofday( &tp, NULL );
-	bcasttime = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
-	throughput = (double) panel->len * sizeof(double) / bcasttime / 1000000.;
-	fprintf(STD_OUT, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., bcasttime, throughput);
-   }
+	if (panel->grid->mycol == panel->pcol && panel->grid->npcol > 1)
+	{
+		(void) gettimeofday( &tp, NULL );
+		bcasttime = (double)( tp.tv_sec - start ) + ( (double)( tp.tv_usec-startu ) / 1000000.0 );
+		throughput = (double) panel->len * sizeof(double) / bcasttime / 1000000.;
+		fprintf(STD_OUT, "MPI Broadcast: size=%f MB - time=%f s - throughput=%f MB/s\n", (double) panel->len * (double) sizeof(double) / 1024. / 1024., bcasttime, throughput);
+	}
 #endif
-
+	VT_USER_END_A("Panel-BCAST");
 	HPL_ptimer_detail(HPL_TIMING_BCAST);
 	fprintfctd(STD_OUT, "Broadcast Ended\n");
 #endif
@@ -477,6 +496,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 #endif
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
+		VT_USER_START_A("DGEMM");
 #ifdef HPL_CALL_CALDGEMM
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
@@ -502,6 +522,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 #else
 		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 #endif
+		VT_USER_END_A("DGEMM");
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 
 #ifndef HPL_ASYNC_DLATCPY
@@ -678,6 +699,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	//Main loop over the columns of A
 	for(j = startrow; j < N; j += nb)
 	{
+#ifdef HPL_END_N
+		if (j >= HPL_END_N) break;
+#endif
 		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
 #ifdef HPL_HALF_BLOCKING
@@ -696,29 +720,28 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		fprintfct(STD_OUT, "Iteration j=%d N=%d n=%d jb=%d\n", j, N, n, jb);
 #endif
 
-#if defined(HPL_PRINT_INTERMEDIATE) & !defined(HPL_PAUSE)
+#if defined(HPL_PRINT_INTERMEDIATE)
 		// there are still n rows to compute
 		// j rows have already been computed
-		if( GRID->myrow == 0 && GRID->mycol == 0 )
+		if( GRID->myrow == 0 && GRID->mycol == 0 && j != 0)
 		{
 			uint64_t todo_gflop = 2 * (uint64_t) n * n * n / 3 / 1e9;
 			uint64_t gFlop = total_gflop - todo_gflop;
 			float ratio = (float) gFlop / total_gflop;
 
+#ifdef HPL_PAUSE
+			HPL_fprintf( STD_OUT, "%.f %% (j = %d/%d) of factorization.\n", ratio * 100, j, N );
+#else
 			float modifier = ratio * ratio * ratio * ratio;
 			modifier = 1. - modifier;
 			modifier = 1. + 0.1 * modifier;
 
 			uint64_t time_now = util_getTimestamp();
 			float seconds = (float) util_getTimeDifference( time_start, time_now ) / 1e6;
-			if( seconds != 0 && j != 0 )
-			{
-				float flops = (float) gFlop / (float) seconds / modifier;
-				uint64_t eta = (seconds / ratio - seconds) * modifier;
-				uint64_t wall_now = util_getWalltime() / 1e3;
-				//printf( "%f %% of factorization (%.2f GFlop) done in %ld s at approx. %.2f Gflops\n", ratio * 100, (float) gFlop, seconds, flops );
-				HPL_fprintf( STD_OUT, "[%ld] %.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", wall_now, ratio * 100, j, N, flops, eta );
-			}
+			float flops = (float) gFlop / (float) seconds / modifier;
+			uint64_t eta = (seconds / ratio - seconds) * modifier;
+			HPL_fprintf( STD_OUT, "%.f %% (j = %d/%d) of factorization at approx. %.2f Gflops, assuming to finish in %ld s.\n", ratio * 100, j, N, flops, eta );
+#endif
 		}
 #endif /* HPL_PRINT_INTERMEDIATE */
 
@@ -770,8 +793,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 
 #ifdef HPL_PAUSE
 		HPL_ptimer( 0 );
-		fprintf(STD_OUT, "HPL_PAUSE: Sleeping for %d usec\n", HPL_PAUSE * n);
-		usleep(HPL_PAUSE * n);
+		const int pause_duration = (int) ((double) HPL_PAUSE * (double) n * (double) n / (double) N / (double) N * 1000000.);
+		fprintf(STD_OUT, "HPL_PAUSE: Sleeping for %d usec\n", pause_duration);
+		usleep(pause_duration);
 		HPL_ptimer( 0 );
 #endif
 	}
@@ -785,5 +809,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	panel = NULL;
 	
 	//Solve upper triangular system
+#if !defined(HPL_END_N) & !defined(HPL_START_PERCENTAGE)
 	if( A->info == 0 ) HPL_pdtrsv( GRID, A );
+#endif
 }

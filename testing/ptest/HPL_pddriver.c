@@ -80,6 +80,8 @@ int HPL_init_laswp(void* ptr);
 #include "../../caldgemm/cmodules/affinity.h"
 #endif
 
+pthread_mutex_t global_vt_mutex;
+
 int main
 (
    int                        ARGC,
@@ -126,6 +128,9 @@ int main
 /* ..
  * .. Executable Statements ..
  */
+#ifdef VTRACE
+   pthread_mutex_init(&global_vt_mutex, NULL);
+#endif
 #ifdef HPL_NO_MPI_THREAD_CHECK
    MPI_Init( &ARGC, &ARGV );
 #else
@@ -448,6 +453,9 @@ label_end_of_npqs: ;
    releaseTraceCounters();
 #endif
    MPI_Finalize();
+#ifdef VTRACE
+   pthread_mutex_destroy(&global_vt_mutex);
+#endif
    exit( 0 );
 
    return( 0 );

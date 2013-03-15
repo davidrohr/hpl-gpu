@@ -120,6 +120,7 @@ void HPL_pdfact
 
    if( ( PANEL->grid->mycol != PANEL->pcol ) || ( jb <= 0 ) ) return;
    HPL_ptimer_detail( HPL_TIMING_RPFACT );
+   VT_USER_START_A("Factorization");
    align = PANEL->algo->align;
    vptr  = (void *)malloc( ( (size_t)(align) + 
               (size_t)(((4+((unsigned int)(jb) << 1)) << 1) )) *
@@ -135,6 +136,7 @@ void HPL_pdfact
 
    PANEL->A   = Mptr( PANEL->A, 0, jb, PANEL->lda );
    PANEL->nq -= jb; PANEL->jj += jb;
+   VT_USER_END_A("Factorization");
    HPL_ptimer_detail( HPL_TIMING_RPFACT );
 /*
  * End of HPL_pdfact
