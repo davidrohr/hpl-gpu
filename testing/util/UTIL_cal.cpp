@@ -231,6 +231,7 @@ int CALDGEMM_Init()
 	{
 	    cal_info.DeviceNums[i] = device_ids[i];
 	}
+	cal_info.NumDevices = sizeof(device_ids) / sizeof(int);
 #endif
 
 #ifdef HPL_GPU_PIN_MAIN
@@ -341,6 +342,10 @@ HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #endif
 	cal_dgemm = new CALDGEMM_IMPL;
 	if (cal_dgemm == NULL) return(1);
+	cal_info.config_backend = cal_dgemm->create_caldgemm_config_backend();
+#ifdef HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
+	HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
+#endif
 	int retVal = cal_dgemm->InitCALDGEMM( &cal_info, a );
 	
 #ifdef HPL_MPI_FUNNELED_THREADING
