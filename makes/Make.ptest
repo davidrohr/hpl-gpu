@@ -101,7 +101,7 @@ HPL_pddriver.o         : ../HPL_pddriver.c         $(INCdep)
 HPL_pdinfo.o           : ../HPL_pdinfo.c           $(INCdep)
 	rm -f ../hpl_config_option_list.h
 	echo $(HPL_DEFS) > ../hpl_config_option_list.tmp
-	for i in `cat ../hpl_config_option_list.tmp`; do echo "sprintf( output_buffer + strlen(output_buffer), \"%s\", \"$$i \");" >> ../hpl_config_option_list.h; done
+	for i in `cat ../hpl_config_option_list.tmp`; do echo "sprintf( output_buffer + strlen(output_buffer), \"%s\", \"`echo $$i | sed "s/\\"/\\\\\\\\\\"/g"` \");" >> ../hpl_config_option_list.h; done
 	$(CC) -o $@ -c $(CCFLAGS) "-DHPL_VERSION=\"$(HPL_VERSION)\"" ../HPL_pdinfo.c
 HPL_pdtest.o           : ../HPL_pdtest.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdtest.c
