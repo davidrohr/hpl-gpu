@@ -54,7 +54,14 @@ extern "C"
 {
 
 	typedef unsigned int blasint;
+#ifndef USE_MKL
 #include <cblas.h>
+#else
+	enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102};
+	enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113, CblasConjNoTrans=114}; 
+	void cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA, enum CBLAS_TRANSPOSE TransB, blasint M, blasint N, blasint K,
+		 double alpha, double *A, blasint lda, double *B, blasint ldb, double beta, double *C, blasint ldc); 
+#endif
 	int max_gpu_nb = 1024;
 	extern int HPL_CALDGEMM_gpu_height;
 }
