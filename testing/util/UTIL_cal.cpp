@@ -506,12 +506,23 @@ void* CALDGEMM_alloc(size_t size, int interleaved)
 #else
     bool huge_tables = false;
 #endif
-    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, false, interleaved));
+
+#ifdef HPL_REGISTER_MEMORY
+	bool gpu_access = true;
+#else
+	bool gpu_access = false;
+#endif
+    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, gpu_access, interleaved));
 }
 
 void CALDGEMM_free(void* ptr)
 {
-    cal_dgemm->FreeMemory((double*) ptr);
+#ifdef HPL_REGISTER_MEMORY
+	bool gpu_access = true;
+#else
+	bool gpu_access = false;
+#endif
+    cal_dgemm->FreeMemory((double*) ptr, gpu_access);
 }
 
 void CALDGEMM_set_num_nodes(int num, int rank)

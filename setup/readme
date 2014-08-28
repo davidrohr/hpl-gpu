@@ -77,6 +77,7 @@
 # -DHPL_INTERLEAVE_MEMORY
 #                        Interleave memory between NUMA nodes
 # -DHPL_INTERLEAVE_C     As above, but do not change memory policy. Instead only interleave the C matrix
+# -DHPL_REGISTER_MEMORY  Register Memory for fast GPU access
 # -DHPL_EMULATE_MULTINODE
 #                        Report a multi node run to caldgemm and provide a fake function for the broadcast callback to simulate the loss due to communication overhead
 # -DHPL_PAUSE=n          Sleep during the iterations for n seconds (duration is gradually decreased during run). Usefull if the hardware overheats. Timers are stopped during this time. Clearly not valid for official results.
