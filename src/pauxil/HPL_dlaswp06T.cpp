@@ -173,13 +173,11 @@ START_TRACE( DLASWP06T )
 #endif
 
 END_TRACE
-#ifdef TRACE_CALLS
-#ifdef TRACE_PERMDATA
+#ifdef TRACE_LASWP
    char filename[256];
-   snprintf(filename, 256, "dlaswp06T.%04d.%05d.%05d.%05d.dat", M, N, LDA, LDU);
+   snprintf(filename, 256, "dlaswp06T.%04d.%05d.%05d.%05d.%7.4fs.dat", M, N, LDA, LDU, laswp_time);
    FILE *permdata = fopen(filename, "w");
    fwrite(LINDXA, sizeof(LINDXA[0]), M, permdata);
    fclose(permdata);
 #endif
-#endif /* TRACE_CALLS */
 }

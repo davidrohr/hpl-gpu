@@ -195,4 +195,10 @@ Unaligned:
    _mm_mfence();
 
    END_TRACE
+#ifdef TRACE_LASWP
+   char filename[256];
+   snprintf(filename, 256, "dlacpy.%04d.%05d.%05d.%05d.%7.4fs.dat", M, N, LDA, LDB, laswp_time);
+   FILE *permdata = fopen(filename, "w");
+   fclose(permdata);
+#endif
 }

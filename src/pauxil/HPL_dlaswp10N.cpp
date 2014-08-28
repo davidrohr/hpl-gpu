@@ -146,13 +146,11 @@ const int M = _M;
 #endif
 
 END_TRACE
-#ifdef TRACE_CALLS
-#ifdef TRACE_PERMDATA
+#ifdef TRACE_LASWP
    char filename[256];
-   snprintf(filename, 256, "dlaswp10N.%04d.%05d.%05d.dat", M, N, LDA);
+   snprintf(filename, 256, "dlaswp10N.%04d.%05d.%05d.%7.4fs.dat", M, N, LDA, laswp_time);
    FILE *permdata = fopen(filename, "w");
    fwrite(IPIV, sizeof(IPIV[0]), N, permdata);
    fclose(permdata);
 #endif
-#endif /* TRACE_CALLS */
 }

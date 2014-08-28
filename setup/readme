@@ -9,7 +9,7 @@
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
 # -DUSE_ORIGINAL_LASWP   use original laswp implementation
-# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
+# -DTRACE_LASWP          dump date for LASWPs
 # -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
 # -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
 # -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked

@@ -135,3 +135,6 @@ FILE* openTraceFile( const char *basename, const int run, const int rank )
     return res;
 }
 
+#ifdef TRACE_LASWP
+HighResTimer TimerLASWP;
+#endif

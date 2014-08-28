@@ -86,6 +86,16 @@ trace_counters_t * aquireTraceCounter();
 /**
  * Utility macro to be used at the start of the function to start the trace
  */
+#ifdef TRACE_LASWP
+#include "../caldgemm/cmodules/timer.h"
+extern HighResTimer TimerLASWP;
+#define LASWP_TIMER_START HighResTimer.ResetStart();
+#define LASWP_TIMER_STOP  double laswp_time = HighResTimer.GetCurrentElapsedTime();
+#else
+#define LASWP_TIMER_START
+#define LASWP_TIMER_SOP
+#endif
+
 #ifdef TRACE_CALLS
 
 #define START_TRACE( FUNC_NAME ) \
@@ -98,19 +108,21 @@ if( counter == 0 ) \
 	counter->func_name = #FUNC_NAME; \
 } \
 start_wall = util_getTimestamp(); \
-clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_cpu);
+clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_cpu); \
+	LASWP_TIMER_START
 
 #define END_TRACE \
 end_wall = util_getTimestamp(); \
 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_cpu); \
 ++(counter->invocations); \
 counter->walltime += util_getTimeDifference( start_wall, end_wall ); \
-counter->cputime += end_cpu.tv_sec * 1000000ull + end_cpu.tv_nsec / 1000ull - start_cpu.tv_sec * 1000000ull - start_cpu.tv_nsec / 1000ull;
+counter->cputime += end_cpu.tv_sec * 1000000ull + end_cpu.tv_nsec / 1000ull - start_cpu.tv_sec * 1000000ull - start_cpu.tv_nsec / 1000ull; \
+	LASWP_TIMER_STOP
 
 #else
 
-#define START_TRACE( FUNC_NAME )
-#define END_TRACE
+#define START_TRACE( FUNC_NAME ) LASWP_TIMER_START
+#define END_TRACE LASWP_TIMER_SOP
 
 #endif /* TRACE_CALLS */
 
