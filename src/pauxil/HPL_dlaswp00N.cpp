@@ -150,7 +150,7 @@ END_TRACE
    char filename[256];
    snprintf(filename, 256, "dlaswp00N.%04d.%05d.%05d.%7.4fs.dat", M, N, LDA, laswp_time);
    FILE *permdata = fopen(filename, "w");
-   fwrite(LINDXA, sizeof(IPIV[0]), M, permdata);
+   fwrite(IPIV, sizeof(IPIV[0]), M, permdata);
    fclose(permdata);
 #endif
 }

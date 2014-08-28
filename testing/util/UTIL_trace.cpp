@@ -39,8 +39,9 @@
 #include "util_trace.h"
 
 #include <string.h>
-
+extern "C" {
 #include "hpl.h"
+}
 
 FILE* openTraceFile( const char *basename, const int run, const int rank );
 
@@ -118,7 +119,7 @@ FILE* openTraceFile( const char *basename, const int run, const int rank )
     const int rankSize = 5;
     const int addSize = 6;
 
-    char* filename = malloc( baseSize + 2 * rankSize + addSize );
+    char* filename = (char*) malloc( baseSize + 2 * rankSize + addSize );
     if( ! filename )
         HPL_pabort( __LINE__, "openTraceFile", "Failed to allocate mem for filename generation" );
 

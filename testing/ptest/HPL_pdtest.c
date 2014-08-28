@@ -286,6 +286,7 @@ void HPL_pdtest
       printf("Row %d Col %d Host %s Size %lld\n", myrow, mycol, hostname, (long long int) matrix_bytes);
    }
 #endif
+   printf("Allocating memory: %lld bytes\n", (long long int) matrix_bytes);
    vptr = CALDGEMM_alloc( matrix_bytes, interleave);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;

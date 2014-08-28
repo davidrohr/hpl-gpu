@@ -41,6 +41,7 @@
 #include <util_timer.h>
 #include <time.h>
 
+#include <mpi.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -86,14 +87,14 @@ trace_counters_t * aquireTraceCounter();
 /**
  * Utility macro to be used at the start of the function to start the trace
  */
-#ifdef TRACE_LASWP
+#if defined(TRACE_LASWP) && defined(__cplusplus)
 #include "../caldgemm/cmodules/timer.h"
 extern HighResTimer TimerLASWP;
-#define LASWP_TIMER_START HighResTimer.ResetStart();
-#define LASWP_TIMER_STOP  double laswp_time = HighResTimer.GetCurrentElapsedTime();
+#define LASWP_TIMER_START TimerLASWP.ResetStart();
+#define LASWP_TIMER_STOP  double laswp_time = TimerLASWP.GetCurrentElapsedTime();
 #else
 #define LASWP_TIMER_START
-#define LASWP_TIMER_SOP
+#define LASWP_TIMER_STOP
 #endif
 
 #ifdef TRACE_CALLS
@@ -122,7 +123,7 @@ counter->cputime += end_cpu.tv_sec * 1000000ull + end_cpu.tv_nsec / 1000ull - st
 #else
 
 #define START_TRACE( FUNC_NAME ) LASWP_TIMER_START
-#define END_TRACE LASWP_TIMER_SOP
+#define END_TRACE LASWP_TIMER_STOP
 
 #endif /* TRACE_CALLS */
 

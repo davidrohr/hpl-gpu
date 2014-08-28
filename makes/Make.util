@@ -83,8 +83,8 @@ lib.grd : $(HPL_utilobj)
 #
 UTIL_timer.o            : ../UTIL_timer.c            $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../UTIL_timer.c
-UTIL_trace.o    : ../UTIL_trace.c    $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../UTIL_trace.c
+UTIL_trace.o    : ../UTIL_trace.cpp    $(INCdep)
+	$(CC) -o $@ -c $(CXXFLAGS)  ../UTIL_trace.cpp
 UTIL_cal.o    : ../UTIL_cal.cpp    $(INCdep)
 	$(CXX) -o $@ -c $(CXXFLAGS) ../UTIL_cal.cpp
 UTIL_threadcheck.o    : ../UTIL_threadcheck.cpp    $(INCdep)
