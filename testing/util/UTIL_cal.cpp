@@ -499,7 +499,7 @@ void* CALDGEMM_alloc(size_t size, int interleaved)
 #else
     bool huge_tables = false;
 #endif
-    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, false, false, interleaved));
+    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, false, interleaved));
 }
 
 void CALDGEMM_free(void* ptr)
