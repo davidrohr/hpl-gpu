@@ -41,7 +41,10 @@
 #include <util_timer.h>
 #include <time.h>
 
+#ifndef HPL_NO_MPI_LIB
 #include <mpi.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
