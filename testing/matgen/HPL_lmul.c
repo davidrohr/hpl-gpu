@@ -73,7 +73,7 @@ void HPL_lmul
  *
  * HPL_lmul multiplies  without carry two long positive integers K and J
  * and puts the result into I. The long integers  I, J, K are encoded on
- * 32 bits using an array of 2 integers. The 32-lower bits are stored in
+ * 64 bits using an array of 2 integers. The 32-lower bits are stored in
  * the first entry of each array, the 32-higher bits in the second entry
  * of each array. For efficiency purposes, the  intrisic modulo function
  * is inlined.

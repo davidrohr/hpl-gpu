@@ -55,6 +55,49 @@
  * ======================================================================
  */
 
+/* 
+ * Purpose
+ * =======
+ *
+ * HPL_dlaswp06T swaps  columns  of  U  with  rows  of  A  at  positions
+ * indicated by LINDXA.
+ *
+ * Arguments
+ * =========
+ *
+ * M       (local input)                 const int
+ *         On entry, M  specifies the number of rows of A that should be
+ *         swapped with columns of U. M must be at least zero.
+ *
+ * N       (local input)                 const int
+ *         On entry, N specifies the length of the rows of A that should
+ *         be swapped with columns of U. N must be at least zero.
+ *
+ * A       (local output)                double *
+ *         On entry, A points to an array of dimension (LDA,N). On exit,
+ *         the  rows of this array specified by  LINDXA  are replaced by
+ *         columns of U.
+ *
+ * LDA     (local input)                 const int
+ *         On entry, LDA specifies the leading dimension of the array A.
+ *         LDA must be at least MAX(1,M).
+ *
+ * U       (local input/output)          double *
+ *         On entry,  U  points  to an array of dimension (LDU,*).  This
+ *         array contains the columns of  U  that are to be swapped with
+ *         rows of A.
+ *
+ * LDU     (local input)                 const int
+ *         On entry, LDU specifies the leading dimension of the array U.
+ *         LDU must be at least MAX(1,N).
+ *
+ * LINDXA  (local input)                 const int *
+ *         On entry, LINDXA is an array of dimension M that contains the
+ *         local row indexes of A that should be swapped with U.
+ *
+ * ---------------------------------------------------------------------
+ */  
+
 /*
  * Define default value for unrolling factor
  */

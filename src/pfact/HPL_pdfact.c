@@ -73,7 +73,7 @@ void HPL_pdfact
  * The  RPFACT  function pointer specifies the recursive algorithm to be
  * used, either Crout, Left- or Right looking.  NBMIN allows to vary the
  * recursive stopping criterium in terms of the number of columns in the
- * panel, and  NDIV  allow to specify the number of subpanels each panel
+ * panel, and  NDIV allows to specify the number of subpanels each panel
  * should be divided into. Usuallly a value of 2 will be chosen. Finally
  * PFACT is a function pointer specifying the non-recursive algorithm to
  * to be used on at most NBMIN columns. One can also choose here between

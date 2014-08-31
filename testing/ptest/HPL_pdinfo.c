@@ -759,16 +759,16 @@ label_error:
                    "========================================",
                    "========================================" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
-          "HPL-GPU " HPL_VERSION "  --  High-Performance Linpack benchmark  --  ",
-          " 2010" );
+          "HPL-GPU " HPL_VERSION "  --  High-Performance Linpack benchmark for GPUs  --  ",
+          " 2014" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "Written by D. Rohr, M. Kretz and M. Bach,  ",
           "Frankfurt Institute for Advanced Studies" );
       HPL_fprintf( TEST->outfp, "%s\n",
           "Based on:" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
-          "HPLinpack 2.0  --  High-Performance Linpack benchmark  --  ",
-          " September 10, 2008" );
+          "HPLinpack 2.1  --  High-Performance Linpack benchmark  --  ",
+          " Ocriber 26, 2012" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "Written by A. Petitet and R. Clint Whaley,  ",
           "Innovative Computing Laboratory, UTK" );

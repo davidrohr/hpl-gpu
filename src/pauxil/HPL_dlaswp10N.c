@@ -55,6 +55,40 @@
  * ======================================================================
  */
 
+/* 
+ * Purpose
+ * =======
+ *
+ * HPL_dlaswp10N performs a sequence  of  local column interchanges on a
+ * matrix A.  One column interchange is initiated  for columns 0 through
+ * N-1 of A.
+ *
+ * Arguments
+ * =========
+ *
+ * M       (local input)                 const int
+ *         __arg0__
+ *
+ * N       (local input)                 const int
+ *         On entry,  M  specifies  the number of rows of the array A. M
+ *         must be at least zero.
+ *
+ * A       (local input/output)          double *
+ *         On entry, N specifies the number of columns of the array A. N
+ *         must be at least zero.
+ *
+ * LDA     (local input)                 const int
+ *         On entry, A  points to an  array of  dimension (LDA,N).  This
+ *         array contains the columns onto which the interchanges should
+ *         be applied. On exit, A contains the permuted matrix.
+ *
+ * IPIV    (local input)                 const int *
+ *         On entry, LDA specifies the leading dimension of the array A.
+ *         LDA must be at least MAX(1,M).
+ *
+ * ---------------------------------------------------------------------
+ */  
+
 #ifndef HPL_LASWP10N_DEPTH
 #define    HPL_LASWP10N_DEPTH       32
 #define    HPL_LASWP10N_LOG2_DEPTH   5

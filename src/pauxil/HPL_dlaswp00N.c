@@ -55,6 +55,41 @@
  * ======================================================================
  */
 
+/* 
+ * Purpose
+ * =======
+ *
+ * HPL_dlaswp00N performs a series of local row interchanges on a matrix
+ * A. One row interchange is initiated for rows 0 through M-1 of A.
+ *
+ * Arguments
+ * =========
+ *
+ * M       (local input)                 const int
+ *         On entry, M specifies the number of rows of the array A to be
+ *         interchanged. M must be at least zero.
+ *
+ * N       (local input)                 const int
+ *         On entry, N  specifies  the number of columns of the array A.
+ *         N must be at least zero.
+ *
+ * A       (local input/output)          double *
+ *         On entry, A  points to an array of dimension (LDA,N) to which
+ *         the row interchanges will be  applied.  On exit, the permuted
+ *         matrix.
+ *
+ * LDA     (local input)                 const int
+ *         On entry, LDA specifies the leading dimension of the array A.
+ *         LDA must be at least MAX(1,M).
+ *
+ * IPIV    (local input)                 const int *
+ *         On entry,  IPIV  is  an  array of size  M  that  contains the
+ *         pivoting  information.  For  k  in [0..M),  IPIV[k]=IROFF + l
+ *         implies that local rows k and l are to be interchanged.
+ *
+ * ---------------------------------------------------------------------
+ */  
+
 /*
  * Define default value for unrolling factor
  */
