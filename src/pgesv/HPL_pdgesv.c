@@ -222,7 +222,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int* ipiv = panel->IWORK;
 
 	double *A, *U;
-	int *ipID, *iplen, *ipmap, *ipmapm1, *iwork, *lindxA = NULL, *lindxAU, *permU;
+	int *ipID, *iplen, *ipmap, *ipmapm1, *iwork, *lindxA = NULL, *lindxAU, *permU = NULL;
 	int icurrow, *iflag, *ipA, *ipl, k, myrow, nprow;
 
 #if !defined(HPL_CALL_CALDGEMM)

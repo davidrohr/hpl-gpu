@@ -171,7 +171,7 @@ int HPL_grid_init
  * All communicator, leave if I am not part of this grid. Creation of the
  * row- and column communicators.
  */
-   ierr = MPI_Comm_split( COMM, ( rank < nprocs ? 0 : MPI_UNDEFINED ),
+   ierr = MPI_Comm_split( COMM, (int) (size_t) ( rank < nprocs ? 0 : MPI_UNDEFINED ),
                           rank, &(GRID->all_comm) );
    if( GRID->all_comm == MPI_COMM_NULL ) return( ierr );
 
