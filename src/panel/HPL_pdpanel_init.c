@@ -72,6 +72,59 @@
 #endif
 #endif
 
+size_t panel_max_lwork;
+size_t panel_max_ilwork;
+size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M, int JB)
+{
+	size_t len;
+	int npcol = GRID->npcol;
+	int nprow = GRID->nprow;
+	int nq = HPL_numcolI(N, 0, nb, mycol, GRID);
+	int mp = HPL_numrowI(M, 0, nb, myrow, nprow );
+	if (npcol == 1)
+	{
+		panel_max_lwork = ALGO->align + (len = JB * JB + JB + 1);
+		if (nprow > 1)                                 /* space for U */
+		{
+			int nu = nq - JB;
+			if (nu % 8) nu += 8 - nu % 8;
+			if (nu % 16 == 0) nu += 8;
+			panel_max_lwork += JB * Mmax(0, nu) + ALGO->align;
+		}
+	}
+	else
+	{
+		int itmp1;
+		len = mp * JB + (itmp1 = JB*JB + JB + 1);
+#ifdef HPL_COPY_L
+		panel_max_lwork = ALGO->align + len;
+#else
+		panel_max_lwork = ALGO->align + Mmax(itmp1, len);
+#endif
+		if (nprow > 1)                                 /* space for U */
+		{
+			int nu = (mycol == icurcol ? nq - JB : nq);
+			if (nu % 8) nu += 8 - nu % 8;
+			if (nu % 16 == 0) nu += 8;
+			panel_max_lwork += JB * Mmax(0, nu) + ALGO->align;
+		}
+	}
+
+	if (nprow == 1)
+	{
+		panel_max_ilwork = JB;
+	}
+	else
+	{
+		int itmp1 = (JB << 1);
+		panel_max_ilwork = nprow + 1;
+		itmp1 = Mmax(itmp1, panel_max_ilwork);
+		panel_max_ilwork = 4 + (9 * JB) + (3 * nprow) + itmp1;
+	}
+
+	return(panel_max_lwork + panel_max_ilwork);
+}
+
 void HPL_pdpanel_init
 (
    HPL_T_grid *                     GRID,
