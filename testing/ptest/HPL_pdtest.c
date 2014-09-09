@@ -210,7 +210,8 @@ void HPL_pdtest
 #else
    int interleave = 0;
 #endif
-   size_t matrix_bytes = ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq)) * sizeof(double);
+   size_t matrix_size = ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq));
+   size_t matrix_bytes = matrix_size * sizeof(double);
 #ifdef HPL_ALLOC_LIST
    {
       char hostname[64];
@@ -219,8 +220,10 @@ void HPL_pdtest
    }
 #endif
    size_t total_bytes = matrix_bytes + panel_estimate_max_size(GRID, ALGO, N, N + 1, NB);
-   printf("Allocating memory: %lld bytes\n", (long long int) total_bytes);
+   fprintf(stderr, "Allocating memory: %lld bytes...", (long long int) total_bytes);
    vptr = CALDGEMM_alloc( total_bytes, interleave);
+   fprintf(stderr, "\n");
+   panel_preset_pointers(((double*) vptr) + matrix_size);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
    (void) HPL_all_reduce( (void *)(info), 3, HPL_INT, HPL_max,

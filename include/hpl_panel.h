@@ -119,6 +119,9 @@ void HPL_pdpanel_init( HPL_T_grid *, HPL_T_palg *, const int, const int, const i
 int HPL_pdpanel_disp( HPL_T_panel * *);
 int HPL_pdpanel_free( HPL_T_panel * );
 
+size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M, int JB);
+void panel_preset_pointers(double* base_ptr);
+
 #endif
 /*
  * End of hpl_panel.h

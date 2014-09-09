@@ -74,13 +74,30 @@
 
 size_t panel_max_lwork;
 size_t panel_max_ilwork;
+
+#define PANEL_PREALLOC_COUNT 2
+double *p_lwork[PANEL_PREALLOC_COUNT], *p_ilwork[PANEL_PREALLOC_COUNT];
+void panel_preset_pointers(double* base_ptr)
+{
+	int i;
+	for (i = 0;i < PANEL_PREALLOC_COUNT;i++)
+	{
+		p_lwork[i] = base_ptr;
+		base_ptr += panel_max_lwork;
+		p_ilwork[i] = base_ptr;
+		base_ptr += panel_max_ilwork;
+	}
+}
+
 size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M, int JB)
 {
 	size_t len;
 	int npcol = GRID->npcol;
 	int nprow = GRID->nprow;
-	int nq = HPL_numcolI(N, 0, nb, mycol, GRID);
-	int mp = HPL_numrowI(M, 0, nb, myrow, nprow );
+	int myrow = GRID->myrow;
+	int mycol = GRID->mycol;
+	int nq = HPL_numcolI(N, 0, JB, mycol, GRID);
+	int mp = HPL_numrowI(M, 0, JB, myrow, nprow );
 	if (npcol == 1)
 	{
 		panel_max_lwork = ALGO->align + (len = JB * JB + JB + 1);
@@ -103,12 +120,13 @@ size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M,
 #endif
 		if (nprow > 1)                                 /* space for U */
 		{
-			int nu = (mycol == icurcol ? nq - JB : nq);
+			int nu = nq;
 			if (nu % 8) nu += 8 - nu % 8;
 			if (nu % 16 == 0) nu += 8;
 			panel_max_lwork += JB * Mmax(0, nu) + ALGO->align;
 		}
 	}
+	if (panel_max_lwork % 1024) panel_max_lwork += (1024 - panel_max_lwork % 1024);
 
 	if (nprow == 1)
 	{
@@ -121,8 +139,13 @@ size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M,
 		itmp1 = Mmax(itmp1, panel_max_ilwork);
 		panel_max_ilwork = 4 + (9 * JB) + (3 * nprow) + itmp1;
 	}
+	if (panel_max_ilwork % 1024) panel_max_ilwork += (1024 - panel_max_ilwork % 1024);
 
-	return(panel_max_lwork + panel_max_ilwork);
+	size_t size = panel_max_lwork + panel_max_ilwork;
+	size *= sizeof(double);
+	if (ALGO->depth) size *= 2;
+	
+	return(size);
 }
 
 void HPL_pdpanel_init
@@ -199,6 +222,7 @@ START_TRACE( PDPANEL_INIT )
    int                        icurcol, icurrow, ii, itmp1, jj, lwork,
                               ml2, mp, mycol, myrow, nb, npcol, nprow,
                               nq, nu;
+   int i;
 /* ..
  * .. Executable Statements ..
  */
@@ -269,9 +293,24 @@ START_TRACE( PDPANEL_INIT )
           if (nu % 16 == 0) nu += 8;
           lwork += JB * Mmax( 0, nu ) + ALGO->align; }
 
+//printf("WORK1 %d of %d\n", (int) lwork, (int) panel_max_lwork);
 	  if (lwork > PANEL->memalloc)
 	  {
-		if (PANEL->WORK)
+		for (i = 0;i < PANEL_PREALLOC_COUNT;i++)
+		{
+			if (p_lwork[i] != NULL && lwork <= panel_max_lwork)
+			{
+				PANEL->WORK = p_lwork[i];
+				PANEL->memalloc = panel_max_lwork;
+				p_lwork[i] = NULL;
+				break;
+			}
+		}
+		if (i == PANEL_PREALLOC_COUNT)
+		{
+			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Problem with preallocated panel memory");
+		}
+/*		if (PANEL->WORK)
 		{
 			 CALDGEMM_free(PANEL->WORK);
 			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
@@ -280,7 +319,7 @@ START_TRACE( PDPANEL_INIT )
 		{
 			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
 		}
-		PANEL->memalloc = lwork;
+		PANEL->memalloc = lwork;*/
 	  }
 
 /*
@@ -311,9 +350,24 @@ START_TRACE( PDPANEL_INIT )
          lwork += JB * Mmax( 0, nu ) + ALGO->align;
       }
 
+//printf("WORK2 %d of %d\n", (int) lwork, (int) panel_max_lwork);
 	  if (lwork > PANEL->memalloc)
 	  {
-		if (PANEL->WORK)
+		for (i = 0;i < PANEL_PREALLOC_COUNT;i++)
+		{
+			if (p_lwork[i] != NULL && lwork <= panel_max_lwork)
+			{
+				PANEL->WORK = p_lwork[i];
+				PANEL->memalloc = panel_max_lwork;
+				p_lwork[i] = NULL;
+				break;
+			}
+		}
+		if (i == PANEL_PREALLOC_COUNT)
+		{
+			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Problem with preallocated panel memory");
+		}
+/*		if (PANEL->WORK)
 		{
 			 CALDGEMM_free(PANEL->WORK);
 			 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
@@ -322,7 +376,7 @@ START_TRACE( PDPANEL_INIT )
     		{
         	    HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" );
     		}
-		PANEL->memalloc = lwork;
+		PANEL->memalloc = lwork;*/
 	  }
 /*
  * Initialize the pointers of the panel structure - Re-use A in the cur-
@@ -396,15 +450,32 @@ START_TRACE( PDPANEL_INIT )
       lwork = 4 + (9 * JB) + (3 * nprow) + itmp1;
    }
 
+//printf("IWORK3 %d of %d\n", (int) lwork, (int) panel_max_ilwork);
    if (lwork > PANEL->memallocI)
    {
-     if (PANEL->IWORK)
+     /*if (PANEL->IWORK)
 	 {
 		 CALDGEMM_free(PANEL->IWORK);
 		 fprintf(STD_OUT, "WARNING, reallocating Panel memory\n");
 	 }
          PANEL->IWORK = (int *) CALDGEMM_alloc( (size_t)(lwork) * sizeof( int ), 0 );
-	 PANEL->memallocI = lwork;
+	 PANEL->memallocI = lwork;*/
+	 
+		for (i = 0;i < PANEL_PREALLOC_COUNT;i++)
+		{
+			if (p_ilwork[i] != NULL && lwork <= panel_max_ilwork)
+			{
+				PANEL->IWORK = p_ilwork[i];
+				PANEL->memallocI = panel_max_ilwork;
+				p_ilwork[i] = NULL;
+				break;
+			}
+		}
+		if (i == PANEL_PREALLOC_COUNT)
+		{
+			HPL_pabort( __LINE__, "HPL_pdpanel_init", "Problem with preallocated panel memory");
+		}
+
    }
    if( PANEL->IWORK == NULL )
    { HPL_pabort( __LINE__, "HPL_pdpanel_init", "Memory allocation failed" ); }

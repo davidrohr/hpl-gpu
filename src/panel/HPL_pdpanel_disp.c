@@ -95,8 +95,8 @@ int HPL_pdpanel_disp
    if (*PANEL)
    {
 	mpierr = HPL_pdpanel_free( *PANEL );
-	if( (*PANEL)->WORK  ) CALDGEMM_free( (*PANEL)->WORK  );
-	if( (*PANEL)->IWORK ) CALDGEMM_free( (*PANEL)->IWORK );
+	//if( (*PANEL)->WORK  ) CALDGEMM_free( (*PANEL)->WORK  );
+	//if( (*PANEL)->IWORK ) CALDGEMM_free( (*PANEL)->IWORK );
    }
    else
    {
