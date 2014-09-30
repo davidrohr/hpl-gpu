@@ -180,6 +180,11 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #endif
 #define    HPL_dtrsm           cblas_dtrsm
 #endif
+
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
+#undef     HPL_dgemm
+#define    HPL_dgemm           CALDGEMM_async_dgemm
+#endif
 #endif
 
 

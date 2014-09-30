@@ -102,6 +102,8 @@
 # -DHPL_DURATION_FIND_HELPER
 #                        HPL outputs linux timestamp before and after the actual calculation. In addition it adds an idle-pause of 10 secs before and after the run, this helps to find the exact duration in a power log etc.
 # -DHPL_MPI_INIT_RUNS    Do some MPI calls before starting factorization so it can build up internal buffers
+# -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=n
+#                        Use async CALDGEMM queue for DGEMM during factorization as soon as trailing matrix size is below n
 
 #
 # By default HPL will:

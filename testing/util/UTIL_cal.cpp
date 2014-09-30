@@ -35,7 +35,7 @@
  * requirement of acknowledgement in advertising materials will apply to
  * the combination as such.
  */
- 
+
 #ifdef HPL_CALL_CALDGEMM
 
 #define mcat(a, b) a ## b
@@ -60,7 +60,7 @@ extern "C"
 	enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102};
 	enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113, CblasConjNoTrans=114}; 
 	void cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA, enum CBLAS_TRANSPOSE TransB, blasint M, blasint N, blasint K,
-		 double alpha, double *A, blasint lda, double *B, blasint ldb, double beta, double *C, blasint ldc); 
+		double alpha, double *A, blasint lda, double *B, blasint ldb, double beta, double *C, blasint ldc); 
 #endif
 	int max_gpu_nb = 1024;
 	extern int HPL_CALDGEMM_gpu_height;
@@ -113,7 +113,7 @@ void* gpudgemm_wrapper(void* arg)
 	}
 	fprintfdvv(STD_OUT, "GPU DGEMM Thread Terminating\n");
 	pthread_mutex_unlock(&gpudgemmdone);
-	
+
 	return(NULL);
 }
 
@@ -127,10 +127,10 @@ void funneled_factorize_wrapper()
 
 void funneled_broadcast_wrapper()
 {
-        fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper\n");
+	fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper\n");
 	pthread_mutex_unlock(&startbroadcast);
 	pthread_mutex_lock(&broadcastdone);
-        fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper Ended\n");
+	fprintfdvv(STD_OUT, "Broadcast Funneled Wrapper Ended\n");
 }
 
 #endif
@@ -203,28 +203,28 @@ int CALDGEMM_Init()
 	const int mapping[] = HPL_GPU_MAPPING;
 	for (unsigned int i = 0;i < sizeof(mapping) / sizeof(int);i++)
 	{
-	    cal_info.GPUMapping[i] = mapping[i];
+		cal_info.GPUMapping[i] = mapping[i];
 	}
 #endif
 #ifdef HPL_GPU_POSTPROCESS_MAPPING
 	const int postprocess_mapping[] = HPL_GPU_POSTPROCESS_MAPPING;
 	for (unsigned int i = 0;i < sizeof(postprocess_mapping) / sizeof(int);i++)
 	{
-	    cal_info.PostprocessMapping[i] = postprocess_mapping[i];
+		cal_info.PostprocessMapping[i] = postprocess_mapping[i];
 	}
 #endif
 #ifdef HPL_GPU_ALLOC_MAPPING
 	const int alloc_mapping[] = HPL_GPU_ALLOC_MAPPING;
 	for (unsigned int i = 0;i < sizeof(alloc_mapping) / sizeof(int);i++)
 	{
-	    cal_info.AllocMapping[i] = alloc_mapping[i];
+		cal_info.AllocMapping[i] = alloc_mapping[i];
 	}
 #endif
 #ifdef HPL_GPU_DMA_MAPPING
 	const int dma_mapping[] = HPL_GPU_DMA_MAPPING;
 	for (unsigned int i = 0;i < sizeof(dma_mapping) / sizeof(int);i++)
 	{
-	    cal_info.DMAMapping[i] = dma_mapping[i];
+		cal_info.DMAMapping[i] = dma_mapping[i];
 	}
 #endif
 #ifdef HPL_GPU_EXCLUDE_CORES
@@ -236,7 +236,7 @@ int CALDGEMM_Init()
 	const int device_ids[] = HPL_GPU_DEVICE_IDS;
 	for (unsigned int i = 0;i < sizeof(device_ids) / sizeof(int);i++)
 	{
-	    cal_info.DeviceNums[i] = device_ids[i];
+		cal_info.DeviceNums[i] = device_ids[i];
 	}
 	cal_info.NumDevices = sizeof(device_ids) / sizeof(int);
 #endif
@@ -293,7 +293,7 @@ int CALDGEMM_Init()
 #ifdef HPL_RESTRICT_CALLBACK
 	cal_info.HPLFactorizeRestrictCallback = HPL_Restrict_Callback_Function;
 #endif
-	
+
 	//cal_info.AutoHeight = true;
 	//cal_info.Iterations = 1;
 	//cal_info.VerboseTiming = false;
@@ -304,7 +304,7 @@ int CALDGEMM_Init()
 	//cal_info.GPURatio = -1;
 	//cal_info.DynamicSched = false;
 	//cal_info.DumpMatrix = false;
-	
+
 #ifdef HPL_INTERLEAVE_MEMORY
 	cal_info.MemPolicy = true;
 #else
@@ -317,7 +317,7 @@ int CALDGEMM_Init()
 	cal_info.NoPerformanceWarnings = true;
 #endif
 	//cal_info.AsyncTiming = (CALboolean) !cal_info.NoPerformanceWarnings;
-	
+
 	cal_info.linpack_swap_function = HPL_CALDGEMM_wrapper_swap;
 	cal_info.PreOut = PreOutput;
 
@@ -339,13 +339,13 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_GPU_EXTRA_CALDGEMM_OPTIONS
-HPL_GPU_EXTRA_CALDGEMM_OPTIONS
+	HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #endif
 
 #ifdef HPL_GPU_FACTORIZE
-	bool a = true;
+		bool a = true;
 #else
-	bool a = false;
+		bool a = false;
 #endif
 	cal_dgemm = new CALDGEMM_IMPL;
 	if (cal_dgemm == NULL) return(1);
@@ -353,8 +353,8 @@ HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #ifdef HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
 	HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
 #endif
-	int retVal = cal_dgemm->InitCALDGEMM( &cal_info, a );
-	
+		int retVal = cal_dgemm->InitCALDGEMM( &cal_info, a );
+
 #ifdef HPL_MPI_FUNNELED_THREADING
 	pthread_mutex_init(&startgpudgemm, NULL);
 	pthread_mutex_init(&gpudgemmdone, NULL);
@@ -373,7 +373,7 @@ HPL_GPU_EXTRA_CALDGEMM_OPTIONS
 	pthread_mutex_lock(&broadcastdone);
 	pthread_mutex_lock(&gpudgemmdone);
 #endif
-	
+
 	return(retVal);
 }
 
@@ -400,111 +400,131 @@ void CALDGEMM_Shutdown()
 	delete cal_dgemm;
 }
 
+void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
+	const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
+	const int K, const double ALPHA, const double * A, const int LDA,
+	const double * B, const int LDB, const double BETA, double * C,
+	const int LDC)
+{
+	if (M >= 48 && N >= 48 && K >= 32)
+	{
+		if (cal_dgemm->RunAsyncSingleTileDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans))
+		{
+			printf("Error in async CALDGEMM Run, aborting HPL Run\n");
+			exit(1);
+		}
+	}
+	else
+	{
+		cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB, BETA, C, LDC );
+	}
+}
+
 void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
-                     const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
-                     const int K, const double ALPHA, const double * A, const int LDA,
-                     const double * B, const int LDB, const double BETA, double * C,
-                     const int LDC, int LinpackCallbacks )
+	const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
+	const int K, const double ALPHA, const double * A, const int LDA,
+	const double * B, const int LDB, const double BETA, double * C,
+	const int LDC, int LinpackCallbacks )
 {
 	static int LinpackIteration = 0;
 	if (M == 0 || N == 0 || K == 0)
 	{
-            if (cal_info.LinpackSwapN != NULL)
-            {
-        	HPL_CALDGEMM_gpu_height = 0;
-        	HPL_CALDGEMM_wrapper_swap();
-            }
-            if (LinpackCallbacks)
-            {
-        	HPL_CALDGEMM_wrapper_factorize();
-        	if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
-            }
-	    return;
+		if (cal_info.LinpackSwapN != NULL)
+		{
+			HPL_CALDGEMM_gpu_height = 0;
+			HPL_CALDGEMM_wrapper_swap();
+		}
+		if (LinpackCallbacks)
+		{
+			HPL_CALDGEMM_wrapper_factorize();
+			if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
+		}
+		return;
 	}
-        else if (K >= 512 && (M >= 2048 || N >= 2048))
-        {
-            sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
+	else if (K >= 512 && (M >= 2048 || N >= 2048))
+	{
+		sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 #ifdef HPL_MPI_FUNNELED_THREADING
-	    gpudgemmparams.A = (double*) A;
-	    gpudgemmparams.B = (double*) B;
-	    gpudgemmparams.C = (double*) C;
-	    gpudgemmparams.ALPHA = (double) ALPHA;
-	    gpudgemmparams.BETA = (double) BETA;
-	    gpudgemmparams.M = (int) M;
-	    gpudgemmparams.K = (int) K;
-	    gpudgemmparams.N = (int) N;
-	    gpudgemmparams.LDA = (int) LDA;
-	    gpudgemmparams.LDB = (int) LDB;
-	    gpudgemmparams.LDC = (int) LDC;
-	    gpudgemmparams.ORDER = ORDER;
-	    gpudgemmparams.TRANSA = TRANSA;
-	    gpudgemmparams.TRANSB = TRANSB;
-	    gpudgemmparams.LinpackCallbacks = LinpackCallbacks;
-	    fprintfdvv(STD_OUT, "Running GPU dgemm\n");
-	    if (pthread_mutex_unlock(&startgpudgemm)) fprintf(STD_OUT, "Mutex Error: %s - %d\n", __FILE__, __LINE__);
-	    if (LinpackCallbacks)
-	    {
-		    fprintfdvv(STD_OUT, "Waiting to factorize\n");
-		    pthread_mutex_lock(&startfactorize);
-		    HPL_CALDGEMM_wrapper_factorize();
-		    pthread_mutex_unlock(&factorizedone);
-		    
-		    if (cal_info.LinpackNodes > 1)
-		    {
-			    cpu_set_t old_mask, linpack_mask;
-			    CPU_ZERO(&linpack_mask);
-			    CPU_SET(cal_dgemm->broadcastcore(), &linpack_mask);
-			    sched_getaffinity(0, sizeof(cpu_set_t), &old_mask);
-			    sched_setaffinity(0, sizeof(cpu_set_t), &linpack_mask);		    
-		    
-			    fprintfdvv(STD_OUT, "Waiting to broadcast\n");
-			    pthread_mutex_lock(&startbroadcast);
-			    HPL_CALDGEMM_wrapper_broadcast();
-			    pthread_mutex_unlock(&broadcastdone);
-			    sched_setaffinity(0, sizeof(cpu_set_t), &old_mask);
-		    }
-		    fprintfdvv(STD_OUT, "Factorize and broadcast done\n");
-	    }
-	    
-	    pthread_mutex_lock(&gpudgemmdone);
+		gpudgemmparams.A = (double*) A;
+		gpudgemmparams.B = (double*) B;
+		gpudgemmparams.C = (double*) C;
+		gpudgemmparams.ALPHA = (double) ALPHA;
+		gpudgemmparams.BETA = (double) BETA;
+		gpudgemmparams.M = (int) M;
+		gpudgemmparams.K = (int) K;
+		gpudgemmparams.N = (int) N;
+		gpudgemmparams.LDA = (int) LDA;
+		gpudgemmparams.LDB = (int) LDB;
+		gpudgemmparams.LDC = (int) LDC;
+		gpudgemmparams.ORDER = ORDER;
+		gpudgemmparams.TRANSA = TRANSA;
+		gpudgemmparams.TRANSB = TRANSB;
+		gpudgemmparams.LinpackCallbacks = LinpackCallbacks;
+		fprintfdvv(STD_OUT, "Running GPU dgemm\n");
+		if (pthread_mutex_unlock(&startgpudgemm)) fprintf(STD_OUT, "Mutex Error: %s - %d\n", __FILE__, __LINE__);
+		if (LinpackCallbacks)
+		{
+			fprintfdvv(STD_OUT, "Waiting to factorize\n");
+			pthread_mutex_lock(&startfactorize);
+			HPL_CALDGEMM_wrapper_factorize();
+			pthread_mutex_unlock(&factorizedone);
+
+			if (cal_info.LinpackNodes > 1)
+			{
+				cpu_set_t old_mask, linpack_mask;
+				CPU_ZERO(&linpack_mask);
+				CPU_SET(cal_dgemm->broadcastcore(), &linpack_mask);
+				sched_getaffinity(0, sizeof(cpu_set_t), &old_mask);
+				sched_setaffinity(0, sizeof(cpu_set_t), &linpack_mask);		    
+
+				fprintfdvv(STD_OUT, "Waiting to broadcast\n");
+				pthread_mutex_lock(&startbroadcast);
+				HPL_CALDGEMM_wrapper_broadcast();
+				pthread_mutex_unlock(&broadcastdone);
+				sched_setaffinity(0, sizeof(cpu_set_t), &old_mask);
+			}
+			fprintfdvv(STD_OUT, "Factorize and broadcast done\n");
+		}
+
+		pthread_mutex_lock(&gpudgemmdone);
 #else
-	    if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
-	    {
-		printf("Error in CALDGEMM Run, aborting HPL Run\n");
-		exit(1);
-	    }
+		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
+		{
+			printf("Error in CALDGEMM Run, aborting HPL Run\n");
+			exit(1);
+		}
 #endif
-        }
-        else
-        {
-            // Use plain cblas
-            if (cal_info.LinpackSwapN != NULL)
-            {
-        	HPL_CALDGEMM_gpu_height = 0;
-        	HPL_CALDGEMM_wrapper_swap();
-            }
-            cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );
-            if (LinpackCallbacks)
-            {
-        	HPL_CALDGEMM_wrapper_factorize();
-        	if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
-            }
-        }
+	}
+	else
+	{
+		// Use plain cblas
+		if (cal_info.LinpackSwapN != NULL)
+		{
+			HPL_CALDGEMM_gpu_height = 0;
+			HPL_CALDGEMM_wrapper_swap();
+		}
+		cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );
+		if (LinpackCallbacks)
+		{
+			HPL_CALDGEMM_wrapper_factorize();
+			if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
+		}
+	}
 }
 
 void* CALDGEMM_alloc(size_t size, int interleaved)
 {
-    if (size % sizeof(double)) size += sizeof(double);
+	if (size % sizeof(double)) size += sizeof(double);
 #ifdef HPL_PAGELOCKED_MEM
-    bool page_locked = true;
+	bool page_locked = true;
 #else
-    bool page_locked = false;
+	bool page_locked = false;
 #endif
 
 #ifdef HPL_HUGE_TABLES
-    bool huge_tables = true;
+	bool huge_tables = true;
 #else
-    bool huge_tables = false;
+	bool huge_tables = false;
 #endif
 
 #ifdef HPL_REGISTER_MEMORY
@@ -512,7 +532,7 @@ void* CALDGEMM_alloc(size_t size, int interleaved)
 #else
 	bool gpu_access = false;
 #endif
-    return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, gpu_access, interleaved));
+	return((void*) cal_dgemm->AllocMemory(size / sizeof(double), page_locked, huge_tables, gpu_access, interleaved));
 }
 
 void CALDGEMM_free(void* ptr)
@@ -522,13 +542,13 @@ void CALDGEMM_free(void* ptr)
 #else
 	bool gpu_access = false;
 #endif
-    cal_dgemm->FreeMemory((double*) ptr, gpu_access);
+	cal_dgemm->FreeMemory((double*) ptr, gpu_access);
 }
 
 void CALDGEMM_set_num_nodes(int num, int rank)
 {
-    cal_info.LinpackNodes = num;
-    cal_info.MPIRank = rank;
+	cal_info.LinpackNodes = num;
+	cal_info.MPIRank = rank;
 }
 void CALDGEMM_enable_async_laswp(int enable)
 {
@@ -541,10 +561,10 @@ extern "C" void* CALDGEMM_alloc(size_t size, int interleaved);
 
 void CALDGEMM_free(void* ptr)
 {
-    free(ptr);
+	free(ptr);
 }
 void* CALDGEMM_alloc(size_t size, int interleaved)
 {
-    return malloc(size);
+	return malloc(size);
 }
 #endif
