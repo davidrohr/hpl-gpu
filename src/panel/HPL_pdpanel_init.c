@@ -85,7 +85,7 @@ void panel_preset_pointers(double* base_ptr)
 		p_lwork[i] = base_ptr;
 		base_ptr += panel_max_lwork;
 		p_ilwork[i] = base_ptr;
-		base_ptr += panel_max_ilwork;
+		base_ptr += panel_max_ilwork * sizeof(int) / sizeof(double);
 	}
 }
 
@@ -141,8 +141,7 @@ size_t panel_estimate_max_size(HPL_T_grid* GRID, HPL_T_palg* ALGO, int N, int M,
 	}
 	if (panel_max_ilwork % 1024) panel_max_ilwork += (1024 - panel_max_ilwork % 1024);
 
-	size_t size = panel_max_lwork + panel_max_ilwork;
-	size *= sizeof(double);
+	size_t size = panel_max_lwork * sizeof(double) + panel_max_ilwork * sizeof(int);
 	if (ALGO->depth) size *= 2;
 	
 	return(size);
@@ -465,7 +464,7 @@ START_TRACE( PDPANEL_INIT )
 		{
 			if (p_ilwork[i] != NULL && lwork <= panel_max_ilwork)
 			{
-				PANEL->IWORK = p_ilwork[i];
+				PANEL->IWORK = (int*) p_ilwork[i];
 				PANEL->memallocI = panel_max_ilwork;
 				p_ilwork[i] = NULL;
 				break;

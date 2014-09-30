@@ -59,6 +59,7 @@
  * Include files
  */
 #include "hpl.h"
+#include "util_cal.h"
 
 void HPL_pdrpancrT
 (

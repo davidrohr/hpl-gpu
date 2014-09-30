@@ -416,7 +416,7 @@ void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSP
 	}
 	else
 	{
-		cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB, BETA, C, LDC );
+		cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );
 	}
 }
 
