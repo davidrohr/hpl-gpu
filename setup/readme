@@ -25,8 +25,6 @@
 #                        print intermediate performance results
 # -DHPL_PRINT_AVG_MATRIX_SIZE
 #                        show how much memory the matrix uses per node on average
-# -DHPL_MPI_FUNNELED_THREADING
-#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
 # -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
 # -DHPL_NO_MPI_THREAD_CHECK
 #                        HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
@@ -57,11 +55,10 @@
 #                        Device IDs of GPUs to use
 # -DHPL_GPU_PIN_MAIN=i   CPU core for main thread
 # -DHPL_DISABLE_LOOKAHEAD=n
-#                        Disable lookahead algorithm as soon as trailing matrix size hits n
+#                        Disable lookahead algorithm as soon as global trailing matrix size (dim n) hits n
 # -DHPL_LOOKAHEAD2_TURNOFF=n
 #                        Same for lookahead2
 # -DHPL_HALF_BLOCKING=n  n at which only half the blocking size is used
-# -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
 # -DHPL_USE_ALL_CORES_FOR_LASWP
 #                        Use all cores for LASWP, lookahead 2 will not work well this way
 # -DHPL_GPU_THREADSAVE_DRIVER
@@ -103,7 +100,7 @@
 #                        HPL outputs linux timestamp before and after the actual calculation. In addition it adds an idle-pause of 10 secs before and after the run, this helps to find the exact duration in a power log etc.
 # -DHPL_MPI_INIT_RUNS    Do some MPI calls before starting factorization so it can build up internal buffers
 # -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=n
-#                        Use async CALDGEMM queue for DGEMM during factorization as soon as trailing matrix size is below n
+#                        Use async CALDGEMM queue for DGEMM during factorization as soon as local trailing matrix size (dim n) is below n
 # -DHPL_CALDGEMM_ASYNC_DTRSM_DGEMM
 #                        Use async CALDGEMM queue for large DTRSM in update step
 

@@ -82,6 +82,8 @@
 #define NO_TRACE_CALLS
 #endif
 
+extern int global_n_remain;
+
 /*
 * ---------------------------------------------------------------------
 * Include files

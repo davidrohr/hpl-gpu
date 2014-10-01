@@ -136,11 +136,7 @@ int main
 #else
    int mpiavail = 0;
    
-#ifdef HPL_MPI_FUNNELED_THREADING
-#define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_FUNNELED
-#else
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
-#endif
 
 #ifdef HPL_CALL_CALDGEMM
    setUnknownNames("Unknown - Before Main");
@@ -173,14 +169,6 @@ int main
 #if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
    unsigned long nodemask = 0xffffff;
    syscall(SYS_set_mempolicy, MPOL_INTERLEAVE, &nodemask, sizeof(nodemask) * 8);
-#endif
-
-#ifdef HPL_GPU_FACTORIZE
-    double* A = (double*) malloc(1024);
-    double* B = (double*) malloc(1024);
-    dtrsm('L', 'U', 'T', 'U', 1, 1, 1.0, A, 1, B, 1);
-    free(A);
-    free(B);
 #endif
 
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );

@@ -115,7 +115,7 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) $(T
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_FUNNELED_THREADING -DHPL_PRINT_INTERMEDIATE # -DUSE_ORIGINAL_LASWP -DHPL_DETAILED_TIMING -DTRACE_CALLS
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_NO_MPI_THREAD_CHECK -DHPL_PRINT_INTERMEDIATE # -DUSE_ORIGINAL_LASWP -DHPL_DETAILED_TIMING -DTRACE_CALLS
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------

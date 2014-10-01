@@ -175,9 +175,4 @@ endif
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
 LAlib += $(CALDGEMMlib) -laticalrt -laticalcl
 endif
-
-ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
-HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
-HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
-endif
 # ----------------------------------------------------------------------
