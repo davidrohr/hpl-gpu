@@ -104,6 +104,8 @@
 # -DHPL_MPI_INIT_RUNS    Do some MPI calls before starting factorization so it can build up internal buffers
 # -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=n
 #                        Use async CALDGEMM queue for DGEMM during factorization as soon as trailing matrix size is below n
+# -DHPL_CALDGEMM_ASYNC_DTRSM_DGEMM
+#                        Use async CALDGEMM queue for large DTRSM in update step
 
 #
 # By default HPL will:

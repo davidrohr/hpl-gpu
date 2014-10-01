@@ -57,6 +57,10 @@
 
 #ifndef HPL_H
 #define HPL_H
+
+#ifdef HPL_SLOW_CPU
+#define HPL_CALDGEMM_ASYNC_FACT_DGEMM
+#endif
 /*
 * ---------------------------------------------------------------------
 * HPL default compile options that can overridden in the Make.<arch>
