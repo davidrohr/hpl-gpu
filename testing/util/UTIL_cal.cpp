@@ -349,6 +349,10 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TR
 	{
 		sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 
+#ifdef HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+#endif
+
 		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
 		{
 			printf("Error in CALDGEMM Run, aborting HPL Run\n");

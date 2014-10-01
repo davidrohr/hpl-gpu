@@ -67,6 +67,8 @@
 #                        The opposite, use one global mutex to protect all amd driver calls
 # -DHPL_CUSTOM_PARAMETER_CHANGE
 #                        Custom code executed every iteration, good for changing factorization parameters
+# -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+#                        As above, but executed before starting the caldgemm dgemm, so it can be used to alter caldgemm settings at runtime
 # -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS
 #                        Extra source code that defines caldgemm options e.g. "cal_info.OutputThreads = 2;"
 # -DHPL_CALDGEMM_CBLAS_WRAPPER
