@@ -176,7 +176,7 @@ int HPL_CALDGEMM_wrapper_n = -1;
 	VT_USER_END_A("U-BCAST Roll"); \
 	HPL_ptimer_detail2( HPL_TIMING_UBCAST );
 	
-#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
+#ifdef HPL_CALDGEMM_ASYNC_DTRSM_DGEMM
 int dtrtri_(char *, char *, int *, double *, int *, int *);
 
 inline void HPL_dtrsm_GPUMOD(int jb, int nn, double* L1ptr, double* Uptr, size_t LDU, int i)
@@ -323,7 +323,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		VT_USER_START_A("DTRSM");
 		if (panel->grid->nprow == 1)
 		{
-#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
+#ifdef HPL_CALDGEMM_ASYNC_DTRSM_DGEMM
 			if (nn > 2 * jb)
 			{
 				HPL_dtrsm_GPUMOD(jb, nn, L1ptr, Uptr, LDU, i);
