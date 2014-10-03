@@ -311,6 +311,7 @@ void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSP
 	const double * B, const int LDB, const double BETA, double * C,
 	const int LDC)
 {
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
 	if (global_n_remain <= HPL_CALDGEMM_ASYNC_FACT_DGEMM)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans))
@@ -320,6 +321,7 @@ void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSP
 		}
 	}
 	else
+#endif
 	{
 		cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, (double*) A, LDA, (double*) B, LDB, BETA, C, LDC );
 	}
