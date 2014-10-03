@@ -63,6 +63,7 @@ extern "C"
 		double alpha, double *A, blasint lda, double *B, blasint ldb, double beta, double *C, blasint ldc); 
 #endif
 	int max_gpu_nb = 1024;
+	extern int global_n_remain;
 	extern int HPL_CALDGEMM_gpu_height;
 }
 #include <pthread.h>
