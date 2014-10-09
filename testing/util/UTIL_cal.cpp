@@ -50,25 +50,22 @@
 #define CALDGEMM_HEADER < CALDGEMM_IMPL.h >
 
 #include CALDGEMM_HEADER
+#define HPL_DIAG CBLAS_DIAG
+#define HPL_SIDE CBLAS_SIDE
+#define HPL_UPLO CBLAS_UPLO
+#define HPL_TRANS CBLAS_TRANSPOSE
+#define HPL_ORDER CBLAS_ORDER
 extern "C"
 {
-
-	typedef unsigned int blasint;
-#ifndef USE_MKL
-#include <cblas.h>
-#else
-	enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102};
-	enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113, CblasConjNoTrans=114}; 
-	void cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA, enum CBLAS_TRANSPOSE TransB, blasint M, blasint N, blasint K,
-		double alpha, double *A, blasint lda, double *B, blasint ldb, double beta, double *C, blasint ldc); 
-#endif
 	int max_gpu_nb = 1024;
 	extern int global_n_remain;
 	extern int HPL_CALDGEMM_gpu_height;
 }
 #include <pthread.h>
 #include <errno.h>
+#define enum
 #include "util_cal.h"
+#undef enum
 
 #define fprintfdvv( a, b )	//Disable verbose verbose debug output
 //#define fprintfdvv fprintf
@@ -305,8 +302,27 @@ void CALDGEMM_Shutdown()
 	delete cal_dgemm;
 }
 
-void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
-	const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
+void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
+   const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
+{
+#ifdef HPL_CALDGEMM_ASYNC_DTRSM
+	if (global_n_remain <= HPL_CALDGEMM_ASYNC_DTRSM)
+	{
+		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
+		{
+			printf("Error in async CALDGEMM DTRSM Run, aborting HPL Run\n");
+			exit(1);
+		}
+	}
+	else
+#endif
+	{
+		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB);
+	}
+}
+
+void CALDGEMM_async_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
+	const HPL_TRANS TRANSB, const int M, const int N,
 	const int K, const double ALPHA, const double * A, const int LDA,
 	const double * B, const int LDB, const double BETA, double * C,
 	const int LDC)
@@ -327,8 +343,8 @@ void CALDGEMM_async_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSP
 	}
 }
 
-void CALDGEMM_dgemm( const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
-	const enum CBLAS_TRANSPOSE TRANSB, const int M, const int N,
+void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
+	const HPL_TRANS TRANSB, const int M, const int N,
 	const int K, const double ALPHA, const double * A, const int LDA,
 	const double * B, const int LDB, const double BETA, double * C,
 	const int LDC, int LinpackCallbacks )

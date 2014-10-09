@@ -57,6 +57,8 @@ void CALDGEMM_async_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
    const int,       const double,    const double *,  const int,
    const double *,  const int,       const double,    double *,
    const int );
+void CALDGEMM_async_dtrsm(const enum HPL_ORDER ORDER, const enum HPL_SIDE SIDE, const enum HPL_UPLO UPLO, const enum HPL_TRANS TRANS, const enum HPL_DIAG DIAG, const int M, const int N,
+   const double ALPHA, const double *A, const int LDA, double *B, const int LDB);
 void* CALDGEMM_alloc(size_t size, int interleave);
 void CALDGEMM_free(void* ptr);
 void CALDGEMM_set_num_nodes(int num, int rank);

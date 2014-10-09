@@ -104,7 +104,9 @@
 # -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=n
 #                        Use async CALDGEMM queue for DGEMM during factorization as soon as local trailing matrix size (dim n) is below n
 # -DHPL_CALDGEMM_ASYNC_DTRSM_DGEMM
-#                        Use async CALDGEMM queue for large DTRSM in update step
+#                        Use async CALDGEMM queue for large DTRSM in update step with DTRTRI / DGEMM emulation
+# -DHPL_CALDGEMM_ASYNC_DTRSM=n
+#                        Use async CALDGEMM queue for large DTRSM in update step without DTRTRI / DGEMM emulation (should make the above obsolete), has same setting n as HPL_CALDGEMM_ASYNC_FACT_DGEMM
 
 #
 # By default HPL will:

@@ -207,7 +207,7 @@ inline void HPL_dtrsm_GPUMOD(int jb, int nn, double* L1ptr, double* Uptr, size_t
 	dtrtri_("U", "U", &jb, tmpa, &tmp_lda, &tmp);
 #ifdef HPL_SLOW_CPU
 	HPL_gpu_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU, 0);
-#ele
+#else
 	HPL_dgemm(HplColumnMajor, HplTrans, HplNoTrans, jb, nn, jb, 1.0, tmpa, tmp_lda, tmpb, tmp_ldb, 0.0, Uptr + i * LDU, LDU);
 #endif
 	free(tmpa);
