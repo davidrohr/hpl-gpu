@@ -768,7 +768,7 @@ label_error:
           "Based on:" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "HPLinpack 2.1  --  High-Performance Linpack benchmark  --  ",
-          " Ocriber 26, 2012" );
+          " October 26, 2012" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "Written by A. Petitet and R. Clint Whaley,  ",
           "Innovative Computing Laboratory, UTK" );

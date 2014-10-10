@@ -238,31 +238,7 @@ void HPL_pdtest
       return;
    }
 
-#ifdef HPL_MPI_INIT_RUNS
-   if (npcol > 1)
-   {
-	//Some fake MPI transfer such that MPI creates its internal buffers, this should not be counted as computation time
-	int testsize = ((matrix_bytes > (size_t) 128 * 1024 * 1024) ? 128 * 1024 * 1024 : matrix_bytes) / sizeof(double);
-	int testsize_use;
-	MPI_Allreduce(&testsize, &testsize_use, 1, MPI_INT, MPI_MIN, GRID->row_comm);
-	for (int i = 0;i < npcol;i++)
-	{
-	    MPI_Bcast_Mod(vptr, testsize_use, MPI_DOUBLE, i, GRID->row_comm);
-	    if (i == 0) continue;
-	    if (mycol == 0)
-	    {
-		MPI_Send_Mod(vptr, testsize_use, MPI_DOUBLE, i, 0, GRID->row_comm);
-		MPI_Recv_Mod(vptr, testsize_use, MPI_DOUBLE, i, 0, GRID->row_comm, NULL);
-	    }
-	    else if (mycol == i)
-	    {
-		MPI_Recv_Mod(vptr, testsize_use, MPI_DOUBLE, 0, 0, GRID->row_comm, NULL);
-		MPI_Send_Mod(vptr, testsize_use, MPI_DOUBLE, 0, 0, GRID->row_comm);
-	    }
-	}
-   }
-#endif
-   
+  
 /*
  * generate matrix and right-hand-side, [ A | b ] which is N by N+1.
  */
@@ -286,6 +262,21 @@ void HPL_pdtest
    
    HPL_pdgesv_prepare_panel( GRID, ALGO, &mat );
    HPL_barrier( GRID->all_comm );
+
+#ifdef HPL_WARMUP
+   HPL_fprintf( TEST->outfp, "Running warmup iteration\n");
+   HPL_pdgesv( GRID, ALGO, &mat, true );
+#ifndef HPL_FASTINIT
+   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
+#else
+#ifndef QON_TEST
+   fastmatgen( SEED + myrow * npcol + mycol, mat.A, mat.X - mat.A);
+#else
+   debugmatgen(GRID, &mat);
+#endif
+#endif
+#endif
+
 #ifdef HPL_DURATION_FIND_HELPER
    usleep(1000 * 1000 * 10);
    if (myrow == 0 && mycol == 0)
@@ -295,7 +286,7 @@ void HPL_pdtest
    HPL_barrier( GRID->all_comm );
 #endif
    HPL_ptimer( 0 );
-   HPL_pdgesv( GRID, ALGO, &mat );
+   HPL_pdgesv( GRID, ALGO, &mat, false );
    HPL_ptimer( 0 );
 #ifdef HPL_DURATION_FIND_HELPER
    if (myrow == 0 && mycol == 0)
@@ -305,6 +296,7 @@ void HPL_pdtest
    usleep(1000 * 1000 * 10);
    HPL_barrier( GRID->all_comm );
 #endif
+
 /*
  * Gather max of all CPU and WALL clock timings and print timing results
  */

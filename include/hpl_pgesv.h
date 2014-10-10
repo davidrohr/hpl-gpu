@@ -141,7 +141,7 @@ int HPL_equil( HPL_T_panel *, const int, double *, const int, int *, const int *
 void HPL_rollT( HPL_T_panel *, const int, double *, const int, const int *, const int *, const int * );
 int* HPL_pdlaswp01T( HPL_T_panel *, const int );
 
-void HPL_pdgesv( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
+void HPL_pdgesv( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat *, bool warmup );
 void HPL_pdgesv_prepare_panel( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
  
 void HPL_pdtrsv( HPL_T_grid *, HPL_T_pmat * );

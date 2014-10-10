@@ -646,7 +646,7 @@ void HPL_pdgesv_prepare_panel(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	}
 }
 
-void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
+void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, bool warmup)
 {
 	//.. Local Variables ..
 	HPL_T_panel *p;
@@ -803,6 +803,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 		usleep(pause_duration);
 		HPL_ptimer( 0 );
 #endif
+		if (warmup) break;
 	}
 	//Clean-up: Release panels and panel list
 	if(depth1init)
@@ -812,6 +813,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	HPL_pdpanel_disp(&panel[0]);
 	if(panel) free(panel);
 	panel = NULL;
+
+	if (warmup) return;
 	
 	//Solve upper triangular system
 #if !defined(HPL_END_N) & !defined(HPL_START_PERCENTAGE)
