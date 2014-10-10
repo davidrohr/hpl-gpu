@@ -264,8 +264,8 @@ void HPL_pdtest
    HPL_barrier( GRID->all_comm );
 
 #ifdef HPL_WARMUP
-   HPL_fprintf( TEST->outfp, "Running warmup iteration\n");
-   HPL_pdgesv( GRID, ALGO, &mat, true );
+   HPL_fprintf( TEST->outfp, "\nRunning warmup iteration\n");
+   HPL_pdgesv( GRID, ALGO, &mat, 1 );
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
 #else
@@ -275,6 +275,8 @@ void HPL_pdtest
    debugmatgen(GRID, &mat);
 #endif
 #endif
+   panel_preset_pointers(((double*) vptr) + matrix_size);
+   HPL_fprintf( TEST->outfp, "\n");
 #endif
 
 #ifdef HPL_DURATION_FIND_HELPER
@@ -286,7 +288,7 @@ void HPL_pdtest
    HPL_barrier( GRID->all_comm );
 #endif
    HPL_ptimer( 0 );
-   HPL_pdgesv( GRID, ALGO, &mat, false );
+   HPL_pdgesv( GRID, ALGO, &mat, 0 );
    HPL_ptimer( 0 );
 #ifdef HPL_DURATION_FIND_HELPER
    if (myrow == 0 && mycol == 0)
