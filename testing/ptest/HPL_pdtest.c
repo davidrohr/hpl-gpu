@@ -277,6 +277,7 @@ void HPL_pdtest
 #endif
    panel_preset_pointers(((double*) vptr) + matrix_size);
    HPL_fprintf( TEST->outfp, "\n");
+   HPL_barrier( GRID->all_comm );
 #endif
 
 #ifdef HPL_DURATION_FIND_HELPER
