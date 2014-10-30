@@ -264,7 +264,7 @@ void HPL_pdtest
    HPL_barrier( GRID->all_comm );
 
 #ifdef HPL_WARMUP
-   HPL_fprintf( TEST->outfp, "\nRunning warmup iteration\n");
+   if (myrow == 0 && mycol == 0) HPL_fprintf( TEST->outfp, "\nRunning warmup iteration\n");
    HPL_pdgesv( GRID, ALGO, &mat, 1 );
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
@@ -276,7 +276,7 @@ void HPL_pdtest
 #endif
 #endif
    panel_preset_pointers(((double*) vptr) + matrix_size);
-   HPL_fprintf( TEST->outfp, "\n");
+   if (myrow == 0 && mycol == 0) HPL_fprintf( TEST->outfp, "\n");
    HPL_barrier( GRID->all_comm );
 #endif
 
