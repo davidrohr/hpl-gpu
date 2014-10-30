@@ -107,6 +107,7 @@
 # -DHPL_CALDGEMM_ASYNC_DTRSM=n
 #                        Use async CALDGEMM queue for large DTRSM in update step without DTRTRI / DGEMM emulation (should make the above obsolete), has same setting n as HPL_CALDGEMM_ASYNC_FACT_DGEMM
 # -DHPL_WARMUP           Do a warmup run before the actual factorization to make sure all initialization is done
+# -DHPL_PRINT_CONFIG     Print Config Options at start of run
 
 #
 # By default HPL will:

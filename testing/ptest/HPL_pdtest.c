@@ -220,9 +220,11 @@ void HPL_pdtest
    }
 #endif
    size_t total_bytes = matrix_bytes + panel_estimate_max_size(GRID, ALGO, N, N + 1, NB);
-   fprintf(stderr, "Allocating memory: %lld bytes...", (long long int) total_bytes);
+   if (myrow == 0 && mycol == 0) fprintf(stderr, "Allocating memory: %lld bytes...", (long long int) total_bytes);
+   HPL_barrier( GRID->all_comm );
    vptr = CALDGEMM_alloc( total_bytes, interleave);
-   fprintf(stderr, "\n");
+   HPL_barrier( GRID->all_comm );
+   if (myrow == 0 && mycol == 0) fprintf(stderr, "\n");
    panel_preset_pointers(((double*) vptr) + matrix_size);
                          
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
