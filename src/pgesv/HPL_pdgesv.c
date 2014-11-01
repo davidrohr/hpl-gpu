@@ -362,9 +362,13 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 }
 
 int global_m_remain;
+int factorize_first_iteration = 0;
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	global_m_remain = panel->mp;
+#ifdef DHPL_CALDGEMM_ASYNC_FACT_FIRST
+	if (factorize_first_iteration) global_m_remain = 1;
+#endif
 	int mycol = Grid->mycol;
 	fprintfctd(STD_OUT, "Running Factorize\n");
 	if(mycol == icurcol)
@@ -379,6 +383,9 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 	}
 	fprintfctd(STD_OUT, "Factorize Ended\n");
+#ifdef DHPL_CALDGEMM_ASYNC_FACT_FIRST
+	global_m_remain = panel->mp;
+#endif
 }
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
@@ -757,7 +764,9 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		{
 			HPL_pdpanel_free(panel[depth1]);
 			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth1]);
+			factorize_first_iteration = 1;
 			HPL_pdgesv_factorize(GRID, panel[depth1], icurcol);
+			factorize_first_iteration = 0;
 			HPL_pdgesv_broadcast(GRID, panel[depth1], icurcol);
 		}
 		

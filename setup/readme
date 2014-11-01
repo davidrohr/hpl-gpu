@@ -102,6 +102,8 @@
 #                        HPL outputs linux timestamp before and after the actual calculation. In addition it adds an idle-pause of 10 secs before and after the run, this helps to find the exact duration in a power log etc.
 # -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=m
 #                        Use async CALDGEMM queue for DGEMM during factorization as soon as local trailing matrix size (dim m) is below m (Consider this corresponds to matrix_n in caldgemm due to col/row major switch).
+# -DHPL_CALDGEMM_ASYNC_FACT_FIRST
+#                        Always use CALDGEMM DTRSM and DGEMM in first synchronous first iteration.
 # -DHPL_CALDGEMM_ASYNC_DTRSM_DGEMM
 #                        Use async CALDGEMM queue for large DTRSM in update step with DTRTRI / DGEMM emulation
 # -DHPL_CALDGEMM_ASYNC_DTRSM=m
