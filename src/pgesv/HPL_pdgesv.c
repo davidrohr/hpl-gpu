@@ -361,10 +361,10 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	fprintfctd(STD_OUT, "LASWP/DTRSM finished\n");
 }
 
-int global_n_remain;
+int global_m_remain;
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
-	global_n_remain = panel->nq;
+	global_m_remain = panel->mp;
 	int mycol = Grid->mycol;
 	fprintfctd(STD_OUT, "Running Factorize\n");
 	if(mycol == icurcol)

@@ -82,7 +82,7 @@
 #define NO_TRACE_CALLS
 #endif
 
-extern int global_n_remain;
+extern int global_m_remain;
 
 /*
 * ---------------------------------------------------------------------

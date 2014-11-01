@@ -58,7 +58,7 @@
 extern "C"
 {
 	int max_gpu_nb = 1024;
-	extern int global_n_remain;
+	extern int global_m_remain;
 	extern int HPL_CALDGEMM_gpu_height;
 }
 #include <pthread.h>
@@ -306,7 +306,7 @@ void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
 #ifdef HPL_CALDGEMM_ASYNC_DTRSM
-	if (global_n_remain <= HPL_CALDGEMM_ASYNC_DTRSM)
+	if (global_m_remain <= HPL_CALDGEMM_ASYNC_DTRSM)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
 		{
@@ -328,7 +328,7 @@ void CALDGEMM_async_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const int LDC)
 {
 #ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
-	if (global_n_remain <= HPL_CALDGEMM_ASYNC_FACT_DGEMM)
+	if (global_m_remain <= HPL_CALDGEMM_ASYNC_FACT_DGEMM)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans))
 		{
