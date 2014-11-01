@@ -366,7 +366,7 @@ int factorize_first_iteration = 0;
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
 	global_m_remain = panel->mp;
-#ifdef DHPL_CALDGEMM_ASYNC_FACT_FIRST
+#ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
 	if (factorize_first_iteration) global_m_remain = 1;
 #endif
 	int mycol = Grid->mycol;
@@ -383,7 +383,7 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 	}
 	fprintfctd(STD_OUT, "Factorize Ended\n");
-#ifdef DHPL_CALDGEMM_ASYNC_FACT_FIRST
+#ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
 	global_m_remain = panel->mp;
 #endif
 }
