@@ -108,7 +108,7 @@ HPL_equil.o            : ../HPL_equil.c            $(INCdep)
 HPL_pdtrsv.o           : ../HPL_pdtrsv.c           $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdtrsv.c
 HPL_pdgesv.o           : ../HPL_pdgesv.c           $(INCdep)
-	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdgesv.c
+	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pdgesv.c -Wmaybe-uninitialized
 #
 # ######################################################################
 #

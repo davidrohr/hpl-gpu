@@ -1126,12 +1126,12 @@ label_error:
 /*
  * Config Options
  */
-#ifdef CALDGEMM_PRINT_CONFIG
+#ifdef HPL_PRINT_CONFIG
       output_buffer[0] = 0;
       sprintf( output_buffer + strlen(output_buffer),       "\nConfig : ");
 #include "hpl_config_option_list.h"
       fprintf( TEST->outfp, "%s", output_buffer );
-#if defined(HPL_CALL_CALDGEMM) & (!defined(HPL_CALDGEMM_BACKEND) | HPL_CALDGEMM_BACKEND = cal)
+#if defined(HPL_CALL_CALDGEMM) & (!defined(HPL_CALDGEMM_BACKEND) | HPL_CALDGEMM_BACKEND == cal)
       output_buffer[0] = 0;
       sprintf( output_buffer + strlen(output_buffer),       "\nCALDGEM: ");
 #include "caldgemm_config_option_list.h"

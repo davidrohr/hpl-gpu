@@ -305,6 +305,25 @@ void CALDGEMM_Shutdown()
 void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
+	if (global_m_remain <= HPL_CALDGEMM_ASYNC_FACT_DTRSM)
+	{
+		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
+		{
+			printf("Error in async CALDGEMM DTRSM Run, aborting HPL Run\n");
+			exit(1);
+		}
+	}
+	else
+#endif
+	{
+		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB);
+	}
+}
+
+void CALDGEMM_async_dtrsm2(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
+   const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
+{
 #ifdef HPL_CALDGEMM_ASYNC_DTRSM
 	if (global_m_remain <= HPL_CALDGEMM_ASYNC_DTRSM)
 	{
@@ -320,6 +339,7 @@ void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_
 		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB);
 	}
 }
+
 
 void CALDGEMM_async_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const HPL_TRANS TRANSB, const int M, const int N,

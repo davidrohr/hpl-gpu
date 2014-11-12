@@ -225,9 +225,9 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	double* Uptr = panel->grid->nprow == 1 ? panel->A : panel->U;
 	int* ipiv = panel->IWORK;
 
-	double *A, *U;
-	int *ipID, *iplen, *ipmap, *ipmapm1, *iwork, *lindxA = NULL, *lindxAU, *permU = NULL;
-	int icurrow, *iflag, *ipA, *ipl, k, myrow, nprow;
+	double *A = NULL, *U = NULL;
+	int *ipID, *iplen = NULL, *ipmap = NULL, *ipmapm1 = NULL, *iwork = NULL, *lindxA = NULL, *lindxAU = NULL, *permU = NULL;
+	int icurrow = 0, *iflag, *ipA = NULL, *ipl, k, myrow = 0, nprow;
 
 #if !defined(HPL_CALL_CALDGEMM)
 	size_t laswp_stepsize = n;
@@ -331,12 +331,12 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 			else
 #endif
 			{
-				HPL_dtrsm( HplColumnMajor, HplLeft, HplUpper, HplTrans, HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
+				HPL_dtrsm2( HplColumnMajor, HplLeft, HplUpper, HplTrans, HplUnit, jb, nn, HPL_rone, L1ptr, jb, Uptr + i * LDU, LDU );
 			}
 		}
 		else
 		{
-			HPL_dtrsm( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
+			HPL_dtrsm2( HplColumnMajor, HplRight, HplUpper, HplNoTrans, HplUnit, nn, jb, HPL_rone, L1ptr, jb, Uptr + i, LDU );
 		}
 		VT_USER_END_A("DTRSM");
 		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
@@ -356,7 +356,6 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		HPL_ptimer_detail( HPL_TIMING_DLATCPY );
 	}
 #endif
-
 	
 	fprintfctd(STD_OUT, "LASWP/DTRSM finished\n");
 }
@@ -393,7 +392,7 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #ifndef HPL_NO_MPI_LIB
 #ifdef HPL_DETAILED_TIMING
 	struct timeval tp;
-	long start, startu;
+	long start = 0, startu = 0;
 	double bcasttime, throughput;
 #endif
 
