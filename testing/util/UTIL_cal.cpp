@@ -60,6 +60,11 @@ extern "C"
 	int max_gpu_nb = 1024;
 	extern int global_m_remain;
 	extern int HPL_CALDGEMM_gpu_height;
+	
+#ifdef HPL_CPUFREQ
+	extern int curcpufreq;
+	void setcpufreq(int freq, int dgemmfreq);
+#endif
 }
 #include <pthread.h>
 #include <errno.h>

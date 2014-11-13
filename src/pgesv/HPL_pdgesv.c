@@ -66,6 +66,24 @@
 #ifdef HPL_DETAILED_TIMING
 #include <sys/time.h>
 #endif
+
+#ifdef HPL_CPUFREQ
+#include <cpufreq.h>
+
+int curcpufreq = 0;
+void setcpufreq(int freq, int dgemmfreq)
+{
+	if (freq == curcpufreq) return;
+	//printf("Setting CPU Frequency %d (%d)\n", freq, dgemmfreq);
+	int i;
+	for (i = 0;i < 20;i++)
+	{
+		cpufreq_modify_policy_max(i, i == HPL_GPU_PIN_MAIN ? dgemmfreq : freq);
+	}
+	curcpufreq = freq;
+}
+
+#endif
 /* 
  * Purpose
  * =======
