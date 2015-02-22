@@ -1,0 +1,301 @@
+#
+#  -- High Performance Computing Linpack Benchmark (HPL-GPU)
+#     HPL-GPU - 1.1 - 2011
+#
+#     David Rohr
+#     Matthias Kretz
+#     Matthias Bach
+#     Goethe Universität, Frankfurt am Main
+#     Frankfurt Institute for Advanced Studies
+#     (C) Copyright 2010 All Rights Reserved
+#
+#     Antoine P. Petitet
+#     University of Tennessee, Knoxville
+#     Innovative Computing Laboratory
+#     (C) Copyright 2000-2008 All Rights Reserved
+#
+#  -- Copyright notice and Licensing terms:
+#
+#  Redistribution  and  use in  source and binary forms, with or without
+#  modification, are  permitted provided  that the following  conditions
+#  are met:
+#
+#  1. Redistributions  of  source  code  must retain the above copyright
+#  notice, this list of conditions and the following disclaimer.
+#
+#  2. Redistributions in binary form must reproduce  the above copyright
+#  notice, this list of conditions,  and the following disclaimer in the
+#  documentation and/or other materials provided with the distribution.
+#
+#  3. All  advertising  materials  mentioning  features  or  use of this
+#  software must display the following acknowledgements:
+#  This  product  includes  software  developed  at  the  University  of
+#  Tennessee, Knoxville, Innovative Computing Laboratory.
+#  This product  includes software  developed at the Frankfurt Institute
+#  for Advanced Studies.
+#
+#  4. The name of the  University,  the name of the  Laboratory,  or the
+#  names  of  its  contributors  may  not  be used to endorse or promote
+#  products  derived   from   this  software  without  specific  written
+#  permission.
+#
+#  -- Disclaimer:
+#
+#  THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE UNIVERSITY
+#  OR  CONTRIBUTORS  BE  LIABLE FOR ANY  DIRECT,  INDIRECT,  INCIDENTAL,
+#  SPECIAL,  EXEMPLARY,  OR  CONSEQUENTIAL DAMAGES  (INCLUDING,  BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ======================================================================
+#
+# ----------------------------------------------------------------------
+# - shell --------------------------------------------------------------
+# ----------------------------------------------------------------------
+#
+SHELL        = /bin/sh
+#
+CD           = cd
+CP           = cp
+LN_S         = ln -s
+MKDIR        = mkdir
+RM           = /bin/rm -f
+TOUCH        = touch
+#
+# ----------------------------------------------------------------------
+# - Platform identifier ------------------------------------------------
+# ----------------------------------------------------------------------
+#
+ARCH         = SANAM_Multi-Node-Performance-Optimized
+#
+# ----------------------------------------------------------------------
+# - HPL Directory Structure / HPL library ------------------------------
+# ----------------------------------------------------------------------
+#
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
+#
+HPLlib       = $(LIBdir)/libhpl.a 
+#
+# ----------------------------------------------------------------------
+# - Message Passing library (MPI) --------------------------------------
+# ----------------------------------------------------------------------
+# MPinc tells the  C  compiler where to find the Message Passing library
+# header files,  MPlib  is defined  to be the name of  the library to be
+# used. The variable MPdir is only used for defining MPinc and MPlib.
+#
+MPdir        = $(TOPdir)/../openmpi
+MPinc        = $(MPdir)/include
+MPlib        = -L$(MPdir)/lib64 -lmpi
+
+#MPdir        = $(TOPdir)/../mvapich
+#MPinc        = $(MPdir)/include
+#MPlib        = -L$(MPdir)/lib64
+
+#MPdir        = $(TOPdir)/../intel/mpi
+#MPinc        = $(MPdir)/include64
+#MPlib        = -L$(MPdir)/lib64 -lmpi
+#
+# ----------------------------------------------------------------------
+# - Linear Algebra library (BLAS or VSIPL) -----------------------------
+# ----------------------------------------------------------------------
+# LAinc tells the  C  compiler where to find the Linear Algebra  library
+# header files,  LAlib  is defined  to be the name of  the library to be
+# used. The variable LAdir is only used for defining LAinc and LAlib.
+#
+CALDGEMMdir  = $(TOPdir)/caldgemm
+CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/caldgemm*.obj $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64/cmodules/*.obj
+LAinc        = -isystem $(CALDGEMMdir) -isystem $(AMDAPPSDKROOT)/include/CAL -isystem $(MKL_PATH)/include -isystem $(TOPdir)/GotoBLAS2
+LAlib        = -L$(MKL_PATH)/lib/intel64 -L$(ICC_PATH)/lib/intel64 -lmkl_intel_thread -lmkl_intel_lp64 -lmkl_core -liomp5 -lpthread
+
+#
+# ----------------------------------------------------------------------
+# - HPL includes / libraries / specifics -------------------------------
+# ----------------------------------------------------------------------
+#
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc)
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$(TOPdir)/lib -ltbb -lrt -Wl,-rpath=$(TOPdir)/lib
+#
+# - Compile time options -----------------------------------------------
+#
+# -DHPL_COPY_L           force the copy of the panel L before bcast;
+# -DHPL_NO_MPI_DATATYPE  Do not use custom MPI types
+# -DHPL_DETAILED_TIMING  enable detailed timers;
+# -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
+# -DTRACE_CALLS          function level tracing for calls that might
+#                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
+# -DUSE_ORIGINAL_LASWP   use original laswp implementation
+# -DTRACE_PERMDATA       dump LINDXA(U) in laswp0[16]T
+# -DHPL_FASTINIT         Fast initialization of input matrices for tuning runs
+# -DHPL_FASTVERIFY       Use Fast initialization random number generator for verification
+# -DHPL_PAGELOCKED_MEM   Allocate the memory pagelocked
+# -DHPL_HUGE_TABLES      Allocate the memory using huge tables
+# -DHPL_GPU_TIMING       Force Display of CALDGEMM Timing Data without HPL_GPU_NOT_QUIET
+# -DHPL_GPU_NOT_QUIET    Do not set quiet parameter for CALDGEMM (Will also display timing)
+# -DHPL_GPU_PERFORMANCE_WARNINGS
+#                        Print performance warnings for suboptimal CALDGEMM execution
+# -DHPL_SEND_U_PADDING   Transmit the padding of U matrix, unsafe if transfering only parts of U
+# -DHPL_GPU_VERIFY       Verify result of caldgemm calls
+# -DCALDGEMM_TEST        Activate Test Debug Code
+# -DHPL_PRINT_INTERMEDIATE
+#                        print intermediate performance results
+# -DHPL_PRINT_AVG_MATRIX_SIZE
+#                        show how much memory the matrix uses per node on average
+# -DHPL_MPI_FUNNELED_THREADING
+#                        Do all MPI calls from main thread, otherwise MPI lib must be thread safe
+# -DHPL_PRINT_THROTTLING_NODES=<GPU CLOCK> set the gpu clock so caldgemm knows which reference to compare with
+# -DHPL_NO_MPI_THREAD_CHECK
+#                        HPL will not check whether the MPI lib has sufficiant threading capabilities but just call MPI_Init
+# -DHPL_START_PERCENTAGE=<float>
+#                        Approximate Percentage of the runtime where to start factorization by skipping cols in the matrix. As one cannot start at an arbitrary N easily this is not exact.
+# -DHPL_NO_HACKED_LIB    Do not use the hacked ATI lib
+# -DHPL_HAVE_PREFETCHW   AMD CPUs have a prefetchw instruction which makes some prefetches more efficient.
+# -DHPL_NO_MPI_LIB       No MPI, one single node run possible.
+# -DHPL_GPU_MAX_NB       Set max NB for GPU HPL (default 1024)
+# -DHPL_SLOW_CPU         Use special code paths optimized for slow CPUs and a GPU
+# -DHPL_RESTRICT_CPUS=   Restrict CPU threads used for factorization with lookahead, set to NO (0), YES (1) or DYNAMIC (2).
+# -DHPL_MULTI_GPU        Use multiple GPUs
+# -DHPL_GPU_MAPPING={x,y,z} Map gpu 0 to core x, 1 to y and so on
+# -DHPL_DISABLE_LOOKAHEAD=n
+#                        Disable lookahead algorithm as soon as trailing matrix size hits n
+# -DHPL_GPU_FACTORIZE    Use GPU for factorization, requires ACML-GPU to be installed
+#
+# By default HPL will:
+#    *) not copy L before broadcast,
+#    *) use custom MPI types
+#    *) not display detailed timing information.
+#    *) not use CALDGEMM
+#    *) not trace calls
+#    *) use improved LASWP
+#    *) not trace LASWP arrays
+#    *) use original initialization and verification
+#    *) not use pagelocked memory
+#    *) not use huge tables
+#    *) set GPU to quiet mode
+#    *) not print performance warnings
+#    *) not sent U padding
+#    *) not verify CALDGEMM results
+#    *) not print intermediate results nor matrix size
+#    *) use serialized MPI threading
+#    *) do not print throttling nodes
+#    *) break if MPI library does not provide the required threading support
+#    *) use the hacked AMD driver
+#    *) not use PREFETCHW instruction
+#    *) use MPI
+#    *) max GPU NB is 1024
+#    *) not set slow CPU
+#    *) restrict CPUs statically
+#    *) use the first GPU in the system only
+#    *) map all GPUs to core 0
+#    *) never disable lookahead
+#    *) not use GPU for factorization
+#
+#
+# ----------------------------------------------------------------------
+#
+
+HPL_CALDEFS  = 
+
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_NO_MPI_DATATYPE -DHPL_COPY_L
+HPL_DEFS     += -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_MPI_WRAPPERS -DHPL_MULTI_GPU -DHPL_FAST_GPU -DHPL_INTERLEAVE_MEMORY -DHPL_NO_MPI_THREAD_CHECKa
+HPL_DEFS     += -DHPL_GPU_DEVICE_IDS="{0,2,1,3}" -DHPL_GPU_MAPPING="{0,8,0,8}" -DHPL_GPU_POSTPROCESS_MAPPING="{1,9,2,10}" -DHPL_GPU_ALLOC_MAPPING="{0,8,0,8}" -DHPL_GPU_DMA_MAPPING="{0,8,4,12}" -DHPL_GPU_PIN_MAIN=0 -DHPL_GPU_EXCLUDE_CORESa="{8}"
+HPL_DEFS     += -DHPL_GPU_OG -DHPL_ALTERNATE_LOOKAHEAD=200000
+HPL_DEFS     += -DHPL_LOOKAHEAD_2B
+#HPL_DEFS     += -DHPL_LOOKAHEAD2_TURNOFF=4000
+#HPL_DEFS     += -DHPL_DISABLE_LOOKAHEAD=6000
+#
+#At least some debug options
+HPL_DEFS     += -DHPL_PRINT_INTERMEDIATE -DHPL_DURATION_FIND_HELPERa -DHPL_GPU_PERFORMANCE_WARNINGS
+#
+#More Debug Options
+HPL_DEFS     += -DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST -DHPL_GPU_PERFORMANCE_WARNINGS
+HPL_DEFS     += -DHPL_DETAILED2_TIMING
+#
+#Just an example
+#HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE="ALGO->nbmin = j > 45000 ? 64 : 32;"
+#
+#Improvement for Lookahead 0/1
+#HPL_DEFS     += -DHPL_USE_ALL_CORES_FOR_LASWP
+
+#Possible Options
+HPL_DEFS     += -DHPL_SEND_U_PADDINGa -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY -DHPL_MPI_AFFINITY="{5}" -DHPL_LOOKAHEAD_2B_MULTIPLIER=2
+
+#Temporary Options
+HPL_DEFS     += -DHPL_MAX_MPI_BCAST_SIZEa="(4*1024*1024)" 
+
+HPL_CALDEFS  += cal_info.RepinDuringActiveWaitForEvent=true;cal_info.OutputThreads=1;cal_info.NumaPinning=true;
+#HPL_CALDEFS  += cal_info.ImplicitDriverSync=1;cal_info.UseDMAFetchQueue=0;
+HPL_CALDEFS += cal_info.MinimizeCPUPart=80000;cal_info.MinimizeCPUDuringFact=0;cal_info.SmallTiles=1;
+#HPL_CALDEFS += cal_info.MultiThreadDivide=0;cal_info.RepinMainThreadAlways=1;
+HPL_CALDEFS += cal_info.ParallelDMA=63000;cal_info.GroupParallelDMA=-1;
+#HPL_CALDEFS  += cal_info.SmallTiles=1;cal_info.DynamicSched=true;cal_info.ThirdPhaseDynamicRuns=false;
+HPL_DEFS     += -DHPL_INITIAL_GPU_RATIO=0.966
+HPL_CALDEFS  += cal_info.GPURatioDuringFact=0.977;
+
+HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS="$(HPL_CALDEFS)"
+
+HPL_DEFS     += -DUSE_MKL
+
+HPL_DEFS     += -DHPL_GPU_TEMPERATURE_THRESHOLD=89.
+HPL_DEFS     += -DHPL_PAUSE=8
+#HPL_DEFS     += -DHPL_START_PERCENTAGEa=50 -DHPL_END_N=6000
+#HPL_DEFS     += -DHPL_EMULATE_MULTINODE
+#HPL_DEFS     += -DHPL_CALDGEMM_BACKEND=cpu
+#HPL_DEFS     += -DVTRACE
+
+#
+# ----------------------------------------------------------------------
+# - Compilers / linkers - Optimization flags ---------------------------
+# ----------------------------------------------------------------------
+#
+CC           = gcc
+CXX          = g++
+#CC            = $(MPdir)/bin/mpicc-vt
+#CXX            = $(MPdir)/bin/mpicxx-vt
+
+CCNOOPT      = $(HPL_DEFS)
+_FLAGS      = $(HPL_DEFS) -fomit-frame-pointer -O3 -march=native -Wall -Wimplicit \
+                -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
+                -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow -ggdb
+CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
+CCFLAGS      = $(_FLAGS) -std=gnu99
+#
+# On some platforms,  it is necessary  to use the Fortran linker to find
+# the Fortran internals used in the BLAS library.
+#
+LINKER       = $(CXX)
+#LINKER            = $(MPdir)/bin/mpicxx-vt
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined
+#
+ARCHIVER     = ar
+ARFLAGS      = r
+RANLIB       = echo
+#
+isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
+
+# Set include paths and lib paths according to HPL_DEFS options
+ifeq ("$(call isenabled,-DHPL_NO_MPI_LIB)", "no")
+HPL_INCLUDES += -isystem $(MPinc) -isystem $(MPinc)/vampirtrace
+HPL_LIBS += $(MPlib)
+endif
+
+ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
+LAlib += $(CALDGEMMlib) -laticalrt -laticalcl
+endif
+
+ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
+HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
+HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
+endif
+
+ifeq ("$(call isenabled,-DVTRACE)", "yes")
+HPL_LIBS += -lvt-hyb
+endif
+# ----------------------------------------------------------------------
