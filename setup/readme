@@ -112,6 +112,7 @@
 #                        Same as above during factorization
 # -DHPL_WARMUP           Do a warmup run before the actual factorization to make sure all initialization is done
 # -DHPL_PRINT_CONFIG     Print Config Options at start of run
+# -DHPL_CPUFREQ          Add option to change cpu frequency
 
 #
 # By default HPL will:
