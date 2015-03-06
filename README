@@ -54,6 +54,9 @@
  ulimit -m unlimited
  ulimit -l unlimited
 
+ In addition, it is strongly suggested to disable the Intel
+ HyperThreading feature if available.
+
  For compiling HPL-GPU after the above prerequisites are met,
  copy Make.Generic and Make.Generic.Options from the setup
  directory in its top directory. Principally all relevant

@@ -1,0 +1,208 @@
+#
+#  -- High Performance Computing Linpack Benchmark (HPL-GPU)
+#     HPL-GPU - 1.1 - 2011
+#
+#     David Rohr
+#     Matthias Kretz
+#     Matthias Bach
+#     Goethe Universität, Frankfurt am Main
+#     Frankfurt Institute for Advanced Studies
+#     (C) Copyright 2010 All Rights Reserved
+#
+#     Antoine P. Petitet
+#     University of Tennessee, Knoxville
+#     Innovative Computing Laboratory
+#     (C) Copyright 2000-2008 All Rights Reserved
+#
+#  -- Copyright notice and Licensing terms:
+#
+#  Redistribution  and  use in  source and binary forms, with or without
+#  modification, are  permitted provided  that the following  conditions
+#  are met:
+#
+#  1. Redistributions  of  source  code  must retain the above copyright
+#  notice, this list of conditions and the following disclaimer.
+#
+#  2. Redistributions in binary form must reproduce  the above copyright
+#  notice, this list of conditions,  and the following disclaimer in the
+#  documentation and/or other materials provided with the distribution.
+#
+#  3. All  advertising  materials  mentioning  features  or  use of this
+#  software must display the following acknowledgements:
+#  This  product  includes  software  developed  at  the  University  of
+#  Tennessee, Knoxville, Innovative Computing Laboratory.
+#  This product  includes software  developed at the Frankfurt Institute
+#  for Advanced Studies.
+#
+#  4. The name of the  University,  the name of the  Laboratory,  or the
+#  names  of  its  contributors  may  not  be used to endorse or promote
+#  products  derived   from   this  software  without  specific  written
+#  permission.
+#
+#  -- Disclaimer:
+#
+#  THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE UNIVERSITY
+#  OR  CONTRIBUTORS  BE  LIABLE FOR ANY  DIRECT,  INDIRECT,  INCIDENTAL,
+#  SPECIAL,  EXEMPLARY,  OR  CONSEQUENTIAL DAMAGES  (INCLUDING,  BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ======================================================================
+#
+# ----------------------------------------------------------------------
+# - shell --------------------------------------------------------------
+# ----------------------------------------------------------------------
+#
+SHELL        = /bin/sh
+#
+CD           = cd
+CP           = cp
+LN_S         = ln -s
+MKDIR        = mkdir
+RM           = /bin/rm -f
+TOUCH        = touch
+#
+# ----------------------------------------------------------------------
+# - Platform identifier ------------------------------------------------
+# ----------------------------------------------------------------------
+#
+ARCH         = Generic
+#
+# ----------------------------------------------------------------------
+# - HPL Directory Structure / HPL library ------------------------------
+# ----------------------------------------------------------------------
+#
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
+#
+HPLlib       = $(LIBdir)/libhpl.a 
+#
+# ----------------------------------------------------------------------
+# - Message Passing library (MPI) --------------------------------------
+# ----------------------------------------------------------------------
+# MPinc tells the  C  compiler where to find the Message Passing library
+# header files,  MPlib  is defined  to be the name of  the library to be
+# used. The variable MPdir is only used for defining MPinc and MPlib.
+#
+MPdir        = $(OPENMPIPATH)
+MPinc        = $(MPdir)/include
+MPlib        = -L$(MPdir)/lib64 -lmpi -lmpi_cxx
+
+#MPdir        = $(TOPdir)/../mvapich
+#MPinc        = $(MPdir)/include
+#MPlib        = -L$(MPdir)/lib64
+
+#MPdir        = $(TOPdir)/../intel/mpi
+#MPinc        = $(MPdir)/include64
+#MPlib        = -L$(MPdir)/lib64 -lmpi
+#
+# ----------------------------------------------------------------------
+# - Linear Algebra library (BLAS or VSIPL) -----------------------------
+# ----------------------------------------------------------------------
+# LAinc tells the  C  compiler where to find the Linear Algebra  library
+# header files,  LAlib  is defined  to be the name of  the library to be
+# used. The variable LAdir is only used for defining LAinc and LAlib.
+#
+CALDGEMMdir  = $(TOPdir)/caldgemm
+CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm*.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/cmodules/*.o -ldl
+LAinc        = -isystem $(CALDGEMMdir) -isystem $(AMDAPPSDKROOT)/include -isystem $(MKL_PATH)/include -isystem $(TOPdir)/GotoBLAS2
+LAlib        = -L$(MKL_PATH)/lib/intel64 -L$(ICC_PATH)/lib/intel64 -lmkl_intel_thread -lmkl_intel_lp64 -lmkl_core -liomp5 -lpthread
+
+#
+# ----------------------------------------------------------------------
+# - HPL includes / libraries / specifics -------------------------------
+# ----------------------------------------------------------------------
+#
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc)
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$(TOPdir)/lib -ltbb -lrt -Wl,-rpath=$(TOPdir)/lib
+#
+
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_INTERLEAVE_C -DHPL_REGISTER_MEMORY -DHPL_HUGE_TABLES -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_FAST_GPU
+HPL_DEFS     += -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY
+HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE
+HPL_DEFS     += -DUSE_MKL
+HPL_DEFS     +=  -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
+HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.ImprovedScheduler = true;
+HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;
+
+include $(TOPdir)/Make.Generic.Options
+
+ifeq ($(HPL_CONFIG_MPI), 1)
+HPL_DEFS += -DHPL_LOOKAHEAD_2B 
+else
+HPL_DEFS += -DHPL_SEND_U_PADDING -DHPL_NO_MPI_LIB
+endif
+
+ifeq ($(HPL_CONFIG_VERBOSE), 1)
+HPL_DEFS += -DHPL_PRINT_INTERMEDIATE
+else ifeq ($(HPL_CONFIG_VERBOSE), 2)
+HPL_DEFS += -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_NOT_QUIET
+else ifeq ($(HPL_CONFIG_VERBOSE), 3)
+HPL_DEFS += -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST
+else ifeq ($(HPL_CONFIG_VERBOSE), 4)
+HPL_DEFS += -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST -DHPL_DETAILED2_TIMING
+endif
+
+HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS="$(HPL_CALDEFS)"
+HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS="$(HPL_CALBEDEFS)"
+
+#
+# ----------------------------------------------------------------------
+# - Compilers / linkers - Optimization flags ---------------------------
+# ----------------------------------------------------------------------
+#
+CC           = gcc
+CXX          = g++
+#CC            = $(MPdir)/bin/mpicc
+#CXX            = $(MPdir)/bin/mpicxx
+
+CCNOOPT      = $(HPL_DEFS)
+_FLAGS      = $(HPL_DEFS)  -Wall \
+                -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
+                -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
+                -Wno-unused-function -pedantic -Wno-long-long -Wshadow -ggdb -Wno-write-strings \
+                -fomit-frame-pointer -O3 -march=native -ffast-math -flto
+#-mavx -ffast-math -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
+CCFLAGS      = $(_FLAGS) -std=gnu99 -Wimplicit
+#
+# On some platforms,  it is necessary  to use the Fortran linker to find
+# the Fortran internals used in the BLAS library.
+#
+LINKER       = $(CXX)
+#LINKER            = $(MPdir)/bin/mpicxx
+LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined  \
+                -fomit-frame-pointer -O3 -march=native -ffast-math -flto
+#-mavx -ffast-math -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+#
+ARCHIVER     = ar
+ARFLAGS      = r
+RANLIB       = echo
+#
+isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
+
+# Set include paths and lib paths according to HPL_DEFS options
+ifeq ("$(call isenabled,-DHPL_NO_MPI_LIB)", "no")
+HPL_INCLUDES += -isystem $(MPinc)
+HPL_LIBS += $(MPlib)
+endif
+
+ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
+LAlib += $(CALDGEMMlib) -lOpenCL
+endif
+
+ifeq ("$(call isenabled,-DHPL_CPUFREQ)", "yes")
+HPL_LIBS += -lcpufreq
+endif
+
+ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
+HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
+HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
+endif
+# ----------------------------------------------------------------------
