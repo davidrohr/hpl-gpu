@@ -41,6 +41,9 @@
 #define mcat(a, b) a ## b
 #define mxcat(a, b) mcat(a, b)
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 #ifndef HPL_CALDGEMM_BACKEND
 #define HPL_CALDGEMM_BACKEND cal
 #endif
@@ -298,7 +301,7 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_CALDGEMM_PARAM
-	cal_dgemm->ParseParameters(HPL_CALDGEMM_PARAM);
+	cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM));
 #endif
 
 	int retVal = cal_dgemm->InitCALDGEMM(&cal_info);

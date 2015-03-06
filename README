@@ -1,27 +1,86 @@
 ==============================================================
  High Performance Computing Linpack Benchmark (HPL-GPU)
- HPL-GPU - 1.0 - 2010
+ HPL-GPU - 1.2 - 2015
 ==============================================================
 
  This is a largely rewritten version of the traditional High
  Performance Linpack as published on netlib.org. It has been
  modified to make use of modern multi-core CPUs, enhanced
- lookahead and a high performance DGEMM for AMD Cypress GPUs.
+ lookahead and a high performance DGEMM for AMD GPUs. It can
+ use AMD CAL, OpenCL, and CUDA as GPU backend.
 
  See http://code.compeng.uni-frankfurt.de/projects/hpl for 
  detailed and up to date informaion.
 
- Install
- -------
+
+ Installation
+ ------------
+ This software requires the CALDGEMM library available from
+ http://code.compeng.uni-frankfurt.de/projects/caldgemm
+ HPL-GPU assumes a link to caldgemm inside its top directory
+ and this link must be called caldgemm.
+ CALDGEMM provides backends for CAL, OPENCL, CUDA, CPU.
+ The default is OpenCL and OpenCL is in the following assumed.
+ For compiling CALDGEMM, in principle, you only have to select
+ the desirect backends in config.options.mak that ships with
+ CALDGEMM and compile it.
+
+ Both, HPL-GPU and CALDGEMM require a BLAS library. Supported
+ BLAS libraries include Intel MKL, GotoBLAS2, and AMD ACML.
+ The default library is MKL, and MKL is assumed in the
+ following.
+
+ HPL-GPU requires Intel TBB. It will usually download and
+ compile TBB automatically during HPl-GPU compilation.
+
+ For running HPL-GPU on multiple-nodes, you need an MPI
+ library, by default OpenMPI, which is assumed in the README.
+
+ You need to set the following environment variables.
+
+ export AMDAPPSDKROOT=[Root of AMD APP SDK]
+ export OPENMPIPATH=[Install Path of OpenMPI]
+ export MKL_PATH=[Install Path of Intel MKL]
+ export ICC_PATH=[Install Path of Intel Compiler (for libs)]
+
+ In addition, we suggest the following settings:
+ export GPU_FORCE_64BIT_PTR=1 (Use 64Bit Ptrs on AMD GPU)
+ export GPU_NUM_COMPUTE_RINGS=1 (Setting for AMD GPUs)
+ export DISPLAY=:0 (For headless system with X-Server needed)
+
+ In order to allow allocation of large amount of pinned
+ memory you need to set the following limits in Linux:
+ ulimit -v unlimited
+ ulimit -m unlimited
+ ulimit -l unlimited
+
+ For compiling HPL-GPU after the above prerequisites are met,
+ copy Make.Generic and Make.Generic.Options from the setup
+ directory in its top directory. Principally all relevant
+ options can be controlled in Make.Generic.Options. If you
+ need to change paths for includes / libraries, you have to
+ check Make.Generic.
+
+ run ./build.sh to start compilation.
+
+ In order to tune HPL-GPU, have a look at the comments in
+ Make.Generic.Options. A detailed description and some
+ tuning comments for CALDGEMM are available in the CALDGEMM
+ README file, and HPL compile time options are listed in
+ setup/readme.
+
+
+ Newest Version
+ --------------
+ The newest version of HPL-GPU is available at
+ http://code.compeng.uni-frankfurt.de/projects/hpl
+
+
+ Information
+ -----------
  See the wiki at
  http://code.compeng.uni-frankfurt.de/projects/hpl/wiki
 
- Tuning
- ------
- See the guidelines for legacy HPL at
- http://netlib.org/benchmark/hpl/tuning.html
- and the Technical report on CALDGEMM at
- http://code.compeng.uni-frankfurt.de/documents/1
 
  Bugs
  ----
