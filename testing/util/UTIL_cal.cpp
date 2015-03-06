@@ -296,6 +296,11 @@ int CALDGEMM_Init()
 #ifdef HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
 	HPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS
 #endif
+
+#ifdef HPL_CALDGEMM_PARAM
+	cal_dgemm->ParseParameters(HPL_CALDGEMM_PARAM);
+#endif
+
 	int retVal = cal_dgemm->InitCALDGEMM(&cal_info);
 
 	return(retVal);

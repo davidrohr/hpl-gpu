@@ -113,6 +113,7 @@
 # -DHPL_WARMUP           Do a warmup run before the actual factorization to make sure all initialization is done
 # -DHPL_PRINT_CONFIG     Print Config Options at start of run
 # -DHPL_CPUFREQ          Add option to change cpu frequency
+# -DHPL_CALDGEMM_PARAM   Command line options passed to caldgemm in dgemm_bench format
 
 #
 # By default HPL will:
