@@ -301,7 +301,7 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_CALDGEMM_PARAM
-	cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM));
+	if (cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM))) return(1);
 #endif
 
 	int retVal = cal_dgemm->InitCALDGEMM(&cal_info);
