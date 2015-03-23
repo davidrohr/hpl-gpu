@@ -70,7 +70,8 @@
  Make.Generic.Options. A detailed description and some
  tuning comments for CALDGEMM are available in the CALDGEMM
  README file, and HPL compile time options are listed in
- setup/readme.
+ setup/readme. A detailed HPL-GPU tuning guide is available
+ in the TUNING file that ships with this software.
 
 
  Newest Version
@@ -84,6 +85,12 @@
  See the wiki at
  http://code.compeng.uni-frankfurt.de/projects/hpl/wiki
 
+
+ License
+ -------
+ This software is licensed partly under GPL and partly under
+ BSD license. See COPYING for details.
+ 
 
  Bugs
  ----

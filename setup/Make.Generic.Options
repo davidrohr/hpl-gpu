@@ -22,10 +22,11 @@ HPL_CALBEDEFS += ((caldgemm_opencl::caldgemm_config_backend_opencl*)cal_info.con
 HPL_CALDEFS   += cal_info.GPURatio = 1.0;
 
 #This defines the CPU core used for the management thread and for the MPI communication. If unset this is autodetected.
-HPL_DEFS     += -DHPL_GPU_PIN_MAIN=0 -DHPL_MPI_AFFINITY="{1}"
+HPL_CALDEFS  += cal_info.PinMainThread = 0;
+HPL_DEFS     += -DHPL_MPI_AFFINITY="{1}"
 
 #Local matrix size for which alternate lookahead is activated. Usualy you want to leave this infinitely high. For optimized efficiency, always activate. For optimized performance, you can lower this setting in some cases. Optimal value must be tuned manually.
-HPL_DEFS     += -DHPL_ALTERNATE_LOOKAHEAD=10000000
+HPL_CALDEFS  += cal_info.AlternateLookahead = 10000000;
 
 #############################################################################################################
 #All the following are optional tuning options

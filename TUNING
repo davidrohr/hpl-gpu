@@ -1,0 +1,282 @@
+---------------
+1) Introduction
+---------------
+
+This file is meant as a brief tutorial how to tune HPL-GPU for the respectife system where it shall run and for the
+respective purpose. HPL-GPU works in combination with CALDGEMM. HPL-GPU and CALDGEMM are free software licensed
+under a combination of GPL, LGPL and BSD license. You can obtain the most recent versions from:
+http://code.compeng.uni-frankfurt.de/projects/hpl and http://code.compeng.uni-frankfurt.de/projects/caldgemm. CALDGEMM
+comes with a README file that explains all its various options briefly. For a reference to CALDGEMM options, please
+refer to this CALDGEMM readme. HPL-GPU adds various additional parameters on top of the standard HPL parameters. For a
+reference to the standard HPL parameters and how to tune them, see: http://code.compeng.uni-frankfurt.de/projects/hpl.
+In certain cases HPL-GPU behaves differently from standard HPL tuning and also from standalone CALDGEMM case. In that
+case, the best settings are explained in this document. Therefore, this document superseeds the CALDGEMM readme and
+standard HPL tuning guide. All new HPL-GPU config options are described in the setup/readme file.
+
+HPL-GPU comes with a new "Generic" HPL-Configuration file. The old "standard" HPL configurations files for several
+systems are still provided but mostly for reference. The generic configuration is split in two files: The generic
+Make file and the generic Options file. In principle, you do not need to alter the Make file, which contains mostly
+paths to headers and libraries and default settings which do not need to be changed. All the paths are controlled via
+environement variables as explained in HPL-GPU's README file. All relevant settings are controlled via the generic
+Options file. In order to use this generic configuration, please copy the two generic files from the setup directory
+to HPL-GPU's top directory, and alter the Make.Generic.Options file according to this document.
+
+---------
+2) Tuning
+---------
+
+2a) DGEMM Tuning
+----------------
+
+Before you start with HPL-GPU tuning, please ensure that your system achieves a "good" matrix multiplication performance
+in DGEMM. DGEMM is the computational hotspot of HPL, hence it dominates HPL performance. Please have a look at the
+CALDGEMM readme file in order to tune DGEMM performance. In general, it is difficult to say what "good" performance is,
+but usually you should achieve 75% to 80% of the system's theoretical peak performance.
+
+With the following tuning, we will try to make HPL-GPU achieve almost the same performance as the DGEMM. By construction,
+HPL-GPU cannot exceed the CALDGEMM performance. Section "Reference Information" gives some empirical data how much
+performance should be achieved in which situation. In order to understand tis tuning guide, a very rough understanding
+of the working principle of HPL-GPU is needed. This will be sumarized briefly in the following:
+
+Today's GPUs often have a turbo-clock which they maintain as long as they stay withn the TDP limit. Unfortunately,
+DGEMM requires very much energy and GPUs will usually not remain in their TDP limit. There are tools to raise TDP limits
+of GPUs, which you can use to boost your DGEMM performance. Be aware that you might run the GPUs out of specifications
+with this and this could damage your hardware. A tool for AMD GPUs for instance is atitweak: https://github.com/mjmvisser/adl3
+
+2b) Working principle of HPL-GPU
+--------------------------------
+
+HPL performs an iterative matrix factorization. Each iteration consists of the following steps: Panel-Factorization,
+Update-DGEMM, Update-DTRSM, Panel-Broadcast, U-Broadcast, LASWP. The Update-DGEMM is one large matrix-matrix
+multiplication, and it is the computational hotspot. The Panel-Factorization is a complex tast, which contains many
+subtasks, among them several medium sized DGEMMs and also some DTRSMs.
+
+DGEMM is optimally suited for execution on the GPU, the larger the better. Therefore, it is ideal to execute the large
+Update-DGEMM on the GPU. The GPU can also perform the smaller DGEMMs during the factorization, but less efficiently than
+the Update-DGEMM. In addition, the GPU can perform the DTRSMs, but less efficiently than DGEMM. Again, the large
+Update-DTRSM runs more efficiently than the smaller DTRSMs inside the Panel-Factorization. All the other steps must
+remain on the processor.
+
+The idea behind HPL-GPU is to run if possible only the Update-DGEMM on the GPU. All other tasks remain on the processor.
+A pipeline is used to hide these tasks behind the Update-DGEMM execution on the GPU. In the ideal case, the GPU runs at
+100% utilization all time computing exclusively the Update-DGEMM, while the processor performs the other tasks in
+parallel. This approach works perfectly as long as the CPU can finish its tasks faster than the GPU. In that case,
+HPL-GPU can reach 100% GPU utilization. Because the GPU usually provides more compute power than the processor, this
+is very important.
+
+During the HPL run, the remaining matrix size which is processed becomes smaller and smaller. The GPU workload per
+iteration goes with matrix size^2, the CPU workload only with the matrix size. Hence, the GPU workload diminishes faster
+than the CPU workload. Hence, at a certain point in time, the CPU part will take longer than the Update-DGEMM on the
+GPU. Then, the CPU becomes the dominant part, and the can no longer be used at 100% utilization. At that point, the
+ideal working configuration changes. Now, the GPU should perform additional workload. In this way, we can reduce the CPU
+workload an make the CPU finish its part faster. HPL-GPU adds the option to dynamically offload other steps to the GPU.
+All these options come with a parameter that define a matrix size, at which the offload is performed. If the matrix size
+is larger than this parameter, the offload is not performed and the GPU runs the Update-DGEMM only. If the matrix size
+is smaller, the GPU performs additional task. These parameters must be tuned for the individual system, and we explain
+below how this can be done.
+
+There is another aspect with respect to workload distribution. The CPU provides in many situation a non-negligible
+amount of compute power. At the beginning of an HPL run the matrices are usually very large. In this case, the GPU is
+the dominant part. The GPU takes longer to process the Update-DGEMM than the CPU takes for its parts. This means that
+the CPU idles for some time. We can use this available CPU power to speed up the processing if the Update-DGEMM
+by distributing the Update-DGEMM workload between GPU and CPU.
+
+The section "Tuning for different scenarios" below will explain how to set up a good workload distribution between CPU
+and GPU and how to tune the ofload parameters. But first, this section will go through some general tuning steps.
+
+2c) HPL blocking size Nb
+------------------------
+
+The most important HPL parameter with respect to GPUs is the blocking size Nb. CPU-only systems usually prefer quite
+small blocking factors in the order of 64. Such settings are infeasible for GPU-accelerated systems. In general,
+a smaller blocking leads to more efficient execution by increasing the DGEMM workload and reducing the other workloads.
+Taking into account the above-described working principle of HPL-GPU: A smaller blocking increases the GPU workload, a
+larger blocking increases the CPU workload. From this perspective, the blocking should be rather small. However, the
+smaller the blocking is, the higher are both required host memory and PCI express bandwidth. Usually, a blocking size
+below 1024 will always lead to a bandwidth bottleneck. In general, the more GPUs you have in a system, the more severe
+the bandwidth issue is. I.e., a multi-GPU setup will usually require a larger blocking. In addition, it seems Intel CPU
+provide more memory bandwidth than AMD CPUs, hence and AMD CPU based system may sometimes require a larger blocking
+factor Nb than a comparable Intel CPU based system. Another aspect is the performance of the CPU: The faster the CPU
+is, the larger can be the Nb parameter withour creating a CPU-bottleneck. As a rough guideline, start with Nb = 1024 and
+then increase Nb step by step until you find the optimum. Usually, for an Intel CPU system with 4 GPUs, Nb = 1920 is a
+good compromise. There is usually absolutely no sense in going beyond Nb = 2048. In a multi-GPU system with old AMD GPUs
+this might be necessary, but in general, if you need such a high Nb setting, it indicates a bandwidth problem on your
+system.
+
+2d) Processor affinities
+------------------------
+
+You can set cpu core affinities for the CALDGEMM main thread "cal_info.PinMainThread = [n];". It can make sense to try
+all NUMA nodes for this. It makes sence to place the MPI based process on the NUMA node with IB adapter
+"-DHPL_MPI_AFFINITY={n}". In order to use NUMA nodes efficiently, please look aht the paramters "-DHPL_GPU_DEVICE_IDS"
+and "-DHPL_GPU_ALLOC_MAPPING" in Make.Generic.Options file.
+
+2e) HyperThreading
+Hyperthreading usually has a negative effect and should be disabled by all means. If you cannot disable it, you can use
+the "-DHPL_GPU_EXCLUDE_CORES" parameter to exclude CPU cores from the run, such that only one virtual core per physical
+core participates. You can try the same for the Modules of AMDs bulldozer architecture. At least make sure that
+caldgemm threads / mpi threads do not run on the same module as BLAS threads.
+
+---------------------------------
+3) Tuning for different scenarios
+---------------------------------
+
+There are principally three tuning scenarios. The first is the most simple one and it is the basis for the other two.
+Therefore, in section 3a) we explain how to boost performance using mostly the GPU first. The following sections 3b)
+and 3c) provide additional tuning methods, which can be applied on top of 3a) in other scenarios.
+
+3a) Tuning for best performance running matrix multiplication on GPU only
+-------------------------------------------------------------------------
+
+In order to tune for best performance on the GPU, we use the most simple approach: We execute the Update-DGEMM on the
+GPU only. And we dynamically offload some of the CPU tasks to the GPU as soon as the CPU becomes a bottleneck. There
+are 2 to 3 tasks worth offloading, with a priority according to the following order:
+I: Medium DGEMMs inside the factorization.
+II: The large Update-DTRSM.
+III: Medium DTRSMs inside the factorization. (Only for systems with very slow CPUs.)
+We need to determine the optimal tradeoff parameters, i.e. the matrix size where the offload starts. In order to
+determine these sizes, we run HPL-GPU twice: One time without offloading, and one time where we always offload. Using
+the debug output, we can determine the tradeoff point, where we should start the offload. For the first run, we set the
+respective parameter to 1, which is the smallest setting. The remaining matrix size will never be below one. For the
+second run we set the parameter to 1000000 or even larger, so HPL-GPU will always offload. Because the different
+offloads can influence each other, we have to go step by step using the above priority list. I.e., first we must find
+the optimal setting for the DGEMMs inside the factorization (I) and then for the Update-DTRSM (II). On systems with very
+slow CPUs you can afterwards try to offload the DTRSMs inside the factorization (III), but usually this has a negatve
+effect. In order to enable general offload support, you have to enable: "cal_info.AsyncSideQueue = true;" and
+"cal_info.AsyncDTRSM = true;". In general, it is a good idea to always enable "-DHPL_CALDGEMM_ASYNC_FACT_FIRST".
+The three parameters you need to adapt now for offloads I, II, and III are: "-DHPL_CALDGEMM_ASYNC_FACT_DGEMM=[n]" (I),
+"-DHPL_CALDGEMM_ASYNC_DTRSM=[n]" (II), and "-DHPL_CALDGEMM_ASYNC_FACT_DTRSM=[n]" (III). Please set HPL_CONFIG_VERBOSE to
+at least 3 to get sufficient debug output to find the optimal settings. The relevant lines which you have to investigate
+in order to find the best settings are the following:
+
+#(0  ,   4) Program: caldgemm Sizes - A: 40321x1920 B: 1920x40320 C:40321x40320 (Host: lcsc-r01n01) System Time 4.030 System Gflops 1549.815
+#(0  ,   4) GPU Time 4.0302 (1332.0910 Gflops)   CPU Time 2.1691 (404.5750 Gflops)   Linpack Time: 0.9765 (2, 0.0000, 0.5343)  Total CPU Time: 3.6799 --- GPU Ratio - Real: 0.767 Corrected: 0.866 Guessed: 0.859 , m*n: 1.6E+09, CPU Wait Time: -0.350
+
+The first to numbers show MPI rank and iteration number. The iteration number is increasing by 1 every time. The first
+line then shows the matrix sizes. We will find the tradeoff point by finding between which two iterations the setting
+should change. Then we have to insert the respective C matrix size as [n] for the paramters above. There are three
+equivalent ways to find the best setting. For reference we describe all of them:
+(i) The "System Gflops" at the end of the last line shows the performance achieved in one iteration. Comparing the
+achieved "System Gflops" iteration by iteration for the two runs, you need to find the iteration number when the run
+with the offload always enabled becomes faster than the run with the offload disabled. (Be aware that it is possible
+that one of the runs is always faster.)
+(ii) The second line shows "GPU Time" and "Total CPU Time". You do not need the offload as long as "Total CPU Time" is
+shorter than GPU time. You should anable the offload as soon as "Total CPU Time" becomes longer.
+(iii) The CPU wait time at the end of the last line describes how long CALDGEMM had to wait for the CPU thread. As soon
+as this becomes positive, you should enable the offload. 
+
+3b) Tuning for best performance using both CPU and GPU for matrix multiplication
+--------------------------------------------------------------------------------
+
+This is the most complicated scenario because it requires much more scheduling than the other two. CALDGEMM offers a
+variety of parameters to tune the GPURatio. The GPU ratio is the fraction of the workload performed by the GPU, i.e.
+a ratio of 0.7 (70%) means the GPU does 70% of the Update-DGEMM and the CPU does 30%. A simple setting for the ratio
+would be (GPU-Performance) / (CPU-Performance + GPU-Performance), but this does not work since the CPU has to do other
+parts as well. Fortunately, CALDGEMM can perform this calculation for you. 
+
+But first:
+When you are using the CPU for the Update-DGEMM, there is also the "preparatory lookahead dgemm", which you can run on
+the CPU. Using this tuning parameter has very little effect, but can gain in the order of 0.5% performance improvement.
+You should tweak this setting before finding the optimal GPU ratio below. Proceed as in section 3a) and use the
+parameter "cal_info.AlternateLookahead = [n];". By default, this preparatory DGEMM is always offloaded.
+
+Now, as the next step, we would like to find the optimal GPU ratio: In the same debug output line above used in
+section 3a), the entry "Corrected: [n]" shows the expected optimal setting. CALDGEMM can automatically determine the
+optimal setting during runtime if you set a negative GPURatio, but this does not work well for the first few iterations.
+Hence, CALDGEMM offers the possibility to provide a first "guess", which is used as basis for its auto-computation.
+To determine such a guess, please provide the negative value as ratio. I.e., run CALDGEMM once with full autodetection
+(GPURatio = -1), then use the value printed out as guessed and plug its negative into the ratio. In the above case:
+"cal_info.GPURatio = -0.866;". To get the optimal value, you might want to iterate this two or three times, i.e. run
+with -0.866 and then use the next debug value "Corrected: [n]". Be aware that caldgemm will now use your setting as
+initial GPU ratio and then dynamically adapt the ratio to the optimal setting during runtime. This is needed, because
+the matrix sizes become smaller and thus the optimal ratio changes.
+
+In order to fine-tune the dynamic adaption, you can use the following caldgemm settings:
+- MinimizeCPUPart=[n]:
+Minimizes the CPU part of the Update-DGEMM. In multi-GPU systems, it is important that the CPU does not slow down the
+GPU. Towards the end of the run the performance may fluctuate and the autodetermination might not be able to find good
+values. If the GPU ratio is chosen to small, the GPU will idle. THis setting can prevent this by forcing the ratio to
+1.0 as soon as the matrix size becomes smaller than [n]. Good values are: disabled, one of the tradeoff points determined
+in 3a) to start one of the offloads, or you can use the same procedure as in 3a) to find the abolute best setting.
+- GPURatioDuringFact=[f]:
+THis is only relevant for multi-node MPI runs. In that case, there are phases with and phases without factorization on a
+node. Both phases need different GPU ratios and CALDGEMM usually automatically handles this. However, performance of
+fluctuation phases may vary strongly and CALDGEMM might be incable of finding good ratios. With GPURatioDuringFact
+can enforce a ratio in this case. Usual values are: disabled, 1.0, or hand-tuned.
+- GPURatioMax=[f]:
+Sets a cap for the GPU ratio. A problem is, that CALDGEMM cannot determine the ratio properly if the CPU is not used. If,
+in a network run, for one iteration due to e.g. a network latencey the ratio becomes 1.0, posterior automatic adaption may
+fail. The GOURatioMax setting can cap the ratio and avoid this. This setting should be used in combination with the
+MinimizeCPUPart setting above, so the ratio can actually go to 1.0 when the CPU time is dominant. Usual values are either
+disabled or 0.99.
+- GPURatioMarginTime=[t]:
+If the autodetermination overestimates the CPU performance, the CPU will take too long and the GPU will idle. This
+setting allows to define a margin time [t]. CALDGEMM will try to set the ratio such that the CPU finishes [t] seconds
+before the GPU. Default parameter is 0.3s.
+- GPURatioMarginTimeDuringFact=[t]:
+As above, but during the factorization phase of a multi-node MPI run.
+- GPURatioLookaheadSizeMod=[f]:
+This is only relevant if the cal_info.AlternateLookahead setting is used. In that case, for a large matrix, the CPU will
+process the preparatory lookahead DGEMM. This can usually not run as effectively as the update DGEMM, hence CALDGEMM
+virtualy increases the preparatory DGEMM size in the ratio calculation to find better ratios. The default additional
+factor is 0.2.
+
+3c) Tuning for best power efficiency
+------------------------------
+
+Tuning for best efficiency usually requires other settings than tuning for best performance. In general, the GPU is more
+efficient than CPUs. Hence, for best efficiency it is often good to offload as many of the tasks as possible on the GPU.
+It turns out, that offloading DTRSM is not always good, because the GPU DTRSM requires a lot of memory bandwidth.
+
+As a rough guideline, in order to tune for best efficiency, please:
+
+* Set the GPU Ratio to 1.0 and/or set MinimizeCPUPart arbitrarily high, to use GPU only for DGEMM.
+* Always offload the preparatory DGEMM "cal_info.AlternateLookahead = 10000000;" (very high).
+* Always offload the DGEMM in the factorization "-DHPL_CALDGEMM_ASYNC_FACT_DGEMM=10000000" (very high).
+* Tune offload of DTRSM as in 3a)
+
+Other very important aspects are voltage and frequency. The high frequency do usually not deliver the best performance.
+In addition, by using a lower frequency, you might be able to reduce supply voltage as well. Please refer to the GPU
+driver and the toolkit that comes with it or to your vendor on how to change voltage / frequency.
+
+For CPU, HPL-GPU can link to libcpufrequtils, and then HPL-GPU can alter the CPU frequencies directly. Refer to
+Make.Generic.Options for an example how this can work.
+
+Another possibility is to gradually reduce the number of GPUs in a multi-GPU system, i.e. use only a single GPU in the
+end of the run, allowing the other GPUs to go in power save mode. Make.Generic.Options cantains an example also for
+this case.
+
+For energy measurements, the "-DHPL_DURATION_FINDER" setting can be a great support.
+
+------------------------
+4) Reference Information
+------------------------
+
+As a rough guideline, you can reach:
+* 75% - 85% of the theoretical peak performance in the GPU DGEMM kernel.
+* CALDGEMM should be able to maintain aboud 98% of this kernel performance as DGEMM system performance on a single-GPU.
+* The loss in multi-GPU runs is usually 2% for dual-GPU and 4% for quad-GPU for a reasonable large matrix.
+* With lookahead enabled, and reasonable large matrix size, performance loss in HPL compared to DGEMM is in the order of
+  10% for a reasonable large matrix.
+* The loss when going from a single node to an multi-node MPI run is usually between 5% and 10%.
+
+----------------------------
+5) Other rarely used options
+----------------------------
+
+5a) Additional dynamic parameter adaptation
+-------------------------------------------
+
+It is possible, that the optimal HPL parameters (the standard parameters like nbmin, nbdiv) change during the run.
+In particular on AMD CPU systems, you might want to use parameters which require less memory bandwidth at the beginning,
+but parameters which result in faster factorization towards the end of the run. Meke.Generic.Options contains an example
+how to change these parameters dynamically.
+
+5b) Disabling lookahead
+-----------------------
+
+On AMD CPU systems it might be beneficial to turn off the lookahead features (level 1 and 2) during the run to save
+bandwidth. On Intel CPU systems this was never necessary yet. The relevant parameters are "-DHPL_DISABLE_LOOKAHEAD=[n]" 
+and "-DHPL_LOOKAHEAD2_TURNOFF=[n]". They must be tuned in the same way as the offload parameters in section 3a).
+However, there is one difference: Instead of the metrics above, you have to minimize the wall time of the total
+iteration time time which looks like: "Timer ITERATION (22) CPU Time 70.39200 Wall Time 4.84046".
