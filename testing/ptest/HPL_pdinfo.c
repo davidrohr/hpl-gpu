@@ -760,10 +760,14 @@ label_error:
                    "========================================" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
           "HPL-GPU " HPL_VERSION "  --  High-Performance Linpack benchmark for GPUs  --  ",
-          " 2014" );
+          " 2015" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
-          "Written by D. Rohr, M. Kretz and M. Bach,  ",
+          "Written by D. Rohr, M. Kretz and M. Bach, ",
           "Frankfurt Institute for Advanced Studies" );
+      HPL_fprintf( TEST->outfp, "%s\n",
+          "This program is open source software licensed partly under GPL and partly\nunder BSD license." );
+      HPL_fprintf( TEST->outfp, "%s\n",
+          "You can obtain the source at: http://code.compeng.uni-frankfurt.de/projects/hpl." );
       HPL_fprintf( TEST->outfp, "%s\n",
           "Based on:" );
       HPL_fprintf( TEST->outfp, "%s%s\n",
