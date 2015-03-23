@@ -61,7 +61,7 @@ HPL_DEFS     += -DHPL_ALTERNATE_LOOKAHEAD=10000000
 #HPL_DEFS     += -DHPL_DURATION_FIND_HELPER
 
 #In multi-node runs, the factorization causes significant CPU load on some but not all nodes. Caldgemm tries to take this into accound for automatic gpu ratio calculation, but sometimes this fails. In this case, the following setting can define a minimum GPU ratio in iterations where the node performs the factorization.
-#See also GPURatioMax, GPURatioMarginTime, GPURatioMarginTimeDuringFact, GPURatioLookaheadSizeMod. If you do not want them to interfere with ratio calculation, set them all to 0!
+#See also GPURatioMax, GPURatioMarginTime, GPURatioMarginTimeDuringFact, GPURatioLookaheadSizeMod, GPURatioPenalties, GPURatioPenaltyFactor. If you do not want them to interfere with ratio calculation, set them all to 0!
 #HPL_DEFS     += cal_info.GPURatioDuringFact = 0.9;
 
 #Offload some steps during the factorization to the GPU. Offloading is active as soon as local matrix size is lower than the defined parameter.

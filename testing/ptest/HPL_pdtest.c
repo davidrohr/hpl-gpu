@@ -267,6 +267,7 @@ void HPL_pdtest
 
 #ifdef HPL_WARMUP
    if (myrow == 0 && mycol == 0) HPL_fprintf( TEST->outfp, "\nRunning warmup iteration\n");
+   CALDGEMM_reset();
    HPL_pdgesv( GRID, ALGO, &mat, 1 );
 #ifndef HPL_FASTINIT
    HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, SEED );
@@ -282,6 +283,7 @@ void HPL_pdtest
    HPL_barrier( GRID->all_comm );
 #endif
 
+   CALDGEMM_reset();
 #ifdef HPL_DURATION_FIND_HELPER
    usleep(1000 * 1000 * 10);
    if (myrow == 0 && mycol == 0)

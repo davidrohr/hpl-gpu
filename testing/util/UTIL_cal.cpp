@@ -315,6 +315,11 @@ void CALDGEMM_Shutdown()
 	delete cal_dgemm;
 }
 
+void CALDGEMM_reset()
+{
+	cal_dgemm->ResetRatios();
+}
+
 void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
