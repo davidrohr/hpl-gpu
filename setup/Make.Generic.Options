@@ -15,10 +15,10 @@ HPL_DEFS      += -DHPL_CALDGEMM_BACKEND=opencl
 #In case the selected backend is OpenCL, this setting chooses the 3rd party library file that provides the OpenCL kernels.
 HPL_CALBEDEFS += ((caldgemm_opencl::caldgemm_config_backend_opencl*)cal_info.config_backend)->kernelLib=\"amddgemm_hawai.so\";
 
-#This sets the GPU ratio, i.e. the fraction of the workload defined by the GPU. The following options exist: 1.0: All work performed by GPU, 0.0 <= GPURatio < 1.0: Fixed setting of
-#GPU Ratio, -1.0: Fully automatic GPU Ratio calculation, -1.0 < GPURatio < 0.0: This defines the negative initial GPU Ratio, during runtime the ratio is then dynamically adapted. This
+#This sets the GPU ratio, i.e. the fraction of the workload performed by the GPU. The following options exist: 1.0: All work performed by GPU, 0.0 <= GPURatio < 1.0: Fixed setting of
+#GPU Ratio, -1.0: Fully automatic GPU Ratio calculation, -1.0 < GPURatio < 0.0: This defines the negative initial GPU Ratio: during runtime the ratio is then dynamically adapted. This
 #means e.g. GPURatio = -0.9 will start with a ratio of 0.9, and then adapt it dynamically. The suggested settings are: 1.0 for GPU only and for efficiency optimized cases; In any other
-#case a negative initial setting is suggested.
+#case a negative initial setting is suggested. Please see also the advence GPURatio options below.
 HPL_CALDEFS   += cal_info.GPURatio = 1.0;
 
 #This defines the CPU core used for the management thread and for the MPI communication. If unset this is autodetected.
@@ -60,6 +60,10 @@ HPL_DEFS     += -DHPL_ALTERNATE_LOOKAHEAD=10000000
 #Tool to find the duration of the core phase of HPL, needed to measure power consumption and power efficiency.
 #HPL_DEFS     += -DHPL_DURATION_FIND_HELPER
 
+#In multi-node runs, the factorization causes significant CPU load on some but not all nodes. Caldgemm tries to take this into accound for automatic gpu ratio calculation, but sometimes this fails. In this case, the following setting can define a minimum GPU ratio in iterations where the node performs the factorization.
+#See also GPURatioMax, GPURatioMarginTime, GPURatioMarginTimeDuringFact, GPURatioLookaheadSizeMod. If you do not want them to interfere with ratio calculation, set them all to 0!
+#HPL_DEFS     += cal_info.GPURatioDuringFact = 0.9;
+
 #Offload some steps during the factorization to the GPU. Offloading is active as soon as local matrix size is lower than the defined parameter.
 #For best efficiency, you want to enable this always, i.e. set the parameter very high. For best performance, parameter must be tuned manually.
 #HPL_DEFS     += -DHPL_CALDGEMM_ASYNC_FACT_DGEMM=2000000 -DHPL_CALDGEMM_ASYNC_FACT_FIRST
@@ -77,4 +81,3 @@ HPL_DEFS     += -DHPL_ALTERNATE_LOOKAHEAD=10000000
 
 #Temperature threshold when run is aborted. Requires CALDGEMM to be compiled with ADL support.
 #HPL_DEFS     += -DHPL_GPU_TEMPERATURE_THRESHOLD=92.
-
