@@ -447,10 +447,17 @@ void HPL_pdinfo
  * Checking threshold value (TEST->thrsh)
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
-#if (defined(HPL_FASTINIT) & !defined(HPL_FASTVERIFY)) | defined(HPL_START_PERCENTAGE) | defined(HPL_END_N)
+#if defined(HPL_START_PERCENTAGE) | defined(HPL_END_N)
       TEST->thrsh = -1;
 #else
-      (void) sscanf( line, "%s", num ); TEST->thrsh = atof( num );
+	  if (global_runtime_config.fastrand == 1)
+	  {
+		  TEST->thrsh = -1;
+	  }
+	  else
+	  {
+         (void) sscanf( line, "%s", num ); TEST->thrsh = atof( num );
+	  }
 #endif
 
 /*
@@ -756,6 +763,20 @@ label_error:
 
     global_runtime_config.paramdefs = (char*) malloc(1);
     global_runtime_config.paramdefs[0] = 0;
+#ifdef HPL_FASTINIT
+#ifdef HPL_FASTVERIFY
+	global_runtime_config.fastrand = 2;
+#else
+	global_runtime_config.fastrand = 1;
+#endif
+#else
+	global_runtime_config.fastrand = 0;
+#endif
+#ifdef HPL_WARMUP
+	global_runtime_config.warmup = 1;
+#else
+	global_runtime_config.warmup = 0;
+#endif
 #ifdef HPL_DISABLE_LOOKAHEAD
     global_runtime_config.disable_lookahead = HPL_DISABLE_LOOKAHEAD;
 #else
@@ -862,52 +883,60 @@ label_error:
     while (*ptr2 == 10 || *ptr2 == 13) ptr2++;
     *ptr = 0;
     ptr = ptr2;
-    
-    if (strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option);
-    if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
-    {
-	global_runtime_config.disable_lookahead = atoi(option);
-    }
-    else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
-    {
-	global_runtime_config.lookahead2_turnoff = atoi(option);
-    }
-    else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
-    {
-	global_runtime_config.duration_find_helper = 1;
-    }
-    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DGEMM") == 0)
-    {
-	global_runtime_config.caldgemm_async_fact_dgemm = atoi(option);
-    }
-    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_FIRST") == 0)
-    {
-	global_runtime_config.caldgemm_async_fact_first = 1;
-    }
-    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
-    {
-	global_runtime_config.caldgemm_async_dtrsm = atoi(option);
-    }
-    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
-    {
-	global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
-    }
-    else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
-    {
-	int len = strlen(option);
-	if (len)
+
+	if (strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option);
+	if (strcmp(cmd, "HPL_WARMUP") == 0)
 	{
-		if (strlen(global_runtime_config.paramdefs)) len++;
-		len += strlen(global_runtime_config.paramdefs);
-		global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
-		if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
-		strcat(global_runtime_config.paramdefs, option);
+		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
 	}
-    }
-    else
-    {
-	HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
-    }
+	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
+	{
+		global_runtime_config.fastinit = option[0] ? atoi(option) : 2;
+	}
+	else if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
+	{
+		global_runtime_config.disable_lookahead = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
+	{
+		global_runtime_config.lookahead2_turnoff = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
+	{
+		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DGEMM") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_dgemm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_FIRST") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_first = option[0] ? atoi(option) : 1;
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
+	{
+		global_runtime_config.caldgemm_async_dtrsm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
+	{
+		int len = strlen(option);
+		if (len)
+		{
+			if (strlen(global_runtime_config.paramdefs)) len++;
+			len += strlen(global_runtime_config.paramdefs);
+			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
+			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
+			strcat(global_runtime_config.paramdefs, option);
+		}
+	}
+	else
+	{
+		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+	}
   }
   
   free(Buffer);

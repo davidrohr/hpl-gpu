@@ -45,6 +45,8 @@ extern "C"
 struct runtime_config_options
 {
     char* paramdefs;
+	int warmup;
+	int fastinit;
     int disable_lookahead;
     int lookahead2_turnoff;
     int duration_find_helper;
