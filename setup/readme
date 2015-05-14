@@ -114,6 +114,8 @@
 # -DHPL_PRINT_CONFIG     Print Config Options at start of run
 # -DHPL_CPUFREQ          Add option to change cpu frequency
 # -DHPL_CALDGEMM_PARAM   Command line options passed to caldgemm in dgemm_bench format
+# -DHPL_GPU_RUNTIME_CONFIG
+#                        Read runtime config file "HPL-GPU.conf" when the run starts. This can be used to set / override compile time settings
 
 #
 # By default HPL will:

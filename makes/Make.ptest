@@ -85,12 +85,18 @@ dexe    : dexe.grd
 $(BINdir)/HPL.dat : ../HPL.dat
 	( $(CP) ../HPL.dat $(BINdir) )
 
+ifeq ("$(call isenabled,-DHPL_GPU_RUNTIME_CONFIG)", "yes")
+$(BINdir)/HPL-GPU.conf : ../HPL-GPU.conf
+	( $(CP) ../HPL-GPU.conf $(BINdir) )
+RUNTIME_CONF_FILE = $(BINdir)/HPL-GPU.conf
+endif
+
 $(BINdir)/node-perf.dat : ../node-perf.dat
 	( $(CP) ../node-perf.dat $(BINdir) )
 #
 dexe.grd: $(HPL_pteobj) $(HPLlib)
 	$(LINKER) $(LINKFLAGS) -o $(xhpl) $(HPL_pteobj) $(HPL_LIBS)
-	$(MAKE) $(BINdir)/HPL.dat $(BINdir)/node-perf.dat
+	$(MAKE) $(BINdir)/HPL.dat $(BINdir)/node-perf.dat $(RUNTIME_CONF_FILE)
 	$(TOUCH) dexe.grd
 #
 # ######################################################################

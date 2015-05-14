@@ -506,11 +506,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = factorize;
 
-		if (depth2
-#ifdef HPL_LOOKAHEAD2_TURNOFF
-		 && n >= HPL_LOOKAHEAD2_TURNOFF
- #endif
-		 )
+		if (depth2 && global_runtime_config.lookahead2_turnoff && n >= global_runtime_config.lookahead2_turnoff)
 		{
 		    CALDGEMM_enable_async_laswp(1);
 		}
@@ -800,12 +796,10 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		//Finish the latest update and broadcast the current panel
 
 		int olddepth1 = depth1;
-#ifdef HPL_DISABLE_LOOKAHEAD
-		if (n <= HPL_DISABLE_LOOKAHEAD + nb + 1)
+		if (global_runtime_config.disable_lookahead && n <= global_runtime_config.disable_lookahead + nb + 1)
 		{
 			depth1 = 0;
 		}
-#endif
 		HPL_pdupdateTT(GRID, panel[0], panel[olddepth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, GRID) : -1, depth2);
 
 		HPL_ptimer_detail( HPL_TIMING_ITERATION );

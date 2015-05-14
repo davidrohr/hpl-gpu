@@ -127,7 +127,8 @@ HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_
 HPL_DEFS     += -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY
 HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE
 HPL_DEFS     += -DUSE_MKL
-HPL_DEFS     +=  -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
+HPL_DEFS     += -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
+HPL_DEFS     += -DHPL_GPU_RUNTIME_CONFIG
 HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.ImprovedScheduler = true;
 HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;
 
@@ -149,9 +150,15 @@ else ifeq ($(HPL_CONFIG_VERBOSE), 4)
 HPL_DEFS += -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST -DHPL_DETAILED2_TIMING
 endif
 
+ifneq ($(HPL_CALDEFS), )
 HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS="$(HPL_CALDEFS)"
+endif
+ifneq ($(HPL_CALBEDEFS), )
 HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS="$(HPL_CALBEDEFS)"
+endif
+ifneq ($(HPL_PARAMDEFS), )
 HPL_DEFS     += -DHPL_CALDGEMM_PARAM="$(HPL_PARAMDEFS)"
+endif
 
 #
 # ----------------------------------------------------------------------

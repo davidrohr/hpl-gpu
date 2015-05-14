@@ -61,6 +61,8 @@
 #include "hpl.h"
 #include <unistd.h>
 
+struct runtime_config_options global_runtime_config;
+
 extern int max_gpu_nb;
 
 void HPL_pdinfo
@@ -744,12 +746,173 @@ label_error:
       for( i = 0; i < *NDHS; i++ ) { DH[i] = iwork[j]; j++; }
    }
    if( iwork ) free( iwork );
-   
+
+    //Broadcast maximum Nb value that will appear during HPL runs (if not defined via HPL_GPU_MAX_NB)
 #ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
    HPL_broadcast( (void*) &max_gpu_nb, 1, HPL_INT, 0, MPI_COMM_WORLD );
 #endif
 #endif
+
+    global_runtime_config.paramdefs = (char*) malloc(1);
+    global_runtime_config.paramdefs[0] = 0;
+#ifdef HPL_DISABLE_LOOKAHEAD
+    global_runtime_config.disable_lookahead = HPL_DISABLE_LOOKAHEAD;
+#else
+    global_runtime_config.disable_lookahead = 0;
+#endif
+#ifdef HPL_LOOKAHEAD2_TURNOFF
+    global_runtime_config.lookahead2_turnoff = HPL_LOOKAHEAD2_TURNOFF;
+#else
+    global_runtime_config.lookahead2_turnoff = 0;
+#endif
+#ifdef HPL_DURATION_FIND_HELPER 
+    global_runtime_config.duration_find_helper = 1;
+#else
+    global_runtime_config.duration_find_helper = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
+    global_runtime_config.caldgemm_async_fact_dgemm = HPL_CALDGEMM_ASYNC_FACT_DGEMM;
+#else
+    global_runtime_config.caldgemm_async_fact_dgemm = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
+    global_runtime_config.caldgemm_async_fact_first = HPL_CALDGEMM_ASYNC_FACT_FIRST ;
+#else
+    global_runtime_config.caldgemm_async_fact_first = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_DTRSM
+    global_runtime_config.caldgemm_async_dtrsm = HPL_CALDGEMM_ASYNC_DTRSM;
+#else
+    global_runtime_config.caldgemm_async_dtrsm = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
+    global_runtime_config.caldgemm_async_fact_dtrsm = HPL_CALDGEMM_ASYNC_FACT_DTRSM;
+#else
+    global_runtime_config.caldgemm_async_fact_dtrsm = 0;
+#endif
+                                        
+    //Read HPL_GPU_CONFIG runtime config file
+#ifdef HPL_GPU_RUNTIME_CONFIG
+  char* Buffer;
+  if ( rank == 0)
+  {
+    FILE* fRuntime = fopen("HPL-GPU.conf", "r");
+    if (fRuntime == 0)
+    {
+      HPL_fprintf( TEST->outfp, "Error Opening Runtime Config File HPL-GPU.conf!\n");
+      exit(1);
+    }
+    fseek(fRuntime, 0, SEEK_END);
+    int filesize = ftell(fRuntime);
+    fseek(fRuntime, 0, SEEK_SET);
+    Buffer = (char*) malloc(filesize + 1);
+    int nread = fread(Buffer, 1, filesize, fRuntime);
+    fclose(fRuntime);
+    if (nread != filesize)
+    {
+      HPL_fprintf( TEST->outfp, "Error readubg File HPL-GPU.conf!\n");
+      exit(1);
+    }
+    Buffer[filesize] = 0;
+    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
+    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
+  }
+  else
+  {
+    int filesize;
+    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
+    Buffer = (char*) malloc(filesize + 1);
+    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
+  }
+  
+  char* ptr = Buffer;
+  while (*ptr)
+  {
+    char *cmd, *option = (char*) "";
+    while (*ptr == ' ' || *ptr == '	') ptr++;
+    if (*ptr == '#')
+    {
+	while (*ptr != 10 && *ptr != 13 && *ptr) ptr++;
+	while (*ptr == 10 || *ptr == 13) ptr++;
+	continue;
+    }
+    cmd = ptr;
+    while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr) ptr++;
+    char* ptr2 = ptr;
+    while (*ptr2 == ' ' || *ptr2 == '	') ptr2++;
+    if (*ptr2 == ':')
+    {
+	*ptr = 0;
+	ptr = ptr2 + 1;
+	while (*ptr == ' ' || *ptr == '	') ptr++;
+	option = ptr2 = ptr;
+	while (*ptr2 != 10 && *ptr2 != 13 && *ptr2)
+	{
+	    if (*ptr2 != ' ' && *ptr2 != '	') ptr = ptr2;
+	    ptr2++;
+	}
+	if (*ptr) ptr++;
+    }
+    else if (*ptr != 10 && *ptr != 13)
+    {
+	HPL_fprintf( TEST->outfp, "Error parsing runtime config file\n");
+	exit(1);
+    }
+    while (*ptr2 == 10 || *ptr2 == 13) ptr2++;
+    *ptr = 0;
+    ptr = ptr2;
+    
+    if (strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option);
+    if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
+    {
+	global_runtime_config.disable_lookahead = atoi(option);
+    }
+    else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
+    {
+	global_runtime_config.lookahead2_turnoff = atoi(option);
+    }
+    else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
+    {
+	global_runtime_config.duration_find_helper = 1;
+    }
+    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DGEMM") == 0)
+    {
+	global_runtime_config.caldgemm_async_fact_dgemm = atoi(option);
+    }
+    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_FIRST") == 0)
+    {
+	global_runtime_config.caldgemm_async_fact_first = 1;
+    }
+    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
+    {
+	global_runtime_config.caldgemm_async_dtrsm = atoi(option);
+    }
+    else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
+    {
+	global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
+    }
+    else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
+    {
+	int len = strlen(option);
+	if (len)
+	{
+		if (strlen(global_runtime_config.paramdefs)) len++;
+		len += strlen(global_runtime_config.paramdefs);
+		global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
+		if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
+		strcat(global_runtime_config.paramdefs, option);
+	}
+    }
+    else
+    {
+	HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+    }
+  }
+  
+  free(Buffer);
+#endif
+
 /*
  * regurgitate input
  */

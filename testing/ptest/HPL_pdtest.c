@@ -284,25 +284,27 @@ void HPL_pdtest
 #endif
 
    CALDGEMM_reset();
-#ifdef HPL_DURATION_FIND_HELPER
-   usleep(1000 * 1000 * 10);
-   if (myrow == 0 && mycol == 0)
+   if (global_runtime_config.duration_find_helper)
    {
-      HPL_fprintf( TEST->outfp, "Calculation Start Timestamp: %lld\n", (long long int) time(NULL));
+      usleep(1000 * 1000 * 10);
+      if (myrow == 0 && mycol == 0)
+      {
+         HPL_fprintf( TEST->outfp, "Calculation Start Timestamp: %lld\n", (long long int) time(NULL));
+      }
+      HPL_barrier( GRID->all_comm );
    }
-   HPL_barrier( GRID->all_comm );
-#endif
    HPL_ptimer( 0 );
    HPL_pdgesv( GRID, ALGO, &mat, 0 );
    HPL_ptimer( 0 );
-#ifdef HPL_DURATION_FIND_HELPER
-   if (myrow == 0 && mycol == 0)
+   if (global_runtime_config.duration_find_helper)
    {
-      HPL_fprintf( TEST->outfp, "Calculation End Timestamp: %lld\n", (long long int) time(NULL));
+      if (myrow == 0 && mycol == 0)
+      {
+         HPL_fprintf( TEST->outfp, "Calculation End Timestamp: %lld\n", (long long int) time(NULL));
+      }
+      usleep(1000 * 1000 * 10);
+      HPL_barrier( GRID->all_comm );
    }
-   usleep(1000 * 1000 * 10);
-   HPL_barrier( GRID->all_comm );
-#endif
 
 /*
  * Gather max of all CPU and WALL clock timings and print timing results
