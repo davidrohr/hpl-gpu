@@ -151,6 +151,7 @@ endif
 
 HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_OPTIONS="$(HPL_CALDEFS)"
 HPL_DEFS     += -DHPL_GPU_EXTRA_CALDGEMM_BACKEND_OPTIONS="$(HPL_CALBEDEFS)"
+HPL_DEFS     += -DHPL_CALDGEMM_PARAM="$(HPL_PARAMDEFS)"
 
 #
 # ----------------------------------------------------------------------
