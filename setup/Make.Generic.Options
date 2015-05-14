@@ -14,7 +14,7 @@ HPL_CONFIG_VERBOSE = 3
 #Select the backend for CALDGEMM, the default is opencl (possible options: cal, cuda, opencl, cpu
 HPL_DEFS      += -DHPL_CALDGEMM_BACKEND=opencl
 
-#This defines the CPU core used for MPI communication.
+#This defines the CPU core(s) used for MPI communication.
 HPL_DEFS     += -DHPL_MPI_AFFINITY="{1}"
 
 #############################################################################################################

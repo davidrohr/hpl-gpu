@@ -201,10 +201,6 @@ int CALDGEMM_Init()
 #ifdef HPL_GPU_PIN_MAIN
 	cal_info.PinMainThread = HPL_GPU_PIN_MAIN;
 #endif
-#ifdef HPL_MPI_AFFINITY
-	const int mpi_affinity[] = HPL_MPI_AFFINITY;
-	cal_info.PinBroadcastThread = mpi_affinity[0];
-#endif
 
 #ifdef HPL_GPU_OG
 	cal_info.DstMemory = 'g';
@@ -305,6 +301,16 @@ int CALDGEMM_Init()
 	if (cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM), &cal_info)) return(1);
 #endif
 	if (global_runtime_config.paramdefs[0] && cal_dgemm->ParseParameters(global_runtime_config.paramdefs, &cal_info)) return(1);
+
+	if (cal_info.PinBroadcastThread == -2)
+	{
+#ifdef HPL_MPI_AFFINITY
+		const int mpi_affinity[] = HPL_MPI_AFFINITY;
+		cal_info.PinBroadcastThread = mpi_affinity[0];
+#else
+		cal_info.PinBroadcastThread = -1;
+#endif
+	}
 
 	int retVal = cal_dgemm->InitCALDGEMM(&cal_info);
 
