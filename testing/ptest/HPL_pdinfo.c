@@ -1296,7 +1296,7 @@ label_error:
 	    if (*ptr2 != ' ' && *ptr2 != '	') ptr = ptr2;
 	    ptr2++;
 	}
-	if (*ptr) ptr++;
+	if (*ptr && *ptr != 10 && *ptr != 13) ptr++;
     }
     else if (*ptr != 10 && *ptr != 13)
     {
