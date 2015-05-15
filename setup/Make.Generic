@@ -110,9 +110,9 @@ MPlib        = -L$(MPdir)/lib64 -lmpi -lmpi_cxx
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
 CALDGEMMdir  = $(TOPdir)/caldgemm
-CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm*.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/cmodules/*.o -ldl
-LAinc        = -isystem $(CALDGEMMdir) -isystem $(AMDAPPSDKROOT)/include -isystem $(MKL_PATH)/include -isystem $(TOPdir)/GotoBLAS2
-LAlib        = -L$(MKL_PATH)/lib/intel64 -L$(ICC_PATH)/lib/intel64 -lmkl_intel_thread -lmkl_intel_lp64 -lmkl_core -liomp5 -lpthread
+CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_adl.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/cmodules/*.o -ldl
+LAinc        = -isystem $(CALDGEMMdir)
+LAlib        = -lpthread
 
 #
 # ----------------------------------------------------------------------
@@ -126,13 +126,42 @@ HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$
 HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_INTERLEAVE_C -DHPL_REGISTER_MEMORY -DHPL_HUGE_TABLES -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_FAST_GPU
 HPL_DEFS     += -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY
 HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE
-HPL_DEFS     += -DUSE_MKL
 HPL_DEFS     += -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
 HPL_DEFS     += -DHPL_GPU_RUNTIME_CONFIG
 HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.ImprovedScheduler = true;
 HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;
 
 include $(TOPdir)/Make.Generic.Options
+
+include $(CALDGEMMdir)/config_options.mak
+
+HPL_DEFS      += -DHPL_CALDGEMM_BACKEND=$(HPL_CALDGEMM_BACKEND)
+
+ifeq ($(BLAS_BACKEND), GOTOBLAS)
+LAinc        += -isystem $(GOTOBLAS_PATH)
+LAlib        += $(GOTOBLAS_PATH)/libgoto2.a
+HPL_DEFS     += -DUSE_GOTO_BLAS
+else ifeq ($(BLAS_BACKEND), MKL)
+LAinc        += -isystem $(MKL_PATH)/include 
+LAlib        += -L$(MKL_PATH)/lib/intel64 -L$(ICC_PATH)/lib/intel64 -lmkl_intel_thread -lmkl_intel_lp64 -lmkl_core -liomp5
+HPL_DEFS     += -DUSE_MKL
+else ifeq ($(BLAS_BACKEND), ACML)
+LAinc        += -isystem $(CBLAS_PATH)/include 
+LAlib        += -L$(ACML_PATH)/lib -lacml_mp $(CBLAS_PATH)/lib/cblas_LINUX.a -fopenmp
+endif
+
+ifeq ($(HPL_CALDGEMM_BACKEND), opencl)
+LAinc        += -isystem $(AMDAPPSDKROOT)/include
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_opencl.o -lOpenCL
+else ifeq ($(HPL_CALDGEMM_BACKEND), cuda)
+LAinc        += -isystem $(CUDA_PATH)/include
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o -L$(CUDA_PATH)/lib64 -lcudart
+else ifeq ($(HPL_CALDGEMM_BACKEND), cal)
+LAinc        += -isystem $(AMDAPPSDKROOT)/include/CAL
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cal.o -laticalcl -laticalrt
+else ifeq ($(HPL_CALDGEMM_BACKEND), cpu)
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cpu.o
+endif
 
 ifeq ($(HPL_CONFIG_MPI), 1)
 HPL_DEFS += -DHPL_LOOKAHEAD_2B 
@@ -202,7 +231,7 @@ HPL_LIBS += $(MPlib)
 endif
 
 ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
-LAlib += $(CALDGEMMlib) -lOpenCL
+LAlib += $(CALDGEMMlib)
 endif
 
 ifeq ("$(call isenabled,-DHPL_CPUFREQ)", "yes")

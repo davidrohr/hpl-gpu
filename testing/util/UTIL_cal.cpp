@@ -341,7 +341,7 @@ void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_
 	}
 	else
 	{
-		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB);
+		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, (double*) A, LDA, B, LDB);
 	}
 }
 
@@ -358,7 +358,7 @@ void CALDGEMM_async_dtrsm2(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL
 	}
 	else
 	{
-		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB);
+		cblas_dtrsm(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, (double*) A, LDA, B, LDB);
 	}
 }
 
