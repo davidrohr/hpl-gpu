@@ -300,7 +300,12 @@ int CALDGEMM_Init()
 #ifdef HPL_CALDGEMM_PARAM
 	if (cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM), &cal_info)) return(1);
 #endif
-	if (global_runtime_config.paramdefs[0] && cal_dgemm->ParseParameters(global_runtime_config.paramdefs, &cal_info)) return(1);
+	if (global_runtime_config.paramdefs[0])
+	{
+		caldgemm::caldgemm_config oldConfig = cal_info;
+		if (cal_dgemm->ParseParameters(global_runtime_config.paramdefs, &cal_info)) return(1);
+		cal_dgemm->printConfig(&cal_info, &oldConfig);
+	}
 
 	if (cal_info.PinBroadcastThread == -2)
 	{

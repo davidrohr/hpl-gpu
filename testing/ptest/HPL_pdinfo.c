@@ -60,6 +60,7 @@
  */
 #include "hpl.h"
 #include <unistd.h>
+#include <stdlib.h>
 
 struct runtime_config_options global_runtime_config;
 
@@ -1361,11 +1362,58 @@ label_error:
 		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
 	}
   }
-  
   free(Buffer);
+
+	char* envPtr;
+	if ((envPtr = getenv("HPL_WARMUP")))
+	{
+		global_runtime_config.duration_find_helper = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_FASTRAND")))
+	{
+		global_runtime_config.fastrand = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_DISABLE_LOOKAHEAD")))
+	{
+		global_runtime_config.disable_lookahead = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_LOOKAHEAD2_TURNOFF")))
+	{
+		global_runtime_config.lookahead2_turnoff = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_DURATION_FIND_HELPER")))
+	{
+		global_runtime_config.duration_find_helper = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DGEMM")))
+	{
+		global_runtime_config.caldgemm_async_fact_dgemm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_FIRST")))
+	{
+		global_runtime_config.caldgemm_async_fact_first = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM")))
+	{
+		global_runtime_config.caldgemm_async_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DTRSM")))
+	{
+		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_PARAMDEFS")))
+	{
+		int len = strlen(envPtr);
+		if (len)
+		{
+			if (strlen(global_runtime_config.paramdefs)) len++;
+			len += strlen(global_runtime_config.paramdefs);
+			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
+			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
+			strcat(global_runtime_config.paramdefs, envPtr);
+		}
+	}
 #endif
-
-
 
 /*
  * End of HPL_pdinfo
