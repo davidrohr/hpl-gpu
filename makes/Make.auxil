@@ -71,7 +71,11 @@ $(INCdir)/tbb/tbb.h:
 
 INCdep           = \
    $(INCdir)/hpl_misc.h $(INCdir)/hpl_blas.h $(INCdir)/hpl_auxil.h \
-   $(INCdir)/util_timer.h $(INCdir)/util_trace.h $(INCdir)/tbb/tbb.h
+   $(INCdir)/util_timer.h $(INCdir)/util_trace.h
+
+ifeq ($(TBB_PATH), )
+INCdep += $(INCdir)/tbb/tbb.h
+endif
 #
 ## Object files ########################################################
 #

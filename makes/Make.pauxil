@@ -64,7 +64,12 @@ INCdep           = \
    $(INCdir)/hpl_misc.h   $(INCdir)/hpl_blas.h   $(INCdir)/hpl_auxil.h \
    $(INCdir)/hpl_pmisc.h  $(INCdir)/hpl_grid.h   $(INCdir)/hpl_pauxil.h \
    ../permutationhelper.h $(INCdir)/util_timer.h $(INCdir)/util_trace.h \
-   $(INCdir)/glibc_hacks.h $(INCdir)/tbb/tbb.h
+   $(INCdir)/glibc_hacks.h
+   
+ifeq ($(TBB_PATH), )
+INCdep += $(INCdir)/tbb/tbb.h
+endif
+
 #
 ## Object files ########################################################
 #

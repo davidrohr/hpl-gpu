@@ -114,6 +114,11 @@ CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_ben
 LAinc        = -isystem $(CALDGEMMdir)
 LAlib        = -lpthread
 
+ifneq ($(TBB_PATH), )
+LAinc        += -isystem $(TBB_PATH)/include
+LAlib        += -L$(TBB_PATH)/lib/intel64
+endif
+
 #
 # ----------------------------------------------------------------------
 # - HPL includes / libraries / specifics -------------------------------
