@@ -684,6 +684,15 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 
 	N = A->n;
 	nb = A->nb;
+	for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
+	{
+		if (N > global_runtime_config.hpl_nb_multiplier_threshold[i])
+		{
+			nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
+			break;
+		}
+	}
+
 	depth1 = (ALGO->depth >= 1);
 	depth2 = (ALGO->depth >= 2);
 
@@ -729,6 +738,15 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 #endif
 		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
+		nb = A->nb;
+		for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
+		{
+			if (n > global_runtime_config.hpl_nb_multiplier_threshold[i])
+			{
+				nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
+				break;
+			}
+		}
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)
 		{

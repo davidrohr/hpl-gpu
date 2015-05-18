@@ -65,6 +65,7 @@
 struct runtime_config_options global_runtime_config;
 
 extern int max_gpu_nb;
+extern int max_gpu_nb_factor;
 
 void HPL_pdinfo
 (
@@ -1236,6 +1237,8 @@ label_error:
 #else
     global_runtime_config.caldgemm_async_fact_dtrsm = 0;
 #endif
+    global_runtime_config.hpl_nb_multiplier_count = 0;
+    for (i = 0;i < HPL_NB_MULTIPLIER_MAX;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
                                         
     //Read HPL_GPU_CONFIG runtime config file
 #ifdef HPL_GPU_RUNTIME_CONFIG
@@ -1345,6 +1348,61 @@ label_error:
 	{
 		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
 	}
+	else if (strcmp(cmd, "HPL_NB_MULTIPLIER") == 0)
+	{
+		char* nbptr = option;
+		j = 0;
+		int a = strlen(nbptr);
+		int nbnum = 0;
+		for (i = 0;i <= a;i++)
+		{
+			if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
+			{
+				if (i > j)
+				{
+					int tmpval;
+					nbptr[i] = 0;
+					sscanf(&nbptr[j], "%d", &tmpval);
+					j = i + 1;
+					if (nbnum >= (signed) HPL_NB_MULTIPLIER_MAX)
+					{
+						fprintf(STD_OUT, "Please increase HPL_NB_MULTIPLIER_MAX\n");
+						break;
+					}
+					global_runtime_config.hpl_nb_multiplier_factor[nbnum] = tmpval;
+					nbnum++;
+				}
+			}
+		}
+		global_runtime_config.hpl_nb_multiplier_count = nbnum;
+	}
+	else if (strcmp(cmd, "HPL_NB_MULTIPLIER_THRESHOLD") == 0)
+	{
+		char* nbptr = option;
+		j = 0;
+		int a = strlen(nbptr);
+		int nbnum = 0;
+		for (i = 0;i <= a;i++)
+		{
+			if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
+			{
+				if (i > j)
+				{
+					int tmpval;
+					nbptr[i] = 0;
+					sscanf(&nbptr[j], "%d", &tmpval);
+					j = i + 1;
+					if (nbnum >= (signed) HPL_NB_MULTIPLIER_MAX)
+					{
+						fprintf(STD_OUT, "Please increase HPL_NB_MULTIPLIER_MAX\n");
+						break;
+					}
+					global_runtime_config.hpl_nb_multiplier_threshold[nbnum] = tmpval;
+					nbnum++;
+				}
+			}
+		}
+	}
 	else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
 	{
 		int len = strlen(option);
@@ -1415,6 +1473,19 @@ label_error:
 	}
 #endif
 
+    if (global_runtime_config.hpl_nb_multiplier_count)
+    {
+        max_gpu_nb_factor = 1;
+	printf("NB Multipliers:");
+	for (i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
+	{
+		printf(" %d/%d", global_runtime_config.hpl_nb_multiplier_threshold[i], global_runtime_config.hpl_nb_multiplier_factor[i]);
+		if (global_runtime_config.hpl_nb_multiplier_factor[i] > max_gpu_nb_factor) max_gpu_nb_factor = global_runtime_config.hpl_nb_multiplier_factor[i];
+	}
+	max_gpu_nb *= max_gpu_nb_factor;
+	
+	printf(" MaxNB: %d\n", max_gpu_nb);
+    }
 /*
  * End of HPL_pdinfo
  */

@@ -68,6 +68,8 @@
 
 #include "fastmatgen.h"
 
+extern int max_gpu_nb_factor;
+
 void debugmatgen(HPL_T_grid* GRID, HPL_T_pmat* A)
 {
 	srand(453534);
@@ -219,7 +221,7 @@ void HPL_pdtest
       printf("Row %d Col %d Host %s Size %lld\n", myrow, mycol, hostname, (long long int) matrix_bytes);
    }
 #endif
-   size_t total_bytes = matrix_bytes + panel_estimate_max_size(GRID, ALGO, N, N + 1, NB);
+   size_t total_bytes = matrix_bytes + panel_estimate_max_size(GRID, ALGO, N, N + 1, NB * max_gpu_nb_factor);
    if (myrow == 0 && mycol == 0) fprintf(stderr, "Allocating memory: %lld bytes...", (long long int) total_bytes);
    HPL_barrier( GRID->all_comm );
    vptr = CALDGEMM_alloc( total_bytes, interleave);

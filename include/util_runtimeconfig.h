@@ -37,6 +37,8 @@
 #ifndef UTIL_RUNTIMECONFIG_H
 #define UTIL_RUNTIMECONFIG_H
 
+#define HPL_NB_MULTIPLIER_MAX 8
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -54,6 +56,9 @@ struct runtime_config_options
     int caldgemm_async_fact_first;
     int caldgemm_async_dtrsm;
     int caldgemm_async_fact_dtrsm;
+    int hpl_nb_multiplier_count;
+    int hpl_nb_multiplier_threshold[HPL_NB_MULTIPLIER_MAX];
+    int hpl_nb_multiplier_factor[HPL_NB_MULTIPLIER_MAX];
 };
 
 extern struct runtime_config_options global_runtime_config;
