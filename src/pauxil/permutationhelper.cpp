@@ -72,7 +72,8 @@ int PermutationHelper::_init()
 
 namespace
 {
-    int init = PermutationHelper::_init();
+#pragma GCC diagnostic ignored "-Wunused-variable"
+	int init = PermutationHelper::_init();
 } // namespace 
 
 #endif

@@ -242,6 +242,8 @@ void HPL_pdinfo
    char                       output_buffer[16384];
 /* ..
  * .. Executable Statements ..
+ * 
+ * 
  */
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
@@ -265,7 +267,8 @@ void HPL_pdinfo
      int tmprank;
      while (!feof(infp))
      {
-        fgets(buffer, 256, infp);
+#pragma GCC diagnostic ignored "-Wunused-result"
+		fgets(buffer, 256, infp);
         if (buffer[0] == '#') continue;
         if (buffer[0] == '/')
         {

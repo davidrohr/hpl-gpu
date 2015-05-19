@@ -74,7 +74,7 @@ all     : lib
 #
 lib     : lib.grd
 #
-lib.grd : $(HPL_utilobj)
+lib.grd : $(HPL_utilobj) $(CALDGEMMlib)
 	$(ARCHIVER) $(ARFLAGS) $(HPLlib) $(HPL_utilobj)
 	$(RANLIB) $(HPLlib)
 	$(TOUCH) lib.grd
