@@ -26,3 +26,5 @@ testing/ptest/hpl_config_option_list.h
 testing/ptest/hpl_config_option_list.tmp
 
 tools/bench_laswp/bench
+
+tools/plots/user_data_dir/*
