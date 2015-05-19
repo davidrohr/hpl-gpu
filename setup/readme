@@ -5,7 +5,6 @@
 # -DHPL_NO_MPI_DATATYPE  Do not use custom MPI types
 # -DHPL_DETAILED_TIMING  enable detailed timers;
 # -DHPL_DETAILED2_TIMING enable more detailed timers for the lookahead pipeline;
-# -DHPL_CALL_CALDGEMM    use caldgemm for DGEMM cals
 # -DTRACE_CALLS          function level tracing for calls that might
 #                        be relevant for optimization (implies HPL_GPU_NOT_QUIET)
 # -DUSE_ORIGINAL_LASWP   use original laswp implementation

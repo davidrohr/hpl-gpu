@@ -21,6 +21,10 @@ HPL_DEFS     += -DHPL_MPI_AFFINITY="{1}"
 #All the following are optional tuning options
 #############################################################################################################
 
+#Use Link time optimization and agressive compiler optimization flags
+HPL_USE_LTO   = 1
+#HPL_AGGRESSIVE_OPTIMIZATION = 1
+
 #This setting links HPL to libcpufreq, allowing to change CPU frequencies during runtime. This can be used to obtain better efficiency.
 #HPL_DEFS     += -DHPL_CPUFREQ
 

@@ -138,7 +138,6 @@ void setcpufreq(int freq, int dgemmfreq)
  * ---------------------------------------------------------------------
  */ 
 
-#ifdef HPL_CALL_CALDGEMM
 extern volatile size_t HPL_CALDGEMM_swap_current_n;
 extern int HPL_CALDGEMM_gpu_height;
 volatile size_t HPL_CALDGEMM_swap_current_n;
@@ -148,7 +147,6 @@ HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
 HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
-#endif
 
 
 #ifndef NO_EQUILIBRATION
@@ -247,9 +245,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int *ipID, *iplen = NULL, *ipmap = NULL, *ipmapm1 = NULL, *iwork = NULL, *lindxA = NULL, *lindxAU = NULL, *permU = NULL;
 	int icurrow = 0, *iflag, *ipA = NULL, *ipl, k, myrow = 0, nprow;
 
-#if !defined(HPL_CALL_CALDGEMM)
-	size_t laswp_stepsize = n;
-#elif !defined(HPL_LOOKAHEAD_2B)
+#if !defined(HPL_LOOKAHEAD_2B)
 	size_t laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
 #elif defined(HPL_LOOKAHEAD_2B_FIXED_STEPSIZE)
 	size_t laswp_stepsize = HPL_LOOKAHEAD_2B_FIXED_STEPSIZE;
@@ -303,15 +299,11 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int nremain = n;
 	for (size_t i = 0;i < n;i += laswp_stepsize)
 	{
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_LOOKAHEAD_2B_MULTIPLIER
 #define HPL_LOOKAHEAD_2B_MULTIPLIER 3
 #endif
 		if (i) laswp_stepsize *= HPL_LOOKAHEAD_2B_MULTIPLIER;
 		const int nn = Mmin(nremain, laswp_stepsize);
-#else
-		const int nn = nremain;
-#endif
 		nremain -= nn;
 
 		if (panel->grid->nprow == 1)
@@ -358,9 +350,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		}
 		VT_USER_END_A("DTRSM");
 		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
-#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
-#endif
 	}
 	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
@@ -449,8 +439,6 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 }
 
-#ifdef HPL_CALL_CALDGEMM
-
 void HPL_CALDGEMM_wrapper_factorize()
 {
 	HPL_pdgesv_factorize(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
@@ -463,8 +451,6 @@ void HPL_CALDGEMM_wrapper_swap()
 {
 	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel_work, HPL_CALDGEMM_wrapper_n);
 }
-
-#endif
 
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize, int depth2)
 {
@@ -499,7 +485,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	if (n)
 	{
-#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_wrapper_n = n;
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
@@ -514,15 +499,11 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		{
 		    HPL_CALDGEMM_gpu_height = 0;
 		    CALDGEMM_enable_async_laswp(0);
-#endif
 		    HPL_pdgesv_swap(Grid, PANEL, n);
-#ifdef HPL_CALL_CALDGEMM
 		}
-#endif
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		VT_USER_START_A("DGEMM");
-#ifdef HPL_CALL_CALDGEMM
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
@@ -543,9 +524,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 			fprintf(STD_OUT, "%s: GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", hostname, (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
 			exit(1);
 		}
-#endif
-#else
-		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 #endif
 		VT_USER_END_A("DGEMM");
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );

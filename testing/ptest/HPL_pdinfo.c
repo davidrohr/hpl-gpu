@@ -384,7 +384,6 @@ void HPL_pdinfo
                        "Value of NB less than 1" );
             error = 1; goto label_error;
          }
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
 		 if (NB[i] > max_gpu_nb) max_gpu_nb = NB[i];
 #else
@@ -394,7 +393,6 @@ void HPL_pdinfo
 			error = 1;
 			goto label_error;
 		 }
-#endif
 #endif
       }
 /*
@@ -604,14 +602,6 @@ void HPL_pdinfo
                        "Value of DEPTH less than 0 or greater than 2" );
             error = 1; goto label_error;
          }
-#ifndef HPL_CALL_CALDGEMM
-	if (DH[i] != 0)
-	{
-            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                       "Value of DEPTH not equal 0 not supported without CALDGEMM" );
-            error = 1; goto label_error;
-	}
-#endif
       }
 /*
  * Memory alignment in bytes (> 0) (ALIGN)
@@ -760,10 +750,8 @@ label_error:
    if( iwork ) free( iwork );
 
     //Broadcast maximum Nb value that will appear during HPL runs (if not defined via HPL_GPU_MAX_NB)
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
    HPL_broadcast( (void*) &max_gpu_nb, 1, HPL_INT, 0, MPI_COMM_WORLD );
-#endif
 #endif
 
 
@@ -1152,16 +1140,14 @@ label_error:
       sprintf( output_buffer + strlen(output_buffer),       "\nConfig : ");
 #include "hpl_config_option_list.h"
       fprintf( TEST->outfp, "%s", output_buffer );
-#if defined(HPL_CALL_CALDGEMM)
 #define MXSTR(x) #x
-	if (strcmp(MXSTR(HPL_CALL_CALDGEMM), "cal") == 0)
+	if (strcmp(MXSTR(HPL_CALDGEMM_BACKEND), "cal") == 0)
 	{
       output_buffer[0] = 0;
       sprintf( output_buffer + strlen(output_buffer),       "\nCALDGEM: ");
 #include "caldgemm_config_option_list.h"
       fprintf( TEST->outfp, "%s", output_buffer );
         }
-#endif
 #endif
 
       HPL_fprintf( TEST->outfp, "\n\n" );

@@ -217,13 +217,8 @@ void HPL_gpu_dgemm
 {
 START_TRACE( DGEMM )
 
-#ifdef HPL_CALL_CALDGEMM
    CALDGEMM_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
                    BETA, C, LDC );
-#else
-   cblas_dgemm( ORDER, TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
-                BETA, C, LDC );
-#endif
 
 END_TRACE
 /*

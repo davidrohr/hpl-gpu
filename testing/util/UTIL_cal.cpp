@@ -36,8 +36,6 @@
  * the combination as such.
  */
 
-#ifdef HPL_CALL_CALDGEMM
-
 #define mcat(a, b) a ## b
 #define mxcat(a, b) mcat(a, b)
 
@@ -483,17 +481,3 @@ void CALDGEMM_enable_async_laswp(int enable)
 {
 	cal_info.LinpackSwapN = enable ? &HPL_CALDGEMM_swap_current_n : NULL;
 }
-#else
-#include <stdlib.h>
-extern "C" void CALDGEMM_free(void* ptr);
-extern "C" void* CALDGEMM_alloc(size_t size, int interleaved);
-
-void CALDGEMM_free(void* ptr)
-{
-	free(ptr);
-}
-void* CALDGEMM_alloc(size_t size, int interleaved)
-{
-	return malloc(size);
-}
-#endif

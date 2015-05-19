@@ -110,7 +110,7 @@ MPlib        = -L$(MPdir)/lib64 -lmpi -lmpi_cxx
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
 CALDGEMMdir  = $(TOPdir)/caldgemm
-CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_adl.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/cmodules/*.o -ldl
+CALDGEMMlib  = $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_adl.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm.o $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/cmodules/*.o
 LAinc        = -isystem $(CALDGEMMdir)
 LAlib        = -lpthread
 
@@ -125,10 +125,10 @@ endif
 # ----------------------------------------------------------------------
 #
 HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc)
-HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$(TOPdir)/lib -ltbb -lrt -Wl,-rpath=$(TOPdir)/lib
+HPL_LIBS     = -Wl,--whole-archive $(HPLlib) -Wl,--no-whole-archive $(LAlib) -L$(TOPdir)/lib -ltbb -lrt -Wl,-rpath=$(TOPdir)/lib -ldl
 #
 
-HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_CALL_CALDGEMM -DHPL_PAGELOCKED_MEM -DHPL_INTERLEAVE_C -DHPL_REGISTER_MEMORY -DHPL_HUGE_TABLES -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_FAST_GPU
+HPL_DEFS     = $(HPL_OPTS) $(HPL_INCLUDES) -DHPL_PAGELOCKED_MEM -DHPL_INTERLEAVE_C -DHPL_REGISTER_MEMORY -DHPL_HUGE_TABLES -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_FAST_GPU
 HPL_DEFS     += -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY
 HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE
 HPL_DEFS     += -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
@@ -157,13 +157,16 @@ endif
 
 ifeq ($(HPL_CALDGEMM_BACKEND), opencl)
 LAinc        += -isystem $(AMDAPPSDKROOT)/include
-CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_opencl.o -lOpenCL
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_opencl.o
+HPL_LIBS     += -lOpenCL
 else ifeq ($(HPL_CALDGEMM_BACKEND), cuda)
 LAinc        += -isystem $(CUDA_PATH)/include
-CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o -L$(CUDA_PATH)/lib64 -lcudart
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o
+HPL_LIBS     += -L$(CUDA_PATH)/lib64 -lcudart
 else ifeq ($(HPL_CALDGEMM_BACKEND), cal)
 LAinc        += -isystem $(AMDAPPSDKROOT)/include/CAL
-CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cal.o -laticalcl -laticalrt
+CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cal.o
+HPL_LIBS     += -laticalcl -laticalrt
 else ifeq ($(HPL_CALDGEMM_BACKEND), cpu)
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cpu.o
 endif
@@ -209,8 +212,8 @@ _FLAGS      = $(HPL_DEFS)  -Wall \
                 -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar \
                 -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type \
                 -Wno-unused-function -pedantic -Wno-long-long -Wshadow -ggdb -Wno-write-strings \
-                -fomit-frame-pointer -O3 -march=native -ffast-math -flto
-#-mavx -ffast-math -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+                -fomit-frame-pointer -O3 -march=native -ffast-math
+#
 CXXFLAGS     = $(_FLAGS) -fno-threadsafe-statics -Wno-variadic-macros -std=c++98
 CCFLAGS      = $(_FLAGS) -std=gnu99 -Wimplicit
 #
@@ -220,13 +223,25 @@ CCFLAGS      = $(_FLAGS) -std=gnu99 -Wimplicit
 LINKER       = $(CXX)
 #LINKER            = $(MPdir)/bin/mpicxx
 LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined  \
-                -fomit-frame-pointer -O3 -march=native -ffast-math -flto
-#-mavx -ffast-math -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+                -fomit-frame-pointer -O3 -march=native -ffast-math
+#
 #
 ARCHIVER     = ar
 ARFLAGS      = r
 RANLIB       = echo
 #
+
+ifeq ($(HPL_USE_LTO), 1)
+_FLAGS       += -flto
+LINKFLAGS    += -flto
+endif
+ifeq ($(HPL_AGGRESSIVE_OPTIMIZATION), 1)
+_FLAGS       += -mavx -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+ifeq ($(HPL_USE_LTO), 1)
+LINKFLAGS    += -mavx -flto -fweb -frename-registers -minline-all-stringops -mfpmath=sse -ftracer -funroll-loops -fpeel-loops -fprefetch-loop-arrays
+endif
+endif
+
 isenabled  = $(if $(findstring $(1), $(HPL_DEFS)),yes,no)
 
 # Set include paths and lib paths according to HPL_DEFS options
@@ -235,9 +250,7 @@ HPL_INCLUDES += -isystem $(MPinc)
 HPL_LIBS += $(MPlib)
 endif
 
-ifeq ("$(call isenabled,-DHPL_CALL_CALDGEMM)", "yes")
 LAlib += $(CALDGEMMlib)
-endif
 
 ifeq ("$(call isenabled,-DHPL_CPUFREQ)", "yes")
 HPL_LIBS += -lcpufreq
