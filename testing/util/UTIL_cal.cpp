@@ -439,6 +439,16 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	}
 }
 
+void CALDGEMM_Wait(int n)
+{
+	cal_dgemm->WaitForCALDGEMMProgress(n);
+}
+
+void CALDGEMM_Finish()
+{
+	cal_dgemm->FinishCALDGEMM();
+}
+
 void* CALDGEMM_alloc(size_t size, int interleaved)
 {
 	if (size % sizeof(double)) size += sizeof(double);

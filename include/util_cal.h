@@ -66,6 +66,8 @@ void CALDGEMM_free(void* ptr);
 void CALDGEMM_set_num_nodes(int num, int rank);
 void CALDGEMM_enable_async_laswp(int enable);
 void CALDGEMM_reset();
+void CALDGEMM_Wait(int n);
+void CALDGEMM_Finish();
 
 #ifdef __cplusplus
 }

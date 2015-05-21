@@ -284,6 +284,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		*iflag = 1;		//signal that index array is calculated, not sure if this is needed anymore but anyway...
 		
 #ifndef HPL_LOOKAHEAD_2B
+		CALDGEMM_Wait(n + panel->jb);
 		{
 			HPL_ptimer_detail( HPL_TIMING_PREPIPELINE );
 			const int i = 0;
@@ -305,6 +306,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		if (i) laswp_stepsize *= HPL_LOOKAHEAD_2B_MULTIPLIER;
 		const int nn = Mmin(nremain, laswp_stepsize);
 		nremain -= nn;
+		CALDGEMM_Wait(i + nn + panel->jb);
 
 		if (panel->grid->nprow == 1)
 		{
@@ -830,6 +832,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	if(panel) free(panel);
 	panel = NULL;
 
+	CALDGEMM_Finish
 	if (warmup) return;
 	
 	//Solve upper triangular system
