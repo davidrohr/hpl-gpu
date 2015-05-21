@@ -832,7 +832,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	if(panel) free(panel);
 	panel = NULL;
 
-	CALDGEMM_Finish
+	CALDGEMM_Finish();
 	if (warmup) return;
 	
 	//Solve upper triangular system
