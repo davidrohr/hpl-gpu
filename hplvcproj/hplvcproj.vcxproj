@@ -208,6 +208,10 @@
     <ClInclude Include="..\GotoBLAS2\common_thread.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\setup\Make.Generic" />
+    <None Include="..\setup\Make.Generic.Options" />
+    <None Include="..\setup\Make.Generic.Options_OldInterface" />
+    <None Include="..\setup\Make.Generic.Options_StaticConfig" />
     <None Include="..\setup\Make.LOEWE-CSC_cpu" />
     <None Include="..\setup\Make.LOEWE-CSC_gpu" />
     <None Include="..\setup\Make.LOEWE_mvapich" />
