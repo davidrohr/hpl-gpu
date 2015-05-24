@@ -94,6 +94,7 @@
     <ClInclude Include="..\..\caldgemm\caldgemm_cpu.h" />
     <ClInclude Include="..\..\caldgemm\caldgemm_cuda.h" />
     <ClInclude Include="..\..\caldgemm\caldgemm_opencl.h" />
+    <ClInclude Include="..\..\caldgemm\caldgemm_parse_parameters.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\affinity.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\os_low_level_helper.h" />
     <ClInclude Include="..\..\caldgemm\cmodules\pthread_mutex_win32_wrapper.h" />
