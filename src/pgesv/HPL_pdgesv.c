@@ -493,15 +493,17 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = factorize;
 
-		if (depth2 && global_runtime_config.lookahead2_turnoff && n >= global_runtime_config.lookahead2_turnoff)
+		if (depth2 && (global_runtime_config.lookahead2_turnoff == 0 || n >= global_runtime_config.lookahead2_turnoff))
 		{
-		    CALDGEMM_enable_async_laswp(1);
+			CALDGEMM_enable_async_laswp(1);
 		}
 		else
 		{
-		    HPL_CALDGEMM_gpu_height = 0;
-		    CALDGEMM_enable_async_laswp(0);
-		    HPL_pdgesv_swap(Grid, PANEL, n);
+			CALDGEMM_Finish();
+			HPL_CALDGEMM_gpu_height = 0;
+			CALDGEMM_enable_async_laswp(0);
+			HPL_pdgesv_swap(Grid, PANEL, n);
+			depth2 = 0;
 		}
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
@@ -509,6 +511,7 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
 		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
+		if (!depth2) CALDGEMM_Finish();
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 #ifdef CALDGEMM_TEST
 		if (adl_temperature_check_run(&temperature, 1))
@@ -796,7 +799,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		int olddepth1 = depth1;
 		if (global_runtime_config.disable_lookahead && n <= global_runtime_config.disable_lookahead + nb + 1)
 		{
-			depth1 = 0;
+			depth1 = depth2 = 0;
 		}
 		HPL_pdupdateTT(GRID, panel[0], panel[olddepth1], nq-nn, (depth1 && j + nb < N) ? MColToPCol(j + nb, nb, GRID) : -1, depth2);
 
