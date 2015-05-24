@@ -68,7 +68,13 @@
  * #typedefs and data structures
  * ---------------------------------------------------------------------
  */
-typedef enum { HPL_INT = 100, HPL_DOUBLE = 101 } HPL_T_TYPE;
+//typedef enum { HPL_INT = 100, HPL_DOUBLE = 101 } HPL_T_TYPE;
+//#define HPL_2_MPI_TYPE( typ ) ( ( typ == HPL_INT ? MPI_INT : MPI_DOUBLE ) )
+#define HPL_T_TYPE MPI_Datatype
+#define HPL_2_MPI_TYPE( typ ) (typ)
+#define HPL_INT MPI_INT
+#define HPL_DOUBLE MPI_DOUBLE
+
  
 typedef enum
 {
@@ -112,8 +118,6 @@ typedef void (*HPL_T_OP)
  * #define macros definitions
  * ---------------------------------------------------------------------
  */
-#define HPL_2_MPI_TYPE( typ ) \
- ( ( typ == HPL_INT ? MPI_INT : MPI_DOUBLE ) )
 /*
  * The following macros perform common modulo operations; All functions
  * except MPosMod assume arguments are < d (i.e., arguments are themsel-
