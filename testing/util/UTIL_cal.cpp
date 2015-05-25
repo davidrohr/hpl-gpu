@@ -441,7 +441,11 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 
 void CALDGEMM_Wait(int n)
 {
-	cal_dgemm->WaitForCALDGEMMProgress(n);
+	if (cal_dgemm->WaitForCALDGEMMProgress(n))
+	{
+		printf("Error in CALDGEMM, exiting\n");
+		exit(1);
+	}
 }
 
 void CALDGEMM_Finish()
