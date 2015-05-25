@@ -51,6 +51,7 @@ struct runtime_config_options
     int fastrand;
     int disable_lookahead;
     int lookahead2_turnoff;
+    int lookahead3_turnoff;
     int duration_find_helper;
     int caldgemm_async_fact_dgemm;
     int caldgemm_async_fact_first;

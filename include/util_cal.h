@@ -51,7 +51,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
                      const enum CBLAS_TRANSPOSE, const int, const int,
    const int,       const double,    const double *,  const int,
    const double *,  const int,       const double,    double *,
-   const int, int LinpackCallbacks );
+   const int, int LinpackCallbacks, int pipelined );
 void CALDGEMM_async_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
                      const enum CBLAS_TRANSPOSE, const int, const int,
    const int,       const double,    const double *,  const int,

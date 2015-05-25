@@ -1201,6 +1201,7 @@ label_error:
 #else
     global_runtime_config.lookahead2_turnoff = 0;
 #endif
+    global_runtime_config.lookahead3_turnoff = 0;
 #ifdef HPL_DURATION_FIND_HELPER 
     global_runtime_config.duration_find_helper = 1;
 #else
@@ -1317,6 +1318,10 @@ label_error:
 	{
 		global_runtime_config.lookahead2_turnoff = atoi(option);
 	}
+	else if (strcmp(cmd, "HPL_LOOKAHEAD3_TURNOFF") == 0)
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(option);
+	}
 	else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
 	{
 		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
@@ -1427,6 +1432,10 @@ label_error:
 	if ((envPtr = getenv("HPL_LOOKAHEAD2_TURNOFF")))
 	{
 		global_runtime_config.lookahead2_turnoff = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_LOOKAHEAD3_TURNOFF")))
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_DURATION_FIND_HELPER")))
 	{

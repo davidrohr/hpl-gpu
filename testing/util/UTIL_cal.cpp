@@ -391,7 +391,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const HPL_TRANS TRANSB, const int M, const int N,
 	const int K, const double ALPHA, const double * A, const int LDA,
 	const double * B, const int LDB, const double BETA, double * C,
-	const int LDC, int LinpackCallbacks )
+	const int LDC, int LinpackCallbacks, int pipelined )
 {
 	static int LinpackIteration = 0;
 	if (M == 0 || N == 0 || K == 0)
@@ -416,7 +416,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
 #endif
 
-		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
+		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks, pipelined ))
 		{
 			printf("Error in CALDGEMM Run, aborting HPL Run\n");
 			exit(1);
