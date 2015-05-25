@@ -1303,7 +1303,7 @@ label_error:
 	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option);
 	if (strcmp(cmd, "HPL_WARMUP") == 0)
 	{
-		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
+		global_runtime_config.warmup = option[0] ? atoi(option) : 1;
 	}
 	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
 	{
@@ -1414,7 +1414,7 @@ label_error:
 	char* envPtr;
 	if ((envPtr = getenv("HPL_WARMUP")))
 	{
-		global_runtime_config.duration_find_helper = atoi(envPtr);
+		global_runtime_config.warmup = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_FASTRAND")))
 	{
