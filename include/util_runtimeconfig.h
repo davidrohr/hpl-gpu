@@ -57,6 +57,7 @@ struct runtime_config_options
     int caldgemm_async_fact_first;
     int caldgemm_async_dtrsm;
     int caldgemm_async_fact_dtrsm;
+    int caldgemm_async_dtrsm_min_nb;
     int hpl_nb_multiplier_count;
     int hpl_nb_multiplier_threshold[HPL_NB_MULTIPLIER_MAX];
     int hpl_nb_multiplier_factor[HPL_NB_MULTIPLIER_MAX];

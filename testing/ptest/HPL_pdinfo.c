@@ -1222,6 +1222,7 @@ label_error:
 #else
     global_runtime_config.caldgemm_async_dtrsm = 0;
 #endif
+    global_runtime_config.caldgemm_async_dtrsm_min_nb = 0;
 #ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
     global_runtime_config.caldgemm_async_fact_dtrsm = HPL_CALDGEMM_ASYNC_FACT_DTRSM;
 #else
@@ -1338,6 +1339,10 @@ label_error:
 	{
 		global_runtime_config.caldgemm_async_dtrsm = atoi(option);
 	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB") == 0)
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(option);
+	}
 	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
 	{
 		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
@@ -1452,6 +1457,10 @@ label_error:
 	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM")))
 	{
 		global_runtime_config.caldgemm_async_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB")))
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DTRSM")))
 	{
