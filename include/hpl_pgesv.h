@@ -143,6 +143,7 @@ int* HPL_pdlaswp01T( HPL_T_panel *, const int );
 
 void HPL_pdgesv( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat *, int warmup );
 void HPL_pdgesv_prepare_panel( HPL_T_grid *, HPL_T_palg *, HPL_T_pmat * );
+void HPL_pdgesv_delete_panel();
  
 void HPL_pdtrsv( HPL_T_grid *, HPL_T_pmat * );
 

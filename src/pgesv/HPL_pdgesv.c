@@ -643,10 +643,25 @@ void HPL_pdgesv_prepare_panel(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
-	if (depth1)
+}
+
+void HPL_pdgesv_delete_panel()
+{
+	if (panel) free(panel);
+	panel = NULL;
+}
+
+int HPL_pdgesv_get_nb(int nb, int N)
+{
+	for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
 	{
-		HPL_pdpanel_new(GRID, ALGO, A->n, A->n+1, Mmin(A->n, A->nb), A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
+		if (N > global_runtime_config.hpl_nb_multiplier_threshold[i])
+		{
+			nb = nb * global_runtime_config.hpl_nb_multiplier_factor[i];
+			break;
+		}
 	}
+	return(nb);
 }
 
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
@@ -654,7 +669,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	//.. Local Variables ..
 	HPL_T_panel *p;
 	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, nq, tag=MSGID_BEGIN_FACT;
-	int depth1init = 0;
+	int depth1init;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
 	uint64_t time_start;
@@ -667,14 +682,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 
 	N = A->n;
 	nb = A->nb;
-	for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
-	{
-		if (N > global_runtime_config.hpl_nb_multiplier_threshold[i])
-		{
-			nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
-			break;
-		}
-	}
+	nb = HPL_pdgesv_get_nb(nb, N);
 
 	depth1 = (ALGO->depth >= 1);
 	depth2 = ALGO->depth;
@@ -687,14 +695,14 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	nq = HPL_numcol(N+1, nb, mycol, GRID);
 	nn = N;
 
-	if (panel == NULL)
-	{
-		HPL_pdgesv_prepare_panel(GRID, ALGO, A);
-	}
-	if (depth1) depth1init = 1;
-
-	//Create main panel
+	//Create initial panel(s)
 	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
+	if (depth1)
+	{
+		HPL_pdpanel_new(GRID, ALGO, A->n, A->n+1, Mmin(A->n, A->nb), A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
+	}
+	depth1init = depth1;
+
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	
 #ifdef HPL_START_PERCENTAGE
@@ -721,15 +729,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 #endif
 		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
-		nb = A->nb;
-		for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
-		{
-			if (n > global_runtime_config.hpl_nb_multiplier_threshold[i])
-			{
-				nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
-				break;
-			}
-		}
+		nb = HPL_pdgesv_get_nb(A->nb, n);
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)
 		{
@@ -832,8 +832,6 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		HPL_pdpanel_disp( &panel[1]);
 	}
 	HPL_pdpanel_disp(&panel[0]);
-	if(panel) free(panel);
-	panel = NULL;
 
 	CALDGEMM_Finish();
 	if (warmup) return;
