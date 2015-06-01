@@ -696,10 +696,10 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	nn = N;
 
 	//Create initial panel(s)
-	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
+	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), nb, A, 0, 0, tag, &panel[depth1]);
 	if (depth1)
 	{
-		HPL_pdpanel_new(GRID, ALGO, A->n, A->n+1, Mmin(A->n, A->nb), A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
+		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), nb, A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
 	}
 	depth1init = depth1;
 
@@ -782,7 +782,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		if (j == startrow || depth1 == 0)
 		{
 			HPL_pdpanel_free(panel[depth1]);
-			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth1]);
+			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, nb, A, j, j, tag, panel[depth1]);
 			factorize_first_iteration = 1;
 			HPL_pdgesv_factorize(GRID, panel[depth1], icurcol);
 			factorize_first_iteration = 0;
@@ -794,7 +794,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		if (depth1 && j + nb < N)
 		{
 			HPL_pdpanel_free(panel[0]);
-			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
+			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), nb, A, j + nb, j + nb, tag, panel[0]);
 		}
 		
 		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, mycol, GRID) : 0;

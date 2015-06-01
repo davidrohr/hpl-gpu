@@ -114,8 +114,8 @@ typedef struct HPL_S_panel
  */
 #include "hpl_pgesv.h"
 
-void HPL_pdpanel_new( HPL_T_grid *, HPL_T_palg *, const int, const int, const int, HPL_T_pmat *, const int, const int, const int, HPL_T_panel * * );
-void HPL_pdpanel_init( HPL_T_grid *, HPL_T_palg *, const int, const int, const int, HPL_T_pmat *, const int, const int, const int, HPL_T_panel * );
+void HPL_pdpanel_new( HPL_T_grid *, HPL_T_palg *, const int, const int, const int, const int, HPL_T_pmat *, const int, const int, const int, HPL_T_panel * * );
+void HPL_pdpanel_init( HPL_T_grid *, HPL_T_palg *, const int, const int, const int, const int, HPL_T_pmat *, const int, const int, const int, HPL_T_panel * );
 int HPL_pdpanel_disp( HPL_T_panel * *);
 int HPL_pdpanel_free( HPL_T_panel * );
 
