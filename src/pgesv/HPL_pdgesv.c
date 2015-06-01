@@ -733,6 +733,11 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)
 		{
+			if (depth1 || global_runtime_config.hpl_nb_multiplier_count)
+			{
+				fprintf(STD_OUT, "HPL_HALF_BLOCKING must not be used while lookahead is not 0, and if hpl_nb_multiplier is used!\n");
+				exit(1);
+			}
 			nb = A->nb / 2;
 		}
 #endif
