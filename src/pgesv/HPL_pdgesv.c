@@ -729,7 +729,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 #endif
 		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
-		nb = depth1 ? panel[0]->nb : HPL_pdgesv_get_nb(A->nb, n);
+		nb = depth1 ? panel[1]->nb : HPL_pdgesv_get_nb(A->nb, n);
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)
 		{
