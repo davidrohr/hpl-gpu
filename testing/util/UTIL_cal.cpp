@@ -58,7 +58,7 @@
 #define HPL_ORDER CBLAS_ORDER
 extern "C"
 {
-	int max_gpu_nb = 1024;
+	int max_gpu_nb = 128;
 	int max_gpu_nb_factor = 1;
 	extern int global_m_remain;
 	extern int HPL_CALDGEMM_gpu_height;
