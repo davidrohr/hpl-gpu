@@ -335,7 +335,7 @@ void CALDGEMM_reset()
 void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_fact_dtrsm)
+	if (global_m_remain < global_runtime_config.caldgemm_async_fact_dtrsm)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
 		{
@@ -352,7 +352,7 @@ void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_
 void CALDGEMM_async_dtrsm2(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_dtrsm && (global_runtime_config.caldgemm_async_dtrsm_min_nb == 0 || (M >= global_runtime_config.caldgemm_async_dtrsm_min_nb && N >= global_runtime_config.caldgemm_async_dtrsm_min_nb)))
+	if (global_m_remain < global_runtime_config.caldgemm_async_dtrsm && (global_runtime_config.caldgemm_async_dtrsm_min_nb == 0 || (M >= global_runtime_config.caldgemm_async_dtrsm_min_nb && N >= global_runtime_config.caldgemm_async_dtrsm_min_nb)))
 	{
 		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
 		{
@@ -373,7 +373,7 @@ void CALDGEMM_async_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const double * B, const int LDB, const double BETA, double * C,
 	const int LDC)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_fact_dgemm)
+	if (global_m_remain < global_runtime_config.caldgemm_async_fact_dgemm)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans))
 		{
