@@ -158,7 +158,7 @@ endif
 ifeq ($(HPL_CALDGEMM_BACKEND), opencl)
 LAinc        += -isystem $(AMDAPPSDKROOT)/include
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_opencl.o
-HPL_LIBS     += -lOpenCL
+HPL_LIBS     += -L$(AMDAPPSDKROOT/lib/x86_64 -lOpenCL
 else ifeq ($(HPL_CALDGEMM_BACKEND), cuda)
 LAinc        += -isystem $(CUDA_PATH)/include
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o
