@@ -133,7 +133,7 @@ HPL_DEFS     += -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY
 HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE
 HPL_DEFS     += -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
 HPL_DEFS     += -DHPL_GPU_RUNTIME_CONFIG
-HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.ImprovedScheduler = true;
+HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.AlternateSimpleQueuing = true;cal_info.ImprovedScheduler = true;
 HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;
 
 include $(TOPdir)/Make.Generic.Options
@@ -158,7 +158,7 @@ endif
 ifeq ($(HPL_CALDGEMM_BACKEND), opencl)
 LAinc        += -isystem $(AMDAPPSDKROOT)/include
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_opencl.o
-HPL_LIBS     += -L$(AMDAPPSDKROOT/lib/x86_64 -lOpenCL
+HPL_LIBS     += -L$(AMDAPPSDKROOT)/lib/x86_64 -lOpenCL
 else ifeq ($(HPL_CALDGEMM_BACKEND), cuda)
 LAinc        += -isystem $(CUDA_PATH)/include
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o
@@ -256,8 +256,4 @@ ifeq ("$(call isenabled,-DHPL_CPUFREQ)", "yes")
 HPL_LIBS += -lcpufreq
 endif
 
-ifeq ("$(call isenabled,-DHPL_GPU_FACTORIZE)", "yes")
-HPL_INCLUDES += -I$(ACMLGPUDIR)/gfortran64/include
-HPL_LIBS += -L$(ACMLGPUDIR)/gfortran64/lib -lacml -lacml_mv -lCALBLAS
-endif
 # ----------------------------------------------------------------------
