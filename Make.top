@@ -115,7 +115,6 @@ build_tst: refresh_tst
 	@echo " You can find the executable in $(TOPdir)/bin/$(arch)/xhpl"
 	@echo "================================================================================"
 #	@echo "  detailed timers:                                          $(call isenabled,-DHPL_DETAILED_TIMING)"
-#	@echo "  use caldgemm for DGEMM calls:                             $(call isenabled,-DHPL_CALL_CALDGEMM)"
 #	@echo "  function level tracing for optimization relevant calls:   $(call isenabled,-DTRACE_CALLS)"
 #	@echo "  use original laswp implementation:                        $(call isenabled,-DUSE_ORIGINAL_LASWP)"
 #	@echo "  dump LINDXA(U) in laswp0[16]T:                            $(call isenabled,-DTRACE_PERMDATA)"

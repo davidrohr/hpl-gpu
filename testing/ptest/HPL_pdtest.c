@@ -313,6 +313,7 @@ void HPL_pdtest
    usleep(1000 * 1000 * 10);
    HPL_barrier( GRID->all_comm );
 #endif
+   HPL_pdgesv_delete_panel();
 
 /*
  * Gather max of all CPU and WALL clock timings and print timing results

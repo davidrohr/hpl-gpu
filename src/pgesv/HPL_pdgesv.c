@@ -138,7 +138,6 @@ void setcpufreq(int freq, int dgemmfreq)
  * ---------------------------------------------------------------------
  */ 
 
-#ifdef HPL_CALL_CALDGEMM
 extern volatile size_t HPL_CALDGEMM_swap_current_n;
 extern int HPL_CALDGEMM_gpu_height;
 volatile size_t HPL_CALDGEMM_swap_current_n;
@@ -148,7 +147,6 @@ HPL_T_panel* HPL_CALDGEMM_wrapper_panel = NULL;
 HPL_T_panel* HPL_CALDGEMM_wrapper_panel_work = NULL;
 int HPL_CALDGEMM_wrapper_icurcol = -1;
 int HPL_CALDGEMM_wrapper_n = -1;
-#endif
 
 
 #ifndef NO_EQUILIBRATION
@@ -247,9 +245,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int *ipID, *iplen = NULL, *ipmap = NULL, *ipmapm1 = NULL, *iwork = NULL, *lindxA = NULL, *lindxAU = NULL, *permU = NULL;
 	int icurrow = 0, *iflag, *ipA = NULL, *ipl, k, myrow = 0, nprow;
 
-#if !defined(HPL_CALL_CALDGEMM)
-	size_t laswp_stepsize = n;
-#elif !defined(HPL_LOOKAHEAD_2B)
+#if !defined(HPL_LOOKAHEAD_2B)
 	size_t laswp_stepsize = (HPL_CALDGEMM_gpu_height == 0 ? n : HPL_CALDGEMM_gpu_height);
 #elif defined(HPL_LOOKAHEAD_2B_FIXED_STEPSIZE)
 	size_t laswp_stepsize = HPL_LOOKAHEAD_2B_FIXED_STEPSIZE;
@@ -288,6 +284,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		*iflag = 1;		//signal that index array is calculated, not sure if this is needed anymore but anyway...
 		
 #ifndef HPL_LOOKAHEAD_2B
+		CALDGEMM_Wait(n + panel->jb);
 		{
 			HPL_ptimer_detail( HPL_TIMING_PREPIPELINE );
 			const int i = 0;
@@ -303,16 +300,13 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 	int nremain = n;
 	for (size_t i = 0;i < n;i += laswp_stepsize)
 	{
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_LOOKAHEAD_2B_MULTIPLIER
 #define HPL_LOOKAHEAD_2B_MULTIPLIER 3
 #endif
 		if (i) laswp_stepsize *= HPL_LOOKAHEAD_2B_MULTIPLIER;
 		const int nn = Mmin(nremain, laswp_stepsize);
-#else
-		const int nn = nremain;
-#endif
 		nremain -= nn;
+		CALDGEMM_Wait(i + nn + panel->jb);
 
 		if (panel->grid->nprow == 1)
 		{
@@ -358,9 +352,7 @@ void HPL_pdgesv_swap(HPL_T_grid* Grid, HPL_T_panel* panel, int n)
 		}
 		VT_USER_END_A("DTRSM");
 		HPL_ptimer_detail2( HPL_TIMING_DTRSM );
-#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_swap_current_n = i + nn;
-#endif
 	}
 	HPL_ptimer_detail( HPL_TIMING_PIPELINE );
 
@@ -449,8 +441,6 @@ void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 }
 
-#ifdef HPL_CALL_CALDGEMM
-
 void HPL_CALDGEMM_wrapper_factorize()
 {
 	HPL_pdgesv_factorize(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel, HPL_CALDGEMM_wrapper_icurcol);
@@ -463,8 +453,6 @@ void HPL_CALDGEMM_wrapper_swap()
 {
 	HPL_pdgesv_swap(HPL_CALDGEMM_wrapper_grid, HPL_CALDGEMM_wrapper_panel_work, HPL_CALDGEMM_wrapper_n);
 }
-
-#endif
 
 void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, const int NN, int factorize, int depth2)
 {
@@ -499,34 +487,31 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 
 	if (n)
 	{
-#ifdef HPL_CALL_CALDGEMM
 		HPL_CALDGEMM_wrapper_n = n;
 		HPL_CALDGEMM_wrapper_grid = Grid;
 		HPL_CALDGEMM_wrapper_panel = PBCST;
 		HPL_CALDGEMM_wrapper_panel_work = PANEL;
 		HPL_CALDGEMM_wrapper_icurcol = factorize;
 
-		if (depth2 && (global_runtime_config.lookahead2_turnoff == 0 || n >= global_runtime_config.lookahead2_turnoff))
+		if (depth2 > 2 && n < global_runtime_config.lookahead3_turnoff) depth2 = 2;
+		if (depth2 >= 2 && (global_runtime_config.lookahead2_turnoff == 0 || n >= global_runtime_config.lookahead2_turnoff))
 		{
-		    CALDGEMM_enable_async_laswp(1);
+			CALDGEMM_enable_async_laswp(1);
 		}
 		else
 		{
-		    HPL_CALDGEMM_gpu_height = 0;
-		    CALDGEMM_enable_async_laswp(0);
-#endif
-		    HPL_pdgesv_swap(Grid, PANEL, n);
-#ifdef HPL_CALL_CALDGEMM
+			CALDGEMM_Finish();
+			HPL_CALDGEMM_gpu_height = 0;
+			CALDGEMM_enable_async_laswp(0);
+			HPL_pdgesv_swap(Grid, PANEL, n);
 			depth2 = 0;
 		}
-#endif
 	
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
 		VT_USER_START_A("DGEMM");
-#ifdef HPL_CALL_CALDGEMM
 		int caldgemm_linpack_mode = (factorize != -1) ? (Grid->mycol == HPL_CALDGEMM_wrapper_icurcol ? 2 : 1) : 0;
 		//caldgemm_linpack_mode = 0;
-		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode );
+		HPL_gpu_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda, caldgemm_linpack_mode, depth2 >= 3 );
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 #ifdef CALDGEMM_TEST
 		if (adl_temperature_check_run(&temperature, 1))
@@ -544,9 +529,6 @@ void HPL_pdupdateTT(HPL_T_grid* Grid, HPL_T_panel* PBCST, HPL_T_panel* PANEL, co
 			fprintf(STD_OUT, "%s: GPU Temperature Threshold of %f exceeded, GPU temperature is %f\n", hostname, (double) HPL_GPU_TEMPERATURE_THRESHOLD, temperature);
 			exit(1);
 		}
-#endif
-#else
-		HPL_dgemm( HplColumnMajor, HplNoTrans, PANEL->grid->nprow == 1 ? HplNoTrans : HplTrans, mp, n, jb, -HPL_rone, L2ptr, ldl2, Uptr, LDU, HPL_rone, (PANEL->grid->nprow == 1 || curr != 0) ? Mptr( Aptr, jb, 0, lda ) : Aptr, lda );
 #endif
 		VT_USER_END_A("DGEMM");
 		HPL_ptimer_detail( HPL_TIMING_DGEMM );
@@ -661,10 +643,25 @@ void HPL_pdgesv_prepare_panel(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A)
 	if(panel == NULL) HPL_pabort(__LINE__, "HPL_pdgesvK2", "Memory allocation failed");
 
 	//Create and initialize the lookahead panel
-	if (depth1)
+}
+
+void HPL_pdgesv_delete_panel()
+{
+	if (panel) free(panel);
+	panel = NULL;
+}
+
+int HPL_pdgesv_get_nb(int nb, int N)
+{
+	for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
 	{
-		HPL_pdpanel_new(GRID, ALGO, A->n, A->n+1, Mmin(A->n, A->nb), A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
+		if (N > global_runtime_config.hpl_nb_multiplier_threshold[i])
+		{
+			nb = nb * global_runtime_config.hpl_nb_multiplier_factor[i];
+			break;
+		}
 	}
+	return(nb);
 }
 
 void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
@@ -672,7 +669,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	//.. Local Variables ..
 	HPL_T_panel *p;
 	int N, depth1, depth2, icurcol, j, jb, mycol, n, nb, nn, nq, tag=MSGID_BEGIN_FACT;
-	int depth1init = 0;
+	int depth1init;
 #ifdef HPL_PRINT_INTERMEDIATE
 	uint64_t total_gflop;
 	uint64_t time_start;
@@ -685,17 +682,10 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 
 	N = A->n;
 	nb = A->nb;
-	for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
-	{
-		if (N > global_runtime_config.hpl_nb_multiplier_threshold[i])
-		{
-			nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
-			break;
-		}
-	}
+	nb = HPL_pdgesv_get_nb(nb, N);
 
 	depth1 = (ALGO->depth >= 1);
-	depth2 = (ALGO->depth >= 2);
+	depth2 = ALGO->depth;
 
 #ifdef HPL_PRINT_INTERMEDIATE
 	total_gflop = 2 * (uint64_t) N * N * N / 3 / 1e9;
@@ -705,14 +695,14 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 	nq = HPL_numcol(N+1, nb, mycol, GRID);
 	nn = N;
 
-	if (panel == NULL)
+	//Create initial panel(s)
+	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), nb, A, 0, 0, tag, &panel[depth1]);
+	if (depth1)
 	{
-		HPL_pdgesv_prepare_panel(GRID, ALGO, A);
+		HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), nb, A, 0, 0, MSGID_BEGIN_FACT, &panel[0]);
 	}
-	if (depth1) depth1init = 1;
+	depth1init = depth1;
 
-	//Create main panel
-	HPL_pdpanel_new(GRID, ALGO, nn, nn+1, Mmin(nn, nb), A, 0, 0, tag, &panel[depth1]);
 	tag = MNxtMgid(tag, MSGID_BEGIN_FACT, MSGID_END_FACT);
 	
 #ifdef HPL_START_PERCENTAGE
@@ -739,18 +729,15 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 #endif
 		icurcol = MColToPCol(j, nb, GRID);
 		n = N - j;
-		nb = A->nb;
-		for (int i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
-		{
-			if (n > global_runtime_config.hpl_nb_multiplier_threshold[i])
-			{
-				nb = A->nb * global_runtime_config.hpl_nb_multiplier_factor[i];
-				break;
-			}
-		}
+		nb = depth1 ? panel[1]->nb : HPL_pdgesv_get_nb(A->nb, n);
 #ifdef HPL_HALF_BLOCKING
 		if (n <= HPL_HALF_BLOCKING)
 		{
+			if (depth1 || global_runtime_config.hpl_nb_multiplier_count)
+			{
+				fprintf(STD_OUT, "HPL_HALF_BLOCKING must not be used while lookahead is not 0, and if hpl_nb_multiplier is used!\n");
+				exit(1);
+			}
 			nb = A->nb / 2;
 		}
 #endif
@@ -795,7 +782,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		if (j == startrow || depth1 == 0)
 		{
 			HPL_pdpanel_free(panel[depth1]);
-			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, A, j, j, tag, panel[depth1]);
+			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, nb, A, j, j, tag, panel[depth1]);
 			factorize_first_iteration = 1;
 			HPL_pdgesv_factorize(GRID, panel[depth1], icurcol);
 			factorize_first_iteration = 0;
@@ -807,7 +794,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		if (depth1 && j + nb < N)
 		{
 			HPL_pdpanel_free(panel[0]);
-			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - nb, nb), A, j + nb, j + nb, tag, panel[0]);
+			int depth1nb = HPL_pdgesv_get_nb(A->nb, n);
+			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - depth1nb, depth1nb), depth1nb, A, j + nb, j + nb, tag, panel[0]);
 		}
 		
 		nn = (mycol == icurcol) ? HPL_numcolI(jb, j, nb, mycol, GRID) : 0;
@@ -850,9 +838,8 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		HPL_pdpanel_disp( &panel[1]);
 	}
 	HPL_pdpanel_disp(&panel[0]);
-	if(panel) free(panel);
-	panel = NULL;
 
+	CALDGEMM_Finish();
 	if (warmup) return;
 	
 	//Solve upper triangular system

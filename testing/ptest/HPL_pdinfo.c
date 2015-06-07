@@ -384,7 +384,6 @@ void HPL_pdinfo
                        "Value of NB less than 1" );
             error = 1; goto label_error;
          }
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
 		 if (NB[i] > max_gpu_nb) max_gpu_nb = NB[i];
 #else
@@ -394,7 +393,6 @@ void HPL_pdinfo
 			error = 1;
 			goto label_error;
 		 }
-#endif
 #endif
       }
 /*
@@ -598,20 +596,12 @@ void HPL_pdinfo
       {
          (void) sscanf( lineptr, "%s", num );
          lineptr += strlen( num ) + 1;
-         if( ( DH[ i ] = atoi( num ) ) < 0  || DH[i] > 2 )
+         if( ( DH[ i ] = atoi( num ) ) < 0  || DH[i] > 3 )
          {
             HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                       "Value of DEPTH less than 0 or greater than 2" );
+                       "Value of DEPTH less than 0 or greater than 3" );
             error = 1; goto label_error;
          }
-#ifndef HPL_CALL_CALDGEMM
-	if (DH[i] != 0)
-	{
-            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
-                       "Value of DEPTH not equal 0 not supported without CALDGEMM" );
-            error = 1; goto label_error;
-	}
-#endif
       }
 /*
  * Memory alignment in bytes (> 0) (ALIGN)
@@ -760,10 +750,8 @@ label_error:
    if( iwork ) free( iwork );
 
     //Broadcast maximum Nb value that will appear during HPL runs (if not defined via HPL_GPU_MAX_NB)
-#ifdef HPL_CALL_CALDGEMM
 #ifndef HPL_GPU_MAX_NB
    HPL_broadcast( (void*) &max_gpu_nb, 1, HPL_INT, 0, MPI_COMM_WORLD );
-#endif
 #endif
 
 
@@ -1152,16 +1140,14 @@ label_error:
       sprintf( output_buffer + strlen(output_buffer),       "\nConfig : ");
 #include "hpl_config_option_list.h"
       fprintf( TEST->outfp, "%s", output_buffer );
-#if defined(HPL_CALL_CALDGEMM)
 #define MXSTR(x) #x
-	if (strcmp(MXSTR(HPL_CALL_CALDGEMM), "cal") == 0)
+	if (strcmp(MXSTR(HPL_CALDGEMM_BACKEND), "cal") == 0)
 	{
       output_buffer[0] = 0;
       sprintf( output_buffer + strlen(output_buffer),       "\nCALDGEM: ");
 #include "caldgemm_config_option_list.h"
       fprintf( TEST->outfp, "%s", output_buffer );
         }
-#endif
 #endif
 
       HPL_fprintf( TEST->outfp, "\n\n" );
@@ -1215,6 +1201,7 @@ label_error:
 #else
     global_runtime_config.lookahead2_turnoff = 0;
 #endif
+    global_runtime_config.lookahead3_turnoff = 0;
 #ifdef HPL_DURATION_FIND_HELPER 
     global_runtime_config.duration_find_helper = 1;
 #else
@@ -1235,6 +1222,7 @@ label_error:
 #else
     global_runtime_config.caldgemm_async_dtrsm = 0;
 #endif
+    global_runtime_config.caldgemm_async_dtrsm_min_nb = 0;
 #ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
     global_runtime_config.caldgemm_async_fact_dtrsm = HPL_CALDGEMM_ASYNC_FACT_DTRSM;
 #else
@@ -1314,10 +1302,10 @@ label_error:
     *ptr = 0;
     ptr = ptr2;
 
-	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option);
+	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option[0] ? option : "enabled");
 	if (strcmp(cmd, "HPL_WARMUP") == 0)
 	{
-		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
+		global_runtime_config.warmup = option[0] ? atoi(option) : 1;
 	}
 	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
 	{
@@ -1330,6 +1318,10 @@ label_error:
 	else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
 	{
 		global_runtime_config.lookahead2_turnoff = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_LOOKAHEAD3_TURNOFF") == 0)
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(option);
 	}
 	else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
 	{
@@ -1346,6 +1338,10 @@ label_error:
 	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
 	{
 		global_runtime_config.caldgemm_async_dtrsm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB") == 0)
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(option);
 	}
 	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
 	{
@@ -1428,7 +1424,7 @@ label_error:
 	char* envPtr;
 	if ((envPtr = getenv("HPL_WARMUP")))
 	{
-		global_runtime_config.duration_find_helper = atoi(envPtr);
+		global_runtime_config.warmup = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_FASTRAND")))
 	{
@@ -1441,6 +1437,10 @@ label_error:
 	if ((envPtr = getenv("HPL_LOOKAHEAD2_TURNOFF")))
 	{
 		global_runtime_config.lookahead2_turnoff = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_LOOKAHEAD3_TURNOFF")))
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_DURATION_FIND_HELPER")))
 	{
@@ -1457,6 +1457,10 @@ label_error:
 	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM")))
 	{
 		global_runtime_config.caldgemm_async_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB")))
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DTRSM")))
 	{

@@ -51,11 +51,13 @@ struct runtime_config_options
     int fastrand;
     int disable_lookahead;
     int lookahead2_turnoff;
+    int lookahead3_turnoff;
     int duration_find_helper;
     int caldgemm_async_fact_dgemm;
     int caldgemm_async_fact_first;
     int caldgemm_async_dtrsm;
     int caldgemm_async_fact_dtrsm;
+    int caldgemm_async_dtrsm_min_nb;
     int hpl_nb_multiplier_count;
     int hpl_nb_multiplier_threshold[HPL_NB_MULTIPLIER_MAX];
     int hpl_nb_multiplier_factor[HPL_NB_MULTIPLIER_MAX];

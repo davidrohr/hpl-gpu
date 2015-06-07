@@ -68,17 +68,7 @@
 
 int HPL_init_laswp(void* ptr);
 
-#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
-#define MPOL_DEFAULT 0
-#define MPOL_PREFERRED 1
-#define MPOL_BIND 2
-#define MPOL_INTERLEAVE 3
-#include <syscall.h>
-#endif
-
-#ifdef HPL_CALL_CALDGEMM
 #include "../../caldgemm/cmodules/affinity.h"
-#endif
 
 pthread_mutex_t global_vt_mutex;
 
@@ -138,9 +128,7 @@ int main
    
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 
-#ifdef HPL_CALL_CALDGEMM
    setUnknownNames("Unknown - Before Main");
-#endif
    if (MPI_Init_thread( &ARGC, &ARGV, MPI_REQUIRE_THREAD_SAFETY, &mpiavail ) != MPI_SUCCESS)
    {
 	printf("Error initializing MPI\n");
@@ -153,7 +141,6 @@ int main
    }
 #endif
 
-#ifdef HPL_CALL_CALDGEMM
 #ifdef HPL_MPI_AFFINITY
    {
       double tmpval = 0;
@@ -164,12 +151,6 @@ int main
    }
 #endif
    setUnknownNames("MPI");
-#endif
-
-#if defined(HPL_INTERLEAVE_MEMORY) & !defined(HPL_CALL_CALDGEMM)
-   unsigned long nodemask = 0xffffff;
-   syscall(SYS_set_mempolicy, MPOL_INTERLEAVE, &nodemask, sizeof(nodemask) * 8);
-#endif
 
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
@@ -207,13 +188,11 @@ HPLinpack benchmark input file
    fflush(stdout);
    MPI_Barrier(MPI_COMM_WORLD);
 
-#ifdef HPL_CALL_CALDGEMM
    if (CALDGEMM_Init())
    {
 	printf("Error initializing CALDGEMM, abborting run\n");
 	return(1);
    }
-#endif
 
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
    if (adl_temperature_check_init())
@@ -224,11 +203,7 @@ HPLinpack benchmark input file
 #endif
 
 #ifndef USE_ORIGINAL_LASWP
-#ifdef HPL_CALL_CALDGEMM
 	HPL_init_laswp(CALDGEMM_GetObject());
-#else
-	HPL_init_laswp(NULL);
-#endif
 #endif
 
 /*
@@ -245,12 +220,10 @@ HPLinpack benchmark input file
       if( ( myrow < 0 ) || ( myrow >= nprow ) ||
           ( mycol < 0 ) || ( mycol >= npcol ) ) goto label_end_of_npqs;
 
-#ifdef HPL_CALL_CALDGEMM
 #ifdef HPL_EMULATE_MULTINODE
       CALDGEMM_set_num_nodes(2, 0);
 #else
       CALDGEMM_set_num_nodes(pval[ipq] * qval[ipq], grid.iam);
-#endif
 #endif
 
       for( in = 0; in < ns; in++ )
@@ -427,9 +400,7 @@ label_end_of_npqs: ;
       if( ( test.outfp != stdout ) && ( test.outfp != stderr ) )
          (void) fclose( test.outfp );
    }
-#ifdef HPL_CALL_CALDGEMM
    CALDGEMM_Shutdown();
-#endif
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
    if (adl_temperature_check_exit())
    {

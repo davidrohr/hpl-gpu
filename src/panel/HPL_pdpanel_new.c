@@ -67,6 +67,7 @@ void HPL_pdpanel_new
    const int                        M,
    const int                        N,
    const int                        JB,
+   const int                        NB,
    HPL_T_pmat *                     A,
    const int                        IA,
    const int                        JA,
@@ -143,7 +144,7 @@ void HPL_pdpanel_new
    p->WORK = NULL;
    p->IWORK = NULL;
    p->memalloc = p->memallocI = 0;
-   HPL_pdpanel_init( GRID, ALGO, M, N, JB, A, IA, JA, TAG, p );
+   HPL_pdpanel_init( GRID, ALGO, M, N, JB, NB, A, IA, JA, TAG, p );
    *PANEL = p;
 /*
  * End of HPL_pdpanel_new

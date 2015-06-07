@@ -154,6 +154,7 @@ void HPL_pdpanel_init
    const int                        M,
    const int                        N,
    const int                        JB,
+   const int                        NB,
    HPL_T_pmat *                     A,
    const int                        IA,
    const int                        JA,
@@ -219,7 +220,7 @@ START_TRACE( PDPANEL_INIT )
  */
    size_t                     dalign;
    int                        icurcol, icurrow, ii, itmp1, jj, lwork,
-                              ml2, mp, mycol, myrow, nb, npcol, nprow,
+                              ml2, mp, mycol, myrow, npcol, nprow,
                               nq, nu;
    int i;
 /* ..
@@ -230,12 +231,12 @@ START_TRACE( PDPANEL_INIT )
    PANEL->pmat    = A;                 /* ptr to the local array info */
 
    myrow = GRID->myrow; mycol = GRID->mycol;
-   nprow = GRID->nprow; npcol = GRID->npcol; nb = A->nb;
+   nprow = GRID->nprow; npcol = GRID->npcol;
 
-   HPL_infog2l( IA, JA, nb, nb, 0, 0, myrow, mycol,
+   HPL_infog2l( IA, JA, NB, NB, 0, 0, myrow, mycol,
                 nprow, npcol, &ii, &jj, &icurrow, &icurcol, GRID );
-   mp = HPL_numrowI( M, IA, nb, myrow, nprow );
-   nq = HPL_numcolI( N, JA, nb, mycol, GRID );
+   mp = HPL_numrowI( M, IA, NB, myrow, nprow );
+   nq = HPL_numcolI( N, JA, NB, mycol, GRID );
                                          /* ptr to trailing part of A */
    PANEL->A       = Mptr( (double *)(A->A), ii, jj, A->ld );
 /*
@@ -246,7 +247,7 @@ START_TRACE( PDPANEL_INIT )
 /*
  * Local lengths, indexes process coordinates
  */
-   PANEL->nb      = nb;               /* distribution blocking factor */
+   PANEL->nb      = NB;               /* distribution blocking factor */
    PANEL->jb      = JB;                                /* panel width */
    PANEL->m       = M;      /* global # of rows of trailing part of A */
    PANEL->n       = N;      /* global # of cols of trailing part of A */

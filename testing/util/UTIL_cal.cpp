@@ -36,8 +36,6 @@
  * the combination as such.
  */
 
-#ifdef HPL_CALL_CALDGEMM
-
 #define mcat(a, b) a ## b
 #define mxcat(a, b) mcat(a, b)
 
@@ -60,7 +58,7 @@
 #define HPL_ORDER CBLAS_ORDER
 extern "C"
 {
-	int max_gpu_nb = 1024;
+	int max_gpu_nb = 128;
 	int max_gpu_nb_factor = 1;
 	extern int global_m_remain;
 	extern int HPL_CALDGEMM_gpu_height;
@@ -337,7 +335,7 @@ void CALDGEMM_reset()
 void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_fact_dtrsm)
+	if (global_m_remain < global_runtime_config.caldgemm_async_fact_dtrsm)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
 		{
@@ -354,7 +352,7 @@ void CALDGEMM_async_dtrsm(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_
 void CALDGEMM_async_dtrsm2(const HPL_ORDER ORDER, const HPL_SIDE SIDE, const HPL_UPLO UPLO, const HPL_TRANS TRANS, const HPL_DIAG DIAG, const int M, const int N,
    const double ALPHA, const double *A, const int LDA, double *B, const int LDB)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_dtrsm)
+	if (global_m_remain < global_runtime_config.caldgemm_async_dtrsm && (global_runtime_config.caldgemm_async_dtrsm_min_nb == 0 || (M >= global_runtime_config.caldgemm_async_dtrsm_min_nb && N >= global_runtime_config.caldgemm_async_dtrsm_min_nb)))
 	{
 		if (cal_dgemm->RunAsyncSingleTileDTRSM(ORDER, SIDE, UPLO, TRANS, DIAG, M, N, ALPHA, A, LDA, B, LDB))
 		{
@@ -375,7 +373,7 @@ void CALDGEMM_async_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const double * B, const int LDB, const double BETA, double * C,
 	const int LDC)
 {
-	if (global_m_remain <= global_runtime_config.caldgemm_async_fact_dgemm)
+	if (global_m_remain < global_runtime_config.caldgemm_async_fact_dgemm)
 	{
 		if (cal_dgemm->RunAsyncSingleTileDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans))
 		{
@@ -393,7 +391,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	const HPL_TRANS TRANSB, const int M, const int N,
 	const int K, const double ALPHA, const double * A, const int LDA,
 	const double * B, const int LDB, const double BETA, double * C,
-	const int LDC, int LinpackCallbacks )
+	const int LDC, int LinpackCallbacks, int pipelined )
 {
 	static int LinpackIteration = 0;
 	if (M == 0 || N == 0 || K == 0)
@@ -418,7 +416,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
 #endif
 
-		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks ))
+		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks, pipelined ))
 		{
 			printf("Error in CALDGEMM Run, aborting HPL Run\n");
 			exit(1);
@@ -439,6 +437,20 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 			if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
 		}
 	}
+}
+
+void CALDGEMM_Wait(int n)
+{
+	if (cal_dgemm->WaitForCALDGEMMProgress(n))
+	{
+		printf("Error in CALDGEMM, exiting\n");
+		exit(1);
+	}
+}
+
+void CALDGEMM_Finish()
+{
+	cal_dgemm->FinishCALDGEMM();
 }
 
 void* CALDGEMM_alloc(size_t size, int interleaved)
@@ -483,17 +495,3 @@ void CALDGEMM_enable_async_laswp(int enable)
 {
 	cal_info.LinpackSwapN = enable ? &HPL_CALDGEMM_swap_current_n : NULL;
 }
-#else
-#include <stdlib.h>
-extern "C" void CALDGEMM_free(void* ptr);
-extern "C" void* CALDGEMM_alloc(size_t size, int interleaved);
-
-void CALDGEMM_free(void* ptr)
-{
-	free(ptr);
-}
-void* CALDGEMM_alloc(size_t size, int interleaved)
-{
-	return malloc(size);
-}
-#endif

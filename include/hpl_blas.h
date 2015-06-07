@@ -155,11 +155,7 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #define    HPL_dger            cblas_dger
 
 #define    HPL_dgemm           cblas_dgemma
-#ifdef HPL_CALL_CALDGEMM
 #define    HPL_gpu_dgemm       CALDGEMM_dgemm
-#else
-#define    HPL_gpu_dgemm       cblas_dgemma
-#endif
 #define    HPL_dtrsm           cblas_dtrsma
 #else
 #define    HPL_dswap           cblas_dswap
@@ -173,11 +169,7 @@ void cblas_dtrsm (  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,   c
 #define    HPL_dger            cblas_dger
 
 #define    HPL_dgemm           cblas_dgemm
-#ifdef HPL_CALL_CALDGEMM
 #define    HPL_gpu_dgemm       CALDGEMM_dgemm
-#else
-#define    HPL_gpu_dgemm       cblas_dgemm
-#endif
 #define    HPL_dtrsm           cblas_dtrsm
 #endif
 

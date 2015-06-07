@@ -51,7 +51,7 @@ void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
                      const enum CBLAS_TRANSPOSE, const int, const int,
    const int,       const double,    const double *,  const int,
    const double *,  const int,       const double,    double *,
-   const int, int LinpackCallbacks );
+   const int, int LinpackCallbacks, int pipelined );
 void CALDGEMM_async_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
                      const enum CBLAS_TRANSPOSE, const int, const int,
    const int,       const double,    const double *,  const int,
@@ -66,6 +66,8 @@ void CALDGEMM_free(void* ptr);
 void CALDGEMM_set_num_nodes(int num, int rank);
 void CALDGEMM_enable_async_laswp(int enable);
 void CALDGEMM_reset();
+void CALDGEMM_Wait(int n);
+void CALDGEMM_Finish();
 
 #ifdef __cplusplus
 }

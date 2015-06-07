@@ -44,11 +44,8 @@
 
 #include "glibc_hacks.h"
 
-#ifdef HPL_CALL_CALDGEMM
 #include "../../caldgemm/cmodules/affinity.h"
-#endif
 
-#ifdef HPL_CALL_CALDGEMM
 #define USE_DIES 4
 #define USE_CORES 3
 #define CORE_COUNT 6
@@ -61,14 +58,6 @@ extern "C" int get_num_procs();
 #include <unistd.h>
 
 #include "../../caldgemm/caldgemm.h"
-#else
-
-static inline int get_num_procs()
-{
-    return(sysconf(_SC_NPROCESSORS_ONLN));
-}
-
-#endif
 
 namespace
 {
@@ -78,10 +67,8 @@ namespace
     {
 		public:
 		    void operator()(const tbb::blocked_range<size_t> &) const {
-#ifdef HPL_CALL_CALDGEMM
 			usleep(100000);
 			if (gettid() != getpid()) setThreadName("LASWP");
-#endif
 		    }
     };
 
