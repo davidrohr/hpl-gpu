@@ -120,7 +120,7 @@ int HPL_Restrict_Callback_Function(int matrix_n)
 }
 #endif
 
-int CALDGEMM_Init()
+int CALDGEMM_Init(int rank)
 {
 #ifdef HPL_GPU_VERIFY
 	cal_info.Verify = true;
@@ -297,13 +297,15 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_CALDGEMM_PARAM
+	if (rank == 0) printf("Parsing CALDGEMM Static Command Options: %s\n", str(HPL_CALDGEMM_PARAM));
 	if (cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM), &cal_info)) return(1);
 #endif
 	if (global_runtime_config.paramdefs[0])
 	{
 		caldgemm::caldgemm_config oldConfig = cal_info;
+		if (rank == 0) printf("Parsing CALDGEMM Runtime Command Options: %s\n", global_runtime_config.paramdefs);
 		if (cal_dgemm->ParseParameters(global_runtime_config.paramdefs, &cal_info)) return(1);
-		cal_dgemm->printConfig(&cal_info, &oldConfig);
+		if (rank == 0) cal_dgemm->printConfig(&cal_info, &oldConfig);
 	}
 
 	if (cal_info.PinBroadcastThread == -2)

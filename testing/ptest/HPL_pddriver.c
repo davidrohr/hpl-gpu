@@ -188,7 +188,7 @@ HPLinpack benchmark input file
    fflush(stdout);
    MPI_Barrier(MPI_COMM_WORLD);
 
-   if (CALDGEMM_Init())
+   if (CALDGEMM_Init(rank))
    {
 	printf("Error initializing CALDGEMM, abborting run\n");
 	return(1);
