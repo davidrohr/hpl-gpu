@@ -1417,6 +1417,7 @@ label_error:
 	else
 	{
 		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+		exit(1);
 	}
   }
   free(Buffer);
