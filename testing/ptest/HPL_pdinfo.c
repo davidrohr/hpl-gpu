@@ -1213,7 +1213,7 @@ label_error:
     global_runtime_config.caldgemm_async_fact_dgemm = 0;
 #endif
 #ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
-    global_runtime_config.caldgemm_async_fact_first = HPL_CALDGEMM_ASYNC_FACT_FIRST ;
+    global_runtime_config.caldgemm_async_fact_first = 1;
 #else
     global_runtime_config.caldgemm_async_fact_first = 0;
 #endif
