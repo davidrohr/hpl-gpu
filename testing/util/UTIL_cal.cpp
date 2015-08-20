@@ -82,6 +82,7 @@ extern "C"
 extern "C"
 {
 	extern volatile size_t HPL_CALDGEMM_swap_current_n;
+	extern int factorize_first_iteration;
 	extern void HPL_CALDGEMM_wrapper_factorize();
 	extern void HPL_CALDGEMM_wrapper_broadcast();
 	extern void HPL_CALDGEMM_wrapper_swap();
@@ -414,9 +415,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	{
 		sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 
-#ifdef HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
-		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
-#endif
+		CALDGEMM_UpdateParameters();
 
 		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks, pipelined ))
 		{
@@ -439,6 +438,13 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 			if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
 		}
 	}
+}
+
+void CALDGEMM_UpdateParameters()
+{
+#ifdef HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+#endif
 }
 
 void CALDGEMM_Wait(int n)

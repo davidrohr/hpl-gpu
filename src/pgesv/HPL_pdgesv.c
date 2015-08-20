@@ -374,8 +374,15 @@ int global_m_remain;
 int factorize_first_iteration = 0;
 void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 {
-	global_m_remain = panel->mp;
-	if (global_runtime_config.caldgemm_async_fact_first && factorize_first_iteration) global_m_remain = 1;
+	if (factorize_first_iteration)
+	{
+		global_m_remain = 1;
+		CALDGEMM_UpdateParameters();
+	}
+	else
+	{
+		global_m_remain = panel->mp;
+	}
 	int mycol = Grid->mycol;
 	fprintfctd(STD_OUT, "Running Factorize\n");
 	if(mycol == icurcol)
@@ -390,7 +397,7 @@ void HPL_pdgesv_factorize(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
 #endif
 	}
 	fprintfctd(STD_OUT, "Factorize Ended\n");
-	if (global_runtime_config.caldgemm_async_fact_first) global_m_remain = panel->mp;
+	if (factorize_first_iteration) global_m_remain = panel->mp;
 }
 
 void HPL_pdgesv_broadcast(HPL_T_grid* Grid, HPL_T_panel* panel, int icurcol)
@@ -779,7 +786,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		{
 			HPL_pdpanel_free(panel[depth1]);
 			HPL_pdpanel_init(GRID, ALGO, n, n + 1, jb, nb, A, j, j, tag, panel[depth1]);
-			factorize_first_iteration = 1;
+			factorize_first_iteration = global_runtime_config.caldgemm_async_fact_first;
 			HPL_pdgesv_factorize(GRID, panel[depth1], icurcol);
 			factorize_first_iteration = 0;
 			HPL_pdgesv_broadcast(GRID, panel[depth1], icurcol);

@@ -68,6 +68,7 @@ void CALDGEMM_enable_async_laswp(int enable);
 void CALDGEMM_reset();
 void CALDGEMM_Wait(int n);
 void CALDGEMM_Finish();
+void CALDGEMM_UpdateParameters();
 
 #ifdef __cplusplus
 }
