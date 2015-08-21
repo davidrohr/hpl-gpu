@@ -1,0 +1,1576 @@
+================================================================================
+HPL-GPU 1.1.0  --  High-Performance Linpack benchmark for GPUs  --   2015
+Written by D. Rohr, M. Kretz and M. Bach, Frankfurt Institute for Advanced Studies
+This program is open source software licensed partly under GPL and partly
+under BSD license.
+You can obtain the source at: http://code.compeng.uni-frankfurt.de/projects/hpl.
+Based on:
+HPLinpack 2.1  --  High-Performance Linpack benchmark  --   October 26, 2012
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :  254880 
+NB     :     480 
+PMAP   : Column-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Crout 
+NBMIN  :      64 
+NDIV   :       2 
+RFACT  :    Left 
+BCAST  :     MPI 
+DEPTH  :       3 
+SWAP   : Spread-roll (long)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+SEED   :     100
+Config : -I/home/drohr/hpl/include -I/home/drohr/hpl/include/Generic -isystem /home/drohr/hpl/caldgemm -isystem /home/drohr/intel/mkl/include -isystem /home/drohr/AMD-APP-SDK-v2.9-RC-lnx64/include -DHPL_PAGELOCKED_MEM -DHPL_INTERLEAVE_C -DHPL_REGISTER_MEMORY 
+-DHPL_HUGE_TABLES -DHPL_FASTINIT -DHPL_FASTVERIFY -DHPL_FAST_GPU -DHPL_COPY_L -DHPL_COPYL_DURING_FACT -DHPL_ASYNC_DLATCPY -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATYPE -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP 
+-DHPL_GPU_RUNTIME_CONFIG -DHPL_MPI_AFFINITY={1} -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM=if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 152000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 204000) 
+{cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} -DHPL_CALDGEMM_BACKEND=opencl -DUSE_MKL -DHPL_SEND_U_PADDING -DHPL_NO_MPI_LIB -DHPL_PRINT_INTERMEDIATE -DHPL_GPU_NOT_QUIET -DHPL_DETAILED_TIMING -DCALDGEMM_TEST 
+-DHPL_GPU_EXTRA_CALDGEMM_OPTIONS=cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.AlternateSimpleQueuing = 
+true;cal_info.ImprovedScheduler = true; cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false; 
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                 0.1
+
+Runtime Option "HPL_NB_MULTIPLIER_THRESHOLD", Parameter "119000;93000;70000;38000;25000;1"
+Runtime Option "HPL_NB_MULTIPLIER", Parameter "9;7;5;4;3;2"
+Runtime Option "HPL_CALDGEMM_ASYNC_FACT_DGEMM", Parameter "10000000"
+Runtime Option "HPL_CALDGEMM_ASYNC_FACT_FIRST", Parameter "enabled"
+Runtime Option "HPL_CALDGEMM_ASYNC_DTRSM", Parameter "10000000"
+Runtime Option "HPL_CALDGEMM_ASYNC_FACT_DTRSM", Parameter "0"
+Runtime Option "HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB", Parameter "2400"
+Runtime Option "HPL_WARMUP", Parameter "enabled"
+NB Multipliers: 119000/9 93000/7 70000/5 38000/4 25000/3 1/2 MaxNB: 4320
+Parsing CALDGEMM Runtime Command Options: -Ap -Aq 20000 -Ob -Ol amddgemm.so -j 1.0 -K 0 -Kb -2 -Ca 10000000 -/ 0;4;2;6;1;5;3;7 -UA0 0 -UA 39 -UA2 0 -UA3 39 -UA4 0 -UA5 39 -UA6 0 -UA7 39 -Oa -Od -Op 70 -bb 15
+                 PipelinedOperation:     0 changed to     1
+                 PipelinedMidMarker:     0 changed to 20000
+                      DeviceNums[1]:     1 changed to     4
+                      DeviceNums[3]:     3 changed to     6
+                      DeviceNums[4]:     4 changed to     1
+                      DeviceNums[6]:     6 changed to     3
+                       max_bbuffers:     0 changed to    15
+                       PreallocData:     0 changed to    70
+                    AllocMapping[0]:    -1 changed to    39
+                    AllocMapping[2]:    -1 changed to     0
+                    AllocMapping[3]:    -1 changed to    39
+                    AllocMapping[4]:    -1 changed to     0
+                    AllocMapping[5]:    -1 changed to    39
+                    AllocMapping[6]:    -1 changed to     0
+                    AllocMapping[7]:    -1 changed to    39
+                      PinMainThread:    -1 changed to     0
+                 PinBroadcastThread:    -1 changed to    -2
+                 AlternateLookahead:     0 changed to 10000000
+                     AsyncSideQueue:     0 changed to     1
+              AsyncSideQueueBalance:     0 changed to     1
+                         AsyncDTRSM:     0 changed to     1
+                          kernelLib:       changed to amddgemm.so
+HAWAII GPU detected
+Initializing CALDGEMM (OpenCL Runtime)
+Running on 8 devices with 15 bbuffers (asustest02)
+Using 19 threads for LASWP ( 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 )
+(Problem: N 254880 NB 480)(Network: BCAST 407 LOOKAHEAD 3) (Factorization: NBMIN 64 NBDIV 2 PFACT 302 RFACT 301)
+Process col 0 processes 532 matrix cols
+Allocating memory: 520094876552 bytes...01234567
+
+Running warmup iteration
+Iteration j=0 N=254880 n=254880 jb=4320 Totaltime=0.000
+Timer RPFACT (11) CPU Time 112.46400 Wall Time 12.82958
+Starting DGEMM Run m=250561 k=4320 n=250560 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f2ec8fe6800, B=0x7f2cbbe07700, C=0x7f2ec8feef00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 250560 gpu_n 250560 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2496, 2496)
+                Slave thread starting cblas (m: 250561, n: 250560, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4761)
+Timer PIPELINE (25) CPU Time 48.78800 Wall Time 5.82698
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 440.11200 Wall Time 22.32259
+Timer DGEMM (17) CPU Time 492.20000 Wall Time 28.31135
+Timer UPDATE (14) CPU Time 492.20000 Wall Time 28.31141
+Timer ITERATION (22) CPU Time 604.66400 Wall Time 41.14112
+#(0  ,   0) Program: caldgemm Sizes - A: 250561x4320 B: 4320x250560 C:250561x250560 (Host: asustest02) System Time 28.311 System Gflops 19163.745
+#(0  ,   0) GPU Time 0.0000 (542547470131200.0000 Gflops)   CPU Time 0.1614 (13.4159 Gflops)   Linpack Time: 22.3226 (2, 0.0000, 5.8270)  Total CPU Time: 28.3111 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.3E+10, CPU Wait Time: 22.420
+
+Iteration j=0 N=254880 n=254880 jb=4320 Totaltime=41.141
+Timer RPFACT (11) CPU Time 179.86000 Wall Time 9.20112
+Starting DGEMM Run m=250561 k=4320 n=250560 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f2ec8fe6800, B=0x7f2cbbe07700, C=0x7f2ec8feef00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 250560 gpu_n 250560 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2496, 2496)
+                Slave thread starting cblas (m: 250561, n: 250560, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4761)
+Timer PIPELINE (25) CPU Time 49.45200 Wall Time 5.95321
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 448.56800 Wall Time 22.42984
+Timer DGEMM (17) CPU Time 501.17600 Wall Time 28.53569
+Timer UPDATE (14) CPU Time 501.17600 Wall Time 28.53574
+Timer ITERATION (22) CPU Time 681.03600 Wall Time 37.73693
+Iteration j=4320 N=254880 n=250560 jb=4320 Totaltime=78.878
+5 % (j = 4320/254880) of factorization at approx. 13293.65 Gflops, assuming to finish in 788 s.
+Starting DGEMM Run m=246241 k=4320 n=246240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f30d61d6700, B=0x7f2ec8ff7600, C=0x7f30d61dee00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 246240 gpu_n 246240 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1824, 1824)
+                Slave thread starting cblas (m: 246241, n: 246240, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4624)
+Timer PIPELINE (25) CPU Time 57.54000 Wall Time 13.01388
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 443.82800 Wall Time 22.13812
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   2) Program: caldgemm Sizes - A: 250561x4320 B: 4320x250560 C:250561x250560 (Host: asustest02) System Time 28.536 System Gflops 19013.077
+#(0  ,   2) GPU Time 0.0000 (542547470131200.0000 Gflops)   CPU Time 0.1522 (14.2238 Gflops)   Linpack Time: 22.4299 (2, 0.0000, 5.9532)  Total CPU Time: 28.5354 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.3E+10, CPU Wait Time: 22.529
+Timer DGEMM (17) CPU Time 504.55200 Wall Time 35.30626
+Timer UPDATE (14) CPU Time 504.55200 Wall Time 35.30630
+Timer ITERATION (22) CPU Time 504.55200 Wall Time 35.30632
+Iteration j=8640 N=254880 n=246240 jb=4320 Totaltime=114.184
+10 % (j = 8640/254880) of factorization at approx. 13503.33 Gflops, assuming to finish in 737 s.
+Starting DGEMM Run m=241921 k=4320 n=241920 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f32e33c6600, B=0x7f30d61e7500, C=0x7f32e33ced00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 241920 gpu_n 241920 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1152, 1152)
+                Slave thread starting cblas (m: 241921, n: 241920, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4489)
+Timer PIPELINE (25) CPU Time 60.86800 Wall Time 12.91629
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 438.98400 Wall Time 21.89438
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   3) Program: caldgemm Sizes - A: 246241x4320 B: 4320x246240 C:246241x246240 (Host: asustest02) System Time 35.306 System Gflops 14841.684
+#(0  ,   3) GPU Time 0.0000 (524000217139200.0625 Gflops)   CPU Time 0.1532 (13.8914 Gflops)   Linpack Time: 22.1382 (2, 0.0000, 13.0139)  Total CPU Time: 35.3053 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.1E+10, CPU Wait Time: 22.265
+Timer DGEMM (17) CPU Time 503.02800 Wall Time 34.96399
+Timer UPDATE (14) CPU Time 503.02800 Wall Time 34.96403
+Timer ITERATION (22) CPU Time 503.02800 Wall Time 34.96406
+Iteration j=12960 N=254880 n=241920 jb=4320 Totaltime=149.148
+14 % (j = 12960/254880) of factorization at approx. 13465.05 Gflops, assuming to finish in 700 s.
+Starting DGEMM Run m=237601 k=4320 n=237600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f34f05b6500, B=0x7f32e33d7400, C=0x7f34f05bec00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 237600 gpu_n 237600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (480, 480)
+                Slave thread starting cblas (m: 237601, n: 237600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4356)
+Timer PIPELINE (25) CPU Time 53.72000 Wall Time 11.87391
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 428.27600 Wall Time 21.32593
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   4) Program: caldgemm Sizes - A: 241921x4320 B: 4320x241920 C:241921x241920 (Host: asustest02) System Time 34.964 System Gflops 14465.722
+#(0  ,   4) GPU Time 0.0000 (505775525068800.0625 Gflops)   CPU Time 0.1530 (13.6666 Gflops)   Linpack Time: 21.8944 (2, 0.0000, 12.9163)  Total CPU Time: 34.9638 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.9E+10, CPU Wait Time: 21.912
+Timer DGEMM (17) CPU Time 484.98800 Wall Time 33.34531
+Timer UPDATE (14) CPU Time 484.98800 Wall Time 33.34535
+Timer ITERATION (22) CPU Time 484.98800 Wall Time 33.34537
+Iteration j=17280 N=254880 n=237600 jb=4320 Totaltime=182.494
+19 % (j = 17280/254880) of factorization at approx. 13484.15 Gflops, assuming to finish in 663 s.
+Starting DGEMM Run m=233281 k=4320 n=233280 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f36fd7a6400, B=0x7f34f05c7300, C=0x7f36fd7aeb00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 233280 gpu_n 233280 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3456, 3456)
+                Slave thread starting cblas (m: 233281, n: 233280, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4096)
+Timer PIPELINE (25) CPU Time 57.56000 Wall Time 11.06062
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 420.12000 Wall Time 20.92815
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   5) Program: caldgemm Sizes - A: 237601x4320 B: 4320x237600 C:237601x237600 (Host: asustest02) System Time 33.345 System Gflops 14631.061
+#(0  ,   5) GPU Time 0.0000 (487873393920000.0000 Gflops)   CPU Time 0.1448 (14.1779 Gflops)   Linpack Time: 21.3260 (2, 0.0000, 11.8740)  Total CPU Time: 33.3448 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.6E+10, CPU Wait Time: 21.446
+Timer DGEMM (17) CPU Time 480.73600 Wall Time 32.13638
+Timer UPDATE (14) CPU Time 480.73600 Wall Time 32.13642
+Timer ITERATION (22) CPU Time 480.73600 Wall Time 32.13644
+Iteration j=21600 N=254880 n=233280 jb=4320 Totaltime=214.630
+23 % (j = 21600/254880) of factorization at approx. 13498.43 Gflops, assuming to finish in 626 s.
+Starting DGEMM Run m=228961 k=4320 n=228960 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f390a996300, B=0x7f36fd7b7200, C=0x7f390a99ea00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 228960 gpu_n 228960 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2784, 2784)
+                Slave thread starting cblas (m: 228961, n: 228960, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3969)
+Timer PIPELINE (25) CPU Time 52.60000 Wall Time 10.67034
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 410.27600 Wall Time 20.43109
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   6) Program: caldgemm Sizes - A: 233281x4320 B: 4320x233280 C:233281x233280 (Host: asustest02) System Time 32.136 System Gflops 14634.436
+#(0  ,   6) GPU Time 0.0000 (470293823692800.0625 Gflops)   CPU Time 0.1472 (13.6977 Gflops)   Linpack Time: 20.9282 (2, 0.0000, 11.0607)  Total CPU Time: 32.1361 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.4E+10, CPU Wait Time: 20.943
+Timer DGEMM (17) CPU Time 465.82000 Wall Time 31.24357
+Timer UPDATE (14) CPU Time 465.82000 Wall Time 31.24361
+Timer ITERATION (22) CPU Time 465.82000 Wall Time 31.24364
+Iteration j=25920 N=254880 n=228960 jb=4320 Totaltime=245.874
+28 % (j = 25920/254880) of factorization at approx. 13491.80 Gflops, assuming to finish in 593 s.
+Starting DGEMM Run m=224641 k=4320 n=224640 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f3b17b86200, B=0x7f390a9a7100, C=0x7f3b17b8e900, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 224640 gpu_n 224640 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2112, 2112)
+                Slave thread starting cblas (m: 224641, n: 224640, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3844)
+Timer PIPELINE (25) CPU Time 50.66800 Wall Time 9.89717
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 404.13200 Wall Time 20.07244
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   7) Program: caldgemm Sizes - A: 228961x4320 B: 4320x228960 C:228961x228960 (Host: asustest02) System Time 31.243 System Gflops 14500.280
+#(0  ,   7) GPU Time 0.0000 (453036814387200.0000 Gflops)   CPU Time 0.1411 (14.0227 Gflops)   Linpack Time: 20.4311 (2, 0.0000, 10.6704)  Total CPU Time: 31.2426 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.2E+10, CPU Wait Time: 20.521
+Timer DGEMM (17) CPU Time 457.76400 Wall Time 30.11362
+Timer UPDATE (14) CPU Time 457.76400 Wall Time 30.11366
+Timer ITERATION (22) CPU Time 457.76800 Wall Time 30.11368
+Iteration j=30240 N=254880 n=224640 jb=4320 Totaltime=275.988
+32 % (j = 30240/254880) of factorization at approx. 13488.22 Gflops, assuming to finish in 560 s.
+Starting DGEMM Run m=220321 k=4320 n=220320 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f3d24d76100, B=0x7f3b17b97000, C=0x7f3d24d7e800, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 220320 gpu_n 220320 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1440, 1440)
+                Slave thread starting cblas (m: 220321, n: 220320, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3721)
+Timer PIPELINE (25) CPU Time 50.10000 Wall Time 9.08653
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 394.63600 Wall Time 19.62368
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   8) Program: caldgemm Sizes - A: 224641x4320 B: 4320x224640 C:224641x224640 (Host: asustest02) System Time 30.114 System Gflops 14482.019
+#(0  ,   8) GPU Time 0.0000 (436102366003200.0625 Gflops)   CPU Time 0.1418 (13.6884 Gflops)   Linpack Time: 20.0725 (2, 0.0000, 9.8972)  Total CPU Time: 30.1116 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.0E+10, CPU Wait Time: 20.124
+Timer DGEMM (17) CPU Time 447.63200 Wall Time 28.84942
+Timer UPDATE (14) CPU Time 447.63200 Wall Time 28.84946
+Timer ITERATION (22) CPU Time 447.63200 Wall Time 28.84949
+Iteration j=34560 N=254880 n=220320 jb=4320 Totaltime=304.837
+35 % (j = 34560/254880) of factorization at approx. 13495.43 Gflops, assuming to finish in 528 s.
+Starting DGEMM Run m=216001 k=4320 n=216000 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f3f31f66000, B=0x7f3d24d86f00, C=0x7f3f31f6e700, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 216000 gpu_n 216000 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (768, 768)
+                Slave thread starting cblas (m: 216001, n: 216000, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3600)
+Timer PIPELINE (25) CPU Time 45.73600 Wall Time 8.52633
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 388.55600 Wall Time 19.32827
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,   9) Program: caldgemm Sizes - A: 220321x4320 B: 4320x220320 C:220321x220320 (Host: asustest02) System Time 28.849 System Gflops 14540.819
+#(0  ,   9) GPU Time 0.0000 (419490478540800.0000 Gflops)   CPU Time 0.1373 (13.8688 Gflops)   Linpack Time: 19.6237 (2, 0.0000, 9.0866)  Total CPU Time: 28.8476 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.9E+10, CPU Wait Time: 19.712
+Timer DGEMM (17) CPU Time 437.04800 Wall Time 27.98878
+Timer UPDATE (14) CPU Time 437.04800 Wall Time 27.98882
+Timer ITERATION (22) CPU Time 437.04800 Wall Time 27.98885
+Iteration j=38880 N=254880 n=216000 jb=4320 Totaltime=332.826
+39 % (j = 38880/254880) of factorization at approx. 13493.46 Gflops, assuming to finish in 497 s.
+Starting DGEMM Run m=211681 k=4320 n=211680 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f413f155f00, B=0x7f3f31f76e00, C=0x7f413f15e600, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 211584 gpu_n 211584 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (0, 0)
+                Slave thread starting cblas (m: 211681, n: 211680, cblas_size: 97 (3648), dynamic: 0/0, cpu_k: 3364)
+Timer PIPELINE (25) CPU Time 46.37200 Wall Time 7.44245
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 379.60000 Wall Time 18.90556
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  10) Program: caldgemm Sizes - A: 216001x4320 B: 4320x216000 C:216001x216000 (Host: asustest02) System Time 27.989 System Gflops 14405.944
+#(0  ,  10) GPU Time 0.0000 (403201152000000.0625 Gflops)   CPU Time 0.1335 (13.9819 Gflops)   Linpack Time: 19.3283 (2, 0.0000, 8.5264)  Total CPU Time: 27.9882 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.7E+10, CPU Wait Time: 19.386
+Timer DGEMM (17) CPU Time 453.20800 Wall Time 27.68126
+Timer UPDATE (14) CPU Time 453.21200 Wall Time 27.68130
+Timer ITERATION (22) CPU Time 453.21200 Wall Time 27.68132
+Iteration j=43200 N=254880 n=211680 jb=4320 Totaltime=360.507
+43 % (j = 43200/254880) of factorization at approx. 13463.04 Gflops, assuming to finish in 469 s.
+Starting DGEMM Run m=207361 k=4320 n=207360 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f434c345e00, B=0x7f413f166d00, C=0x7f434c34e500, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 207360 gpu_n 207360 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3072, 3072)
+                Slave thread starting cblas (m: 207361, n: 207360, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3249)
+Timer PIPELINE (25) CPU Time 47.03600 Wall Time 5.84298
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 370.99600 Wall Time 18.45136
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  11) Program: caldgemm Sizes - A: 211681x4320 B: 4320x211680 C:211681x211680 (Host: asustest02) System Time 27.681 System Gflops 13989.174
+#(0  ,  11) GPU Time 0.0000 (387058769879040.0625 Gflops)   CPU Time 1.3329 (133.1261 Gflops)   Linpack Time: 18.9056 (2, 0.0000, 7.4425)  Total CPU Time: 27.6810 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.5E+10, CPU Wait Time: 19.563
+Timer DGEMM (17) CPU Time 420.76400 Wall Time 24.42599
+Timer UPDATE (14) CPU Time 420.76800 Wall Time 24.42604
+Timer ITERATION (22) CPU Time 420.76800 Wall Time 24.42606
+Iteration j=47520 N=254880 n=207360 jb=4320 Totaltime=384.933
+46 % (j = 47520/254880) of factorization at approx. 13527.42 Gflops, assuming to finish in 439 s.
+Starting DGEMM Run m=203041 k=4320 n=203040 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4559535d00, B=0x7f434c356c00, C=0x7f455953e400, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 203040 gpu_n 203040 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2400, 2400)
+                Slave thread starting cblas (m: 203041, n: 203040, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3136)
+Timer PIPELINE (25) CPU Time 45.74000 Wall Time 6.80882
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 364.49600 Wall Time 18.13147
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  12) Program: caldgemm Sizes - A: 207361x4320 B: 4320x207360 C:207361x207360 (Host: asustest02) System Time 24.426 System Gflops 15213.055
+#(0  ,  12) GPU Time 0.0000 (371590181683200.0625 Gflops)   CPU Time 0.1304 (13.7413 Gflops)   Linpack Time: 18.4514 (2, 0.0000, 5.8430)  Total CPU Time: 24.4249 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.3E+10, CPU Wait Time: 18.555
+Timer DGEMM (17) CPU Time 412.92800 Wall Time 25.06919
+Timer UPDATE (14) CPU Time 412.92800 Wall Time 25.06923
+Timer ITERATION (22) CPU Time 412.93200 Wall Time 25.06925
+Iteration j=51840 N=254880 n=203040 jb=4320 Totaltime=410.003
+49 % (j = 51840/254880) of factorization at approx. 13526.22 Gflops, assuming to finish in 412 s.
+Starting DGEMM Run m=198721 k=4320 n=198720 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4766725c00, B=0x7f4559546b00, C=0x7f476672e300, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 198720 gpu_n 198720 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1728, 1728)
+                Slave thread starting cblas (m: 198721, n: 198720, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 3025)
+Timer PIPELINE (25) CPU Time 40.85600 Wall Time 5.90799
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 259.88400 Wall Time 12.90290
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  13) Program: caldgemm Sizes - A: 203041x4320 B: 4320x203040 C:203041x203040 (Host: asustest02) System Time 25.069 System Gflops 14211.552
+#(0  ,  13) GPU Time 0.0000 (356268537907200.0000 Gflops)   CPU Time 0.1286 (13.6489 Gflops)   Linpack Time: 18.1315 (2, 0.0000, 6.8089)  Total CPU Time: 25.0690 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.1E+10, CPU Wait Time: 18.231
+Timer DGEMM (17) CPU Time 303.30800 Wall Time 18.93612
+Timer UPDATE (14) CPU Time 303.30800 Wall Time 18.93616
+Timer ITERATION (22) CPU Time 303.30800 Wall Time 18.93618
+Iteration j=56160 N=254880 n=198720 jb=4320 Totaltime=428.939
+53 % (j = 56160/254880) of factorization at approx. 13708.60 Gflops, assuming to finish in 381 s.
+Starting DGEMM Run m=194401 k=4320 n=194400 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4973915b00, B=0x7f4766736a00, C=0x7f497391e200, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 194400 gpu_n 194400 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1056, 1056)
+                Slave thread starting cblas (m: 194401, n: 194400, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2916)
+Timer PIPELINE (25) CPU Time 47.94800 Wall Time 10.26963
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 252.35600 Wall Time 12.58635
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  14) Program: caldgemm Sizes - A: 198721x4320 B: 4320x198720 C:198721x198720 (Host: asustest02) System Time 18.936 System Gflops 18022.348
+#(0  ,  14) GPU Time 0.0000 (341269455052800.0625 Gflops)   CPU Time 0.1227 (13.9924 Gflops)   Linpack Time: 12.9029 (2, 0.0000, 5.9080)  Total CPU Time: 18.9337 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.9E+10, CPU Wait Time: 12.996
+Timer DGEMM (17) CPU Time 302.77600 Wall Time 22.97582
+Timer UPDATE (14) CPU Time 302.77600 Wall Time 22.97586
+Timer ITERATION (22) CPU Time 302.77600 Wall Time 22.97588
+Iteration j=60480 N=254880 n=194400 jb=4320 Totaltime=451.915
+56 % (j = 60480/254880) of factorization at approx. 13709.89 Gflops, assuming to finish in 357 s.
+Starting DGEMM Run m=190081 k=4320 n=190080 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4b80b05a00, B=0x7f4973926900, C=0x7f4b80b0e100, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 190080 gpu_n 190080 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (384, 384)
+                Slave thread starting cblas (m: 190081, n: 190080, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2809)
+Timer PIPELINE (25) CPU Time 43.69600 Wall Time 9.56844
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 248.39600 Wall Time 12.37229
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  15) Program: caldgemm Sizes - A: 194401x4320 B: 4320x194400 C:194401x194400 (Host: asustest02) System Time 22.976 System Gflops 14214.788
+#(0  ,  15) GPU Time 0.0000 (326592933120000.0625 Gflops)   CPU Time 0.1195 (14.0597 Gflops)   Linpack Time: 12.5864 (2, 0.0000, 10.2697)  Total CPU Time: 22.9756 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.8E+10, CPU Wait Time: 12.692
+Timer DGEMM (17) CPU Time 294.62400 Wall Time 22.06344
+Timer UPDATE (14) CPU Time 294.62800 Wall Time 22.06348
+Timer ITERATION (22) CPU Time 294.62800 Wall Time 22.06350
+Iteration j=64800 N=254880 n=190080 jb=4320 Totaltime=473.978
+59 % (j = 64800/254880) of factorization at approx. 13714.67 Gflops, assuming to finish in 333 s.
+Starting DGEMM Run m=185761 k=4320 n=185760 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4d8dcf5900, B=0x7f4b80b16800, C=0x7f4d8dcfe000, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 185760 gpu_n 185760 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3360, 3360)
+                Slave thread starting cblas (m: 185761, n: 185760, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2601)
+Timer PIPELINE (25) CPU Time 44.49200 Wall Time 8.91012
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 246.46400 Wall Time 12.22824
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  16) Program: caldgemm Sizes - A: 190081x4320 B: 4320x190080 C:190081x190080 (Host: asustest02) System Time 22.063 System Gflops 14152.018
+#(0  ,  16) GPU Time 0.0000 (312238972108800.0000 Gflops)   CPU Time 0.1205 (13.6330 Gflops)   Linpack Time: 12.3723 (2, 0.0000, 9.5685)  Total CPU Time: 22.0614 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.6E+10, CPU Wait Time: 12.480
+Timer DGEMM (17) CPU Time 293.31200 Wall Time 21.25259
+Timer UPDATE (14) CPU Time 293.31200 Wall Time 21.25263
+Timer ITERATION (22) CPU Time 293.31600 Wall Time 21.25265
+Iteration j=69120 N=254880 n=185760 jb=4320 Totaltime=495.231
+61 % (j = 69120/254880) of factorization at approx. 13720.22 Gflops, assuming to finish in 311 s.
+Starting DGEMM Run m=181441 k=4320 n=181440 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f4f9aee5800, B=0x7f4d8dd06700, C=0x7f4f9aeedf00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 181440 gpu_n 181440 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2688, 2688)
+                Slave thread starting cblas (m: 181441, n: 181440, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2500)
+Timer PIPELINE (25) CPU Time 34.20000 Wall Time 8.20459
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 234.99200 Wall Time 11.75066
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  17) Program: caldgemm Sizes - A: 185761x4320 B: 4320x185760 C:185761x185760 (Host: asustest02) System Time 21.252 System Gflops 14031.744
+#(0  ,  17) GPU Time 0.0000 (298207572019200.0000 Gflops)   CPU Time 0.1139 (14.0951 Gflops)   Linpack Time: 12.2283 (2, 0.0000, 8.9101)  Total CPU Time: 21.2524 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.5E+10, CPU Wait Time: 12.268
+Timer DGEMM (17) CPU Time 271.66400 Wall Time 20.07423
+Timer UPDATE (14) CPU Time 271.66400 Wall Time 20.07427
+Timer ITERATION (22) CPU Time 271.66400 Wall Time 20.07429
+Iteration j=73440 N=254880 n=181440 jb=4320 Totaltime=515.305
+64 % (j = 73440/254880) of factorization at approx. 13737.81 Gflops, assuming to finish in 289 s.
+Starting DGEMM Run m=177121 k=4320 n=177120 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f51a80d5700, B=0x7f4f9aef6600, C=0x7f51a80dde00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 177120 gpu_n 177120 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2016, 2016)
+                Slave thread starting cblas (m: 177121, n: 177120, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2401)
+Timer PIPELINE (25) CPU Time 33.17600 Wall Time 7.41085
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 231.17600 Wall Time 11.51445
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  18) Program: caldgemm Sizes - A: 181441x4320 B: 4320x181440 C:181441x181440 (Host: asustest02) System Time 20.074 System Gflops 14172.505
+#(0  ,  18) GPU Time 0.0000 (284498732851200.0000 Gflops)   CPU Time 0.1186 (13.2160 Gflops)   Linpack Time: 11.7507 (2, 0.0000, 8.2046)  Total CPU Time: 20.0740 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.3E+10, CPU Wait Time: 11.862
+Timer DGEMM (17) CPU Time 266.62800 Wall Time 19.03504
+Timer UPDATE (14) CPU Time 266.62800 Wall Time 19.03508
+Timer ITERATION (22) CPU Time 266.62800 Wall Time 19.03511
+Iteration j=77760 N=254880 n=177120 jb=4320 Totaltime=534.340
+66 % (j = 77760/254880) of factorization at approx. 13762.81 Gflops, assuming to finish in 269 s.
+Starting DGEMM Run m=172801 k=4320 n=172800 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f53b52c5600, B=0x7f51a80e6500, C=0x7f53b52cdd00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 172800 gpu_n 172800 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1344, 1344)
+                Slave thread starting cblas (m: 172801, n: 172800, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2304)
+Timer PIPELINE (25) CPU Time 39.64800 Wall Time 6.76464
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 224.52400 Wall Time 11.26042
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  19) Program: caldgemm Sizes - A: 177121x4320 B: 4320x177120 C:177121x177120 (Host: asustest02) System Time 19.035 System Gflops 14242.983
+#(0  ,  19) GPU Time 0.0000 (271112454604800.0312 Gflops)   CPU Time 0.1094 (13.9937 Gflops)   Linpack Time: 11.5145 (2, 0.0000, 7.4109)  Total CPU Time: 19.0348 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.1E+10, CPU Wait Time: 11.606
+Timer DGEMM (17) CPU Time 266.44800 Wall Time 18.13523
+Timer UPDATE (14) CPU Time 266.44800 Wall Time 18.13526
+Timer ITERATION (22) CPU Time 266.44800 Wall Time 18.13529
+Iteration j=82080 N=254880 n=172800 jb=4320 Totaltime=552.475
+69 % (j = 82080/254880) of factorization at approx. 13791.28 Gflops, assuming to finish in 249 s.
+Starting DGEMM Run m=168481 k=4320 n=168480 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f55c24b5500, B=0x7f53b52d6400, C=0x7f55c24bdc00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 168480 gpu_n 168480 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (672, 672)
+                Slave thread starting cblas (m: 168481, n: 168480, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2209)
+Timer PIPELINE (25) CPU Time 37.94800 Wall Time 6.42322
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 219.16000 Wall Time 10.90708
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  20) Program: caldgemm Sizes - A: 172801x4320 B: 4320x172800 C:172801x172800 (Host: asustest02) System Time 18.135 System Gflops 14229.320
+#(0  ,  20) GPU Time 0.0000 (258048737280000.0000 Gflops)   CPU Time 0.1098 (13.5957 Gflops)   Linpack Time: 11.2605 (2, 0.0000, 6.7647)  Total CPU Time: 18.1350 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.0E+10, CPU Wait Time: 11.367
+Timer DGEMM (17) CPU Time 259.29600 Wall Time 17.43540
+Timer UPDATE (14) CPU Time 259.29600 Wall Time 17.43544
+Timer ITERATION (22) CPU Time 259.29600 Wall Time 17.43547
+Iteration j=86400 N=254880 n=168480 jb=4320 Totaltime=569.911
+71 % (j = 86400/254880) of factorization at approx. 13818.17 Gflops, assuming to finish in 230 s.
+Starting DGEMM Run m=164161 k=4320 n=164160 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f57cf6a5400, B=0x7f55c24c6300, C=0x7f57cf6adb00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 164160 gpu_n 164160 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (0, 0)
+                Slave thread starting cblas (m: 164161, n: 164160, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 2025)
+Timer PIPELINE (25) CPU Time 37.40800 Wall Time 5.94939
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 212.76000 Wall Time 10.63875
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  21) Program: caldgemm Sizes - A: 168481x4320 B: 4320x168480 C:168481x168480 (Host: asustest02) System Time 17.435 System Gflops 14069.697
+#(0  ,  21) GPU Time 0.0000 (245307580876800.0000 Gflops)   CPU Time 0.1048 (13.8993 Gflops)   Linpack Time: 10.9071 (2, 0.0000, 6.4233)  Total CPU Time: 17.4352 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.8E+10, CPU Wait Time: 10.993
+Timer DGEMM (17) CPU Time 252.36400 Wall Time 16.69486
+Timer UPDATE (14) CPU Time 252.36400 Wall Time 16.69490
+Timer ITERATION (22) CPU Time 252.36400 Wall Time 16.69492
+Iteration j=90720 N=254880 n=164160 jb=4320 Totaltime=586.606
+73 % (j = 90720/254880) of factorization at approx. 13845.09 Gflops, assuming to finish in 213 s.
+Starting DGEMM Run m=159841 k=4320 n=159840 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f59dc895300, B=0x7f57cf6b6200, C=0x7f59dc89da00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 159840 gpu_n 159840 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2976, 2976)
+                Slave thread starting cblas (m: 159841, n: 159840, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1936)
+Timer PIPELINE (25) CPU Time 35.25200 Wall Time 5.30618
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 210.78400 Wall Time 10.54147
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  22) Program: caldgemm Sizes - A: 164161x4320 B: 4320x164160 C:164161x164160 (Host: asustest02) System Time 16.695 System Gflops 13949.938
+#(0  ,  22) GPU Time 0.0000 (232888985395200.0000 Gflops)   CPU Time 0.1064 (13.3390 Gflops)   Linpack Time: 10.6388 (2, 0.0000, 5.9494)  Total CPU Time: 16.6946 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.7E+10, CPU Wait Time: 10.659
+Timer DGEMM (17) CPU Time 248.13600 Wall Time 15.94953
+Timer UPDATE (14) CPU Time 248.13600 Wall Time 15.94957
+Timer ITERATION (22) CPU Time 248.14000 Wall Time 15.94960
+Iteration j=95040 N=254880 n=159840 jb=4320 Totaltime=602.555
+75 % (j = 95040/254880) of factorization at approx. 13872.51 Gflops, assuming to finish in 196 s.
+Starting DGEMM Run m=155521 k=4320 n=155520 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f5be9a85200, B=0x7f59dc8a6100, C=0x7f5be9a8d900, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 155520 gpu_n 155520 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2304, 2304)
+                Slave thread starting cblas (m: 155521, n: 155520, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1849)
+Timer PIPELINE (25) CPU Time 32.15200 Wall Time 4.61449
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 206.28000 Wall Time 10.24704
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  23) Program: caldgemm Sizes - A: 159841x4320 B: 4320x159840 C:159841x159840 (Host: asustest02) System Time 15.949 System Gflops 13843.434
+#(0  ,  23) GPU Time 0.0000 (220792950835200.0000 Gflops)   CPU Time 0.1015 (13.6044 Gflops)   Linpack Time: 10.5415 (2, 0.0000, 5.3062)  Total CPU Time: 15.9493 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.6E+10, CPU Wait Time: 10.641
+Timer DGEMM (17) CPU Time 240.65200 Wall Time 14.96867
+Timer UPDATE (14) CPU Time 240.65200 Wall Time 14.96871
+Timer ITERATION (22) CPU Time 240.65200 Wall Time 14.96874
+Iteration j=99360 N=254880 n=155520 jb=4320 Totaltime=617.524
+77 % (j = 99360/254880) of factorization at approx. 13906.35 Gflops, assuming to finish in 180 s.
+Starting DGEMM Run m=151201 k=4320 n=151200 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f5df6c75100, B=0x7f5be9a96000, C=0x7f5df6c7d800, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 151200 gpu_n 151200 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1632, 1632)
+                Slave thread starting cblas (m: 151201, n: 151200, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1764)
+Timer PIPELINE (25) CPU Time 32.99600 Wall Time 4.03148
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 194.97200 Wall Time 9.85127
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  24) Program: caldgemm Sizes - A: 155521x4320 B: 4320x155520 C:155521x155520 (Host: asustest02) System Time 14.969 System Gflops 13963.999
+#(0  ,  24) GPU Time 0.0000 (209019477196800.0000 Gflops)   CPU Time 0.1025 (13.1149 Gflops)   Linpack Time: 10.2471 (2, 0.0000, 4.6145)  Total CPU Time: 14.9641 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.4E+10, CPU Wait Time: 10.348
+Timer DGEMM (17) CPU Time 229.78000 Wall Time 13.97065
+Timer UPDATE (14) CPU Time 229.78000 Wall Time 13.97068
+Timer ITERATION (22) CPU Time 229.78000 Wall Time 13.97070
+Iteration j=103680 N=254880 n=151200 jb=4320 Totaltime=631.495
+79 % (j = 103680/254880) of factorization at approx. 13946.85 Gflops, assuming to finish in 165 s.
+Starting DGEMM Run m=146881 k=4320 n=146880 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6003e65000, B=0x7f5df6c85f00, C=0x7f6003e6d700, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 146880 gpu_n 146880 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (960, 960)
+                Slave thread starting cblas (m: 146881, n: 146880, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1681)
+Timer PIPELINE (25) CPU Time 32.80800 Wall Time 3.64662
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 153.01200 Wall Time 7.74846
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  25) Program: caldgemm Sizes - A: 151201x4320 B: 4320x151200 C:151201x151200 (Host: asustest02) System Time 13.971 System Gflops 14141.921
+#(0  ,  25) GPU Time 0.0000 (197568564480000.0312 Gflops)   CPU Time 0.0876 (14.9239 Gflops)   Linpack Time: 9.8513 (2, 0.0000, 4.0315)  Total CPU Time: 13.9704 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.3E+10, CPU Wait Time: 9.937
+Timer DGEMM (17) CPU Time 187.71600 Wall Time 11.48664
+Timer UPDATE (14) CPU Time 187.72400 Wall Time 11.48668
+Timer ITERATION (22) CPU Time 187.72400 Wall Time 11.48670
+Iteration j=108000 N=254880 n=146880 jb=4320 Totaltime=642.982
+81 % (j = 108000/254880) of factorization at approx. 14028.37 Gflops, assuming to finish in 150 s.
+Starting DGEMM Run m=142561 k=4320 n=142560 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6211054f00, B=0x7f6003e75e00, C=0x7f621105d600, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 142560 gpu_n 142560 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (288, 288)
+                Slave thread starting cblas (m: 142561, n: 142560, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1600)
+Timer PIPELINE (25) CPU Time 27.58800 Wall Time 5.17134
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 145.14400 Wall Time 7.33045
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  26) Program: caldgemm Sizes - A: 146881x4320 B: 4320x146880 C:146881x146880 (Host: asustest02) System Time 11.487 System Gflops 16231.335
+#(0  ,  26) GPU Time 0.0000 (186440212684800.0312 Gflops)   CPU Time 0.0912 (13.9134 Gflops)   Linpack Time: 7.7485 (2, 0.0000, 3.6467)  Total CPU Time: 11.4864 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.2E+10, CPU Wait Time: 7.835
+Timer DGEMM (17) CPU Time 174.43600 Wall Time 12.58524
+Timer UPDATE (14) CPU Time 174.43600 Wall Time 12.58527
+Timer ITERATION (22) CPU Time 174.43600 Wall Time 12.58530
+Iteration j=112320 N=254880 n=142560 jb=4320 Totaltime=655.567
+83 % (j = 112320/254880) of factorization at approx. 14067.17 Gflops, assuming to finish in 137 s.
+Starting DGEMM Run m=138241 k=4320 n=138240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f641e244e00, B=0x7f6211065d00, C=0x7f641e24d500, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 138240 gpu_n 138240 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3264, 3264)
+                Slave thread starting cblas (m: 138241, n: 138240, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1444)
+Timer PIPELINE (25) CPU Time 31.10400 Wall Time 4.78645
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 145.26000 Wall Time 7.22338
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  27) Program: caldgemm Sizes - A: 142561x4320 B: 4320x142560 C:142561x142560 (Host: asustest02) System Time 12.585 System Gflops 13955.826
+#(0  ,  27) GPU Time 0.0000 (175634421811200.0312 Gflops)   CPU Time 0.0831 (14.8238 Gflops)   Linpack Time: 7.3305 (2, 0.0000, 5.1714)  Total CPU Time: 12.5850 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.0E+10, CPU Wait Time: 7.402
+Timer DGEMM (17) CPU Time 178.22800 Wall Time 12.09962
+Timer UPDATE (14) CPU Time 178.23200 Wall Time 12.09967
+Timer ITERATION (22) CPU Time 178.23200 Wall Time 12.09969
+Iteration j=116640 N=254880 n=138240 jb=4320 Totaltime=667.667
+84 % (j = 116640/254880) of factorization at approx. 14101.21 Gflops, assuming to finish in 124 s.
+Starting DGEMM Run m=133921 k=4320 n=133920 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f662b434d00, B=0x7f641e255c00, C=0x7f662b43d400, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 133920 gpu_n 133920 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2592, 2592)
+                Slave thread starting cblas (m: 133921, n: 133920, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1369)
+Timer PIPELINE (25) CPU Time 30.08000 Wall Time 4.46283
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 137.68800 Wall Time 6.89679
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  28) Program: caldgemm Sizes - A: 138241x4320 B: 4320x138240 C:138241x138240 (Host: asustest02) System Time 12.100 System Gflops 13649.517
+#(0  ,  28) GPU Time 0.0000 (165151191859200.0000 Gflops)   CPU Time 0.0895 (13.3529 Gflops)   Linpack Time: 7.2234 (2, 0.0000, 4.7865)  Total CPU Time: 12.0994 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.9E+10, CPU Wait Time: 7.267
+Timer DGEMM (17) CPU Time 169.45600 Wall Time 11.44226
+Timer UPDATE (14) CPU Time 169.46000 Wall Time 11.44230
+Timer ITERATION (22) CPU Time 169.46000 Wall Time 11.44233
+Iteration j=120960 N=254880 n=133920 jb=4320 Totaltime=679.109
+85 % (j = 120960/254880) of factorization at approx. 14134.68 Gflops, assuming to finish in 113 s.
+Starting DGEMM Run m=129601 k=4320 n=129600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6838624c00, B=0x7f662b445b00, C=0x7f683862d300, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 129600 gpu_n 129600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1920, 1920)
+                Slave thread starting cblas (m: 129601, n: 129600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1296)
+Timer PIPELINE (25) CPU Time 31.71200 Wall Time 3.98695
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 132.10400 Wall Time 6.61668
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  29) Program: caldgemm Sizes - A: 133921x4320 B: 4320x133920 C:133921x133920 (Host: asustest02) System Time 11.442 System Gflops 13545.688
+#(0  ,  29) GPU Time 0.0000 (154990522828800.0000 Gflops)   CPU Time 0.0813 (14.2291 Gflops)   Linpack Time: 6.8968 (2, 0.0000, 4.4629)  Total CPU Time: 11.4411 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.8E+10, CPU Wait Time: 6.964
+Timer DGEMM (17) CPU Time 165.57200 Wall Time 10.68922
+Timer UPDATE (14) CPU Time 165.57200 Wall Time 10.68926
+Timer ITERATION (22) CPU Time 165.57200 Wall Time 10.68929
+Iteration j=125280 N=254880 n=129600 jb=4320 Totaltime=689.798
+87 % (j = 125280/254880) of factorization at approx. 14169.83 Gflops, assuming to finish in 102 s.
+Starting DGEMM Run m=125281 k=4320 n=125280 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6a45814b00, B=0x7f6838635a00, C=0x7f6a4581d200, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 125280 gpu_n 125280 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1248, 1248)
+                Slave thread starting cblas (m: 125281, n: 125280, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1225)
+Timer PIPELINE (25) CPU Time 27.27200 Wall Time 3.70245
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 131.93200 Wall Time 6.57195
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  30) Program: caldgemm Sizes - A: 129601x4320 B: 4320x129600 C:129601x129600 (Host: asustest02) System Time 10.689 System Gflops 13579.583
+#(0  ,  30) GPU Time 0.0000 (145152414720000.0312 Gflops)   CPU Time 0.0853 (13.1371 Gflops)   Linpack Time: 6.6167 (2, 0.0000, 3.9870)  Total CPU Time: 10.6890 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.7E+10, CPU Wait Time: 6.677
+Timer DGEMM (17) CPU Time 160.86000 Wall Time 10.35449
+Timer UPDATE (14) CPU Time 160.86000 Wall Time 10.35453
+Timer ITERATION (22) CPU Time 160.86000 Wall Time 10.35456
+Iteration j=129600 N=254880 n=125280 jb=4320 Totaltime=700.153
+88 % (j = 129600/254880) of factorization at approx. 14197.69 Gflops, assuming to finish in 92 s.
+Starting DGEMM Run m=120961 k=4320 n=120960 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6c52a04a00, B=0x7f6a45825900, C=0x7f6c52a0d100, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 120960 gpu_n 120960 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (576, 576)
+                Slave thread starting cblas (m: 120961, n: 120960, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1156)
+Timer PIPELINE (25) CPU Time 28.39200 Wall Time 3.16889
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 123.66000 Wall Time 6.24813
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  31) Program: caldgemm Sizes - A: 125281x4320 B: 4320x125280 C:125281x125280 (Host: asustest02) System Time 10.354 System Gflops 13099.600
+#(0  ,  31) GPU Time 0.0000 (135636867532800.0000 Gflops)   CPU Time 0.0797 (13.5776 Gflops)   Linpack Time: 6.5720 (2, 0.0000, 3.7025)  Total CPU Time: 10.3542 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.6E+10, CPU Wait Time: 6.555
+Timer DGEMM (17) CPU Time 153.53200 Wall Time 9.48991
+Timer UPDATE (14) CPU Time 153.53200 Wall Time 9.48995
+Timer ITERATION (22) CPU Time 153.53200 Wall Time 9.48998
+Iteration j=133920 N=254880 n=120960 jb=4320 Totaltime=709.643
+89 % (j = 133920/254880) of factorization at approx. 14229.96 Gflops, assuming to finish in 82 s.
+Starting DGEMM Run m=116641 k=4320 n=116640 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f6e5fbf4900, B=0x7f6c52a15800, C=0x7f6e5fbfd000, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 116640 gpu_n 116640 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3552, 3552)
+                Slave thread starting cblas (m: 116641, n: 116640, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 1024)
+Timer PIPELINE (25) CPU Time 23.51200 Wall Time 3.14899
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 124.82800 Wall Time 6.22639
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  32) Program: caldgemm Sizes - A: 120961x4320 B: 4320x120960 C:120961x120960 (Host: asustest02) System Time 9.490 System Gflops 13324.321
+#(0  ,  32) GPU Time 0.0000 (126443881267200.0156 Gflops)   CPU Time 0.0719 (14.5462 Gflops)   Linpack Time: 6.2482 (2, 0.0000, 3.1689)  Total CPU Time: 9.4890 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.5E+10, CPU Wait Time: 6.310
+Timer DGEMM (17) CPU Time 149.26800 Wall Time 9.42146
+Timer UPDATE (14) CPU Time 149.26800 Wall Time 9.42149
+Timer ITERATION (22) CPU Time 149.26800 Wall Time 9.42152
+Iteration j=138240 N=254880 n=116640 jb=4320 Totaltime=719.064
+90 % (j = 138240/254880) of factorization at approx. 14249.87 Gflops, assuming to finish in 74 s.
+Starting DGEMM Run m=112321 k=4320 n=112320 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f706cde4800, B=0x7f6e5fc05700, C=0x7f706cdecf00, (C-A=4320, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 112320 gpu_n 112320 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2880, 2880)
+                Slave thread starting cblas (m: 112321, n: 112320, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 961)
+Timer PIPELINE (25) CPU Time 27.87200 Wall Time 2.69576
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 85.94400 Wall Time 4.42092
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  33) Program: caldgemm Sizes - A: 116641x4320 B: 4320x116640 C:116641x116640 (Host: asustest02) System Time 9.421 System Gflops 12479.627
+#(0  ,  33) GPU Time 0.0000 (117573455923200.0156 Gflops)   CPU Time 0.0457 (22.0535 Gflops)   Linpack Time: 6.2264 (2, 0.0000, 3.1490)  Total CPU Time: 9.4212 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.4E+10, CPU Wait Time: 6.258
+Timer DGEMM (17) CPU Time 115.27600 Wall Time 7.18762
+Timer UPDATE (14) CPU Time 115.27600 Wall Time 7.18767
+Timer ITERATION (22) CPU Time 115.27600 Wall Time 7.18769
+Iteration j=142560 N=254880 n=112320 jb=3360 Totaltime=726.252
+91 % (j = 142560/254880) of factorization at approx. 14303.08 Gflops, assuming to finish in 66 s.
+Starting DGEMM Run m=108961 k=3360 n=108960 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f72054bd700, B=0x7f706cdf3800, C=0x7f72054c4000, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 108960 gpu_n 108960 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3168, 3168)
+                Slave thread starting cblas (m: 108961, n: 108960, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 900)
+Timer PIPELINE (25) CPU Time 18.32400 Wall Time 2.79503
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 87.25600 Wall Time 4.44015
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  34) Program: caldgemm Sizes - A: 112321x3360 B: 3360x112320 C:112321x112320 (Host: asustest02) System Time 7.187 System Gflops 11798.832
+#(0  ,  34) GPU Time 0.0000 (84803289292800.0000 Gflops)   CPU Time 0.0706 (10.6918 Gflops)   Linpack Time: 4.4210 (2, 0.0000, 2.6958)  Total CPU Time: 7.1874 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.3E+10, CPU Wait Time: 4.481
+Timer DGEMM (17) CPU Time 106.25600 Wall Time 7.26886
+Timer UPDATE (14) CPU Time 106.25600 Wall Time 7.26890
+Timer ITERATION (22) CPU Time 106.26000 Wall Time 7.26892
+Iteration j=145920 N=254880 n=108960 jb=3360 Totaltime=733.521
+92 % (j = 145920/254880) of factorization at approx. 14300.30 Gflops, assuming to finish in 60 s.
+Starting DGEMM Run m=105601 k=3360 n=105600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f739db94800, B=0x7f72054ca900, C=0x7f739db9b100, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 105600 gpu_n 105600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3456, 3456)
+                Slave thread starting cblas (m: 105601, n: 105600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 841)
+Timer PIPELINE (25) CPU Time 23.02800 Wall Time 1.92899
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 86.94000 Wall Time 4.33052
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  35) Program: caldgemm Sizes - A: 108961x3360 B: 3360x108960 C:108961x108960 (Host: asustest02) System Time 7.269 System Gflops 10979.404
+#(0  ,  35) GPU Time 0.0000 (79805476915200.0000 Gflops)   CPU Time 0.0333 (21.9714 Gflops)   Linpack Time: 4.4402 (2, 0.0000, 2.7951)  Total CPU Time: 7.2686 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.2E+10, CPU Wait Time: 4.454
+Timer DGEMM (17) CPU Time 110.62000 Wall Time 6.29224
+Timer UPDATE (14) CPU Time 110.62400 Wall Time 6.29227
+Timer ITERATION (22) CPU Time 110.62400 Wall Time 6.29229
+Iteration j=149280 N=254880 n=105600 jb=3360 Totaltime=739.813
+93 % (j = 149280/254880) of factorization at approx. 14310.15 Gflops, assuming to finish in 54 s.
+Starting DGEMM Run m=102241 k=3360 n=102240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f753626b900, B=0x7f739dba1a00, C=0x7f7536272200, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 102144 gpu_n 102144 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (0, 0)
+                Slave thread starting cblas (m: 102241, n: 102240, cblas_size: 97 (3648), dynamic: 0/0, cpu_k: 784)
+Timer PIPELINE (25) CPU Time 20.30000 Wall Time 1.89975
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 80.85600 Wall Time 4.06199
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  36) Program: caldgemm Sizes - A: 105601x3360 B: 3360x105600 C:105601x105600 (Host: asustest02) System Time 6.292 System Gflops 11913.368
+#(0  ,  36) GPU Time 0.0000 (74959441920000.0000 Gflops)   CPU Time 0.0324 (21.9019 Gflops)   Linpack Time: 4.3306 (2, 0.0000, 1.9290)  Total CPU Time: 6.2920 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.1E+10, CPU Wait Time: 4.331
+Timer DGEMM (17) CPU Time 111.99200 Wall Time 6.49453
+Timer UPDATE (14) CPU Time 111.99200 Wall Time 6.49457
+Timer ITERATION (22) CPU Time 111.99200 Wall Time 6.49459
+Iteration j=152640 N=254880 n=102240 jb=3360 Totaltime=746.308
+94 % (j = 152640/254880) of factorization at approx. 14308.43 Gflops, assuming to finish in 49 s.
+Starting DGEMM Run m=98881 k=3360 n=98880 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f76ce942a00, B=0x7f7536278b00, C=0x7f76ce949300, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 98880 gpu_n 98880 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (384, 384)
+                Slave thread starting cblas (m: 98881, n: 98880, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 784)
+Timer PIPELINE (25) CPU Time 21.70800 Wall Time 1.81537
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 78.86000 Wall Time 4.03051
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  37) Program: caldgemm Sizes - A: 102241x3360 B: 3360x102240 C:102241x102240 (Host: asustest02) System Time 6.494 System Gflops 10819.458
+#(0  ,  37) GPU Time 0.0000 (70199207608320.0000 Gflops)   CPU Time 0.5325 (125.2020 Gflops)   Linpack Time: 4.0620 (2, 0.0000, 1.8998)  Total CPU Time: 6.4943 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.0E+10, CPU Wait Time: 4.301
+Timer DGEMM (17) CPU Time 101.18400 Wall Time 5.87660
+Timer UPDATE (14) CPU Time 101.18800 Wall Time 5.87663
+Timer ITERATION (22) CPU Time 101.18800 Wall Time 5.87665
+Iteration j=156000 N=254880 n=98880 jb=3360 Totaltime=752.184
+94 % (j = 156000/254880) of factorization at approx. 14312.03 Gflops, assuming to finish in 45 s.
+Starting DGEMM Run m=95521 k=3360 n=95520 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f7867019b00, B=0x7f76ce94fc00, C=0x7f7867020400, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 95520 gpu_n 95520 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (672, 672)
+                Slave thread starting cblas (m: 95521, n: 95520, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 729)
+Timer PIPELINE (25) CPU Time 19.80000 Wall Time 1.76438
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 77.10400 Wall Time 3.89041
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  38) Program: caldgemm Sizes - A: 98881x3360 B: 3360x98880 C:98881x98880 (Host: asustest02) System Time 5.876 System Gflops 11184.181
+#(0  ,  38) GPU Time 0.0000 (65722704076800.0000 Gflops)   CPU Time 0.0304 (21.8688 Gflops)   Linpack Time: 4.0305 (2, 0.0000, 1.8154)  Total CPU Time: 5.8764 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 9.8E+09, CPU Wait Time: 4.038
+Timer DGEMM (17) CPU Time 97.49600 Wall Time 5.68446
+Timer UPDATE (14) CPU Time 97.49600 Wall Time 5.68449
+Timer ITERATION (22) CPU Time 97.49600 Wall Time 5.68451
+Iteration j=159360 N=254880 n=95520 jb=3360 Totaltime=757.869
+95 % (j = 159360/254880) of factorization at approx. 14312.42 Gflops, assuming to finish in 40 s.
+Starting DGEMM Run m=92161 k=3360 n=92160 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f79ff6f0c00, B=0x7f7867026d00, C=0x7f79ff6f7500, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 92160 gpu_n 92160 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (960, 960)
+                Slave thread starting cblas (m: 92161, n: 92160, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 676)
+Timer PIPELINE (25) CPU Time 17.97200 Wall Time 1.69428
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 74.69200 Wall Time 3.70899
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  39) Program: caldgemm Sizes - A: 95521x3360 B: 3360x95520 C:95521x95520 (Host: asustest02) System Time 5.684 System Gflops 10789.791
+#(0  ,  39) GPU Time 0.0000 (61332001228799.9922 Gflops)   CPU Time 0.0293 (21.8786 Gflops)   Linpack Time: 3.8904 (2, 0.0000, 1.7644)  Total CPU Time: 5.6842 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 9.1E+09, CPU Wait Time: 3.916
+Timer DGEMM (17) CPU Time 93.23200 Wall Time 5.43201
+Timer UPDATE (14) CPU Time 93.23600 Wall Time 5.43204
+Timer ITERATION (22) CPU Time 93.23600 Wall Time 5.43206
+Iteration j=162720 N=254880 n=92160 jb=3360 Totaltime=763.301
+95 % (j = 162720/254880) of factorization at approx. 14310.97 Gflops, assuming to finish in 36 s.
+Starting DGEMM Run m=88801 k=3360 n=88800 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f7b97dc7d00, B=0x7f79ff6fde00, C=0x7f7b97dce600, (C-A=3360, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 88800 gpu_n 88800 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1248, 1248)
+                Slave thread starting cblas (m: 88801, n: 88800, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 625)
+Timer PIPELINE (25) CPU Time 20.14400 Wall Time 1.53658
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 47.30800 Wall Time 2.33225
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  40) Program: caldgemm Sizes - A: 92161x3360 B: 3360x92160 C:92161x92160 (Host: asustest02) System Time 5.432 System Gflops 10510.877
+#(0  ,  40) GPU Time 0.0000 (57093075763200.0000 Gflops)   CPU Time 0.0284 (21.8142 Gflops)   Linpack Time: 3.7090 (2, 0.0000, 1.6943)  Total CPU Time: 5.4318 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 8.5E+09, CPU Wait Time: 3.734
+Timer DGEMM (17) CPU Time 68.41600 Wall Time 3.91523
+Timer UPDATE (14) CPU Time 68.41600 Wall Time 3.91527
+Timer ITERATION (22) CPU Time 68.41600 Wall Time 3.91529
+Iteration j=166080 N=254880 n=88800 jb=2400 Totaltime=767.216
+96 % (j = 166080/254880) of factorization at approx. 14332.74 Gflops, assuming to finish in 32 s.
+Starting DGEMM Run m=86401 k=2400 n=86400 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f7cbb987e00, B=0x7f7b97dd3100, C=0x7f7cbb98c900, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 86400 gpu_n 86400 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2496, 2496)
+                Slave thread starting cblas (m: 86401, n: 86400, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 576)
+Timer PIPELINE (25) CPU Time 13.86400 Wall Time 1.26111
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 46.09600 Wall Time 2.27481
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  41) Program: caldgemm Sizes - A: 88801x2400 B: 2400x88800 C:88801x88800 (Host: asustest02) System Time 3.915 System Gflops 9671.851
+#(0  ,  41) GPU Time 0.0000 (37865882879999.9922 Gflops)   CPU Time 0.0461 (9.2530 Gflops)   Linpack Time: 2.3323 (2, 0.0000, 1.5366)  Total CPU Time: 3.9150 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 7.9E+09, CPU Wait Time: 2.363
+Timer DGEMM (17) CPU Time 60.65600 Wall Time 3.56905
+Timer UPDATE (14) CPU Time 60.65600 Wall Time 3.56908
+Timer ITERATION (22) CPU Time 60.65600 Wall Time 3.56911
+Iteration j=168480 N=254880 n=86400 jb=2400 Totaltime=770.785
+96 % (j = 168480/254880) of factorization at approx. 14328.95 Gflops, assuming to finish in 30 s.
+Starting DGEMM Run m=84001 k=2400 n=84000 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f7ddf546100, B=0x7f7cbb991400, C=0x7f7ddf54ac00, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 83904 gpu_n 83904 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (0, 0)
+                Slave thread starting cblas (m: 84001, n: 84000, cblas_size: 97 (3648), dynamic: 0/0, cpu_k: 529)
+Timer PIPELINE (25) CPU Time 14.12400 Wall Time 1.26339
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 44.23600 Wall Time 2.18961
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  42) Program: caldgemm Sizes - A: 86401x2400 B: 2400x86400 C:86401x86400 (Host: asustest02) System Time 3.569 System Gflops 10044.256
+#(0  ,  42) GPU Time 0.0000 (35846737920000.0000 Gflops)   CPU Time 0.0328 (12.6446 Gflops)   Linpack Time: 2.2748 (2, 0.0000, 1.2611)  Total CPU Time: 3.5688 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 7.5E+09, CPU Wait Time: 2.070
+Timer DGEMM (17) CPU Time 65.17200 Wall Time 3.78706
+Timer UPDATE (14) CPU Time 65.17600 Wall Time 3.78709
+Timer ITERATION (22) CPU Time 65.17600 Wall Time 3.78711
+Iteration j=170880 N=254880 n=84000 jb=2400 Totaltime=774.572
+96 % (j = 170880/254880) of factorization at approx. 14317.68 Gflops, assuming to finish in 27 s.
+Starting DGEMM Run m=81601 k=2400 n=81600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f7f03104400, B=0x7f7ddf54f700, C=0x7f7f03108f00, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 81600 gpu_n 81600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1344, 1344)
+                Slave thread starting cblas (m: 81601, n: 81600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 529)
+Timer PIPELINE (25) CPU Time 14.27200 Wall Time 1.02131
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 44.13200 Wall Time 2.17230
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  43) Program: caldgemm Sizes - A: 84001x2400 B: 2400x84000 C:84001x84000 (Host: asustest02) System Time 3.787 System Gflops 8947.473
+#(0  ,  43) GPU Time 0.0000 (33844188671999.9961 Gflops)   CPU Time 0.3328 (117.5762 Gflops)   Linpack Time: 2.1896 (2, 0.0000, 1.2634)  Total CPU Time: 3.7859 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 7.1E+09, CPU Wait Time: 2.301
+Timer DGEMM (17) CPU Time 58.97200 Wall Time 3.22079
+Timer UPDATE (14) CPU Time 58.97200 Wall Time 3.22082
+Timer ITERATION (22) CPU Time 58.97200 Wall Time 3.22084
+Iteration j=173280 N=254880 n=81600 jb=2400 Totaltime=777.793
+97 % (j = 173280/254880) of factorization at approx. 14314.33 Gflops, assuming to finish in 25 s.
+Starting DGEMM Run m=79201 k=2400 n=79200 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8026cc2700, B=0x7f7f0310da00, C=0x7f8026cc7200, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 79200 gpu_n 79200 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2592, 2592)
+                Slave thread starting cblas (m: 79201, n: 79200, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 484)
+Timer PIPELINE (25) CPU Time 13.59200 Wall Time 1.02034
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 43.69200 Wall Time 2.15610
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  44) Program: caldgemm Sizes - A: 81601x2400 B: 2400x81600 C:81601x81600 (Host: asustest02) System Time 3.221 System Gflops 9928.049
+#(0  ,  44) GPU Time 0.0000 (31974405119999.9961 Gflops)   CPU Time 0.0268 (14.6010 Gflops)   Linpack Time: 2.1723 (2, 0.0000, 1.0214)  Total CPU Time: 3.2206 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.7E+09, CPU Wait Time: 1.955
+Timer DGEMM (17) CPU Time 57.78400 Wall Time 3.20143
+Timer UPDATE (14) CPU Time 57.78400 Wall Time 3.20146
+Timer ITERATION (22) CPU Time 57.78400 Wall Time 3.20149
+Iteration j=175680 N=254880 n=79200 jb=2400 Totaltime=780.995
+97 % (j = 175680/254880) of factorization at approx. 14308.25 Gflops, assuming to finish in 23 s.
+Starting DGEMM Run m=76801 k=2400 n=76800 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f814a880a00, B=0x7f8026ccbd00, C=0x7f814a885500, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 76800 gpu_n 76800 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (192, 192)
+                Slave thread starting cblas (m: 76801, n: 76800, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 484)
+Timer PIPELINE (25) CPU Time 11.33200 Wall Time 1.06627
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 41.12000 Wall Time 2.03921
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  45) Program: caldgemm Sizes - A: 79201x2400 B: 2400x79200 C:79201x79200 (Host: asustest02) System Time 3.201 System Gflops 9409.212
+#(0  ,  45) GPU Time 0.0000 (30121217280000.0000 Gflops)   CPU Time 0.0232 (16.3925 Gflops)   Linpack Time: 2.1561 (2, 0.0000, 1.0204)  Total CPU Time: 3.1997 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.3E+09, CPU Wait Time: 1.966
+Timer DGEMM (17) CPU Time 52.79600 Wall Time 3.12298
+Timer UPDATE (14) CPU Time 52.79600 Wall Time 3.12300
+Timer ITERATION (22) CPU Time 52.79600 Wall Time 3.12302
+Iteration j=178080 N=254880 n=76800 jb=2400 Totaltime=784.118
+97 % (j = 178080/254880) of factorization at approx. 14300.68 Gflops, assuming to finish in 21 s.
+Starting DGEMM Run m=74401 k=2400 n=74400 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f826e43ed00, B=0x7f814a88a000, C=0x7f826e443800, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 74400 gpu_n 74400 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1440, 1440)
+                Slave thread starting cblas (m: 74401, n: 74400, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 441)
+Timer PIPELINE (25) CPU Time 13.37200 Wall Time 1.05257
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 40.42800 Wall Time 1.99793
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  46) Program: caldgemm Sizes - A: 76801x2400 B: 2400x76800 C:76801x76800 (Host: asustest02) System Time 3.123 System Gflops 9069.884
+#(0  ,  46) GPU Time 0.0000 (28323348480000.0000 Gflops)   CPU Time 0.0172 (21.4781 Gflops)   Linpack Time: 2.0392 (2, 0.0000, 1.0663)  Total CPU Time: 3.1227 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.9E+09, CPU Wait Time: 2.043
+Timer DGEMM (17) CPU Time 54.14000 Wall Time 3.06748
+Timer UPDATE (14) CPU Time 54.14400 Wall Time 3.06750
+Timer ITERATION (22) CPU Time 54.14400 Wall Time 3.06752
+Iteration j=180480 N=254880 n=74400 jb=2400 Totaltime=787.185
+98 % (j = 180480/254880) of factorization at approx. 14291.26 Gflops, assuming to finish in 19 s.
+Starting DGEMM Run m=72001 k=2400 n=72000 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8391ffd000, B=0x7f826e448300, C=0x7f8392001b00, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 72000 gpu_n 72000 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2688, 2688)
+                Slave thread starting cblas (m: 72001, n: 72000, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 400)
+Timer PIPELINE (25) CPU Time 12.80800 Wall Time 0.92319
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 40.98000 Wall Time 2.03164
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  47) Program: caldgemm Sizes - A: 74401x2400 B: 2400x74400 C:74401x74400 (Host: asustest02) System Time 3.067 System Gflops 8665.889
+#(0  ,  47) GPU Time 0.0000 (26580798719999.9961 Gflops)   CPU Time 0.0166 (21.4754 Gflops)   Linpack Time: 1.9980 (2, 0.0000, 1.0526)  Total CPU Time: 3.0672 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.5E+09, CPU Wait Time: 1.783
+Timer DGEMM (17) CPU Time 54.11200 Wall Time 2.97130
+Timer UPDATE (14) CPU Time 54.11200 Wall Time 2.97133
+Timer ITERATION (22) CPU Time 54.11200 Wall Time 2.97135
+Iteration j=182880 N=254880 n=72000 jb=2400 Totaltime=790.157
+98 % (j = 182880/254880) of factorization at approx. 14280.85 Gflops, assuming to finish in 17 s.
+Starting DGEMM Run m=69601 k=2400 n=69600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f84b5bbb300, B=0x7f8392006600, C=0x7f84b5bbfe00, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 69600 gpu_n 69600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (288, 288)
+                Slave thread starting cblas (m: 69601, n: 69600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 400)
+Timer PIPELINE (25) CPU Time 12.75200 Wall Time 0.89829
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 38.08000 Wall Time 1.88362
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  48) Program: caldgemm Sizes - A: 72001x2400 B: 2400x72000 C:72001x72000 (Host: asustest02) System Time 2.971 System Gflops 8378.533
+#(0  ,  48) GPU Time 0.0000 (24893567999999.9961 Gflops)   CPU Time 0.0161 (21.4266 Gflops)   Linpack Time: 2.0317 (2, 0.0000, 0.9232)  Total CPU Time: 2.9711 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.2E+09, CPU Wait Time: 2.025
+Timer DGEMM (17) CPU Time 51.15200 Wall Time 2.79786
+Timer UPDATE (14) CPU Time 51.15200 Wall Time 2.79788
+Timer ITERATION (22) CPU Time 51.15200 Wall Time 2.79790
+Iteration j=185280 N=254880 n=69600 jb=2400 Totaltime=792.955
+98 % (j = 185280/254880) of factorization at approx. 14270.99 Gflops, assuming to finish in 15 s.
+Starting DGEMM Run m=67201 k=2400 n=67200 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f85d9779600, B=0x7f84b5bc4900, C=0x7f85d977e100, (C-A=2400, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 67200 gpu_n 67200 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1536, 1536)
+                Slave thread starting cblas (m: 67201, n: 67200, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 361)
+Timer PIPELINE (25) CPU Time 12.58800 Wall Time 0.94859
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 26.92000 Wall Time 1.32141
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  49) Program: caldgemm Sizes - A: 69601x2400 B: 2400x69600 C:69601x69600 (Host: asustest02) System Time 2.798 System Gflops 8314.658
+#(0  ,  49) GPU Time 0.0000 (23261656319999.9961 Gflops)   CPU Time 0.0156 (21.4178 Gflops)   Linpack Time: 1.8837 (2, 0.0000, 0.8983)  Total CPU Time: 2.7976 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.8E+09, CPU Wait Time: 1.679
+Timer DGEMM (17) CPU Time 40.05200 Wall Time 2.29608
+Timer UPDATE (14) CPU Time 40.05200 Wall Time 2.29610
+Timer ITERATION (22) CPU Time 40.05200 Wall Time 2.29612
+Iteration j=187680 N=254880 n=67200 jb=1920 Totaltime=795.251
+98 % (j = 187680/254880) of factorization at approx. 14267.95 Gflops, assuming to finish in 14 s.
+Starting DGEMM Run m=65281 k=1920 n=65280 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f86c2dac100, B=0x7f85d9781d00, C=0x7f86c2dafd00, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 65280 gpu_n 65280 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3264, 3264)
+                Slave thread starting cblas (m: 65281, n: 65280, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 324)
+Timer PIPELINE (25) CPU Time 24.50000 Wall Time 1.05427
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 23.71600 Wall Time 1.16155
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  50) Program: caldgemm Sizes - A: 67201x1920 B: 1920x67200 C:67201x67200 (Host: asustest02) System Time 2.296 System Gflops 7556.809
+#(0  ,  50) GPU Time 0.0000 (17349857280000.0020 Gflops)   CPU Time 0.0258 (10.0244 Gflops)   Linpack Time: 1.3214 (2, 0.0000, 0.9486)  Total CPU Time: 2.2959 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.5E+09, CPU Wait Time: 1.343
+Timer DGEMM (17) CPU Time 48.64400 Wall Time 2.23647
+Timer UPDATE (14) CPU Time 48.64400 Wall Time 2.23649
+Timer ITERATION (22) CPU Time 48.64400 Wall Time 2.23651
+Iteration j=189600 N=254880 n=65280 jb=1920 Totaltime=797.487
+98 % (j = 189600/254880) of factorization at approx. 14256.08 Gflops, assuming to finish in 13 s.
+Starting DGEMM Run m=63361 k=1920 n=63360 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f87ac3ddd00, B=0x7f86c2db3900, C=0x7f87ac3e1900, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 63360 gpu_n 63360 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1344, 1344)
+                Slave thread starting cblas (m: 63361, n: 63360, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 324)
+Timer PIPELINE (25) CPU Time 25.06000 Wall Time 1.10289
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 22.39200 Wall Time 1.09416
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  51) Program: caldgemm Sizes - A: 65281x1920 B: 1920x65280 C:65281x65280 (Host: asustest02) System Time 2.236 System Gflops 7321.263
+#(0  ,  51) GPU Time 0.0000 (16372600012800.0020 Gflops)   CPU Time 0.0203 (12.3259 Gflops)   Linpack Time: 1.1616 (2, 0.0000, 1.0543)  Total CPU Time: 2.2363 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.3E+09, CPU Wait Time: 1.117
+Timer DGEMM (17) CPU Time 47.85200 Wall Time 2.21684
+Timer UPDATE (14) CPU Time 47.85200 Wall Time 2.21687
+Timer ITERATION (22) CPU Time 47.85200 Wall Time 2.21689
+Iteration j=191520 N=254880 n=63360 jb=1920 Totaltime=799.704
+98 % (j = 191520/254880) of factorization at approx. 14242.98 Gflops, assuming to finish in 11 s.
+Starting DGEMM Run m=61441 k=1920 n=61440 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8895a0f900, B=0x7f87ac3e5500, C=0x7f8895a13500, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 61440 gpu_n 61440 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3072, 3072)
+                Slave thread starting cblas (m: 61441, n: 61440, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 289)
+Timer PIPELINE (25) CPU Time 23.37600 Wall Time 1.00200
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 21.83600 Wall Time 1.07450
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  52) Program: caldgemm Sizes - A: 63361x1920 B: 1920x63360 C:63361x63360 (Host: asustest02) System Time 2.217 System Gflops 6957.976
+#(0  ,  52) GPU Time 0.0000 (15423669043200.0020 Gflops)   CPU Time 0.0195 (12.4825 Gflops)   Linpack Time: 1.0942 (2, 0.0000, 1.1029)  Total CPU Time: 2.2166 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.0E+09, CPU Wait Time: 1.068
+Timer DGEMM (17) CPU Time 45.60000 Wall Time 2.09494
+Timer UPDATE (14) CPU Time 45.60000 Wall Time 2.09496
+Timer ITERATION (22) CPU Time 45.60000 Wall Time 2.09498
+Iteration j=193440 N=254880 n=61440 jb=1920 Totaltime=801.799
+99 % (j = 193440/254880) of factorization at approx. 14230.63 Gflops, assuming to finish in 10 s.
+Starting DGEMM Run m=59521 k=1920 n=59520 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f897f041500, B=0x7f8895a17100, C=0x7f897f045100, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 59520 gpu_n 59520 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1152, 1152)
+                Slave thread starting cblas (m: 59521, n: 59520, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 289)
+Timer PIPELINE (25) CPU Time 23.32400 Wall Time 1.04694
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 22.83600 Wall Time 1.11560
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  53) Program: caldgemm Sizes - A: 61441x1920 B: 1920x61440 C:61441x61440 (Host: asustest02) System Time 2.095 System Gflops 6923.455
+#(0  ,  53) GPU Time 0.0000 (14503064371200.0020 Gflops)   CPU Time 0.0181 (13.0101 Gflops)   Linpack Time: 1.0745 (2, 0.0000, 1.0020)  Total CPU Time: 2.0947 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.8E+09, CPU Wait Time: 1.028
+Timer DGEMM (17) CPU Time 46.51600 Wall Time 2.18029
+Timer UPDATE (14) CPU Time 46.51600 Wall Time 2.18031
+Timer ITERATION (22) CPU Time 46.52000 Wall Time 2.18033
+Iteration j=195360 N=254880 n=59520 jb=1920 Totaltime=803.979
+99 % (j = 195360/254880) of factorization at approx. 14215.18 Gflops, assuming to finish in 9 s.
+Starting DGEMM Run m=57601 k=1920 n=57600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8a68673100, B=0x7f897f048d00, C=0x7f8a68676d00, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 57600 gpu_n 57600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2880, 2880)
+                Slave thread starting cblas (m: 57601, n: 57600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 256)
+Timer PIPELINE (25) CPU Time 22.37200 Wall Time 0.98768
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 20.76400 Wall Time 1.02015
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  54) Program: caldgemm Sizes - A: 59521x1920 B: 1920x59520 C:59521x59520 (Host: asustest02) System Time 2.180 System Gflops 6243.102
+#(0  ,  54) GPU Time 0.0000 (13610785996800.0020 Gflops)   CPU Time 0.0171 (13.3473 Gflops)   Linpack Time: 1.1156 (2, 0.0000, 1.0470)  Total CPU Time: 2.1798 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.5E+09, CPU Wait Time: 1.128
+Timer DGEMM (17) CPU Time 43.46800 Wall Time 2.02394
+Timer UPDATE (14) CPU Time 43.46800 Wall Time 2.02396
+Timer ITERATION (22) CPU Time 43.46800 Wall Time 2.02398
+Iteration j=197280 N=254880 n=57600 jb=1920 Totaltime=806.003
+99 % (j = 197280/254880) of factorization at approx. 14201.20 Gflops, assuming to finish in 8 s.
+Starting DGEMM Run m=55681 k=1920 n=55680 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8b51ca4d00, B=0x7f8a6867a900, C=0x7f8b51ca8900, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 55680 gpu_n 55680 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (960, 960)
+                Slave thread starting cblas (m: 55681, n: 55680, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 256)
+Timer PIPELINE (25) CPU Time 21.68400 Wall Time 0.97863
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 21.61200 Wall Time 1.06598
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  55) Program: caldgemm Sizes - A: 57601x1920 B: 1920x57600 C:57601x57600 (Host: asustest02) System Time 2.024 System Gflops 6298.586
+#(0  ,  55) GPU Time 0.0000 (12746833920000.0020 Gflops)   CPU Time 0.0158 (14.0126 Gflops)   Linpack Time: 1.0202 (2, 0.0000, 0.9877)  Total CPU Time: 2.0237 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.3E+09, CPU Wait Time: 0.968
+Timer DGEMM (17) CPU Time 43.50400 Wall Time 2.05513
+Timer UPDATE (14) CPU Time 43.50400 Wall Time 2.05515
+Timer ITERATION (22) CPU Time 43.50800 Wall Time 2.05518
+Iteration j=199200 N=254880 n=55680 jb=1920 Totaltime=808.059
+99 % (j = 199200/254880) of factorization at approx. 14185.23 Gflops, assuming to finish in 8 s.
+Starting DGEMM Run m=53761 k=1920 n=53760 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8c3b2d6900, B=0x7f8b51cac500, C=0x7f8c3b2da500, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 53760 gpu_n 53760 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2688, 2688)
+                Slave thread starting cblas (m: 53761, n: 53760, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 225)
+Timer PIPELINE (25) CPU Time 19.40000 Wall Time 0.82609
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 19.55600 Wall Time 0.96403
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  56) Program: caldgemm Sizes - A: 55681x1920 B: 1920x55680 C:55681x55680 (Host: asustest02) System Time 2.055 System Gflops 5796.361
+#(0  ,  56) GPU Time 0.0000 (11911208140800.0000 Gflops)   CPU Time 0.0102 (20.9558 Gflops)   Linpack Time: 1.0660 (2, 0.0000, 0.9787)  Total CPU Time: 2.0549 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.1E+09, CPU Wait Time: 1.001
+Timer DGEMM (17) CPU Time 39.37600 Wall Time 1.81002
+Timer UPDATE (14) CPU Time 39.37600 Wall Time 1.81004
+Timer ITERATION (22) CPU Time 39.37600 Wall Time 1.81006
+Iteration j=201120 N=254880 n=53760 jb=1920 Totaltime=809.869
+99 % (j = 201120/254880) of factorization at approx. 14172.43 Gflops, assuming to finish in 7 s.
+Starting DGEMM Run m=51841 k=1920 n=51840 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8d24908500, B=0x7f8c3b2de100, C=0x7f8d2490c100, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 51840 gpu_n 51840 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (768, 768)
+                Slave thread starting cblas (m: 51841, n: 51840, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 225)
+Timer PIPELINE (25) CPU Time 19.36000 Wall Time 0.82912
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 19.46000 Wall Time 0.95717
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  57) Program: caldgemm Sizes - A: 53761x1920 B: 1920x53760 C:53761x53760 (Host: asustest02) System Time 1.810 System Gflops 6135.251
+#(0  ,  57) GPU Time 0.0000 (11103908659200.0020 Gflops)   CPU Time 0.0196 (10.5412 Gflops)   Linpack Time: 0.9641 (2, 0.0000, 0.8261)  Total CPU Time: 1.8098 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.9E+09, CPU Wait Time: 0.608
+Timer DGEMM (17) CPU Time 39.20000 Wall Time 1.80497
+Timer UPDATE (14) CPU Time 39.20400 Wall Time 1.80500
+Timer ITERATION (22) CPU Time 39.20400 Wall Time 1.80502
+Iteration j=203040 N=254880 n=51840 jb=1920 Totaltime=811.674
+99 % (j = 203040/254880) of factorization at approx. 14158.41 Gflops, assuming to finish in 6 s.
+Starting DGEMM Run m=49921 k=1920 n=49920 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8e0df3a100, B=0x7f8d2490fd00, C=0x7f8e0df3dd00, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 49920 gpu_n 49920 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2496, 2496)
+                Slave thread starting cblas (m: 49921, n: 49920, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 196)
+Timer PIPELINE (25) CPU Time 18.34000 Wall Time 0.80259
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 20.01600 Wall Time 0.97891
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  58) Program: caldgemm Sizes - A: 51841x1920 B: 1920x51840 C:51841x51840 (Host: asustest02) System Time 1.805 System Gflops 5720.831
+#(0  ,  58) GPU Time 0.0000 (10324935475200.0020 Gflops)   CPU Time 0.0171 (11.6712 Gflops)   Linpack Time: 0.9572 (2, 0.0000, 0.8292)  Total CPU Time: 1.8034 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.7E+09, CPU Wait Time: 0.799
+Timer DGEMM (17) CPU Time 38.66800 Wall Time 1.79681
+Timer UPDATE (14) CPU Time 38.67200 Wall Time 1.79684
+Timer ITERATION (22) CPU Time 38.67200 Wall Time 1.79686
+Iteration j=204960 N=254880 n=49920 jb=1920 Totaltime=813.470
+99 % (j = 204960/254880) of factorization at approx. 14143.25 Gflops, assuming to finish in 5 s.
+Starting DGEMM Run m=48001 k=1920 n=48000 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8ef756bd00, B=0x7f8e0df41900, C=0x7f8ef756f900, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 48000 gpu_n 48000 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (576, 576)
+                Slave thread starting cblas (m: 48001, n: 48000, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 196)
+Timer PIPELINE (25) CPU Time 17.11600 Wall Time 0.72825
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 18.91200 Wall Time 0.92820
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  59) Program: caldgemm Sizes - A: 49921x1920 B: 1920x49920 C:49921x49920 (Host: asustest02) System Time 1.797 System Gflops 5329.012
+#(0  ,  59) GPU Time 0.0000 (9574288588800.0020 Gflops)   CPU Time 0.0138 (13.9472 Gflops)   Linpack Time: 0.9789 (2, 0.0000, 0.8026)  Total CPU Time: 1.7953 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.5E+09, CPU Wait Time: 0.816
+Timer DGEMM (17) CPU Time 36.32800 Wall Time 1.67073
+Timer UPDATE (14) CPU Time 36.33200 Wall Time 1.67075
+Timer ITERATION (22) CPU Time 36.33200 Wall Time 1.67078
+Iteration j=206880 N=254880 n=48000 jb=1920 Totaltime=815.141
+99 % (j = 206880/254880) of factorization at approx. 14129.18 Gflops, assuming to finish in 5 s.
+Starting DGEMM Run m=46081 k=1920 n=46080 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f8fe0b9d900, B=0x7f8ef7573500, C=0x7f8fe0ba1500, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 46080 gpu_n 46080 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2304, 2304)
+                Slave thread starting cblas (m: 46081, n: 46080, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 169)
+Timer PIPELINE (25) CPU Time 16.64800 Wall Time 0.71594
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 18.16400 Wall Time 0.89260
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  60) Program: caldgemm Sizes - A: 48001x1920 B: 1920x48000 C:48001x48000 (Host: asustest02) System Time 1.671 System Gflops 5298.802
+#(0  ,  60) GPU Time 0.0000 (8851968000000.0000 Gflops)   CPU Time 0.0140 (13.2019 Gflops)   Linpack Time: 0.9282 (2, 0.0000, 0.7283)  Total CPU Time: 1.6705 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.3E+09, CPU Wait Time: 0.762
+Timer DGEMM (17) CPU Time 35.03600 Wall Time 1.61945
+Timer UPDATE (14) CPU Time 35.03600 Wall Time 1.61947
+Timer ITERATION (22) CPU Time 35.03600 Wall Time 1.61950
+Iteration j=208800 N=254880 n=46080 jb=1920 Totaltime=816.761
+99 % (j = 208800/254880) of factorization at approx. 14114.86 Gflops, assuming to finish in 4 s.
+Starting DGEMM Run m=44161 k=1920 n=44160 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f90ca1cf500, B=0x7f8fe0ba5100, C=0x7f90ca1d3100, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 44160 gpu_n 44160 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (384, 384)
+                Slave thread starting cblas (m: 44161, n: 44160, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 169)
+Timer PIPELINE (25) CPU Time 15.77200 Wall Time 0.67336
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 18.13600 Wall Time 0.89156
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  61) Program: caldgemm Sizes - A: 46081x1920 B: 1920x46080 C:46081x46080 (Host: asustest02) System Time 1.619 System Gflops 5038.063
+#(0  ,  61) GPU Time 0.0000 (8157973708800.0010 Gflops)   CPU Time 0.0100 (17.6915 Gflops)   Linpack Time: 0.8926 (2, 0.0000, 0.7160)  Total CPU Time: 1.6186 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.1E+09, CPU Wait Time: 0.705
+Timer DGEMM (17) CPU Time 34.07600 Wall Time 1.57345
+Timer UPDATE (14) CPU Time 34.07600 Wall Time 1.57347
+Timer ITERATION (22) CPU Time 34.07600 Wall Time 1.57349
+Iteration j=210720 N=254880 n=44160 jb=1920 Totaltime=818.334
+99 % (j = 210720/254880) of factorization at approx. 14100.24 Gflops, assuming to finish in 4 s.
+Starting DGEMM Run m=42241 k=1920 n=42240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f91b3801100, B=0x7f90ca1d6d00, C=0x7f91b3804d00, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 42240 gpu_n 42240 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2112, 2112)
+                Slave thread starting cblas (m: 42241, n: 42240, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 144)
+Timer PIPELINE (25) CPU Time 15.29200 Wall Time 0.66065
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 17.15200 Wall Time 0.84446
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  62) Program: caldgemm Sizes - A: 44161x1920 B: 1920x44160 C:44161x44160 (Host: asustest02) System Time 1.573 System Gflops 4762.257
+#(0  ,  62) GPU Time 0.0000 (7492305715200.0010 Gflops)   CPU Time 0.0082 (20.7257 Gflops)   Linpack Time: 0.8916 (2, 0.0000, 0.6734)  Total CPU Time: 1.5732 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.0E+09, CPU Wait Time: 0.701
+Timer DGEMM (17) CPU Time 32.60800 Wall Time 1.51326
+Timer UPDATE (14) CPU Time 32.60800 Wall Time 1.51329
+Timer ITERATION (22) CPU Time 32.60800 Wall Time 1.51331
+Iteration j=212640 N=254880 n=42240 jb=1920 Totaltime=819.848
+100 % (j = 212640/254880) of factorization at approx. 14085.62 Gflops, assuming to finish in 3 s.
+Starting DGEMM Run m=40321 k=1920 n=40320 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f929ce32d00, B=0x7f91b3808900, C=0x7f929ce36900, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 40320 gpu_n 40320 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (1632, 1632)
+                Slave thread starting cblas (m: 40321, n: 40320, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 196)
+Timer PIPELINE (25) CPU Time 14.06400 Wall Time 0.60305
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 16.10800 Wall Time 0.79344
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  63) Program: caldgemm Sizes - A: 42241x1920 B: 1920x42240 C:42241x42240 (Host: asustest02) System Time 1.513 System Gflops 4530.467
+#(0  ,  63) GPU Time 0.0000 (6854964019200.0010 Gflops)   CPU Time 0.0078 (20.7438 Gflops)   Linpack Time: 0.8445 (2, 0.0000, 0.6607)  Total CPU Time: 1.5130 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.8E+09, CPU Wait Time: 0.649
+Timer DGEMM (17) CPU Time 30.41600 Wall Time 1.40799
+Timer UPDATE (14) CPU Time 30.41600 Wall Time 1.40802
+Timer ITERATION (22) CPU Time 30.41600 Wall Time 1.40804
+Iteration j=214560 N=254880 n=40320 jb=1920 Totaltime=821.256
+100 % (j = 214560/254880) of factorization at approx. 14071.86 Gflops, assuming to finish in 3 s.
+Starting DGEMM Run m=38401 k=1920 n=38400 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9386464900, B=0x7f929ce3a500, C=0x7f9386468500, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 38400 gpu_n 38400 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (2688, 2688)
+                Slave thread starting cblas (m: 38401, n: 38400, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 169)
+Timer PIPELINE (25) CPU Time 13.29200 Wall Time 0.56714
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 15.40400 Wall Time 0.75803
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  64) Program: caldgemm Sizes - A: 40321x1920 B: 1920x40320 C:40321x40320 (Host: asustest02) System Time 1.408 System Gflops 4436.574
+#(0  ,  64) GPU Time 0.0000 (6245948620800.0000 Gflops)   CPU Time 0.0112 (13.8060 Gflops)   Linpack Time: 0.7935 (2, 0.0000, 0.6031)  Total CPU Time: 1.4078 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.6E+09, CPU Wait Time: 0.645
+Timer DGEMM (17) CPU Time 28.90800 Wall Time 1.33517
+Timer UPDATE (14) CPU Time 28.90800 Wall Time 1.33519
+Timer ITERATION (22) CPU Time 28.90800 Wall Time 1.33522
+Iteration j=216480 N=254880 n=38400 jb=1920 Totaltime=822.591
+100 % (j = 216480/254880) of factorization at approx. 14058.42 Gflops, assuming to finish in 2 s.
+Starting DGEMM Run m=36481 k=1920 n=36480 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f946fa96500, B=0x7f938646c100, C=0x7f946fa9a100, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 36480 gpu_n 36480 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (768, 768)
+                Slave thread starting cblas (m: 36481, n: 36480, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 169)
+Timer PIPELINE (25) CPU Time 12.66800 Wall Time 0.54614
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 14.80000 Wall Time 0.72716
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  65) Program: caldgemm Sizes - A: 38401x1920 B: 1920x38400 C:38401x38400 (Host: asustest02) System Time 1.335 System Gflops 4243.691
+#(0  ,  65) GPU Time 0.0000 (5665259520000.0000 Gflops)   CPU Time 0.0094 (15.7064 Gflops)   Linpack Time: 0.7581 (2, 0.0000, 0.5672)  Total CPU Time: 1.3347 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.5E+09, CPU Wait Time: 0.569
+Timer DGEMM (17) CPU Time 27.68400 Wall Time 1.28398
+Timer UPDATE (14) CPU Time 27.69200 Wall Time 1.28400
+Timer ITERATION (22) CPU Time 27.69200 Wall Time 1.28403
+Iteration j=218400 N=254880 n=36480 jb=1920 Totaltime=823.875
+100 % (j = 218400/254880) of factorization at approx. 14044.93 Gflops, assuming to finish in 2 s.
+Starting DGEMM Run m=34561 k=1920 n=34560 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f95590c8100, B=0x7f946fa9dd00, C=0x7f95590cbd00, (C-A=1920, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 34560 gpu_n 34560 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (1824, 1824)
+                Slave thread starting cblas (m: 34561, n: 34560, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 144)
+Timer PIPELINE (25) CPU Time 11.86000 Wall Time 0.50844
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 9.16000 Wall Time 0.45440
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  66) Program: caldgemm Sizes - A: 36481x1920 B: 1920x36480 C:36481x36480 (Host: asustest02) System Time 1.284 System Gflops 3982.664
+#(0  ,  66) GPU Time 0.0000 (5112896716800.0010 Gflops)   CPU Time 0.0103 (13.5499 Gflops)   Linpack Time: 0.7272 (2, 0.0000, 0.5462)  Total CPU Time: 1.2837 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.3E+09, CPU Wait Time: 0.545
+Timer DGEMM (17) CPU Time 21.20000 Wall Time 0.97162
+Timer UPDATE (14) CPU Time 21.20000 Wall Time 0.97164
+Timer ITERATION (22) CPU Time 21.20000 Wall Time 0.97167
+Iteration j=220320 N=254880 n=34560 jb=1440 Totaltime=824.847
+100 % (j = 220320/254880) of factorization at approx. 14036.14 Gflops, assuming to finish in 1 s.
+Starting DGEMM Run m=33121 k=1440 n=33120 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f960816e500, B=0x7f95590cea00, C=0x7f9608171200, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 33120 gpu_n 33120 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (384, 384)
+                Slave thread starting cblas (m: 33121, n: 33120, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 144)
+Timer PIPELINE (25) CPU Time 9.80000 Wall Time 0.43525
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 10.31600 Wall Time 0.50513
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  67) Program: caldgemm Sizes - A: 34561x1440 B: 1440x34560 C:34561x34560 (Host: asustest02) System Time 0.971 System Gflops 3543.353
+#(0  ,  67) GPU Time 0.0000 (3442242355200.0000 Gflops)   CPU Time 0.0084 (11.8746 Gflops)   Linpack Time: 0.4544 (2, 0.0000, 0.5085)  Total CPU Time: 0.9713 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.2E+09, CPU Wait Time: 0.272
+Timer DGEMM (17) CPU Time 20.26400 Wall Time 0.94749
+Timer UPDATE (14) CPU Time 20.26400 Wall Time 0.94751
+Timer ITERATION (22) CPU Time 20.26400 Wall Time 0.94754
+Iteration j=221760 N=254880 n=33120 jb=1440 Totaltime=825.794
+100 % (j = 221760/254880) of factorization at approx. 14025.05 Gflops, assuming to finish in 1 s.
+Starting DGEMM Run m=31681 k=1440 n=31680 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f96b7213a00, B=0x7f9608173f00, C=0x7f96b7216700, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 31680 gpu_n 31680 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (1920, 1920)
+                Slave thread starting cblas (m: 31681, n: 31680, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 121)
+Timer PIPELINE (25) CPU Time 7.21200 Wall Time 0.30394
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 8.55600 Wall Time 0.42109
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  68) Program: caldgemm Sizes - A: 33121x1440 B: 1440x33120 C:33121x33120 (Host: asustest02) System Time 0.947 System Gflops 3337.125
+#(0  ,  68) GPU Time 0.0000 (3161364940800.0000 Gflops)   CPU Time 0.0068 (14.0442 Gflops)   Linpack Time: 0.5052 (2, 0.0000, 0.4353)  Total CPU Time: 0.9473 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.1E+09, CPU Wait Time: 0.319
+Timer DGEMM (17) CPU Time 15.91600 Wall Time 0.73248
+Timer UPDATE (14) CPU Time 15.92000 Wall Time 0.73250
+Timer ITERATION (22) CPU Time 15.92000 Wall Time 0.73252
+Iteration j=223200 N=254880 n=31680 jb=1440 Totaltime=826.527
+100 % (j = 223200/254880) of factorization at approx. 14017.34 Gflops, assuming to finish in 1 s.
+Starting DGEMM Run m=30241 k=1440 n=30240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f97662b8f00, B=0x7f96b7219400, C=0x7f97662bbc00, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 30240 gpu_n 30240 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (480, 480)
+                Slave thread starting cblas (m: 30241, n: 30240, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 121)
+Timer PIPELINE (25) CPU Time 8.02800 Wall Time 0.35053
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 8.50000 Wall Time 0.41491
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  69) Program: caldgemm Sizes - A: 31681x1440 B: 1440x31680 C:31681x31680 (Host: asustest02) System Time 0.732 System Gflops 3949.668
+#(0  ,  69) GPU Time 0.0000 (2892439756800.0000 Gflops)   CPU Time 0.0059 (15.5734 Gflops)   Linpack Time: 0.4211 (2, 0.0000, 0.3040)  Total CPU Time: 0.7310 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.0E+09, CPU Wait Time: 0.247
+Timer DGEMM (17) CPU Time 16.65600 Wall Time 0.77208
+Timer UPDATE (14) CPU Time 16.66000 Wall Time 0.77210
+Timer ITERATION (22) CPU Time 16.66000 Wall Time 0.77213
+Iteration j=224640 N=254880 n=30240 jb=1440 Totaltime=827.299
+100 % (j = 224640/254880) of factorization at approx. 14008.47 Gflops, assuming to finish in 1 s.
+Starting DGEMM Run m=28801 k=1440 n=28800 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f981535e400, B=0x7f97662be900, C=0x7f9815361100, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 28800 gpu_n 28800 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (2016, 2016)
+                Slave thread starting cblas (m: 28801, n: 28800, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 100)
+Timer PIPELINE (25) CPU Time 7.46000 Wall Time 0.32837
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 8.25600 Wall Time 0.40997
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  70) Program: caldgemm Sizes - A: 30241x1440 B: 1440x30240 C:30241x30240 (Host: asustest02) System Time 0.772 System Gflops 3414.158
+#(0  ,  70) GPU Time 0.0000 (2635466803200.0000 Gflops)   CPU Time 0.0058 (14.9563 Gflops)   Linpack Time: 0.4149 (2, 0.0000, 0.3506)  Total CPU Time: 0.7714 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 9.1E+08, CPU Wait Time: 0.200
+Timer DGEMM (17) CPU Time 15.80800 Wall Time 0.74296
+Timer UPDATE (14) CPU Time 15.80800 Wall Time 0.74298
+Timer ITERATION (22) CPU Time 15.80800 Wall Time 0.74300
+Iteration j=226080 N=254880 n=28800 jb=1440 Totaltime=828.042
+100 % (j = 226080/254880) of factorization at approx. 13999.70 Gflops, assuming to finish in 1 s.
+Starting DGEMM Run m=27361 k=1440 n=27360 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f98c4403900, B=0x7f9815363e00, C=0x7f98c4406600, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 27360 gpu_n 27360 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (576, 576)
+                Slave thread starting cblas (m: 27361, n: 27360, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 100)
+Timer PIPELINE (25) CPU Time 5.88000 Wall Time 0.24752
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 8.02800 Wall Time 0.39626
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  71) Program: caldgemm Sizes - A: 28801x1440 B: 1440x28800 C:28801x28800 (Host: asustest02) System Time 0.743 System Gflops 3218.236
+#(0  ,  71) GPU Time 0.0000 (2390446080000.0000 Gflops)   CPU Time 0.0043 (19.4356 Gflops)   Linpack Time: 0.4100 (2, 0.0000, 0.3284)  Total CPU Time: 0.7427 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 8.3E+08, CPU Wait Time: 0.223
+Timer DGEMM (17) CPU Time 13.99200 Wall Time 0.64821
+Timer UPDATE (14) CPU Time 13.99200 Wall Time 0.64823
+Timer ITERATION (22) CPU Time 13.99600 Wall Time 0.64826
+Iteration j=227520 N=254880 n=27360 jb=1440 Totaltime=828.690
+100 % (j = 227520/254880) of factorization at approx. 13992.21 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=25921 k=1440 n=25920 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f99734a8e00, B=0x7f98c4409300, C=0x7f99734abb00, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 25920 gpu_n 25920 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (2112, 2112)
+                Slave thread starting cblas (m: 25921, n: 25920, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 81)
+Timer PIPELINE (25) CPU Time 5.48800 Wall Time 0.23403
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 7.98400 Wall Time 0.39601
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  72) Program: caldgemm Sizes - A: 27361x1440 B: 1440x27360 C:27361x27360 (Host: asustest02) System Time 0.648 System Gflops 3329.104
+#(0  ,  72) GPU Time 0.0000 (2157377587200.0000 Gflops)   CPU Time 0.0041 (19.2485 Gflops)   Linpack Time: 0.3963 (2, 0.0000, 0.2476)  Total CPU Time: 0.6480 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 7.5E+08, CPU Wait Time: 0.213
+Timer DGEMM (17) CPU Time 13.56000 Wall Time 0.63425
+Timer UPDATE (14) CPU Time 13.56000 Wall Time 0.63428
+Timer ITERATION (22) CPU Time 13.56000 Wall Time 0.63430
+Iteration j=228960 N=254880 n=25920 jb=1440 Totaltime=829.324
+100 % (j = 228960/254880) of factorization at approx. 13984.57 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=24481 k=1440 n=24480 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9a2254e300, B=0x7f99734ae800, C=0x7f9a22551000, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 24480 gpu_n 24480 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (672, 672)
+                Slave thread starting cblas (m: 24481, n: 24480, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 81)
+Timer PIPELINE (25) CPU Time 5.28000 Wall Time 0.22746
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 7.56000 Wall Time 0.37641
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  73) Program: caldgemm Sizes - A: 25921x1440 B: 1440x25920 C:25921x25920 (Host: asustest02) System Time 0.634 System Gflops 3053.723
+#(0  ,  73) GPU Time 0.0000 (1936261324800.0000 Gflops)   CPU Time 0.0039 (19.1736 Gflops)   Linpack Time: 0.3960 (2, 0.0000, 0.2341)  Total CPU Time: 0.6340 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.7E+08, CPU Wait Time: 0.214
+Timer DGEMM (17) CPU Time 12.92800 Wall Time 0.60792
+Timer UPDATE (14) CPU Time 12.92800 Wall Time 0.60795
+Timer ITERATION (22) CPU Time 12.92800 Wall Time 0.60797
+Iteration j=230400 N=254880 n=24480 jb=1440 Totaltime=829.932
+100 % (j = 230400/254880) of factorization at approx. 13977.03 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=23041 k=1440 n=23040 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9ad15f3800, B=0x7f9a22553d00, C=0x7f9ad15f6500, (C-A=1440, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 23040 gpu_n 23040 - Split m Favor m - Height 2976 (/ 3648), Min Tiling 48 (2208, 2208)
+                Slave thread starting cblas (m: 23041, n: 23040, cblas_size: 1 (2976), dynamic: 0/0, cpu_k: 64)
+Timer PIPELINE (25) CPU Time 4.96400 Wall Time 0.21263
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.43200 Wall Time 0.16648
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  74) Program: caldgemm Sizes - A: 24481x1440 B: 1440x24480 C:24481x24480 (Host: asustest02) System Time 0.608 System Gflops 2841.871
+#(0  ,  74) GPU Time 0.0000 (1727097292800.0000 Gflops)   CPU Time 0.0037 (18.9801 Gflops)   Linpack Time: 0.3764 (2, 0.0000, 0.2275)  Total CPU Time: 0.6077 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 6.0E+08, CPU Wait Time: 0.321
+Timer DGEMM (17) CPU Time 8.53200 Wall Time 0.38554
+Timer UPDATE (14) CPU Time 8.53200 Wall Time 0.38556
+Timer ITERATION (22) CPU Time 8.53200 Wall Time 0.38558
+Iteration j=231840 N=254880 n=23040 jb=960 Totaltime=830.318
+100 % (j = 231840/254880) of factorization at approx. 13973.08 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=22081 k=960 n=22080 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9b4610d500, B=0x7f9ad15f8300, C=0x7f9b4610f300, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 22080 gpu_n 22080 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (192, 192)
+                Slave thread starting cblas (m: 22081, n: 22080, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 49)
+Timer PIPELINE (25) CPU Time 4.66800 Wall Time 0.20987
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.66400 Wall Time 0.17793
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  75) Program: caldgemm Sizes - A: 23041x960 B: 960x23040 C:23041x23040 (Host: asustest02) System Time 0.385 System Gflops 2647.404
+#(0  ,  75) GPU Time 0.0000 (1020277555199.9999 Gflops)   CPU Time 0.0061 (7.2292 Gflops)   Linpack Time: 0.1665 (2, 0.0000, 0.2127)  Total CPU Time: 0.3853 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.3E+08, CPU Wait Time: 0.113
+Timer DGEMM (17) CPU Time 8.85600 Wall Time 0.41458
+Timer UPDATE (14) CPU Time 8.85600 Wall Time 0.41460
+Timer ITERATION (22) CPU Time 8.85600 Wall Time 0.41462
+Iteration j=232800 N=254880 n=22080 jb=960 Totaltime=830.732
+100 % (j = 232800/254880) of factorization at approx. 13967.48 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=21121 k=960 n=21120 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9bbac26300, B=0x7f9b46111100, C=0x7f9bbac28100, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 21120 gpu_n 21120 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2880, 2880)
+                Slave thread starting cblas (m: 21121, n: 21120, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 36)
+Timer PIPELINE (25) CPU Time 4.02400 Wall Time 0.18145
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.74400 Wall Time 0.17897
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  76) Program: caldgemm Sizes - A: 22081x960 B: 960x22080 C:22081x22080 (Host: asustest02) System Time 0.414 System Gflops 2261.030
+#(0  ,  76) GPU Time 0.0000 (937025740799.9999 Gflops)   CPU Time 0.0045 (9.5048 Gflops)   Linpack Time: 0.1780 (2, 0.0000, 0.2099)  Total CPU Time: 0.4136 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.9E+08, CPU Wait Time: 0.086
+Timer DGEMM (17) CPU Time 8.57200 Wall Time 0.40096
+Timer UPDATE (14) CPU Time 8.57200 Wall Time 0.40098
+Timer ITERATION (22) CPU Time 8.57600 Wall Time 0.40101
+Iteration j=233760 N=254880 n=21120 jb=960 Totaltime=831.133
+100 % (j = 233760/254880) of factorization at approx. 13961.97 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=20161 k=960 n=20160 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9c2f73f100, B=0x7f9bbac29f00, C=0x7f9c2f740f00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 20160 gpu_n 20160 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1920, 1920)
+                Slave thread starting cblas (m: 20161, n: 20160, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 36)
+Timer PIPELINE (25) CPU Time 2.44400 Wall Time 0.10127
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.29600 Wall Time 0.16292
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  77) Program: caldgemm Sizes - A: 21121x960 B: 960x21120 C:21121x21120 (Host: asustest02) System Time 0.401 System Gflops 2139.076
+#(0  ,  77) GPU Time 0.0000 (857316556799.9999 Gflops)   CPU Time 0.0023 (17.3694 Gflops)   Linpack Time: 0.1790 (2, 0.0000, 0.1815)  Total CPU Time: 0.3998 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.5E+08, CPU Wait Time: 0.091
+Timer DGEMM (17) CPU Time 6.57200 Wall Time 0.30675
+Timer UPDATE (14) CPU Time 6.57200 Wall Time 0.30678
+Timer ITERATION (22) CPU Time 6.57200 Wall Time 0.30680
+Iteration j=234720 N=254880 n=20160 jb=960 Totaltime=831.440
+100 % (j = 234720/254880) of factorization at approx. 13958.00 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=19201 k=960 n=19200 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9ca4257f00, B=0x7f9c2f742d00, C=0x7f9ca4259d00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 19200 gpu_n 19200 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (960, 960)
+                Slave thread starting cblas (m: 19201, n: 19200, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 36)
+Timer PIPELINE (25) CPU Time 2.36000 Wall Time 0.09850
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.24400 Wall Time 0.15865
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  78) Program: caldgemm Sizes - A: 20161x960 B: 960x20160 C:20161x20160 (Host: asustest02) System Time 0.307 System Gflops 2547.735
+#(0  ,  78) GPU Time 0.0000 (781150003200.0000 Gflops)   CPU Time 0.0029 (13.4016 Gflops)   Linpack Time: 0.1629 (2, 0.0000, 0.1013)  Total CPU Time: 0.3065 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.1E+08, CPU Wait Time: 0.081
+Timer DGEMM (17) CPU Time 6.51200 Wall Time 0.30517
+Timer UPDATE (14) CPU Time 6.51600 Wall Time 0.30519
+Timer ITERATION (22) CPU Time 6.51600 Wall Time 0.30521
+Iteration j=235680 N=254880 n=19200 jb=960 Totaltime=831.745
+100 % (j = 235680/254880) of factorization at approx. 13953.93 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=18241 k=960 n=18240 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9d18d70d00, B=0x7f9ca425bb00, C=0x7f9d18d72b00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 18240 gpu_n 18240 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (0, 0)
+                Slave thread starting cblas (m: 18241, n: 18240, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 25)
+Timer PIPELINE (25) CPU Time 2.18400 Wall Time 0.09125
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 3.08400 Wall Time 0.15268
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  79) Program: caldgemm Sizes - A: 19201x960 B: 960x19200 C:19201x19200 (Host: asustest02) System Time 0.305 System Gflops 2322.887
+#(0  ,  79) GPU Time 0.0000 (708526079999.9999 Gflops)   CPU Time 0.0021 (17.1689 Gflops)   Linpack Time: 0.1587 (2, 0.0000, 0.0985)  Total CPU Time: 0.3050 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.7E+08, CPU Wait Time: 0.063
+Timer DGEMM (17) CPU Time 6.18000 Wall Time 0.29149
+Timer UPDATE (14) CPU Time 6.18000 Wall Time 0.29151
+Timer ITERATION (22) CPU Time 6.18000 Wall Time 0.29154
+Iteration j=236640 N=254880 n=18240 jb=960 Totaltime=832.037
+100 % (j = 236640/254880) of factorization at approx. 13949.98 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=17281 k=960 n=17280 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9d8d889b00, B=0x7f9d18d74900, C=0x7f9d8d88b900, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 17280 gpu_n 17280 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2688, 2688)
+                Slave thread starting cblas (m: 17281, n: 17280, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 25)
+Timer PIPELINE (25) CPU Time 2.16400 Wall Time 0.09089
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.98000 Wall Time 0.14711
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  80) Program: caldgemm Sizes - A: 18241x960 B: 960x18240 C:18241x18240 (Host: asustest02) System Time 0.291 System Gflops 2194.816
+#(0  ,  80) GPU Time 0.0000 (639444787199.9999 Gflops)   CPU Time 0.0021 (16.8856 Gflops)   Linpack Time: 0.1527 (2, 0.0000, 0.0913)  Total CPU Time: 0.2913 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.3E+08, CPU Wait Time: 0.074
+Timer DGEMM (17) CPU Time 6.33600 Wall Time 0.29855
+Timer UPDATE (14) CPU Time 6.33600 Wall Time 0.29857
+Timer ITERATION (22) CPU Time 6.33600 Wall Time 0.29860
+Iteration j=237600 N=254880 n=17280 jb=960 Totaltime=832.336
+100 % (j = 237600/254880) of factorization at approx. 13945.78 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=16321 k=960 n=16320 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9e023a2900, B=0x7f9d8d88d700, C=0x7f9e023a4700, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 16320 gpu_n 16320 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1728, 1728)
+                Slave thread starting cblas (m: 16321, n: 16320, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 25)
+Timer PIPELINE (25) CPU Time 2.02000 Wall Time 0.08516
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.91200 Wall Time 0.14229
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  81) Program: caldgemm Sizes - A: 17281x960 B: 960x17280 C:17281x17280 (Host: asustest02) System Time 0.298 System Gflops 1923.310
+#(0  ,  81) GPU Time 0.0000 (573906124800.0000 Gflops)   CPU Time 0.0020 (16.4931 Gflops)   Linpack Time: 0.1471 (2, 0.0000, 0.0909)  Total CPU Time: 0.2983 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.0E+08, CPU Wait Time: 0.109
+Timer DGEMM (17) CPU Time 6.10400 Wall Time 0.28851
+Timer UPDATE (14) CPU Time 6.10400 Wall Time 0.28853
+Timer ITERATION (22) CPU Time 6.10400 Wall Time 0.28855
+Iteration j=238560 N=254880 n=16320 jb=960 Totaltime=832.624
+100 % (j = 238560/254880) of factorization at approx. 13941.66 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=15361 k=960 n=15360 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9e76ebb700, B=0x7f9e023a6500, C=0x7f9e76ebd500, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 15360 gpu_n 15360 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (768, 768)
+                Slave thread starting cblas (m: 15361, n: 15360, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 25)
+Timer PIPELINE (25) CPU Time 2.01600 Wall Time 0.08451
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.88400 Wall Time 0.14264
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  82) Program: caldgemm Sizes - A: 16321x960 B: 960x16320 C:16321x16320 (Host: asustest02) System Time 0.288 System Gflops 1775.278
+#(0  ,  82) GPU Time 0.0000 (511910092799.9999 Gflops)   CPU Time 0.0019 (16.2806 Gflops)   Linpack Time: 0.1423 (2, 0.0000, 0.0852)  Total CPU Time: 0.2883 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.7E+08, CPU Wait Time: 0.109
+Timer DGEMM (17) CPU Time 6.17200 Wall Time 0.29389
+Timer UPDATE (14) CPU Time 6.17200 Wall Time 0.29392
+Timer ITERATION (22) CPU Time 6.17200 Wall Time 0.29394
+Iteration j=239520 N=254880 n=15360 jb=960 Totaltime=832.918
+100 % (j = 239520/254880) of factorization at approx. 13937.33 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=14401 k=960 n=14400 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9eeb9d4500, B=0x7f9e76ebf300, C=0x7f9eeb9d6300, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 14400 gpu_n 14400 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3456, 3456)
+                Slave thread starting cblas (m: 14401, n: 14400, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 16)
+Timer PIPELINE (25) CPU Time 1.77200 Wall Time 0.07543
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.66400 Wall Time 0.13136
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  83) Program: caldgemm Sizes - A: 15361x960 B: 960x15360 C:15361x15360 (Host: asustest02) System Time 0.294 System Gflops 1543.738
+#(0  ,  83) GPU Time 0.0000 (453456691200.0000 Gflops)   CPU Time 0.0018 (16.2171 Gflops)   Linpack Time: 0.1427 (2, 0.0000, 0.0845)  Total CPU Time: 0.2937 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.4E+08, CPU Wait Time: 0.119
+Timer DGEMM (17) CPU Time 5.82000 Wall Time 0.27874
+Timer UPDATE (14) CPU Time 5.82000 Wall Time 0.27876
+Timer ITERATION (22) CPU Time 5.82000 Wall Time 0.27879
+Iteration j=240480 N=254880 n=14400 jb=960 Totaltime=833.197
+100 % (j = 240480/254880) of factorization at approx. 13933.18 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=13441 k=960 n=13440 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9f604ed300, B=0x7f9eeb9d8100, C=0x7f9f604ef100, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 13440 gpu_n 13440 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2496, 2496)
+                Slave thread starting cblas (m: 13441, n: 13440, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 16)
+Timer PIPELINE (25) CPU Time 1.62800 Wall Time 0.06818
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.55200 Wall Time 0.12905
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  84) Program: caldgemm Sizes - A: 14401x960 B: 960x14400 C:14401x14400 (Host: asustest02) System Time 0.279 System Gflops 1430.648
+#(0  ,  84) GPU Time 0.0000 (398545920000.0000 Gflops)   CPU Time 0.0017 (15.9458 Gflops)   Linpack Time: 0.1314 (2, 0.0000, 0.0755)  Total CPU Time: 0.2785 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.1E+08, CPU Wait Time: 0.114
+Timer DGEMM (17) CPU Time 5.38000 Wall Time 0.25915
+Timer UPDATE (14) CPU Time 5.38000 Wall Time 0.25918
+Timer ITERATION (22) CPU Time 5.38000 Wall Time 0.25920
+Iteration j=241440 N=254880 n=13440 jb=960 Totaltime=833.456
+100 % (j = 241440/254880) of factorization at approx. 13929.28 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=12481 k=960 n=12480 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7f9fd5006100, B=0x7f9f604f0f00, C=0x7f9fd5007f00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 12480 gpu_n 12480 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1536, 1536)
+                Slave thread starting cblas (m: 12481, n: 12480, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 16)
+Timer PIPELINE (25) CPU Time 1.65600 Wall Time 0.07097
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.85600 Wall Time 0.13667
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  85) Program: caldgemm Sizes - A: 13441x960 B: 960x13440 C:13441x13440 (Host: asustest02) System Time 0.259 System Gflops 1340.521
+#(0  ,  85) GPU Time 0.0000 (347177779199.9999 Gflops)   CPU Time 0.0017 (15.5167 Gflops)   Linpack Time: 0.1291 (2, 0.0000, 0.0682)  Total CPU Time: 0.2590 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.8E+08, CPU Wait Time: 0.102
+Timer DGEMM (17) CPU Time 5.70800 Wall Time 0.26953
+Timer UPDATE (14) CPU Time 5.70800 Wall Time 0.26956
+Timer ITERATION (22) CPU Time 5.70800 Wall Time 0.26958
+Iteration j=242400 N=254880 n=12480 jb=960 Totaltime=833.726
+100 % (j = 242400/254880) of factorization at approx. 13925.11 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=11521 k=960 n=11520 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa049b1ef00, B=0x7f9fd5009d00, C=0x7fa049b20d00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 11520 gpu_n 11520 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (576, 576)
+                Slave thread starting cblas (m: 11521, n: 11520, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 16)
+Timer PIPELINE (25) CPU Time 1.43200 Wall Time 0.05820
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.36400 Wall Time 0.11431
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  86) Program: caldgemm Sizes - A: 12481x960 B: 960x12480 C:12481x12480 (Host: asustest02) System Time 0.269 System Gflops 1111.351
+#(0  ,  86) GPU Time 0.0000 (299352268800.0000 Gflops)   CPU Time 0.0016 (14.6861 Gflops)   Linpack Time: 0.1367 (2, 0.0000, 0.0710)  Total CPU Time: 0.2693 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.6E+08, CPU Wait Time: 0.115
+Timer DGEMM (17) CPU Time 5.06400 Wall Time 0.23679
+Timer UPDATE (14) CPU Time 5.06400 Wall Time 0.23682
+Timer ITERATION (22) CPU Time 5.06400 Wall Time 0.23685
+Iteration j=243360 N=254880 n=11520 jb=960 Totaltime=833.963
+100 % (j = 243360/254880) of factorization at approx. 13921.44 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=10561 k=960 n=10560 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa0be637d00, B=0x7fa049b22b00, C=0x7fa0be639b00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 10560 gpu_n 10560 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3264, 3264)
+                Slave thread starting cblas (m: 10561, n: 10560, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 9)
+Timer PIPELINE (25) CPU Time 1.24400 Wall Time 0.05234
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.17600 Wall Time 0.10936
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  87) Program: caldgemm Sizes - A: 11521x960 B: 960x11520 C:11521x11520 (Host: asustest02) System Time 0.237 System Gflops 1077.947
+#(0  ,  87) GPU Time 0.0000 (255069388800.0000 Gflops)   CPU Time 0.0015 (14.3743 Gflops)   Linpack Time: 0.1143 (2, 0.0000, 0.0582)  Total CPU Time: 0.2366 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.3E+08, CPU Wait Time: 0.098
+Timer DGEMM (17) CPU Time 4.46000 Wall Time 0.21600
+Timer UPDATE (14) CPU Time 4.46000 Wall Time 0.21602
+Timer ITERATION (22) CPU Time 4.46000 Wall Time 0.21604
+Iteration j=244320 N=254880 n=10560 jb=960 Totaltime=834.179
+100 % (j = 244320/254880) of factorization at approx. 13918.06 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=9601 k=960 n=9600 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa133150b00, B=0x7fa0be63b900, C=0x7fa133152900, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 9600 gpu_n 9600 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2304, 2304)
+                Slave thread starting cblas (m: 9601, n: 9600, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 9)
+Timer PIPELINE (25) CPU Time 1.12000 Wall Time 0.04784
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.18800 Wall Time 0.10644
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  88) Program: caldgemm Sizes - A: 10561x960 B: 960x10560 C:10561x10560 (Host: asustest02) System Time 0.216 System Gflops 993.079
+#(0  ,  88) GPU Time 0.0000 (214329139200.0000 Gflops)   CPU Time 0.0015 (13.8364 Gflops)   Linpack Time: 0.1094 (2, 0.0000, 0.0524)  Total CPU Time: 0.2157 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.1E+08, CPU Wait Time: 0.106
+Timer DGEMM (17) CPU Time 4.33200 Wall Time 0.20700
+Timer UPDATE (14) CPU Time 4.33200 Wall Time 0.20702
+Timer ITERATION (22) CPU Time 4.33200 Wall Time 0.20705
+Iteration j=245280 N=254880 n=9600 jb=960 Totaltime=834.386
+100 % (j = 245280/254880) of factorization at approx. 13914.77 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=8641 k=960 n=8640 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa1a7c69900, B=0x7fa133154700, C=0x7fa1a7c6b700, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 8640 gpu_n 8640 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1344, 1344)
+                Slave thread starting cblas (m: 8641, n: 8640, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 9)
+Timer PIPELINE (25) CPU Time 1.00800 Wall Time 0.04110
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 2.07200 Wall Time 0.09985
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  89) Program: caldgemm Sizes - A: 9601x960 B: 960x9600 C:9601x9600 (Host: asustest02) System Time 0.207 System Gflops 856.446
+#(0  ,  89) GPU Time 0.0000 (177131520000.0000 Gflops)   CPU Time 0.0013 (13.7995 Gflops)   Linpack Time: 0.1065 (2, 0.0000, 0.0479)  Total CPU Time: 0.2068 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 9.2E+07, CPU Wait Time: 0.107
+Timer DGEMM (17) CPU Time 4.09200 Wall Time 0.19088
+Timer UPDATE (14) CPU Time 4.09200 Wall Time 0.19090
+Timer ITERATION (22) CPU Time 4.09200 Wall Time 0.19093
+Iteration j=246240 N=254880 n=8640 jb=960 Totaltime=834.577
+100 % (j = 246240/254880) of factorization at approx. 13911.70 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=7681 k=960 n=7680 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa21c782700, B=0x7fa1a7c6d500, C=0x7fa21c784500, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 7680 gpu_n 7680 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (384, 384)
+                Slave thread starting cblas (m: 7681, n: 7680, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 9)
+Timer PIPELINE (25) CPU Time 1.03200 Wall Time 0.04309
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.93200 Wall Time 0.09559
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  90) Program: caldgemm Sizes - A: 8641x960 B: 960x8640 C:8641x8640 (Host: asustest02) System Time 0.191 System Gflops 752.322
+#(0  ,  90) GPU Time 0.0000 (143476531200.0000 Gflops)   CPU Time 0.0012 (13.3390 Gflops)   Linpack Time: 0.0999 (2, 0.0000, 0.0411)  Total CPU Time: 0.1907 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 7.5E+07, CPU Wait Time: 0.101
+Timer DGEMM (17) CPU Time 3.96000 Wall Time 0.18726
+Timer UPDATE (14) CPU Time 3.96400 Wall Time 0.18728
+Timer ITERATION (22) CPU Time 3.96400 Wall Time 0.18730
+Iteration j=247200 N=254880 n=7680 jb=960 Totaltime=834.764
+100 % (j = 247200/254880) of factorization at approx. 13908.65 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=6721 k=960 n=6720 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa29129b500, B=0x7fa21c786300, C=0x7fa29129d300, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 6720 gpu_n 6720 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (3072, 3072)
+                Slave thread starting cblas (m: 6721, n: 6720, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4)
+Timer PIPELINE (25) CPU Time 0.80400 Wall Time 0.03435
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.86400 Wall Time 0.09251
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  91) Program: caldgemm Sizes - A: 7681x960 B: 960x7680 C:7681x7680 (Host: asustest02) System Time 0.187 System Gflops 605.940
+#(0  ,  91) GPU Time 0.0000 (113364172800.0000 Gflops)   CPU Time 0.0011 (13.2157 Gflops)   Linpack Time: 0.0956 (2, 0.0000, 0.0431)  Total CPU Time: 0.1871 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 5.9E+07, CPU Wait Time: 0.096
+Timer DGEMM (17) CPU Time 3.26800 Wall Time 0.15762
+Timer UPDATE (14) CPU Time 3.26800 Wall Time 0.15765
+Timer ITERATION (22) CPU Time 3.26800 Wall Time 0.15767
+Iteration j=248160 N=254880 n=6720 jb=960 Totaltime=834.921
+100 % (j = 248160/254880) of factorization at approx. 13906.06 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=5761 k=960 n=5760 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa305db4300, B=0x7fa29129f100, C=0x7fa305db6100, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 5760 gpu_n 5760 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (2112, 2112)
+                Slave thread starting cblas (m: 5761, n: 5760, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4)
+Timer PIPELINE (25) CPU Time 0.63200 Wall Time 0.02764
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.73200 Wall Time 0.08842
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  92) Program: caldgemm Sizes - A: 6721x960 B: 960x6720 C:6721x6720 (Host: asustest02) System Time 0.157 System Gflops 551.201
+#(0  ,  92) GPU Time 0.0000 (86794444800.0000 Gflops)   CPU Time 0.0010 (12.8313 Gflops)   Linpack Time: 0.0926 (2, 0.0000, 0.0344)  Total CPU Time: 0.1574 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 4.5E+07, CPU Wait Time: 0.091
+Timer DGEMM (17) CPU Time 2.98000 Wall Time 0.14955
+Timer UPDATE (14) CPU Time 2.98000 Wall Time 0.14957
+Timer ITERATION (22) CPU Time 2.98000 Wall Time 0.14960
+Iteration j=249120 N=254880 n=5760 jb=960 Totaltime=835.071
+100 % (j = 249120/254880) of factorization at approx. 13903.57 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=4801 k=960 n=4800 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa37a8cd100, B=0x7fa305db7f00, C=0x7fa37a8cef00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 4800 gpu_n 4800 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (1152, 1152)
+                Slave thread starting cblas (m: 4801, n: 4800, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4)
+Timer PIPELINE (25) CPU Time 0.50800 Wall Time 0.02263
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.70000 Wall Time 0.08739
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  93) Program: caldgemm Sizes - A: 5761x960 B: 960x5760 C:5761x5760 (Host: asustest02) System Time 0.149 System Gflops 426.864
+#(0  ,  93) GPU Time 0.0000 (63767347200.0000 Gflops)   CPU Time 0.0009 (12.3205 Gflops)   Linpack Time: 0.0885 (2, 0.0000, 0.0277)  Total CPU Time: 0.1494 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 3.3E+07, CPU Wait Time: 0.086
+Timer DGEMM (17) CPU Time 2.93600 Wall Time 0.14841
+Timer UPDATE (14) CPU Time 2.93600 Wall Time 0.14843
+Timer ITERATION (22) CPU Time 2.94000 Wall Time 0.14845
+Iteration j=250080 N=254880 n=4800 jb=960 Totaltime=835.220
+100 % (j = 250080/254880) of factorization at approx. 13901.06 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=3841 k=960 n=3840 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa3ef3e5f00, B=0x7fa37a8d0d00, C=0x7fa3ef3e7d00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 3840 gpu_n 3840 - Split m Favor m - Height 3648 (/ 3648), Min Tiling 48 (192, 192)
+                Slave thread starting cblas (m: 3841, n: 3840, cblas_size: 1 (3648), dynamic: 0/0, cpu_k: 4)
+Timer PIPELINE (25) CPU Time 0.50400 Wall Time 0.02262
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.62400 Wall Time 0.08260
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  94) Program: caldgemm Sizes - A: 4801x960 B: 960x4800 C:4801x4800 (Host: asustest02) System Time 0.148 System Gflops 298.725
+#(0  ,  94) GPU Time 0.0000 (44282880000.0000 Gflops)   CPU Time 0.0008 (12.1913 Gflops)   Linpack Time: 0.0874 (2, 0.0000, 0.0227)  Total CPU Time: 0.1482 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 2.3E+07, CPU Wait Time: 0.088
+Timer DGEMM (17) CPU Time 2.85600 Wall Time 0.14353
+Timer UPDATE (14) CPU Time 2.85600 Wall Time 0.14355
+Timer ITERATION (22) CPU Time 2.85600 Wall Time 0.14358
+Iteration j=251040 N=254880 n=3840 jb=960 Totaltime=835.363
+100 % (j = 251040/254880) of factorization at approx. 13898.62 Gflops, assuming to finish in 0 s.
+Starting DGEMM Run m=2881 k=960 n=2880 Alpha=-1.000000 Beta=1.000000 LDA=0x3e3c8 LDB=0x3e3c8 LDC=0x3e3c8 At=0 Bt=0 ColMajor=1 (A=0x7fa463efed00, B=0x7fa3ef3e9b00, C=0x7fa463f00b00, (C-A=960, (C-B)/w=254920), Linpack=2)
+Ratio 1.000000 - gpu_m 2880 gpu_n 2880 - Split m Favor m - Height 2112 (/ 3648), Min Tiling 48 (768, 768)
+                Slave thread starting cblas (m: 2881, n: 2880, cblas_size: 1 (2112), dynamic: 0/0, cpu_k: 4)
+Timer PIPELINE (25) CPU Time 0.32000 Wall Time 0.01436
+                        Waiting for GPUs to finish initial DGEMM part to start Linpack factorization
+                        Starting Linpack factorization
+Timer RPFACT (11) CPU Time 1.53200 Wall Time 0.07806
+Waiting for previous pipelined DGEMM iteration to finish
+#(0  ,  95) Program: caldgemm Sizes - A: 3841x960 B: 960x3840 C:3841x3840 (Host: asustest02) System Time 0.143 System Gflops 197.691
+#(0  ,  95) GPU Time 0.0000 (28341043200.0000 Gflops)   CPU Time 0.0006 (11.5366 Gflops)   Linpack Time: 0.0826 (2, 0.0000, 0.0226)  Total CPU Time: 0.1434 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 1.5E+07, CPU Wait Time: 0.083
+Timer DGEMM (17) CPU Time 2.16000 Wall Time 0.10844
+Timer UPDATE (14) CPU Time 2.16000 Wall Time 0.10846
+Timer ITERATION (22) CPU Time 2.16000 Wall Time 0.10849
+Iteration j=252000 N=254880 n=2880 jb=960 Totaltime=835.472
+100 % (j = 252000/254880) of factorization at approx. 13896.75 Gflops, assuming to finish in 0 s.
+Timer PIPELINE (25) CPU Time 0.69600 Wall Time 0.01954
+Timer RPFACT (11) CPU Time 2.84000 Wall Time 0.07669
+Timer DGEMM (17) CPU Time 5.00000 Wall Time 0.13541
+Timer UPDATE (14) CPU Time 5.00400 Wall Time 0.13544
+Timer ITERATION (22) CPU Time 5.00400 Wall Time 0.13548
+Iteration j=252960 N=254880 n=1920 jb=960 Totaltime=835.607
+100 % (j = 252960/254880) of factorization at approx. 13894.40 Gflops, assuming to finish in 0 s.
+Timer PIPELINE (25) CPU Time 0.15600 Wall Time 0.00416
+Timer RPFACT (11) CPU Time 1.65200 Wall Time 0.04433
+Timer DGEMM (17) CPU Time 2.04400 Wall Time 0.05492
+Timer UPDATE (14) CPU Time 2.05200 Wall Time 0.05496
+Timer ITERATION (22) CPU Time 2.05200 Wall Time 0.05500
+Iteration j=253920 N=254880 n=960 jb=960 Totaltime=835.662
+100 % (j = 253920/254880) of factorization at approx. 13893.45 Gflops, assuming to finish in 0 s.
+Timer PIPELINE (25) CPU Time 0.02000 Wall Time 0.00035
+Timer DGEMM (17) CPU Time 0.02400 Wall Time 0.00039
+Timer UPDATE (14) CPU Time 0.02400 Wall Time 0.00043
+Timer ITERATION (22) CPU Time 0.02400 Wall Time 0.00046
+#(0  ,  95) Program: caldgemm Sizes - A: 2881x960 B: 960x2880 C:2881x2880 (Host: asustest02) System Time 0.108 System Gflops 147.240
+#(0  ,  95) GPU Time 0.0000 (15941836800.0000 Gflops)   CPU Time 0.0005 (10.9205 Gflops)   Linpack Time: 0.0781 (2, 0.0000, 0.0144)  Total CPU Time: 0.1083 --- GPU Ratio - Real: 1.000 Corrected: 1.000 Guessed: 1.000 , m*n: 8.3E+06, CPU Wait Time: 0.078
+Timer PTRSV (16) CPU Time 63.55200 Wall Time 3.14236
+Timer Unknown (0) CPU Time 12552.74400 Wall Time 797.66501
+================================================================================
+T/V                N    NB     P     Q               Time    CPU          Gflops
+--------------------------------------------------------------------------------
+WC36L2C64      254880   480     1     1             797.67 12552.74       1.384e+04
+--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV-
+Max aggregated wall time rfact . . . :             550.50 10885.14 19.77
+Max aggregated wall time update  . . :             813.63 12801.43 15.73
+Max aggregated wall time pdtrsv  . :               3.14  63.55 20.22
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=        0.0001608 ...... PASSED
+||Ax-b||_oo  . . . . . . . . . . . . . . . . . =       8.313167e+07
+||A||_oo . . . . . . . . . . . . . . . . . . . =       63976.622465
+||A||_1  . . . . . . . . . . . . . . . . . . . =       64322.848820
+||x||_oo . . . . . . . . . . . . . . . . . . . = 285573969506872160.000000
+||x||_1  . . . . . . . . . . . . . . . . . . . = 677351870005468463104.000000
+||b||_oo . . . . . . . . . . . . . . . . . . . =           0.499997
+================================================================================
+
