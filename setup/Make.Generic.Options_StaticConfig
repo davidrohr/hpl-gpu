@@ -15,7 +15,7 @@ HPL_CONFIG_VERBOSE = 3
 HPL_DEFS      += -DHPL_CALDGEMM_BACKEND=opencl
 
 #In case the selected backend is OpenCL, this setting chooses the 3rd party library file that provides the OpenCL kernels.
-HPL_CALBEDEFS += ((caldgemm_opencl::caldgemm_config_backend_opencl*)cal_info.config_backend)->kernelLib=\"amddgemm_hawai.so\";
+HPL_CALBEDEFS += ((caldgemm_opencl::caldgemm_config_backend_opencl*)cal_info.config_backend)->kernelLib=\"amddgemm.so\";
 #NEW# HPL_PARAMDEFS += -Ol amddgemm_hawai.so
 
 #This sets the GPU ratio, i.e. the fraction of the workload performed by the GPU. The following options exist: 1.0: All work performed by GPU, 0.0 <= GPURatio < 1.0: Fixed setting of

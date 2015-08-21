@@ -82,6 +82,7 @@ extern "C"
 extern "C"
 {
 	extern volatile size_t HPL_CALDGEMM_swap_current_n;
+	extern int factorize_first_iteration;
 	extern void HPL_CALDGEMM_wrapper_factorize();
 	extern void HPL_CALDGEMM_wrapper_broadcast();
 	extern void HPL_CALDGEMM_wrapper_swap();
@@ -120,7 +121,7 @@ int HPL_Restrict_Callback_Function(int matrix_n)
 }
 #endif
 
-int CALDGEMM_Init()
+int CALDGEMM_Init(int rank)
 {
 #ifdef HPL_GPU_VERIFY
 	cal_info.Verify = true;
@@ -297,13 +298,15 @@ int CALDGEMM_Init()
 #endif
 
 #ifdef HPL_CALDGEMM_PARAM
+	if (rank == 0) printf("Parsing CALDGEMM Static Command Options: %s\n", str(HPL_CALDGEMM_PARAM));
 	if (cal_dgemm->ParseParameters(str(HPL_CALDGEMM_PARAM), &cal_info)) return(1);
 #endif
 	if (global_runtime_config.paramdefs[0])
 	{
 		caldgemm::caldgemm_config oldConfig = cal_info;
+		if (rank == 0) printf("Parsing CALDGEMM Runtime Command Options: %s\n", global_runtime_config.paramdefs);
 		if (cal_dgemm->ParseParameters(global_runtime_config.paramdefs, &cal_info)) return(1);
-		cal_dgemm->printConfig(&cal_info, &oldConfig);
+		if (rank == 0) cal_dgemm->printConfig(&cal_info, &oldConfig);
 	}
 
 	if (cal_info.PinBroadcastThread == -2)
@@ -412,9 +415,7 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 	{
 		sprintf(PreOutput, "#(%-3d,%4d) ", cal_info.MPIRank, LinpackIteration++);
 
-#ifdef HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
-		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
-#endif
+		CALDGEMM_UpdateParameters();
 
 		if (cal_dgemm->RunCALDGEMM( (double*) A, (double*) B, C, (double) ALPHA, (double) BETA, (int) M, (int) K, (int) N, (int) LDA, (int) LDB, (int) LDC, ORDER == CblasColMajor, TRANSA == CblasTrans, TRANSB == CblasTrans, LinpackCallbacks, pipelined ))
 		{
@@ -437,6 +438,13 @@ void CALDGEMM_dgemm( const HPL_ORDER ORDER, const HPL_TRANS TRANSA,
 			if (cal_info.LinpackNodes > 1) HPL_CALDGEMM_wrapper_broadcast();
 		}
 	}
+}
+
+void CALDGEMM_UpdateParameters()
+{
+#ifdef HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+		HPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM
+#endif
 }
 
 void CALDGEMM_Wait(int n)

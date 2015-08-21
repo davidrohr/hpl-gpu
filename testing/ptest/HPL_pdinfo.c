@@ -1213,7 +1213,7 @@ label_error:
     global_runtime_config.caldgemm_async_fact_dgemm = 0;
 #endif
 #ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
-    global_runtime_config.caldgemm_async_fact_first = HPL_CALDGEMM_ASYNC_FACT_FIRST ;
+    global_runtime_config.caldgemm_async_fact_first = 1;
 #else
     global_runtime_config.caldgemm_async_fact_first = 0;
 #endif
@@ -1417,6 +1417,7 @@ label_error:
 	else
 	{
 		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+		exit(1);
 	}
   }
   free(Buffer);

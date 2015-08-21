@@ -188,7 +188,7 @@ HPLinpack benchmark input file
    fflush(stdout);
    MPI_Barrier(MPI_COMM_WORLD);
 
-   if (CALDGEMM_Init())
+   if (CALDGEMM_Init(rank))
    {
 	printf("Error initializing CALDGEMM, abborting run\n");
 	return(1);
@@ -274,6 +274,11 @@ HPLinpack benchmark input file
    {
       float* cols = malloc(npcol * sizeof(float));
       int nprocs = npcol * nprow;
+      if (nprocs > 1 && global_runtime_config.hpl_nb_multiplier_count)
+      {
+        fprintf(stderr, "HPL_NB_MULTIPLIER is currently only supported in single-node\n");
+        exit(1);
+      }
       for (int i = 0;i < npcol;i++) cols[i] = 1.;
       for (int i = 0;i < nprocs;i++)
       {

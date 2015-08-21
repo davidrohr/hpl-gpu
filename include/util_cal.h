@@ -45,7 +45,7 @@ extern "C"
 #endif
 
 void* CALDGEMM_GetObject();
-int CALDGEMM_Init();
+int CALDGEMM_Init(int rank);
 void CALDGEMM_Shutdown();
 void CALDGEMM_dgemm( const enum CBLAS_ORDER, const enum CBLAS_TRANSPOSE,
                      const enum CBLAS_TRANSPOSE, const int, const int,
@@ -68,6 +68,7 @@ void CALDGEMM_enable_async_laswp(int enable);
 void CALDGEMM_reset();
 void CALDGEMM_Wait(int n);
 void CALDGEMM_Finish();
+void CALDGEMM_UpdateParameters();
 
 #ifdef __cplusplus
 }
