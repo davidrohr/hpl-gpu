@@ -103,6 +103,7 @@ namespace
 #else
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
 		int num_procs = get_num_procs();
+		int num_cores_yet = 0;
 		for (int i = 0;i < num_procs;i++)
 		{
 			if (cal_dgemm->cpuUsed(i)) continue;
@@ -120,16 +121,18 @@ namespace
 			if (found) continue;
 #endif
 			CPU_SET(i, &fullMask);
+			num_cores_yet++;
+#ifdef HPL_NUM_LASWP_CORES
+			if (num_cores_yet >= HPL_NUM_LASWP_CORES) break;
+#endif
 		}
 		num_threads = CPU_COUNT(&fullMask);
-#ifdef CALDGEMM_TEST
 		printf("Using %d threads for LASWP ( ", num_threads);
 		for (int i = 0;i < num_procs;i++)
 		{
 			if (CPU_ISSET(i, &fullMask)) printf("%d ", i);
 		}
 		printf(")\n");
-#endif
 
 #endif
 		sched_setaffinity(0, sizeof(cpu_set_t), &fullMask);

@@ -134,7 +134,7 @@ HPL_DEFS     += -DHPL_NO_MPI_THREAD_CHECK -DHPL_MPI_WRAPPERS -DHPL_NO_MPI_DATATY
 HPL_DEFS     += -DHPL_GPU_PERFORMANCE_WARNINGS -DHPL_PRINT_CONFIG -DHPL_WARMUP
 HPL_DEFS     += -DHPL_GPU_RUNTIME_CONFIG
 HPL_CALDEFS  = cal_info.DeviceNum = -1;cal_info.NumaPinning = true;cal_info.CPUInContext = 0;cal_info.Use3rdPartyTranspose = true;cal_info.GPU_C = 1;cal_info.SimpleGPUQueuing = true;cal_info.AlternateSimpleQueuing = true;cal_info.ImprovedScheduler = true;
-HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;
+HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';cal_info.DstMemory = 'g';cal_info.KeepBuffersMapped = false;cal_info.AsyncSideQueueBalance = 1;
 
 include $(TOPdir)/Make.Generic.Options
 
