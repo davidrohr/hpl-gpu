@@ -192,17 +192,17 @@ START_TRACE( ROLLT )
 	  if (lengthR > 0 && lengthS > 0)
 	  {
 #ifndef HPL_SEND_U_PADDING
-         MPI_Sendrecv_Mod( Mptr( U, 0, ibufS, LDU ), 1, type[I_SEND], partner, Cmsgid, Mptr( U, 0, ibufR, LDU ), 1, type[I_RECV], partner, Cmsgid, comm, NULL );
+         MPI_Sendrecv_Mod( Mptr( U, 0, ibufS, LDU ), 1, type[I_SEND], partner, Cmsgid, Mptr( U, 0, ibufR, LDU ), 1, type[I_RECV], partner, Cmsgid, comm, MPI_STATUS_IGNORE );
 #else
-         MPI_Sendrecv_Mod( Mptr( U, 0, ibufS, LDU ), lengthS*LDU, MPI_DOUBLE, partner, Cmsgid, Mptr( U, 0, ibufR, LDU ), lengthR*LDU, MPI_DOUBLE, partner, Cmsgid, comm, NULL );
+         MPI_Sendrecv_Mod( Mptr( U, 0, ibufS, LDU ), lengthS*LDU, MPI_DOUBLE, partner, Cmsgid, Mptr( U, 0, ibufR, LDU ), lengthR*LDU, MPI_DOUBLE, partner, Cmsgid, comm, MPI_STATUS_IGNORE );
 #endif
 	  }
 	  else if (lengthR > 0)
 	  {
 #ifndef HPL_SEND_U_PADDING
-         MPI_Recv_Mod( Mptr( U, 0, ibufR, LDU ), 1, type[I_RECV], partner, Cmsgid, comm, NULL );
+         MPI_Recv_Mod( Mptr( U, 0, ibufR, LDU ), 1, type[I_RECV], partner, Cmsgid, comm, MPI_STATUS_IGNORE );
 #else
-         MPI_Recv_Mod( Mptr( U, 0, ibufR, LDU ), lengthR*LDU, MPI_DOUBLE, partner, Cmsgid, comm, NULL );
+         MPI_Recv_Mod( Mptr( U, 0, ibufR, LDU ), lengthR*LDU, MPI_DOUBLE, partner, Cmsgid, comm, MPI_STATUS_IGNORE );
 #endif
 	  }
 	  else if (lengthS > 0)
