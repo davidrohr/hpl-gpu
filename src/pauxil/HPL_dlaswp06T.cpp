@@ -83,7 +83,7 @@ class dlaswp06T_impl
                 double *u2 = &u[columns];
                 j = (j - columns) * 0x15;
                 long tmp1;
-#if defined(HPL_HAVE_PREFETCHW) || defined(HPL_LASWP_AVX)
+#ifdef HPL_HAVE_PREFETCHW
 #define HPL_PREFETCHW "prefetchw"
 #else
 #define HPL_PREFETCHW "prefetchnta"
