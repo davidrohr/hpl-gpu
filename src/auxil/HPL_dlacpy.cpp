@@ -77,10 +77,15 @@ inline void dlacpy_worker(const double* __restrict__ A, double* __restrict__ B, 
 		for (size_t i = begin; i < end; i += 8)
 		{
 			//_mm_prefetch( &A_ij[i + LDA], _MM_HINT_NTA);
-			_mm_stream_pd( &B_ij[i], _mm_load_pd( &A_ij[i]));
+#ifdef HPL_LASWP_AVX
+			_mm256_stream_pd( &B_ij[i + 0], _mm256_load_pd( &A_ij[i + 0]));
+			_mm256_stream_pd( &B_ij[i + 4], _mm256_load_pd( &A_ij[i + 4]));
+#else
+			_mm_stream_pd( &B_ij[i + 0], _mm_load_pd( &A_ij[i + 0]));
 			_mm_stream_pd( &B_ij[i + 2], _mm_load_pd( &A_ij[i + 2]));
 			_mm_stream_pd( &B_ij[i + 4], _mm_load_pd( &A_ij[i + 4]));
 			_mm_stream_pd( &B_ij[i + 6], _mm_load_pd( &A_ij[i + 6]));
+#endif
 		}
 	}
 }
