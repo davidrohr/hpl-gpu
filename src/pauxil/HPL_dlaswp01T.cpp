@@ -72,11 +72,34 @@ class dlaswp01T_impl
                     if (LINDXAU[i] >= 0) {
                         const size_t rowUw = LINDXAU[i];
                         double *__restrict__ Uw = &UU[rowUw * LDU];
+                        // from the LINDXAU data I've seen it can be expected that:
+                        // rowUw == LINDXAU[i] => rowUw + 1 == LINDXAU[i + 1]
+#ifdef HPL_LASWP_AVX
+                        __m128d tmp0, tmp1;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_loadh_pd(tmp0, Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_loadh_pd(tmp1, Ar); Ar += LDA;
+                        _mm256_store_pd(&Uw[ 0], _mm256_insertf128_pd(_mm256_castpd128_pd256(tmp0), tmp1, 1));
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_loadh_pd(tmp0, Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_loadh_pd(tmp1, Ar); Ar += LDA;
+                        _mm256_store_pd(&Uw[ 4], _mm256_insertf128_pd(_mm256_castpd128_pd256(tmp0), tmp1, 1));
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_loadh_pd(tmp0, Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_loadh_pd(tmp1, Ar); Ar += LDA;
+                        _mm256_store_pd(&Uw[ 8], _mm256_insertf128_pd(_mm256_castpd128_pd256(tmp0), tmp1, 1));
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp0 = _mm_loadh_pd(tmp0, Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_load1_pd(Ar); Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); tmp1 = _mm_loadh_pd(tmp1, Ar); Ar += LDA;
+                        _mm256_store_pd(&Uw[12], _mm256_insertf128_pd(_mm256_castpd128_pd256(tmp0), tmp1, 1));
+#else
                         _m_prefetchw(Uw + 0);
                         _m_prefetchw(Uw + 8);
                         _m_prefetchw(Uw + 15);
-                        // from the LINDXAU data I've seen it can be expected that:
-                        // rowUw == LINDXAU[i] => rowUw + 1 == LINDXAU[i + 1]
                         _m_prefetchw(Uw + LDU + 0);
                         _m_prefetchw(Uw + LDU + 8);
                         _m_prefetchw(Uw + LDU + 15);
@@ -96,9 +119,28 @@ class dlaswp01T_impl
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[13], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[14], Ar); Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(&Uw[15], Ar);
+#endif
                     } else {
                         const size_t rowAw = -LINDXAU[i];
                         double *__restrict__ Aw = &AA[rowAw];
+#ifdef HPL_LASWP_AVX
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar); Aw += LDA; Ar += LDA;
+                        _mm_prefetch(Ar + ArNext, _MM_HINT_T1); copy(Aw, Ar);
+#else
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
@@ -115,10 +157,11 @@ class dlaswp01T_impl
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar); Aw += LDA; Ar += LDA;
                         _mm_prefetch(Ar + ArNext, _MM_HINT_T1); streamingCopy(Aw, Ar);
+#endif
                     }
                 }
             }
-    	    _mm_mfence();
+            //_mm_mfence();
         }
 };
 #endif /* USE_ORIGINAL_LASWP */
@@ -150,7 +193,11 @@ START_TRACE( DLASWP01T )
                 double *__restrict__ Aw = &A[-LINDXAU[i] + largeN * LDA];
                 for (size_t col = 0; col < smallN; ++col) {
                     _mm_prefetch(Ar + ArNext, _MM_HINT_T0);
+#ifdef HPL_LASWP_AVX
+                    copy(Aw, Ar);
+#else
                     streamingCopy(Aw, Ar);
+#endif
                     Ar += LDA;
                     Aw += LDA;
                 }
@@ -166,14 +213,16 @@ START_TRACE( DLASWP01T )
         } else {
             double *__restrict__ Aw = &A[-LINDXAU[M - 1] + largeN * LDA];
             for (size_t col = 0; col < smallN; ++col) {
+#ifdef HPL_LASWP_AVX
+                copy(Aw, Ar);
+#else
                 streamingCopy(Aw, Ar);
+#endif
                 Ar += LDA;
                 Aw += LDA;
             }
         }
     }
-    _mm_mfence();
-
 #endif
 
 END_TRACE

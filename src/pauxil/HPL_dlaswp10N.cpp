@@ -74,20 +74,30 @@ class dlaswp10N_impl
                     for (size_t j = M; j; j -= 16, a0 += 16, a1 += 16 ) {
                         _m_prefetchw(&a0[32]);
                         _m_prefetchw(&a1[32]);
+#ifdef HPL_LASWP_AVX
+                        swapAVX(&a0[ 0], &a1[ 0]);
+                        swapAVX(&a0[ 4], &a1[ 4]);
+#else
                         swapSSE(a0[ 0], a1[ 0]);
                         swapSSE(a0[ 2], a1[ 2]);
                         swapSSE(a0[ 4], a1[ 4]);
                         swapSSE(a0[ 6], a1[ 6]);
+#endif
                         _m_prefetchw(&a0[40]);
                         _m_prefetchw(&a1[40]);
+#ifdef HPL_LASWP_AVX
+                        swapAVX(&a0[ 8], &a1[ 8]);
+                        swapAVX(&a0[12], &a1[12]);
+#else
                         swapSSE(a0[ 8], a1[ 8]);
                         swapSSE(a0[10], a1[10]);
                         swapSSE(a0[12], a1[12]);
                         swapSSE(a0[14], a1[14]);
+#endif
                     }
                 }
             }
-            _mm_mfence();
+            //_mm_mfence();
         }
 };
 
@@ -131,9 +141,15 @@ const int M = _M;
                 double *__restrict__ a0 = A + (M & ~15) + i * LDA;
                 double *__restrict__ a1 = A + (M & ~15) + ii * LDA;
                 size_t j;
+#ifdef HPL_LASWP_AVX
+                for (j = 0; j < (M & 14); j += 4) {
+                    swapAVX(&a0[j], &a1[j]);
+                }
+#else
                 for (j = 0; j < (M & 14); j += 2) {
                     swapSSE(a0[j], a1[j]);
                 }
+#endif
                 if (M & 1) {
                     swap(a0[j], a1[j]);
                 }
@@ -142,7 +158,7 @@ const int M = _M;
     }
 
     tbb::parallel_for (Range10N(0, M & ~15), dlaswp10N_impl(N, A, LDA, IPIV));
-    _mm_mfence();
+    //_mm_fence();
 #endif
 
 END_TRACE

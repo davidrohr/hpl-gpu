@@ -74,7 +74,7 @@ namespace
                         swap(col[rowIndex], col[otherRow]);
                     }
                 }
-                _mm_mfence();
+                //_mm_mfence();
             }
     };
 }
@@ -144,7 +144,7 @@ START_TRACE( DLASWP00N )
                 );
     }
 #endif
-    _mm_mfence();
+    //_mm_mfence();
 END_TRACE
 #ifdef TRACE_LASWP
    char filename[256];

@@ -151,7 +151,7 @@ class dlaswp06T_impl
                 u = uNext;
                 uNext += LDU;
             }
-            _mm_mfence();
+            //_mm_mfence()
         }
 };
 #endif /* USE_ORIGINAL_LASWP */

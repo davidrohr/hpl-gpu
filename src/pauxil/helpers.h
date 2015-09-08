@@ -42,8 +42,7 @@
 #else
 #define _m_prefetchw(addr) _mm_prefetch(addr, _MM_HINT_NTA)
 #endif
-#include <mmintrin.h>
-#include <emmintrin.h>
+#include <x86intrin.h>
 #include <tbb/tbb_stddef.h>
 
 namespace
@@ -51,7 +50,9 @@ namespace
     static inline void copy(double *__restrict__ dst, const double *__restrict__ src)
     {
         // use general purpose registers:
-        //*dst = *src;
+#ifdef HPL_LASWP_AVX
+        *dst = *src;
+#endif
 
         // use MMX registers:
         //__m64 tmp;
@@ -59,9 +60,11 @@ namespace
         //asm("movq %[tmp], (%[dst])" :: [tmp]"y"(tmp), [dst]"r"(dst));
 
         // use SSE registers:
+#ifndef HPL_LASWP_AVX
         __m128 tmp;
         asm("movq %[src], %[tmp]" : [tmp]"=x"(tmp) : [src]"m"(*src));
         asm("movq %[tmp], %[dst]" :: [tmp]"x"(tmp), [dst]"m"(*dst));
+#endif
     }
 
     static inline void streamingCopy(double *__restrict__ dst, const double *__restrict__ src)
@@ -86,7 +89,7 @@ namespace
 
     template<typename T> static inline void swap(T &__restrict__ a, T &__restrict__ b)
     {
-        register T tmp = a;
+        const T tmp = a;
         a = b;
         b = tmp;
     }
@@ -98,6 +101,16 @@ namespace
         _mm_store_pd(&a, vb);
         _mm_store_pd(&b, va);
     }
+
+#ifdef HPL_LASWP_AVX
+    static inline void swapAVX(double *__restrict__ a, double *__restrict__ b)
+    {
+        const __m256d va = _mm256_load_pd(a);
+        const __m256d vb = _mm256_load_pd(b);
+        _mm256_store_pd(a, vb);
+        _mm256_store_pd(b, va);
+    }
+#endif
 
     template<size_t MultipleOf, size_t Blocksize>
     class MyRange
