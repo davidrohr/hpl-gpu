@@ -37,12 +37,12 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <x86intrin.h>
 #ifdef HPL_HAVE_PREFETCHW
 #include <mm3dnow.h>
 #else
 #define _m_prefetchw(addr) _mm_prefetch(addr, _MM_HINT_NTA)
 #endif
-#include <x86intrin.h>
 #include <tbb/tbb_stddef.h>
 
 namespace
