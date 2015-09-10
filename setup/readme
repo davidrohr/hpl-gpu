@@ -116,7 +116,7 @@
 # -DHPL_GPU_RUNTIME_CONFIG
 #                        Read runtime config file "HPL-GPU.conf" when the run starts. This can be used to set / override compile time settings
 # -DHPL_NUM_LASWP_CORES  Number of CPU cores to use for LASWP
-# -DHPL_LASWP_AVX        Use AVX Swaps instead of SSE
+# -DHPL_LASWP_AVX        Use AVX Swaps instead of SSE (Experimental)
 
 #
 # By default HPL will:

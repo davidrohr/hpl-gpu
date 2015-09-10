@@ -203,10 +203,10 @@ class HPL_dlatcpy_impl2
                             const __m256d tmp1 = _mm256_load_pd( &A_ji[ i2 * LDA + 1 * LDA ] );
                             const __m256d tmp2 = _mm256_load_pd( &A_ji[ i2 * LDA + 2 * LDA ] );
                             const __m256d tmp3 = _mm256_load_pd( &A_ji[ i2 * LDA + 3 * LDA ] );
-							const __m256d __t0 = _mm256_unpacklo_pd(tmp0, tmp1);
-							const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);
-							const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);
-							const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);
+                            const __m256d __t0 = _mm256_unpacklo_pd(tmp0, tmp1);
+                            const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);
+                            const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);
+                            const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);
                             _mm256_stream_pd( &B_ij[ i2           ], _mm256_shuffle_pd(__t0, __t2, _MM_SHUFFLE(5, 4, 1, 0)) );
                             _mm256_stream_pd( &B_ij[ i2 + 1 * LDB ], _mm256_shuffle_pd(__t0, __t2, _MM_SHUFFLE(7, 6, 3, 2)) );
                             _mm256_stream_pd( &B_ij[ i2 + 2 * LDB ], _mm256_shuffle_pd(__t1, __t3, _MM_SHUFFLE(5, 4, 1, 0)) );
