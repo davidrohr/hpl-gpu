@@ -88,6 +88,7 @@ inline void dlacpy_worker(const double* __restrict__ A, double* __restrict__ B, 
 #endif
 		}
 	}
+	_mm_mfence();
 }
 
 class HPL_dlacpy_impl
@@ -193,11 +194,8 @@ Unaligned:
 			streamingCopy( &B[ i + j * LDB ], &A[ i + j * LDA ] );
 		 }
 	  }
+	  _mm_mfence();
    }
-
-   // make sure the streaming stores are visible to subsequent loads
-   // and stores to B
-   _mm_mfence();
 
    END_TRACE
 #ifdef TRACE_LASWP

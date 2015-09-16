@@ -74,7 +74,10 @@ namespace
                         swap(col[rowIndex], col[otherRow]);
                     }
                 }
-                //_mm_mfence();
+#ifndef HPL_LASWP_AVX
+		_mm_mfence();
+#endif
+		
             }
     };
 }
@@ -144,7 +147,6 @@ START_TRACE( DLASWP00N )
                 );
     }
 #endif
-    //_mm_mfence();
 END_TRACE
 #ifdef TRACE_LASWP
    char filename[256];

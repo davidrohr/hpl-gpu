@@ -157,6 +157,7 @@ class HPL_dlatcpy_impl
                    ++A_ji;
                 }
             }
+            _mm_mfence();
         }
 };
 
@@ -199,18 +200,18 @@ class HPL_dlatcpy_impl2
                     {
                         for ( size_t i2 = 0; i2 < 8; i2 += 4 )
                         {
-                            const __m256d tmp0 = _mm256_load_pd( &A_ji[ i2 * LDA ] );
-                            const __m256d tmp1 = _mm256_load_pd( &A_ji[ i2 * LDA + 1 * LDA ] );
-                            const __m256d tmp2 = _mm256_load_pd( &A_ji[ i2 * LDA + 2 * LDA ] );
-                            const __m256d tmp3 = _mm256_load_pd( &A_ji[ i2 * LDA + 3 * LDA ] );
-                            const __m256d __t0 = _mm256_unpacklo_pd(tmp0, tmp1);
-                            const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);
-                            const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);
-                            const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);
-                            _mm256_stream_pd( &B_ij[ i2           ], _mm256_shuffle_pd(__t0, __t2, _MM_SHUFFLE(5, 4, 1, 0)) );
-                            _mm256_stream_pd( &B_ij[ i2 + 1 * LDB ], _mm256_shuffle_pd(__t0, __t2, _MM_SHUFFLE(7, 6, 3, 2)) );
-                            _mm256_stream_pd( &B_ij[ i2 + 2 * LDB ], _mm256_shuffle_pd(__t1, __t3, _MM_SHUFFLE(5, 4, 1, 0)) );
-                            _mm256_stream_pd( &B_ij[ i2 + 3 * LDB ], _mm256_shuffle_pd(__t1, __t3, _MM_SHUFFLE(7, 6, 3, 2)) );
+                            const __m256d tmp0 = _mm256_load_pd( &A_ji[ i2 * LDA ] );              //a0, b0, c0, d0
+                            const __m256d tmp1 = _mm256_load_pd( &A_ji[ i2 * LDA + 1 * LDA ] );    //a1, b1, c1, d1
+                            const __m256d tmp2 = _mm256_load_pd( &A_ji[ i2 * LDA + 2 * LDA ] );    //a2, b2, c2, d2
+                            const __m256d tmp3 = _mm256_load_pd( &A_ji[ i2 * LDA + 3 * LDA ] );    //a3, b3, c3, d3
+                            const __m256d __t0 = _mm256_unpacklo_pd(tmp0, tmp1);                   //a0, a1, c0, c1
+                            const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);                   //b0, b1, d0, d1
+                            const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);                   //a2, a3, c2, c3
+                            const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);                   //b2, b3, d2, d3
+                            _mm256_stream_pd( &B_ij[ i2           ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 0, 0, 2)));
+                            _mm256_stream_pd( &B_ij[ i2 + 1 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 0, 0, 2)));
+                            _mm256_stream_pd( &B_ij[ i2 + 2 * LDB ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 1, 0, 3)));
+                            _mm256_stream_pd( &B_ij[ i2 + 3 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 1, 0, 3)));
                         }
                         B_ij += 4 * LDB;
                         A_ji += 4;
@@ -241,6 +242,7 @@ class HPL_dlatcpy_impl2
                     ++A_ji;
                 }
             }
+            _mm_mfence();
         }
 };
 
@@ -321,11 +323,8 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
             streamingCopy( &B[ i + j * LDB ], &A[ j + i * LDA ] );
          }
       }
+      _mm_mfence();
    }
-
-   // make sure the streaming stores are visible to subsequent loads
-   // and stores to B
-   _mm_mfence();
 
    END_TRACE
 #ifdef TRACE_LASWP

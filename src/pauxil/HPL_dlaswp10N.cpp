@@ -97,7 +97,9 @@ class dlaswp10N_impl
                     }
                 }
             }
-            //_mm_mfence();
+#ifndef HPL_LASWP_AVX
+            _mm_mfence();
+#endif
         }
 };
 
@@ -158,7 +160,6 @@ const int M = _M;
     }
 
     tbb::parallel_for (Range10N(0, M & ~15), dlaswp10N_impl(N, A, LDA, IPIV));
-    //_mm_fence();
 #endif
 
 END_TRACE

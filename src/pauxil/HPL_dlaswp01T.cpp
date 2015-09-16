@@ -161,7 +161,9 @@ class dlaswp01T_impl
                     }
                 }
             }
-            //_mm_mfence();
+#ifndef HPL_LASWP_AVX
+            _mm_mfence();
+#endif
         }
 };
 #endif /* USE_ORIGINAL_LASWP */
