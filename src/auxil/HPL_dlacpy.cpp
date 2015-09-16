@@ -88,7 +88,7 @@ inline void dlacpy_worker(const double* __restrict__ A, double* __restrict__ B, 
 #endif
 		}
 	}
-	_mm_mfence();
+	_mm_sfence();
 }
 
 class HPL_dlacpy_impl
@@ -194,7 +194,7 @@ Unaligned:
 			streamingCopy( &B[ i + j * LDB ], &A[ i + j * LDA ] );
 		 }
 	  }
-	  _mm_mfence();
+	  _mm_sfence();
    }
 
    END_TRACE

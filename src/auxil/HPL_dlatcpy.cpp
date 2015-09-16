@@ -191,7 +191,7 @@ class HPL_dlatcpy_impl
                    ++A_ji;
                 }
             }
-            _mm_mfence();
+            _mm_sfence();
         }
 };
 
@@ -276,7 +276,7 @@ class HPL_dlatcpy_impl2
                     ++A_ji;
                 }
             }
-            _mm_mfence();
+            _mm_sfence();
         }
 };
 
@@ -357,7 +357,7 @@ extern "C" void HPL_dlatcpy(const int _M, const int _N, const double *A, const i
             streamingCopy( &B[ i + j * LDB ], &A[ j + i * LDA ] );
          }
       }
-      _mm_mfence();
+      _mm_sfence();
    }
 
    END_TRACE

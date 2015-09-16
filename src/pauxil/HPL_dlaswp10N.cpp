@@ -98,7 +98,7 @@ class dlaswp10N_impl
                 }
             }
 #ifndef HPL_LASWP_AVX
-            _mm_mfence();
+            _mm_sfence();
 #endif
         }
 };

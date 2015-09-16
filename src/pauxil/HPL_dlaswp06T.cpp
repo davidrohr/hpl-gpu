@@ -152,7 +152,7 @@ class dlaswp06T_impl
                 uNext += LDU;
             }
 #ifndef HPL_LASWP_AVX
-            _mm_mfence();
+            _mm_sfence();
 #endif
         }
 };

@@ -75,7 +75,7 @@ namespace
                     }
                 }
 #ifndef HPL_LASWP_AVX
-		_mm_mfence();
+		_mm_sfence();
 #endif
 		
             }
