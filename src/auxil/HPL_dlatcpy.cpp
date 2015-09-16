@@ -97,7 +97,7 @@ class HPL_dlatcpy_impl
                 {
                     _mm_prefetch( &A_ji[ 8 + 0 * LDA ], _MM_HINT_NTA );
                     _mm_prefetch( &A_ji[ 8 + 1 * LDA ], _MM_HINT_NTA );
-#if 0
+#ifdef HPL_HAVE_PREFETCHW
 #define prefetchw(addr) _m_prefetchw(addr)
 #else
 #define prefetchw(addr) _mm_prefetch(addr, _MM_HINT_NTA )
@@ -118,6 +118,39 @@ class HPL_dlatcpy_impl
                     _mm_prefetch( &A_ji[ 8 + 5 * LDA ], _MM_HINT_T1 );
                     _mm_prefetch( &A_ji[ 8 + 6 * LDA ], _MM_HINT_T1 );
                     _mm_prefetch( &A_ji[ 8 + 7 * LDA ], _MM_HINT_T1 );
+#ifdef HPL_LASWP_AVX
+                        for ( size_t i2 = 0; i2 < 8; i2 += 4 )
+                        {
+                            const __m256d tmp0 = _mm256_load_pd( &A_ji[ i2 * LDA + 0 * LDA] );
+                            const __m256d tmp1 = _mm256_load_pd( &A_ji[ i2 * LDA + 1 * LDA ] );
+                            const __m256d tmp2 = _mm256_load_pd( &A_ji[ i2 * LDA + 2 * LDA ] );
+                            const __m256d tmp3 = _mm256_load_pd( &A_ji[ i2 * LDA + 3 * LDA ] );
+                            const __m256d tmp0a = _mm256_load_pd( &A_ji[ i2 * LDA + 0 * LDA + 4 ] );
+                            const __m256d tmp1a = _mm256_load_pd( &A_ji[ i2 * LDA + 1 * LDA + 4 ] );
+                            const __m256d tmp2a = _mm256_load_pd( &A_ji[ i2 * LDA + 2 * LDA + 4 ] );
+                            const __m256d tmp3a = _mm256_load_pd( &A_ji[ i2 * LDA + 3 * LDA + 4 ] );
+                            _mm_prefetch( &A_ji[ (i2 + 4) * LDA ], _MM_HINT_T0 );
+                            _mm_prefetch( &A_ji[ (i2 + 5) * LDA ], _MM_HINT_T0 );
+                            _mm_prefetch( &A_ji[ (i2 + 6) * LDA ], _MM_HINT_T0 );
+                            _mm_prefetch( &A_ji[ (i2 + 7) * LDA ], _MM_HINT_T0 );
+                            const __m256d __t0 = _mm256_unpacklo_pd(tmp0, tmp1);
+                            const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);
+                            const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);
+                            const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);
+                            const __m256d __t0a = _mm256_unpacklo_pd(tmp0a, tmp1a);
+                            const __m256d __t1a = _mm256_unpackhi_pd(tmp0a, tmp1a);
+                            const __m256d __t2a = _mm256_unpacklo_pd(tmp2a, tmp3a);
+                            const __m256d __t3a = _mm256_unpackhi_pd(tmp2a, tmp3a);
+                            _mm256_store_pd( &B_ij[ i2 + 0 * LDB ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_store_pd( &B_ij[ i2 + 1 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_store_pd( &B_ij[ i2 + 2 * LDB ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 3, 0, 1)));
+                            _mm256_store_pd( &B_ij[ i2 + 3 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 3, 0, 1)));
+                            _mm256_store_pd( &B_ij[ i2 + 4 * LDB ], _mm256_permute2f128_pd(__t0a, __t2a, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_store_pd( &B_ij[ i2 + 5 * LDB ], _mm256_permute2f128_pd(__t1a, __t3a, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_store_pd( &B_ij[ i2 + 6 * LDB ], _mm256_permute2f128_pd(__t0a, __t2a, _MM_SHUFFLE(0, 3, 0, 1)));
+                            _mm256_store_pd( &B_ij[ i2 + 7 * LDB ], _mm256_permute2f128_pd(__t1a, __t3a, _MM_SHUFFLE(0, 3, 0, 1)));
+                        }
+#else
                     for ( size_t i2 = 0; i2 < 8; i2 += 2 )
                     {
                        const __m128d tmp0 = _mm_load_pd( &A_ji[ (i2 + 0) * LDA     ] );
@@ -139,6 +172,7 @@ class HPL_dlatcpy_impl
                        _mm_store_pd( &B_ij[ i2 + 6 * LDB ], _mm_unpacklo_pd( tmp6, tmp7 ) );
                        _mm_store_pd( &B_ij[ i2 + 7 * LDB ], _mm_unpackhi_pd( tmp6, tmp7 ) );
                     }
+#endif
                     B_ij += 8 * LDB;
                     A_ji += 8;
                 }
