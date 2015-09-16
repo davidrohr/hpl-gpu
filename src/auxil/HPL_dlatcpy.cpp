@@ -208,10 +208,10 @@ class HPL_dlatcpy_impl2
                             const __m256d __t1 = _mm256_unpackhi_pd(tmp0, tmp1);                   //b0, b1, d0, d1
                             const __m256d __t2 = _mm256_unpacklo_pd(tmp2, tmp3);                   //a2, a3, c2, c3
                             const __m256d __t3 = _mm256_unpackhi_pd(tmp2, tmp3);                   //b2, b3, d2, d3
-                            _mm256_stream_pd( &B_ij[ i2           ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 0, 0, 2)));
-                            _mm256_stream_pd( &B_ij[ i2 + 1 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 0, 0, 2)));
-                            _mm256_stream_pd( &B_ij[ i2 + 2 * LDB ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 1, 0, 3)));
-                            _mm256_stream_pd( &B_ij[ i2 + 3 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 1, 0, 3)));
+                            _mm256_stream_pd( &B_ij[ i2           ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_stream_pd( &B_ij[ i2 + 1 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 2, 0, 0)));
+                            _mm256_stream_pd( &B_ij[ i2 + 2 * LDB ], _mm256_permute2f128_pd(__t0, __t2, _MM_SHUFFLE(0, 3, 0, 1)));
+                            _mm256_stream_pd( &B_ij[ i2 + 3 * LDB ], _mm256_permute2f128_pd(__t1, __t3, _MM_SHUFFLE(0, 3, 0, 1)));
                         }
                         B_ij += 4 * LDB;
                         A_ji += 4;
