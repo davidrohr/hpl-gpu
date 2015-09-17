@@ -797,7 +797,7 @@ void HPL_pdgesv(HPL_T_grid* GRID, HPL_T_palg* ALGO, HPL_T_pmat* A, int warmup)
 		if (depth1 && j + nb < N)
 		{
 			HPL_pdpanel_free(panel[0]);
-			int depth1nb = HPL_pdgesv_get_nb(A->nb, n);
+			int depth1nb = HPL_pdgesv_get_nb(A->nb, n - nb);
 			HPL_pdpanel_init(GRID, ALGO, n - nb, n - nb + 1, Mmin(n - depth1nb, depth1nb), depth1nb, A, j + nb, j + nb, tag, panel[0]);
 		}
 		
