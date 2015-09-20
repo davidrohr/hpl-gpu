@@ -73,10 +73,10 @@ int runtime_config_info_text_len;
 void get_runtime_array(char* option, int* array, int* count)
 {
 	char* nbptr = option;
-	j = 0;
+	int j = 0;
 	int a = strlen(nbptr);
 	int nbnum = 0;
-	for (i = 0;i <= a;i++)
+	for (int i = 0;i <= a;i++)
 	{
 		if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
 		{
@@ -101,9 +101,9 @@ void get_runtime_array(char* option, int* array, int* count)
 
 void HPL_readruntimeconfig(void)
 {
-	int rank, size;
+	int rank, size, i;
 	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-    MPI_Comm_size( MPI_COMM_WORLD, &size );
+	MPI_Comm_size( MPI_COMM_WORLD, &size );
 
 	if (rank == 0)
 	{
@@ -113,17 +113,16 @@ void HPL_readruntimeconfig(void)
 	}
 
 	global_runtime_config.paramdefs = (char*) malloc(1);
-    global_runtime_config.paramdefs[0] = 0;
+	global_runtime_config.paramdefs[0] = 0;
 #ifdef HPL_MPI_AFFINITY
 	{
 		int tmpcpus[] = HPL_MPI_AFFINITY;
 		global_runtime_config.mpi_affinity_count = sizeof(tmpcpus) / sizeof(tmpcpus[0]);
-		global_runtime_config.mpi_affinity = new int[global_runtime_config.mpi_affinity_count];
-		for (int i = 0;i < global_runtime_config.mpi_affinity_count;i++) global_runtime_config.mpi_affinity[i] = tmpcpus[i];
+		if (global_runtime_config.mpi_affinity_count > HPL_MAX_RUNTIME_CONFIG_ARRAY) global_runtime_config.mpi_affinity_count = HPL_MAX_RUNTIME_CONFIG_ARRAY;
+		for (i = 0;i < global_runtime_config.mpi_affinity_count;i++) global_runtime_config.mpi_affinity[i] = tmpcpus[i];
 	}
 #else
 	global_runtime_config.mpi_affinity_count = 0;
-	global_runtime_config.mpi_affinity = NULL;
 #endif
 #ifdef HPL_FASTINIT
 #ifdef HPL_FASTVERIFY
@@ -138,6 +137,11 @@ void HPL_readruntimeconfig(void)
 	global_runtime_config.warmup = 1;
 #else
 	global_runtime_config.warmup = 0;
+#endif
+#ifdef HPL_NUM_LASWP_CORES
+    global_runtime_config.num_laswp_cores = HPL_NUM_LASWP_CORES;
+#else
+    global_runtime_config.disable_lookahead = 0;
 #endif
 #ifdef HPL_DISABLE_LOOKAHEAD
     global_runtime_config.disable_lookahead = HPL_DISABLE_LOOKAHEAD;
@@ -177,7 +181,7 @@ void HPL_readruntimeconfig(void)
     global_runtime_config.caldgemm_async_fact_dtrsm = 0;
 #endif
     global_runtime_config.hpl_nb_multiplier_count = 0;
-    for (i = 0;i < HPL_NB_MULTIPLIER_MAX;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
+    for (i = 0;i < HPL_MAX_RUNTIME_CONFIG_ARRAY;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
 
     //Read HPL_GPU_CONFIG runtime config file
 #ifdef HPL_GPU_RUNTIME_CONFIG
@@ -187,7 +191,7 @@ void HPL_readruntimeconfig(void)
     FILE* fRuntime = fopen("HPL-GPU.conf", "r");
     if (fRuntime == 0)
     {
-      HPL_fprintf( TEST->outfp, "Error Opening Runtime Config File HPL-GPU.conf!\n");
+      HPL_fprintf( stderr, "Error Opening Runtime Config File HPL-GPU.conf!\n");
       exit(1);
     }
     fseek(fRuntime, 0, SEEK_END);
@@ -198,7 +202,7 @@ void HPL_readruntimeconfig(void)
     fclose(fRuntime);
     if (nread != filesize)
     {
-      HPL_fprintf( TEST->outfp, "Error reading File HPL-GPU.conf!\n");
+      HPL_fprintf( stderr, "Error reading File HPL-GPU.conf!\n");
       exit(1);
     }
     Buffer[filesize] = 0;
@@ -214,6 +218,7 @@ void HPL_readruntimeconfig(void)
   }
 
   char* ptr = Buffer;
+  char* ptr2;
   while (*ptr)
   {
     char *cmd, *option = (char*) "";
@@ -225,9 +230,28 @@ void HPL_readruntimeconfig(void)
 	continue;
     }
     cmd = ptr;
-    while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr) ptr++;
-    char* ptr2 = ptr;
+    while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr)
+    {
+	if (*ptr == '/' && *(ptr + 1) == '/')
+	{
+	    ptr2 = ptr + 2;
+	    option = "";
+	    while (*ptr2 != 10 && *ptr2 != 13 && *ptr2) ptr2++;
+	    goto finishline;
+	}
+	else
+	{
+	    ptr++;
+	}
+    }
+    ptr2 = ptr;
     while (*ptr2 == ' ' || *ptr2 == '	') ptr2++;
+    if (*ptr2 == '/' && *(ptr2 + 1) == '/')
+    {
+	ptr2 += 2;
+	while (*ptr2 != 10 && *ptr2 != 13 && *ptr2) ptr2++;
+	goto finishline;
+    }
     if (*ptr2 == ':')
     {
 	*ptr = 0;
@@ -236,6 +260,13 @@ void HPL_readruntimeconfig(void)
 	option = ptr2 = ptr;
 	while (*ptr2 != 10 && *ptr2 != 13 && *ptr2)
 	{
+	    if (*ptr2 == '/' && *(ptr2 + 1) == '/')
+	    {
+		if (*ptr != '/' && *ptr != 10 && *ptr != 13) ptr++;
+		ptr2 += 2;
+		while (*ptr2 != 10 && *ptr2 != 13 && *ptr2) ptr2++;
+		goto finishline;
+	    }
 	    if (*ptr2 != ' ' && *ptr2 != '	') ptr = ptr2;
 	    ptr2++;
 	}
@@ -243,9 +274,10 @@ void HPL_readruntimeconfig(void)
     }
     else if (*ptr != 10 && *ptr != 13)
     {
-		HPL_fprintf( TEST->outfp, "Error parsing runtime config file\n");
+		HPL_fprintf( stderr, "Error parsing runtime config file\n");
 		exit(1);
     }
+finishline:
     while (*ptr2 == 10 || *ptr2 == 13) ptr2++;
     *ptr = 0;
     ptr = ptr2;
@@ -253,8 +285,8 @@ void HPL_readruntimeconfig(void)
 	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0)
 	{
 		runtime_config_info_text_len += strlen("Runtime Option \"%s\", Parameter \"%s\"\n") + strlen(cmd) + strlen(option[0] ? option : "enabled");
-		runtime_config_info_text = realloc(runtime_config_info_text_len, runtime_config_info_text);
-		sprintf(runtime_config_info_text, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option[0] ? option : "enabled");
+		runtime_config_info_text = realloc(runtime_config_info_text, runtime_config_info_text_len);
+		sprintf(runtime_config_info_text + strlen(runtime_config_info_text), "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option[0] ? option : "enabled");
 	}
 
 	if (strcmp(cmd, "HPL_WARMUP") == 0)
@@ -264,6 +296,10 @@ void HPL_readruntimeconfig(void)
 	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
 	{
 		global_runtime_config.fastrand = option[0] ? atoi(option) : 2;
+	}
+	else if (strcmp(cmd, "HPL_NUM_LASWP_CORES") == 0)
+	{
+		global_runtime_config.num_laswp_cores = atoi(option);
 	}
 	else if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
 	{
@@ -327,7 +363,7 @@ void HPL_readruntimeconfig(void)
 	}
 	else
 	{
-		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+		HPL_fprintf(stderr, "Unknown HPL Runtime option: %s\n", cmd);
 		exit(1);
 	}
   }
@@ -341,6 +377,10 @@ void HPL_readruntimeconfig(void)
 	if ((envPtr = getenv("HPL_FASTRAND")))
 	{
 		global_runtime_config.fastrand = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_NUM_LASWP_CORES")))
+	{
+		global_runtime_config.num_laswp_cores = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_DISABLE_LOOKAHEAD")))
 	{
@@ -1512,7 +1552,7 @@ label_error:
       }
    }
 
-	HPL_fprintf(TEST->outfp, "%s", runtime_config_info_text);
+	fprintf(STD_OUT, "%s", runtime_config_info_text);
 
     if (global_runtime_config.hpl_nb_multiplier_count)
     {

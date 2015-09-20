@@ -144,11 +144,11 @@ int main
 
 	if (global_runtime_config.mpi_affinity_count)
 	{
+		double tmpval;
 		MPI_Bcast(&tmpval, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);	//Some MPI calls such that threads are spawned
-	    MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
 		setUnknownAffinity(global_runtime_config.mpi_affinity_count, global_runtime_config.mpi_affinity);
 	}
-#endif
    setUnknownNames("MPI");
 
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );

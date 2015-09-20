@@ -58,6 +58,7 @@ extern "C" int get_num_procs();
 #include <unistd.h>
 
 #include "../../caldgemm/caldgemm.h"
+#include "util_runtimeconfig.h"
 
 namespace
 {
@@ -122,9 +123,10 @@ namespace
 #endif
 			CPU_SET(i, &fullMask);
 			num_cores_yet++;
-#ifdef HPL_NUM_LASWP_CORES
-			if (num_cores_yet >= HPL_NUM_LASWP_CORES) break;
-#endif
+			if (global_runtime_config.num_laswp_cores)
+			{
+				if (num_cores_yet >= global_runtime_config.num_laswp_cores) break;
+			}
 		}
 		num_threads = CPU_COUNT(&fullMask);
 		printf("Using %d threads for LASWP ( ", num_threads);

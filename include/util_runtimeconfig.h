@@ -47,8 +47,8 @@ extern "C"
 struct runtime_config_options
 {
     char* paramdefs;
-	int mpi_affinity[HPL_MAX_RUNTIME_CONFIG_ARRAY];
-	int mpi_affinity_count;
+    int mpi_affinity[HPL_MAX_RUNTIME_CONFIG_ARRAY];
+    int mpi_affinity_count;
     int warmup;
     int fastrand;
     int disable_lookahead;
@@ -60,6 +60,7 @@ struct runtime_config_options
     int caldgemm_async_dtrsm;
     int caldgemm_async_fact_dtrsm;
     int caldgemm_async_dtrsm_min_nb;
+    int num_laswp_cores;
     int hpl_nb_multiplier_count;
     int hpl_nb_multiplier_threshold[HPL_MAX_RUNTIME_CONFIG_ARRAY];
     int hpl_nb_multiplier_factor[HPL_MAX_RUNTIME_CONFIG_ARRAY];
