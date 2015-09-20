@@ -78,7 +78,7 @@ int main
    char                       * * ARGV
 )
 {
-/* 
+/*
  * Purpose
  * =======
  *
@@ -86,7 +86,7 @@ int main
  * This  program is  driven  by  a short data file named  "HPL.dat".
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -109,7 +109,7 @@ int main
    int                        align, in, inb,
                               inbm, indh, indv, ipfa, ipq, irfa, itop,
                               mycol, myrow, ns, nbs, nbms, ndhs, ndvs,
-                              npcol, npfs, npqs, nprow, nrfs, ntps, 
+                              npcol, npfs, npqs, nprow, nrfs, ntps,
                               rank, size, seed;
    HPL_T_ORDER                pmapping;
    HPL_T_FACT                 rpfa;
@@ -125,7 +125,7 @@ int main
    MPI_Init( &ARGC, &ARGV );
 #else
    int mpiavail = 0;
-   
+
 #define MPI_REQUIRE_THREAD_SAFETY MPI_THREAD_SERIALIZED
 
    setUnknownNames("Unknown - Before Main");
@@ -140,15 +140,14 @@ int main
 	return(1);
    }
 #endif
+	HPL_readruntimeconfig();
 
-#ifdef HPL_MPI_AFFINITY
-   {
-      double tmpval = 0;
-      MPI_Bcast(&tmpval, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);	//Some MPI calls such that threads are spawned
-      MPI_Barrier(MPI_COMM_WORLD);
-      int tmpcpus[] = HPL_MPI_AFFINITY;
-      setUnknownAffinity(sizeof(tmpcpus) / sizeof(tmpcpus[0]), tmpcpus);
-   }
+	if (global_runtime_config.mpi_affinity_count)
+	{
+		MPI_Bcast(&tmpval, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);	//Some MPI calls such that threads are spawned
+	    MPI_Barrier(MPI_COMM_WORLD);
+		setUnknownAffinity(global_runtime_config.mpi_affinity_count, global_runtime_config.mpi_affinity);
+	}
 #endif
    setUnknownNames("MPI");
 
@@ -179,12 +178,12 @@ HPLinpack benchmark input file
 1            # of lookahead options
 1            LOOKAHEADs (enable = 1)
 8            memory alignment in double (> 0)
-100          Seed for the matrix generation 
+100          Seed for the matrix generation
  */
    HPL_pdinfo( &test, &ns, nval, &nbs, nbval, &pmapping, &npqs, pval, qval,
                &npfs, pfaval, &nbms, nbmval, &ndvs, ndvval, &nrfs, rfaval,
                &ntps, topval, &ndhs, ndhval, &align, &seed );
-               
+
    fflush(stdout);
    MPI_Barrier(MPI_COMM_WORLD);
 
@@ -302,7 +301,7 @@ HPLinpack benchmark input file
       {
          fprintfctd(test.outfp, "Process Col %d Performance %f (of %f total)\n", i, cols[i], max_perf);
       }
-      
+
       for (int i = 0;i < npcol;i++) grid.mcols_per_pcol[i] = 0;
       int j = 0;
       int lastcol = -1;
@@ -336,18 +335,18 @@ HPLinpack benchmark input file
          j++;
          j = j % npcol;
       }
-      
+
       for (int i = 0;i < npcol;i++)
       {
          fprintfct(test.outfp, "Process col %d processes %d matrix cols\n", i, grid.mcols_per_pcol[i]);
       }
-      
+
       free(cols);
    }
-   
+
    MPI_Bcast(grid.col_mapping, mcols, MPI_INT, 0, grid.all_comm);
    MPI_Bcast(grid.mcols_per_pcol, npcol, MPI_INT, 0, grid.all_comm);
-			  
+
 
               HPL_pdtest( &test, &grid, &algo, nval[in], nbval[inb], seed );
               free(grid.col_mapping);

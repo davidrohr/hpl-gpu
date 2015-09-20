@@ -37,7 +37,7 @@
 #ifndef UTIL_RUNTIMECONFIG_H
 #define UTIL_RUNTIMECONFIG_H
 
-#define HPL_NB_MULTIPLIER_MAX 8
+#define HPL_MAX_RUNTIME_CONFIG_ARRAY 8
 
 #ifdef __cplusplus
 extern "C"
@@ -47,6 +47,8 @@ extern "C"
 struct runtime_config_options
 {
     char* paramdefs;
+	int mpi_affinity[HPL_MAX_RUNTIME_CONFIG_ARRAY];
+	int mpi_affinity_count;
     int warmup;
     int fastrand;
     int disable_lookahead;
@@ -59,8 +61,8 @@ struct runtime_config_options
     int caldgemm_async_fact_dtrsm;
     int caldgemm_async_dtrsm_min_nb;
     int hpl_nb_multiplier_count;
-    int hpl_nb_multiplier_threshold[HPL_NB_MULTIPLIER_MAX];
-    int hpl_nb_multiplier_factor[HPL_NB_MULTIPLIER_MAX];
+    int hpl_nb_multiplier_threshold[HPL_MAX_RUNTIME_CONFIG_ARRAY];
+    int hpl_nb_multiplier_factor[HPL_MAX_RUNTIME_CONFIG_ARRAY];
 };
 
 extern struct runtime_config_options global_runtime_config;
@@ -70,5 +72,3 @@ extern struct runtime_config_options global_runtime_config;
 #endif
 
 #endif
-
-

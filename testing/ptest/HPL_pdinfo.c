@@ -67,6 +67,344 @@ struct runtime_config_options global_runtime_config;
 extern int max_gpu_nb;
 extern int max_gpu_nb_factor;
 
+char* runtime_config_info_text;
+int runtime_config_info_text_len;
+
+void get_runtime_array(char* option, int* array, int* count)
+{
+	char* nbptr = option;
+	j = 0;
+	int a = strlen(nbptr);
+	int nbnum = 0;
+	for (i = 0;i <= a;i++)
+	{
+		if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
+		{
+			if (i > j)
+			{
+				int tmpval;
+				nbptr[i] = 0;
+				sscanf(&nbptr[j], "%d", &tmpval);
+				j = i + 1;
+				if (nbnum >= (signed) HPL_MAX_RUNTIME_CONFIG_ARRAY)
+				{
+					fprintf(STD_OUT, "Please increase HPL_MAX_RUNTIME_CONFIG_ARRAY\n");
+					break;
+				}
+				array[nbnum] = tmpval;
+				nbnum++;
+			}
+		}
+	}
+	if (count) *count = nbnum;
+}
+
+void HPL_readruntimeconfig(void)
+{
+	int rank, size;
+	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    MPI_Comm_size( MPI_COMM_WORLD, &size );
+
+	if (rank == 0)
+	{
+		runtime_config_info_text = (char*) malloc(1);
+		runtime_config_info_text[0] = 0;
+		runtime_config_info_text_len = 1;
+	}
+
+	global_runtime_config.paramdefs = (char*) malloc(1);
+    global_runtime_config.paramdefs[0] = 0;
+#ifdef HPL_MPI_AFFINITY
+	{
+		int tmpcpus[] = HPL_MPI_AFFINITY;
+		global_runtime_config.mpi_affinity_count = sizeof(tmpcpus) / sizeof(tmpcpus[0]);
+		global_runtime_config.mpi_affinity = new int[global_runtime_config.mpi_affinity_count];
+		for (int i = 0;i < global_runtime_config.mpi_affinity_count;i++) global_runtime_config.mpi_affinity[i] = tmpcpus[i];
+	}
+#else
+	global_runtime_config.mpi_affinity_count = 0;
+	global_runtime_config.mpi_affinity = NULL;
+#endif
+#ifdef HPL_FASTINIT
+#ifdef HPL_FASTVERIFY
+	global_runtime_config.fastrand = 2;
+#else
+	global_runtime_config.fastrand = 1;
+#endif
+#else
+	global_runtime_config.fastrand = 0;
+#endif
+#ifdef HPL_WARMUP
+	global_runtime_config.warmup = 1;
+#else
+	global_runtime_config.warmup = 0;
+#endif
+#ifdef HPL_DISABLE_LOOKAHEAD
+    global_runtime_config.disable_lookahead = HPL_DISABLE_LOOKAHEAD;
+#else
+    global_runtime_config.disable_lookahead = 0;
+#endif
+#ifdef HPL_LOOKAHEAD2_TURNOFF
+    global_runtime_config.lookahead2_turnoff = HPL_LOOKAHEAD2_TURNOFF;
+#else
+    global_runtime_config.lookahead2_turnoff = 0;
+#endif
+    global_runtime_config.lookahead3_turnoff = 0;
+#ifdef HPL_DURATION_FIND_HELPER
+    global_runtime_config.duration_find_helper = 1;
+#else
+    global_runtime_config.duration_find_helper = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
+    global_runtime_config.caldgemm_async_fact_dgemm = HPL_CALDGEMM_ASYNC_FACT_DGEMM;
+#else
+    global_runtime_config.caldgemm_async_fact_dgemm = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
+    global_runtime_config.caldgemm_async_fact_first = 1;
+#else
+    global_runtime_config.caldgemm_async_fact_first = 0;
+#endif
+#ifdef HPL_CALDGEMM_ASYNC_DTRSM
+    global_runtime_config.caldgemm_async_dtrsm = HPL_CALDGEMM_ASYNC_DTRSM;
+#else
+    global_runtime_config.caldgemm_async_dtrsm = 0;
+#endif
+    global_runtime_config.caldgemm_async_dtrsm_min_nb = 0;
+#ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
+    global_runtime_config.caldgemm_async_fact_dtrsm = HPL_CALDGEMM_ASYNC_FACT_DTRSM;
+#else
+    global_runtime_config.caldgemm_async_fact_dtrsm = 0;
+#endif
+    global_runtime_config.hpl_nb_multiplier_count = 0;
+    for (i = 0;i < HPL_NB_MULTIPLIER_MAX;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
+
+    //Read HPL_GPU_CONFIG runtime config file
+#ifdef HPL_GPU_RUNTIME_CONFIG
+  char* Buffer;
+  if ( rank == 0)
+  {
+    FILE* fRuntime = fopen("HPL-GPU.conf", "r");
+    if (fRuntime == 0)
+    {
+      HPL_fprintf( TEST->outfp, "Error Opening Runtime Config File HPL-GPU.conf!\n");
+      exit(1);
+    }
+    fseek(fRuntime, 0, SEEK_END);
+    int filesize = ftell(fRuntime);
+    fseek(fRuntime, 0, SEEK_SET);
+    Buffer = (char*) malloc(filesize + 1);
+    int nread = fread(Buffer, 1, filesize, fRuntime);
+    fclose(fRuntime);
+    if (nread != filesize)
+    {
+      HPL_fprintf( TEST->outfp, "Error reading File HPL-GPU.conf!\n");
+      exit(1);
+    }
+    Buffer[filesize] = 0;
+    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
+    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
+  }
+  else
+  {
+    int filesize;
+    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
+    Buffer = (char*) malloc(filesize + 1);
+    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
+  }
+
+  char* ptr = Buffer;
+  while (*ptr)
+  {
+    char *cmd, *option = (char*) "";
+    while (*ptr == ' ' || *ptr == '	') ptr++;
+    if (*ptr == '#')
+    {
+	while (*ptr != 10 && *ptr != 13 && *ptr) ptr++;
+	while (*ptr == 10 || *ptr == 13) ptr++;
+	continue;
+    }
+    cmd = ptr;
+    while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr) ptr++;
+    char* ptr2 = ptr;
+    while (*ptr2 == ' ' || *ptr2 == '	') ptr2++;
+    if (*ptr2 == ':')
+    {
+	*ptr = 0;
+	ptr = ptr2 + 1;
+	while (*ptr == ' ' || *ptr == '	') ptr++;
+	option = ptr2 = ptr;
+	while (*ptr2 != 10 && *ptr2 != 13 && *ptr2)
+	{
+	    if (*ptr2 != ' ' && *ptr2 != '	') ptr = ptr2;
+	    ptr2++;
+	}
+	if (*ptr && *ptr != 10 && *ptr != 13) ptr++;
+    }
+    else if (*ptr != 10 && *ptr != 13)
+    {
+		HPL_fprintf( TEST->outfp, "Error parsing runtime config file\n");
+		exit(1);
+    }
+    while (*ptr2 == 10 || *ptr2 == 13) ptr2++;
+    *ptr = 0;
+    ptr = ptr2;
+
+	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0)
+	{
+		runtime_config_info_text_len += strlen("Runtime Option \"%s\", Parameter \"%s\"\n") + strlen(cmd) + strlen(option[0] ? option : "enabled");
+		runtime_config_info_text = realloc(runtime_config_info_text_len, runtime_config_info_text);
+		sprintf(runtime_config_info_text, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option[0] ? option : "enabled");
+	}
+
+	if (strcmp(cmd, "HPL_WARMUP") == 0)
+	{
+		global_runtime_config.warmup = option[0] ? atoi(option) : 1;
+	}
+	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
+	{
+		global_runtime_config.fastrand = option[0] ? atoi(option) : 2;
+	}
+	else if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
+	{
+		global_runtime_config.disable_lookahead = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
+	{
+		global_runtime_config.lookahead2_turnoff = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_LOOKAHEAD3_TURNOFF") == 0)
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
+	{
+		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DGEMM") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_dgemm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_FIRST") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_first = option[0] ? atoi(option) : 1;
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
+	{
+		global_runtime_config.caldgemm_async_dtrsm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB") == 0)
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
+	{
+		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
+	}
+	else if (strcmp(cmd, "HPL_NB_MULTIPLIER") == 0)
+	{
+		get_runtime_array(option, global_runtime_config.hpl_nb_multiplier_factor, &global_runtime_config.hpl_nb_multiplier_count);
+	}
+	else if (strcmp(cmd, "HPL_NB_MULTIPLIER_THRESHOLD") == 0)
+	{
+		get_runtime_array(option, global_runtime_config.hpl_nb_multiplier_threshold, NULL);
+	}
+	else if (strcmp(cmd, "HPL_MPI_AFFINITY") == 0)
+	{
+		get_runtime_array(option, global_runtime_config.mpi_affinity, &global_runtime_config.mpi_affinity_count);
+	}
+	else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
+	{
+		int len = strlen(option);
+		if (len)
+		{
+			if (strlen(global_runtime_config.paramdefs)) len++;
+			len += strlen(global_runtime_config.paramdefs);
+			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
+			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
+			strcat(global_runtime_config.paramdefs, option);
+		}
+	}
+	else
+	{
+		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
+		exit(1);
+	}
+  }
+  free(Buffer);
+
+	char* envPtr;
+	if ((envPtr = getenv("HPL_WARMUP")))
+	{
+		global_runtime_config.warmup = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_FASTRAND")))
+	{
+		global_runtime_config.fastrand = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_DISABLE_LOOKAHEAD")))
+	{
+		global_runtime_config.disable_lookahead = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_LOOKAHEAD2_TURNOFF")))
+	{
+		global_runtime_config.lookahead2_turnoff = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_LOOKAHEAD3_TURNOFF")))
+	{
+		global_runtime_config.lookahead3_turnoff = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_DURATION_FIND_HELPER")))
+	{
+		global_runtime_config.duration_find_helper = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DGEMM")))
+	{
+		global_runtime_config.caldgemm_async_fact_dgemm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_FIRST")))
+	{
+		global_runtime_config.caldgemm_async_fact_first = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM")))
+	{
+		global_runtime_config.caldgemm_async_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB")))
+	{
+		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DTRSM")))
+	{
+		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(envPtr);
+	}
+	if ((envPtr = getenv("HPL_NB_MULTIPLIER")))
+	{
+		get_runtime_array(envPtr, global_runtime_config.hpl_nb_multiplier_factor, &global_runtime_config.hpl_nb_multiplier_count);
+	}
+	if ((envPtr = getenv("HPL_NB_MULTIPLIER_THRESHOLD")))
+	{
+		get_runtime_array(envPtr, global_runtime_config.hpl_nb_multiplier_threshold, NULL);
+	}
+	if ((envPtr = getenv("HPL_MPI_AFFINITY")))
+	{
+		get_runtime_array(envPtr, global_runtime_config.mpi_affinity, &global_runtime_config.mpi_affinity_count);
+	}
+	if ((envPtr = getenv("HPL_PARAMDEFS")))
+	{
+		int len = strlen(envPtr);
+		if (len)
+		{
+			if (strlen(global_runtime_config.paramdefs)) len++;
+			len += strlen(global_runtime_config.paramdefs);
+			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
+			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
+			strcat(global_runtime_config.paramdefs, envPtr);
+		}
+	}
+#endif
+}
+
 void HPL_pdinfo
 (
    HPL_T_test *                     TEST,
@@ -94,7 +432,7 @@ void HPL_pdinfo
    int *                            SEED
 )
 {
-/* 
+/*
  * Purpose
  * =======
  *
@@ -227,7 +565,7 @@ void HPL_pdinfo
  *         generation. SEED is greater than zero.
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -242,8 +580,8 @@ void HPL_pdinfo
    char                       output_buffer[16384];
 /* ..
  * .. Executable Statements ..
- * 
- * 
+ *
+ *
  */
    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
    MPI_Comm_size( MPI_COMM_WORLD, &size );
@@ -252,7 +590,7 @@ void HPL_pdinfo
  */
    TEST->outfp = stderr; TEST->epsil = 2.0e-16; TEST->thrsh = 16.0;
    TEST->kfail = TEST->kpass = TEST->kskip = TEST->ktest = 0;
-   
+
    //Read node-performance files
    TEST->node_perf = (float*) malloc(size * sizeof(float));
    float node_perf = 1.;
@@ -260,7 +598,7 @@ void HPL_pdinfo
    {
      char hostname[256];
      gethostname(hostname, 255);
-     
+
      char buffer[256];
      char tmpname[256];
      float tmpperf;
@@ -292,7 +630,7 @@ void HPL_pdinfo
      fclose(infp);
    }
    MPI_Allgather(&node_perf, 1, MPI_FLOAT, TEST->node_perf, 1, MPI_FLOAT, MPI_COMM_WORLD);
-   
+
    if ( rank == 0)
    {
       for (i = 0;i < size;i++)
@@ -300,7 +638,7 @@ void HPL_pdinfo
          fprintfctd( TEST->outfp, "Performance of rank %d: %f\n", i, TEST->node_perf[i]);
       }
    }
-   
+
 /*
  * Process 0 reads the input data, broadcasts to other processes and
  * writes needed information to TEST->outfp.
@@ -311,7 +649,7 @@ void HPL_pdinfo
  * Open file and skip data file header
  */
       if( ( infp = fopen( "HPL.dat", "r" ) ) == NULL )
-      { 
+      {
          HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
                     "cannot open file HPL.dat" );
          error = 1; goto label_error;
@@ -340,7 +678,7 @@ void HPL_pdinfo
  *
  * Problem size (>=0) (N)
  */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp ); 
+      (void) fgets( line, HPL_LINE_MAX - 2, infp );
       (void) sscanf( line, "%s", num ); *NS = atoi( num );
       if( ( *NS < 1 ) || ( *NS > HPL_MAX_PARAM ) )
       {
@@ -380,7 +718,7 @@ void HPL_pdinfo
          (void) sscanf( lineptr, "%s", num ); lineptr += strlen( num ) + 1;
          if( ( NB[ i ] = atoi( num ) ) < 1 )
          {
-            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo", 
+            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
                        "Value of NB less than 1" );
             error = 1; goto label_error;
          }
@@ -669,7 +1007,7 @@ label_error:
 /*
  * Pack information arrays and broadcast
  */
-   lwork = (*NS) + (*NBS) + 2 * (*NPQS) + (*NPFS) + (*NBMS) + 
+   lwork = (*NS) + (*NBS) + 2 * (*NPQS) + (*NPFS) + (*NBMS) +
            (*NDVS) + (*NRFS) + (*NTPS) + (*NDHS);
    iwork = (int *)malloc( (size_t)(lwork) * sizeof( int ) );
    if( rank == 0 )
@@ -1174,325 +1512,20 @@ label_error:
       }
    }
 
-
-    global_runtime_config.paramdefs = (char*) malloc(1);
-    global_runtime_config.paramdefs[0] = 0;
-#ifdef HPL_FASTINIT
-#ifdef HPL_FASTVERIFY
-	global_runtime_config.fastrand = 2;
-#else
-	global_runtime_config.fastrand = 1;
-#endif
-#else
-	global_runtime_config.fastrand = 0;
-#endif
-#ifdef HPL_WARMUP
-	global_runtime_config.warmup = 1;
-#else
-	global_runtime_config.warmup = 0;
-#endif
-#ifdef HPL_DISABLE_LOOKAHEAD
-    global_runtime_config.disable_lookahead = HPL_DISABLE_LOOKAHEAD;
-#else
-    global_runtime_config.disable_lookahead = 0;
-#endif
-#ifdef HPL_LOOKAHEAD2_TURNOFF
-    global_runtime_config.lookahead2_turnoff = HPL_LOOKAHEAD2_TURNOFF;
-#else
-    global_runtime_config.lookahead2_turnoff = 0;
-#endif
-    global_runtime_config.lookahead3_turnoff = 0;
-#ifdef HPL_DURATION_FIND_HELPER 
-    global_runtime_config.duration_find_helper = 1;
-#else
-    global_runtime_config.duration_find_helper = 0;
-#endif
-#ifdef HPL_CALDGEMM_ASYNC_FACT_DGEMM
-    global_runtime_config.caldgemm_async_fact_dgemm = HPL_CALDGEMM_ASYNC_FACT_DGEMM;
-#else
-    global_runtime_config.caldgemm_async_fact_dgemm = 0;
-#endif
-#ifdef HPL_CALDGEMM_ASYNC_FACT_FIRST
-    global_runtime_config.caldgemm_async_fact_first = 1;
-#else
-    global_runtime_config.caldgemm_async_fact_first = 0;
-#endif
-#ifdef HPL_CALDGEMM_ASYNC_DTRSM
-    global_runtime_config.caldgemm_async_dtrsm = HPL_CALDGEMM_ASYNC_DTRSM;
-#else
-    global_runtime_config.caldgemm_async_dtrsm = 0;
-#endif
-    global_runtime_config.caldgemm_async_dtrsm_min_nb = 0;
-#ifdef HPL_CALDGEMM_ASYNC_FACT_DTRSM
-    global_runtime_config.caldgemm_async_fact_dtrsm = HPL_CALDGEMM_ASYNC_FACT_DTRSM;
-#else
-    global_runtime_config.caldgemm_async_fact_dtrsm = 0;
-#endif
-    global_runtime_config.hpl_nb_multiplier_count = 0;
-    for (i = 0;i < HPL_NB_MULTIPLIER_MAX;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
-                                        
-    //Read HPL_GPU_CONFIG runtime config file
-#ifdef HPL_GPU_RUNTIME_CONFIG
-  char* Buffer;
-  if ( rank == 0)
-  {
-    FILE* fRuntime = fopen("HPL-GPU.conf", "r");
-    if (fRuntime == 0)
-    {
-      HPL_fprintf( TEST->outfp, "Error Opening Runtime Config File HPL-GPU.conf!\n");
-      exit(1);
-    }
-    fseek(fRuntime, 0, SEEK_END);
-    int filesize = ftell(fRuntime);
-    fseek(fRuntime, 0, SEEK_SET);
-    Buffer = (char*) malloc(filesize + 1);
-    int nread = fread(Buffer, 1, filesize, fRuntime);
-    fclose(fRuntime);
-    if (nread != filesize)
-    {
-      HPL_fprintf( TEST->outfp, "Error readubg File HPL-GPU.conf!\n");
-      exit(1);
-    }
-    Buffer[filesize] = 0;
-    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
-    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
-  }
-  else
-  {
-    int filesize;
-    HPL_broadcast( (void*) &filesize, 1, HPL_INT, 0, MPI_COMM_WORLD );
-    Buffer = (char*) malloc(filesize + 1);
-    HPL_broadcast( (void*) Buffer, filesize + 1, MPI_BYTE, 0, MPI_COMM_WORLD );
-  }
-  
-  char* ptr = Buffer;
-  while (*ptr)
-  {
-    char *cmd, *option = (char*) "";
-    while (*ptr == ' ' || *ptr == '	') ptr++;
-    if (*ptr == '#')
-    {
-	while (*ptr != 10 && *ptr != 13 && *ptr) ptr++;
-	while (*ptr == 10 || *ptr == 13) ptr++;
-	continue;
-    }
-    cmd = ptr;
-    while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr) ptr++;
-    char* ptr2 = ptr;
-    while (*ptr2 == ' ' || *ptr2 == '	') ptr2++;
-    if (*ptr2 == ':')
-    {
-	*ptr = 0;
-	ptr = ptr2 + 1;
-	while (*ptr == ' ' || *ptr == '	') ptr++;
-	option = ptr2 = ptr;
-	while (*ptr2 != 10 && *ptr2 != 13 && *ptr2)
-	{
-	    if (*ptr2 != ' ' && *ptr2 != '	') ptr = ptr2;
-	    ptr2++;
-	}
-	if (*ptr && *ptr != 10 && *ptr != 13) ptr++;
-    }
-    else if (*ptr != 10 && *ptr != 13)
-    {
-	HPL_fprintf( TEST->outfp, "Error parsing runtime config file\n");
-	exit(1);
-    }
-    while (*ptr2 == 10 || *ptr2 == 13) ptr2++;
-    *ptr = 0;
-    ptr = ptr2;
-
-	if (rank == 0 && strcmp(cmd, "HPL_PARAMDEFS") != 0) HPL_fprintf( TEST->outfp, "Runtime Option \"%s\", Parameter \"%s\"\n", cmd, option[0] ? option : "enabled");
-	if (strcmp(cmd, "HPL_WARMUP") == 0)
-	{
-		global_runtime_config.warmup = option[0] ? atoi(option) : 1;
-	}
-	else if (strcmp(cmd, "HPL_FASTRAND") == 0)
-	{
-		global_runtime_config.fastrand = option[0] ? atoi(option) : 2;
-	}
-	else if (strcmp(cmd, "HPL_DISABLE_LOOKAHEAD") == 0)
-	{
-		global_runtime_config.disable_lookahead = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_LOOKAHEAD2_TURNOFF") == 0)
-	{
-		global_runtime_config.lookahead2_turnoff = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_LOOKAHEAD3_TURNOFF") == 0)
-	{
-		global_runtime_config.lookahead3_turnoff = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_DURATION_FIND_HELPER") == 0)
-	{
-		global_runtime_config.duration_find_helper = option[0] ? atoi(option) : 1;
-	}
-	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DGEMM") == 0)
-	{
-		global_runtime_config.caldgemm_async_fact_dgemm = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_FIRST") == 0)
-	{
-		global_runtime_config.caldgemm_async_fact_first = option[0] ? atoi(option) : 1;
-	}
-	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM") == 0)
-	{
-		global_runtime_config.caldgemm_async_dtrsm = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB") == 0)
-	{
-		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_CALDGEMM_ASYNC_FACT_DTRSM") == 0)
-	{
-		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(option);
-	}
-	else if (strcmp(cmd, "HPL_NB_MULTIPLIER") == 0)
-	{
-		char* nbptr = option;
-		j = 0;
-		int a = strlen(nbptr);
-		int nbnum = 0;
-		for (i = 0;i <= a;i++)
-		{
-			if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
-			{
-				if (i > j)
-				{
-					int tmpval;
-					nbptr[i] = 0;
-					sscanf(&nbptr[j], "%d", &tmpval);
-					j = i + 1;
-					if (nbnum >= (signed) HPL_NB_MULTIPLIER_MAX)
-					{
-						fprintf(STD_OUT, "Please increase HPL_NB_MULTIPLIER_MAX\n");
-						break;
-					}
-					global_runtime_config.hpl_nb_multiplier_factor[nbnum] = tmpval;
-					nbnum++;
-				}
-			}
-		}
-		global_runtime_config.hpl_nb_multiplier_count = nbnum;
-	}
-	else if (strcmp(cmd, "HPL_NB_MULTIPLIER_THRESHOLD") == 0)
-	{
-		char* nbptr = option;
-		j = 0;
-		int a = strlen(nbptr);
-		int nbnum = 0;
-		for (i = 0;i <= a;i++)
-		{
-			if (nbptr[i] == ',' || nbptr[i] == ';' || nbptr[i] == 0)
-			{
-				if (i > j)
-				{
-					int tmpval;
-					nbptr[i] = 0;
-					sscanf(&nbptr[j], "%d", &tmpval);
-					j = i + 1;
-					if (nbnum >= (signed) HPL_NB_MULTIPLIER_MAX)
-					{
-						fprintf(STD_OUT, "Please increase HPL_NB_MULTIPLIER_MAX\n");
-						break;
-					}
-					global_runtime_config.hpl_nb_multiplier_threshold[nbnum] = tmpval;
-					nbnum++;
-				}
-			}
-		}
-	}
-	else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
-	{
-		int len = strlen(option);
-		if (len)
-		{
-			if (strlen(global_runtime_config.paramdefs)) len++;
-			len += strlen(global_runtime_config.paramdefs);
-			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
-			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
-			strcat(global_runtime_config.paramdefs, option);
-		}
-	}
-	else
-	{
-		HPL_fprintf(TEST->outfp, "Unknown HPL Runtime option: %s\n", cmd);
-		exit(1);
-	}
-  }
-  free(Buffer);
-
-	char* envPtr;
-	if ((envPtr = getenv("HPL_WARMUP")))
-	{
-		global_runtime_config.warmup = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_FASTRAND")))
-	{
-		global_runtime_config.fastrand = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_DISABLE_LOOKAHEAD")))
-	{
-		global_runtime_config.disable_lookahead = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_LOOKAHEAD2_TURNOFF")))
-	{
-		global_runtime_config.lookahead2_turnoff = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_LOOKAHEAD3_TURNOFF")))
-	{
-		global_runtime_config.lookahead3_turnoff = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_DURATION_FIND_HELPER")))
-	{
-		global_runtime_config.duration_find_helper = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DGEMM")))
-	{
-		global_runtime_config.caldgemm_async_fact_dgemm = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_FIRST")))
-	{
-		global_runtime_config.caldgemm_async_fact_first = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM")))
-	{
-		global_runtime_config.caldgemm_async_dtrsm = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_DTRSM_MIN_NB")))
-	{
-		global_runtime_config.caldgemm_async_dtrsm_min_nb = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_CALDGEMM_ASYNC_FACT_DTRSM")))
-	{
-		global_runtime_config.caldgemm_async_fact_dtrsm = atoi(envPtr);
-	}
-	if ((envPtr = getenv("HPL_PARAMDEFS")))
-	{
-		int len = strlen(envPtr);
-		if (len)
-		{
-			if (strlen(global_runtime_config.paramdefs)) len++;
-			len += strlen(global_runtime_config.paramdefs);
-			global_runtime_config.paramdefs = (char*) realloc(global_runtime_config.paramdefs, len + 1);
-			if (strlen(global_runtime_config.paramdefs)) strcat(global_runtime_config.paramdefs, " ");
-			strcat(global_runtime_config.paramdefs, envPtr);
-		}
-	}
-#endif
+	HPL_fprintf(TEST->outfp, "%s", runtime_config_info_text);
 
     if (global_runtime_config.hpl_nb_multiplier_count)
     {
-        max_gpu_nb_factor = 1;
-	printf("NB Multipliers:");
-	for (i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
-	{
-		printf(" %d/%d", global_runtime_config.hpl_nb_multiplier_threshold[i], global_runtime_config.hpl_nb_multiplier_factor[i]);
-		if (global_runtime_config.hpl_nb_multiplier_factor[i] > max_gpu_nb_factor) max_gpu_nb_factor = global_runtime_config.hpl_nb_multiplier_factor[i];
-	}
-	max_gpu_nb *= max_gpu_nb_factor;
-	
-	printf(" MaxNB: %d\n", max_gpu_nb);
+	    max_gpu_nb_factor = 1;
+		printf("NB Multipliers:");
+		for (i = 0;i < global_runtime_config.hpl_nb_multiplier_count;i++)
+		{
+			printf(" %d/%d", global_runtime_config.hpl_nb_multiplier_threshold[i], global_runtime_config.hpl_nb_multiplier_factor[i]);
+			if (global_runtime_config.hpl_nb_multiplier_factor[i] > max_gpu_nb_factor) max_gpu_nb_factor = global_runtime_config.hpl_nb_multiplier_factor[i];
+		}
+		max_gpu_nb *= max_gpu_nb_factor;
+
+		printf(" MaxNB: %d\n", max_gpu_nb);
     }
 /*
  * End of HPL_pdinfo
