@@ -49,6 +49,7 @@ struct runtime_config_options
     char* paramdefs;
     int mpi_affinity[HPL_MAX_RUNTIME_CONFIG_ARRAY];
     int mpi_affinity_count;
+    int interleave_memory;
     int warmup;
     int fastrand;
     int disable_lookahead;

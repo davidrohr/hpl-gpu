@@ -258,12 +258,15 @@ int CALDGEMM_Init(int rank)
 	//cal_info.DynamicSched = false;
 	//cal_info.DumpMatrix = false;
 
-#ifdef HPL_INTERLEAVE_MEMORY
-	cal_info.MemPolicy = true;
-#else
-	cal_info.MemPolicy = false;
-#endif
-
+	if (global_runtime_config.interleave_memory == 1)
+	{
+		cal_info.MemPolicy = true;
+	}
+	else
+	{
+		cal_info.MemPolicy = false;
+	}
+	
 #ifdef HPL_GPU_PERFORMANCE_WARNINGS
 	cal_info.NoPerformanceWarnings = false;
 #else

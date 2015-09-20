@@ -207,11 +207,15 @@ void HPL_pdtest
  * Allocate dynamic memory
  */
    /*vptr = (void*)malloc( ( (size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq) ) * sizeof(double) );*/
-#ifdef HPL_INTERLEAVE_C
-   int interleave = 1;
-#else
-   int interleave = 0;
-#endif
+   int interleave;
+   if (global_runtime_config.interleave_memory == 2)
+   {
+	interleave = 1;
+   }
+   else
+   {
+	interleave = 0;
+   }
    size_t matrix_size = ((size_t)(ALGO->align) + (size_t)(mat.ld+1) * (size_t)(mat.nq));
    size_t matrix_bytes = matrix_size * sizeof(double);
 #ifdef HPL_ALLOC_LIST

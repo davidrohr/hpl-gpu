@@ -180,6 +180,13 @@ void HPL_readruntimeconfig(void)
 #else
     global_runtime_config.caldgemm_async_fact_dtrsm = 0;
 #endif
+#if defined(HPL_INTERLEAVE_C)
+    global_runtime_config.interleave_memory = 2;
+#elif defined(HPL_INTERLEAVE_MEMORY)
+    global_runtime_config.interleave_memory = 1;
+#else
+    global_runtime_config.interleave_memory = 0;
+#endif
     global_runtime_config.hpl_nb_multiplier_count = 0;
     for (i = 0;i < HPL_MAX_RUNTIME_CONFIG_ARRAY;i++) global_runtime_config.hpl_nb_multiplier_factor[i] = 1;
 
@@ -225,10 +232,66 @@ void HPL_readruntimeconfig(void)
     while (*ptr == ' ' || *ptr == '	') ptr++;
     if (*ptr == '#')
     {
+	goto matchskip;
+    }
+    
+    if (*ptr == '!')
+    {
+	ptr++;
+	char match = *ptr;
+	if (!match)
+	{
+		goto matchfail;
+	}
+	ptr++;
+	ptr2 = ptr;
+	while (*ptr != ' ' && *ptr != '	' && *ptr && *ptr != 10 && *ptr != 13) ptr++;
+	if (*ptr != ' ' && *ptr != '	')
+	{
+		goto matchfail;
+	}
+	*ptr = 0;
+	ptr++;
+	while (*ptr == ' ' || *ptr == '	') ptr++;
+	if (match == 'N')
+	{
+		char hostname[256];
+		gethostname(hostname, 255);
+		if (strcmp(ptr2, hostname) != 0) goto matchskip;
+	}
+	else if (match == '#')
+	{
+		if (atoi(ptr2) != rank) goto matchskip;
+	}
+	else if (match == '%')
+	{
+		char* ptr3 = ptr2;
+		while (*ptr3 != ',' && *ptr3 != 0) ptr3++;
+		if (*ptr3 != ',')
+		{
+			goto matchfail;
+		}
+		*ptr3 = 0;
+		ptr3++;
+		if (rank % atoi(ptr2) != atoi(ptr3)) goto matchskip;
+	}
+	else
+	{
+		goto matchfail;
+	}
+	goto matchok;
+	
+matchfail:
+	fprintf(stderr, "Invalid HPL-GPU.conf while matching node\n");
+	exit(1);
+	
+matchskip:
 	while (*ptr != 10 && *ptr != 13 && *ptr) ptr++;
 	while (*ptr == 10 || *ptr == 13) ptr++;
 	continue;
     }
+matchok:
+    
     cmd = ptr;
     while (*ptr != ' ' && *ptr != '	' && *ptr != ':' && *ptr != 10 && *ptr != 13 && *ptr)
     {
@@ -349,6 +412,10 @@ finishline:
 	{
 		get_runtime_array(option, global_runtime_config.mpi_affinity, &global_runtime_config.mpi_affinity_count);
 	}
+	else if (strcmp(cmd, "HPL_INTERLEAVE_MEMORY") == 0)
+	{
+		global_runtime_config.interleave_memory = atoi(option);
+	}
 	else if (strcmp(cmd, "HPL_PARAMDEFS") == 0)
 	{
 		int len = strlen(option);
@@ -429,6 +496,10 @@ finishline:
 	if ((envPtr = getenv("HPL_MPI_AFFINITY")))
 	{
 		get_runtime_array(envPtr, global_runtime_config.mpi_affinity, &global_runtime_config.mpi_affinity_count);
+	}
+	if ((envPtr = getenv("HPL_INTERLEAVE_MEMORY")))
+	{
+		global_runtime_config.interleave_memory = atoi(envPtr);
 	}
 	if ((envPtr = getenv("HPL_PARAMDEFS")))
 	{
