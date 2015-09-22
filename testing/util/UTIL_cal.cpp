@@ -314,12 +314,14 @@ int CALDGEMM_Init(int rank)
 
 	if (cal_info.PinBroadcastThread == -2)
 	{
-#ifdef HPL_MPI_AFFINITY
-		const int mpi_affinity[] = HPL_MPI_AFFINITY;
-		cal_info.PinBroadcastThread = mpi_affinity[0];
-#else
-		cal_info.PinBroadcastThread = -1;
-#endif
+		if (global_runtime_config.mpi_affinity_count)
+		{
+			cal_info.PinBroadcastThread = global_runtime_config.mpi_affinity[0];
+		}
+		else
+		{
+			cal_info.PinBroadcastThread = -1;
+		}
 	}
 
 	int retVal = cal_dgemm->InitCALDGEMM(&cal_info);
