@@ -1598,6 +1598,15 @@ label_error:
       fprintf( TEST->outfp, "%s", output_buffer );
         }
 #endif
+#ifdef HPL_PRINT_GIT_STATUS
+      fprintf( TEST->outfp, "\nHPL Version: %s\nCALDGEMM Version: %s\nBuild time: %s",
+#include "hpl_git_status.tmp"
+,
+#include "caldgemm_git_status.tmp"
+,
+#include "date.tmp"
+);
+#endif
 
       HPL_fprintf( TEST->outfp, "\n\n" );
 /*

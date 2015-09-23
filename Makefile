@@ -54,7 +54,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ======================================================================
 #
-SHELL            = /bin/sh
+SHELL            = /bin/bash
 #
 arch             ?= UNKNOWN
 #

@@ -117,6 +117,7 @@
 #                        Read runtime config file "HPL-GPU.conf" when the run starts. This can be used to set / override compile time settings
 # -DHPL_NUM_LASWP_CORES  Number of CPU cores to use for LASWP
 # -DHPL_LASWP_AVX        Use AVX Swaps instead of SSE (Experimental)
+# -DHPL_PRINT_GIT_STATUS Print status of hpl and caldgemm git repo during build as well as build time at start of run
 
 #
 # By default HPL will:
