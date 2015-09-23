@@ -61,6 +61,10 @@
 #include "hpl.h"
 #include "util_trace.h"
 #include "util_cal.h"
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#define _GNU_SOURCE
 #include <sched.h>
 #ifdef HPL_GPU_TEMPERATURE_THRESHOLD
 #include "../../caldgemm/cmodules/util_adl.h"
