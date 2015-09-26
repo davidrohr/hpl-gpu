@@ -103,7 +103,6 @@ dexe.grd: $(HPL_pteobj) $(HPLlib)
 #
 
 ifeq ("$(call isenabled,-DHPL_PRINT_GIT_STATUS)", "yes")
-.FORCE:
 ../hpl_git_status.tmp ../caldgemm_git_status.tmp ../date.tmp:
 	echo \"`git status | head -n 1` - `git log --pretty=format:'%H' -n 1` `git status | grep nothing\ to\ commit`\" > ../hpl_git_status.tmp && \
 	export HPLDIR=`pwd` && cd ../../../caldgemm && echo \"`git status | head -n 1` - `git log --pretty=format:'%H' -n 1` `git status | grep nothing\ to\ commit`\" > $$HPLDIR/../caldgemm_git_status.tmp
@@ -112,6 +111,8 @@ ifeq ("$(call isenabled,-DHPL_PRINT_GIT_STATUS)", "yes")
 HPL_pdinfo.o: ../hpl_git_status.tmp ../caldgemm_git_status.tmp ../date.tmp
 
 endif
+
+.FORCE:
 
 HPL_pddriver.o         : ../HPL_pddriver.c         $(INCdep)
 	$(CC) -o $@ -c $(CCFLAGS)  ../HPL_pddriver.c
