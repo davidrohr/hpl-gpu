@@ -163,6 +163,10 @@ else ifeq ($(HPL_CALDGEMM_BACKEND), cuda)
 LAinc        += -isystem $(CUDA_PATH)/include
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cu/caldgemm_cuda.o
 HPL_LIBS     += -L$(CUDA_PATH)/lib64 -lcudart
+ifeq ($(INCLUDE_CUBLAS), 1)
+HPL_DEFS += -DCALDGEMM_CUDA_CUBLAS
+HPL_LIBS += -lcublas
+endif
 else ifeq ($(HPL_CALDGEMM_BACKEND), cal)
 LAinc        += -isystem $(AMDAPPSDKROOT)/include/CAL
 CALDGEMMlib  += $(CALDGEMMdir)/release/x86_64-pc-linux-gnu_64EXECUTABLE_dgemm_bench/cpp/caldgemm_cal.o
