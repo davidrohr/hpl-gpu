@@ -138,6 +138,7 @@ HPL_CALDEFS  += cal_info.ImprovedSchedulerBalance = 2;cal_info.DstMemory = 'g';c
 
 include $(TOPdir)/Make.Generic.Options
 
+CALDGEMM_MAKE_DIR_PRE=$(CALDGEMMdir)/
 include $(CALDGEMMdir)/config_options_load.mak
 
 HPL_DEFS      += -DHPL_CALDGEMM_BACKEND=$(HPL_CALDGEMM_BACKEND)
