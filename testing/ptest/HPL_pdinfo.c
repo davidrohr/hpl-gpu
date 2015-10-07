@@ -1632,7 +1632,10 @@ label_error:
       }
    }
 
+   if (rank == 0)
+   {
 	fprintf(STD_OUT, "%s", runtime_config_info_text);
+   }
 
     if (global_runtime_config.hpl_nb_multiplier_count)
     {
