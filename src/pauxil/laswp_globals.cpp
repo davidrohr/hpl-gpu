@@ -121,7 +121,7 @@ namespace
 			}
 			if (found) continue;
 #endif
-			CPU_SET(i, &fullMask);
+			CPU_SET(i + cal_dgemm->GetConfig()->CPUCoreOffset, &fullMask);
 			num_cores_yet++;
 			if (global_runtime_config.num_laswp_cores)
 			{
