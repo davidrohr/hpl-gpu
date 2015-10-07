@@ -1,5 +1,5 @@
 /* *  -- High Performance Computing Linpack Benchmark (HPL-GPU)
- *     HPL-GPU - 1.1 - 2011
+ *     HPL-GPU - 2.0 - 2015
  *
  *     David Rohr
  *     Matthias Kretz

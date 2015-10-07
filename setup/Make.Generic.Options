@@ -1,5 +1,5 @@
 #############################################################################################################
-#HPL-GPU 1.2 Options File for generic configuration
+#HPL-GPU 2.0 Options File for generic configuration
 #This file lists all mandatory options at the top, and optional tuning options in the end.
 #Some options can be configured via the traditional -DHPL... interface and with the new HPL_PARAMDEFS
 #interface. In this case, both variants are provided for reference, the new interface outcommented as "#NEW#"

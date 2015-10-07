@@ -1,6 +1,6 @@
 ==============================================================
  High Performance Computing Linpack Benchmark (HPL-GPU)
- HPL-GPU - 1.2 - 2015
+ HPL-GPU - 2.0 - 2015
 ==============================================================
 
  This is a largely rewritten version of the traditional High
@@ -9,14 +9,14 @@
  lookahead and a high performance DGEMM for AMD GPUs. It can
  use AMD CAL, OpenCL, and CUDA as GPU backend.
 
- See http://code.compeng.uni-frankfurt.de/projects/hpl for 
- detailed and up to date informaion.
+ See https://github.com/davidrohr/hpl-gpu/wiki for  detailed
+ and up to date informaion.
 
 
  Installation
  ------------
  This software requires the CALDGEMM library available from
- http://code.compeng.uni-frankfurt.de/projects/caldgemm
+ https://github.com/davidrohr/caldgemm
  HPL-GPU assumes a link to caldgemm inside its top directory
  and this link must be called caldgemm.
  CALDGEMM provides backends for CAL, OPENCL, CUDA, CPU.
@@ -77,13 +77,16 @@
  Newest Version
  --------------
  The newest version of HPL-GPU is available at
- http://code.compeng.uni-frankfurt.de/projects/hpl
+ https://github.com/davidrohr/hpl-gpu
 
 
  Information
  -----------
  See the wiki at
- http://code.compeng.uni-frankfurt.de/projects/hpl/wiki
+ https://github.com/davidrohr/hpl-gpu/wiki
+
+ Join us in ##caldgemm on freenode IRC our use the CALDGEMM
+ mailing list if you have questions.
 
 
  License
@@ -95,6 +98,6 @@
  Bugs
  ----
  Are tracked at
- http://code.compeng.uni-frankfurt.de/projects/hpl/issues
+ https://github.com/davidrohr/hpl-gpu/issues
 
 =============================================================
