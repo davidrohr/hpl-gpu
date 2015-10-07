@@ -32,8 +32,6 @@ HPL_AGGRESSIVE_OPTIMIZATION = 1
 #HPL_DEFS     += -DHPL_CPUFREQ
 
 #These settings cal alter certain parameters during runtime. The first setting is insider HPL, the second for CALDGEMM parameters. The example alters the CPU frequency over time and disables some GPUs towards the end for better efficiency.
-#HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE="if (j == startrow) setcpufreq(3000000, 3000000);"
-#HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="cal_dgemm->SetNumberDevices(global_m_remain < 25000 ? 1 : (global_m_remain < 35000 ? 2 : (global_m_remain < 50000 ? 3 : 4)));if (curcpufreq >= 2200000 && global_m_remain > 100000) setcpufreq(2200000, 1200000); else if (global_m_remain < 50000 && global_m_remain >= 50000 - K) setcpufreq(2700000, 1200000); else if (global_m_remain < 70000 && global_m_remain >= 70000 - K) setcpufreq(2400000, 2400000); else if (global_m_remain < 85000 && global_m_remain >= 85000 - K) setcpufreq(2200000, 2200000); else if (global_m_remain < 95000 && global_m_remain >= 95000 - K) setcpufreq(2000000, 2000000);"
 HPL_DEFS      += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 125000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 155000) {cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} if (global_m_remain < 35000) cal_dgemm->SetNumberDevices(4); else cal_dgemm->SetNumberDevices(8); if (global_m_remain > 50000) cal_info.PipelinedMidMarker = 25000; else cal_info.PipelinedMidMarker = global_m_remain / 2 + 1000;"
 
 #As above, but this time we modify some factorization parameters over time. (Relevant for older AMD processors)
