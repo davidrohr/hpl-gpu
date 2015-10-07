@@ -1,0 +1,15 @@
+#Define relative performance per node
+#Relative performance must be between 0.01 and 1.0
+#e.g.
+#localhost 0.5
+#fasthost 1.0
+#
+#Can also identify an MPIrank by /rank
+#e.g.
+#/0 0.5
+#/1 1.0
+#
+#The first match is used
+#
+#Each process columns is assigned the performance of the slowest node belonging to it.
+#Thus, it is suggested to order the nodes by performance and use colmajor process ordering.

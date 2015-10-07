@@ -1,0 +1,27 @@
+HPLinpack benchmark input file
+Innovative Computing Laboratory, University of Tennessee and Frankfurt Institute for Advanced Studies
+HPL.out      output file name (if any)
+6            device out (6=stdout,7=stderr,file)
+1            # of problems sizes (N)
+120000 252000       Ns
+1            # of NBs
+2400         NBs
+1            PMAP process mapping (0=Row-,1=Column-major)
+1            # of process grids (P x Q)
+2            Ps
+1            Qs
+0.1          threshold
+1            # of panel fact
+1            PFACTs (0=left, 1=Crout, 2=Right)
+1            # of recursive stopping criterium
+64           NBMINs (>= 1)
+1            # of panels in recursion
+2            NDIVs
+1            # of recursive panel fact.
+0            RFACTs (0=left, 1=Crout, 2=Right)
+1            # of broadcast
+6            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM,6=MPI)
+1            # of lookahead options
+0            LOOKAHEADs (enable = 1)
+8            memory alignment in double (> 0)
+100          Seed for the matrix generation
