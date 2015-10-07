@@ -3,9 +3,9 @@ Innovative Computing Laboratory, University of Tennessee and Frankfurt Institute
 HPL.out      output file name (if any)
 6            device out (6=stdout,7=stderr,file)
 1            # of problems sizes (N)
-254880 230400        Ns
+254880       Ns
 1            # of NBs
-480         NBs
+480          NBs
 1            PMAP process mapping (0=Row-,1=Column-major)
 1            # of process grids (P x Q)
 1            Ps
