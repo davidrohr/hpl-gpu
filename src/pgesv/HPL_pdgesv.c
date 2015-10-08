@@ -71,13 +71,19 @@
 #include <cpufreq.h>
 
 int curcpufreq = 0;
-void setcpufreq(int freq, int dgemmfreq)
+void setcpufreq(int freq, int dgemmfreq = 0)
 {
 	if (freq == curcpufreq) return;
+	if (dgemmfreq == 0) dgemmfreq = freq;
 	//printf("Setting CPU Frequency %d (%d)\n", freq, dgemmfreq);
 	int i;
 	for (i = 0;i < 20;i++)
 	{
+#ifdef HPL_GPU_PIN_MAIN
+		if (i == HPL_GPU_PIN_MAIN)
+			cpufreq_modify_policy_max(i, dgemmfreq);
+		else
+#else
 		cpufreq_modify_policy_max(i, i == HPL_GPU_PIN_MAIN ? dgemmfreq : freq);
 	}
 	curcpufreq = freq;

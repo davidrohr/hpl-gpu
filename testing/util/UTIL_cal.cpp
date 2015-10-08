@@ -65,7 +65,7 @@ extern "C"
 	
 #ifdef HPL_CPUFREQ
 	extern int curcpufreq;
-	void setcpufreq(int freq, int dgemmfreq);
+	void setcpufreq(int freq, int dgemmfreq = 0);
 #endif
 }
 #include <pthread.h>
