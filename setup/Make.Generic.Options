@@ -32,7 +32,7 @@ HPL_USE_LTO   = 1
 HPL_DEFS      += -DHPL_LASWP_AVX 
 
 #This setting links HPL to libcpufreq, allowing to change CPU frequencies during runtime. This can be used to obtain better efficiency.
-#HPL_DEFS     += -DHPL_CPUFREQ
+#HPL_DEFS     += -DHPL_CPUPOWER
 
 #These settings cal alter certain parameters during runtime. The first setting is insider HPL, the second for CALDGEMM parameters. The example alters the CPU frequency over time and disables some GPUs towards the end for better efficiency.
 #HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE="if (j == startrow) setcpufreq(3000000, 3000000);"

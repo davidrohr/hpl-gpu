@@ -63,7 +63,7 @@ extern "C"
 	extern int global_m_remain;
 	extern int HPL_CALDGEMM_gpu_height;
 	
-#ifdef HPL_CPUFREQ
+#if defined(HPL_CPUFREQ) | defined(HPL_CPUPOWER)
 	extern int curcpufreq;
 	void setcpufreq(int freq, int dgemmfreq = 0);
 #endif

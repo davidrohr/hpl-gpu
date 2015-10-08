@@ -264,5 +264,8 @@ LAlib += $(CALDGEMMlib)
 ifeq ("$(call isenabled,-DHPL_CPUFREQ)", "yes")
 HPL_LIBS += -lcpufreq
 endif
+ifeq ("$(call isenabled,-DHPL_CPUPOWER)", "yes")
+HPL_LIBS += -lcpupower
+endif
 
 # ----------------------------------------------------------------------

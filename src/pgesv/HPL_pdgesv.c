@@ -67,11 +67,11 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HPL_CPUFREQ
+#if defined(HPL_CPUFREQ) | defined(HPL_CPUPOWER)
 #include <cpufreq.h>
 
 int curcpufreq = 0;
-void setcpufreq(int freq, int dgemmfreq = 0)
+void setcpufreq(int freq, int dgemmfreq)
 {
 	if (freq == curcpufreq) return;
 	if (dgemmfreq == 0) dgemmfreq = freq;
@@ -83,8 +83,8 @@ void setcpufreq(int freq, int dgemmfreq = 0)
 		if (i == HPL_GPU_PIN_MAIN)
 			cpufreq_modify_policy_max(i, dgemmfreq);
 		else
-#else
-		cpufreq_modify_policy_max(i, i == HPL_GPU_PIN_MAIN ? dgemmfreq : freq);
+#endif
+		cpufreq_modify_policy_max(i, freq);
 	}
 	curcpufreq = freq;
 }
