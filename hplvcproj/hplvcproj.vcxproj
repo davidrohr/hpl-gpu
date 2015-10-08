@@ -206,6 +206,7 @@
     <ClInclude Include="..\GotoBLAS2\cblas.h" />
     <ClInclude Include="..\GotoBLAS2\common.h" />
     <ClInclude Include="..\GotoBLAS2\common_thread.h" />
+    <ClInclude Include="..\testing\ptest\fastmatgen.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\setup\Make.Generic" />
