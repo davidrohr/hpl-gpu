@@ -20,6 +20,7 @@ for ($j = 1;$j < count($argv);$j++)
 			$lines = explode("\n", str_replace("\r", '', $res));
 			foreach ($lines as $line)
 			{
+				$line = trim($line);
 				if (strpos($line, 'WC') !== false)
 				{
 					$line = substr($line, strpos($line, 'WC'));
@@ -57,9 +58,9 @@ for ($j = 1;$j < count($argv);$j++)
 		$starttime = 0;
 		for ($i = 1;$i < count($lines);$i++)
 		{
-			$line = explode(" ", $lines[$i]);
-			if (count($line) < 12) continue;
-			$power = (float) $line[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			$power = (float) (count($line) == 7 ? ($line[1] + $line[3] + $line[5]) : $line[12]);
 			if ($power < $min) $min = $power;
 			if ($power > $max) $max = $power;
 			if ($starttime == 0) $starttime = $line[0];
@@ -71,17 +72,18 @@ for ($j = 1;$j < count($argv);$j++)
 
 		for ($i = 1;$i < count($lines) - 2;$i++)
 		{
-			$line = explode(" ", $lines[$i]);
-			if (count($line) < 12) continue;
-			$power = (float) $line[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			$power = (float) (count($line) == 7 ? ($line[1] + $line[3] + $line[5]) : $line[12]);
 			if ($power > $mid && $power > 650) break;
 		}
 		for (;$i > 1;$i--)
 		{
-			$line = explode(" ", $lines[$i]);
-			$preline = explode(" ", $lines[$i - 1]);
-			$power = (float) $line[12];
-			$prepower = (float) $preline[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			$preline = explode(" ", trim($lines[$i - 1]));
+			$power = (float) (count($line) == 7 ? ($line[1] + $line[3] + $line[5]) : $line[12]);
+			$prepower = (float) (count($preline) == 7 ? ($preline[1] + $preline[3] + $preline[5]) : $preline[12]);
 			if ($power < $prepower || $power < 500)
 			{
 				$runstart = $line[0];
@@ -91,18 +93,19 @@ for ($j = 1;$j < count($argv);$j++)
 
 		for ($i = count($lines) - 1;$i > 0;$i--)
 		{
-			$line = explode(" ", $lines[$i]);
-			if (count($line) < 12) continue;
-			$power = (float) $line[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			$power = (float) (count($line) == 7 ? ($line[1] + $line[3] + $line[5]) : $line[12]);
 			if ($power > $mid || $power > 500) break;
 		}
 		for (;$i < count($lines) - 1;$i++)
 		{
-			$line = explode(" ", $lines[$i]);
-			$postline = explode(" ", $lines[$i + 1]);
-			if (!isset($line[12]) || !isset($postpower[1])) continue;
-			$power = (float) $line[12];
-			$postpower = (float) $postline[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			$postline = explode(" ", trim($lines[$i + 1]));
+			if ((!isset($line[12]) && count($line) != 7) || !isset($postpower[1])) continue;
+			$power = (float) (count($line) == 7 ? ($line[1] + $line[3] + $line[5]) : $line[12]);
+			$postpower = (float) (count($postline) == 7 ? ($postline[1] + $postline[3] + $postline[5]) : $postline[12]);
 			if ($power < $postpower || $power < 550)
 			{
 				$runend = $line[0];
@@ -132,30 +135,40 @@ for ($j = 1;$j < count($argv);$j++)
 
 		for ($i = 1;$i < count($lines);$i++)
 		{
-			$line = explode(" ", $lines[$i]);
-			if (count($line) < 12) continue;
-			$power = (float) $line[12];
+			$line = explode(" ", trim($lines[$i]));
+			if (count($line) < 12 && count($line) != 7) continue;
+			if (count($line) == 7)
+			{
+				$interval = ((float) $line[2] + (float) $line[4] + (float) $line[6]) / 3.0;
+				$powerint = ((float) $line[1] * (float) $line[2] + (float) $line[3] * (float) $line[4] + (float) $line[5] * (float) $line[6]);
+				$power = $powerint / $interval;
+			}
+			else
+			{
+				$power = (float) $line[12];
+				$interval = (float) $line[3];
+				$powerint = $power * $interval;
+			}
 			$time = (float) $line[0];
-			$interval = (float) $line[3];
 			if ($time >= $runstart && $time <= $runend)
 			{
-				$powerout[] = ($time - $runstart - $interval / 2) . " " . ($power * $interval) . " " . $interval;
-				$avgpower += $power * $interval;
+				$powerout[] = ($time - $runstart - $interval / 2) . " " . $powerint . " " . $interval;
+				$avgpower += $powerint;
 				$avgtime += $interval;
 			}
 			if ($time >= $runstart + 0.1 * ($runend - $runstart) && $time <= $runend)
 			{
-				$avgpower2 += $power * $interval;
+				$avgpower2 += $powerint;
 				$avgtime2 += $interval;
 			}
 			if ($time >= $runstart + 0.7 * ($runend - $runstart) && $time <= $runend)
 			{
-				$avgpower3 += $power * $interval;
+				$avgpower3 += $powerint;
 				$avgtime3 += $interval;
 			}
 			if ($time >= $runstart + 0.7 * ($runend - $runstart) && $time <= $runstart + 0.9 * ($runend - $runstart))
 			{
-				$avgpower4 += $power * $interval;
+				$avgpower4 += $powerint;
 				$avgtime4 += $interval;
 			}
 

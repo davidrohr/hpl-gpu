@@ -56,11 +56,14 @@ for ($i = 1;$i < count($argv);$i++)
 	$dtrsmpre = 0;
 	$laswppre = 0;
 	$ubcastpre = 0;
+	$dgemmtime = 0;
+	$fulldgemmtime = 0;
 	$ubcastcount = $la2_timing ? 0 : 3;
 	$dlattime = 0;
 	$dlatime = 0;
 	$dtrsmtime = 0;
 	$usenb = 0;
+	$currentnb = 0;
 	$lookahead2b = 0;
 	$inwarmup = 0;
 	foreach ($lines as $line)
@@ -75,6 +78,8 @@ for ($i = 1;$i < count($argv);$i++)
 		if (strpos($line, "Iteration") === 0)
 		{
 			$tmp = explode(" ", $line);
+			$tmp2 = explode("=", $tmp[4]);
+			$currentnb = $tmp2[1];
 			$tmp = explode("=", $tmp[3]);
 			$iteration = $tmp[1];
 			if ($totaliteration === false) $totaliteration = $iteration;
@@ -85,7 +90,7 @@ for ($i = 1;$i < count($argv);$i++)
 			$tmp = explode(" ", $line);
 			$time = (float) $tmp[8];
 			$totaltime += $time;
-			$vals[] = array('n' => $iteration, 'perf' => $gflops, 'lperf' => round(min($gflops, $gflops * $fulldgemmtime / $time), 2), 'time' => $time, 'cputime' => round($cputime, 2), 'extracputime' => round($extracputimeuse, 2), 'gputime' => round($gputime, 2), 'totaltime' => $totaltime, 'nb' => $usenb, 'facttime' => round($facttime, 2), 'dtrsmtime' => round($dtrsmtime, 2), 'laswptime' => round($laswptime, 2), 'dlattime' => round($dlattime, 2), 'bcasttime' => round($bcasttime, 2), 'ubcasttime' => round($ubcasttime, 2), 'dgemmtime' => round($dgemmtime, 2), 'dtrsmpre' => round($dtrsmpre, 2), 'laswppre' => round($laswppre, 2), 'ubcastpre' => round($ubcastpre, 2), 'dlatime' => round($dlatime, 2));
+			$vals[] = array('n' => $iteration, 'perf' => $gflops, 'lperf' => round(min($gflops, $gflops * $fulldgemmtime / $time), 2), 'time' => $time, 'cputime' => round($cputime == 0 ? $time : $cputime, 2), 'extracputime' => round($extracputimeuse, 2), 'gputime' => round($gputime, 2), 'totaltime' => $totaltime, 'nb' => $currentnb ? $currentnb : $usenb, 'facttime' => round($facttime, 2), 'dtrsmtime' => round($dtrsmtime, 2), 'laswptime' => round($laswptime, 2), 'dlattime' => round($dlattime, 2), 'bcasttime' => round($bcasttime, 2), 'ubcasttime' => round($ubcasttime, 2), 'dgemmtime' => round($dgemmtime, 2), 'dtrsmpre' => round($dtrsmpre, 2), 'laswppre' => round($laswppre, 2), 'ubcastpre' => round($ubcastpre, 2), 'dlatime' => round($dlatime, 2));
 			$facttime = 0;
 			$dtrmtime = 0;
 			$laswptime = 0;
@@ -167,6 +172,7 @@ for ($i = 1;$i < count($argv);$i++)
 			$tmp = $line;
 			while (strpos($tmp, '  ') !== false) $tmp = str_replace('  ', ' ', $tmp);
 			$tmp = explode(" ", $tmp);
+			if (count($tmp) < 10) continue;
 			$gputime = (float) $tmp[5] - ($dtrsmpre + $laswppre + $ubcastpre);
 			$cputime = (float) (strpos($line, "Total CPU Time") !== false ? ($tmp[22] - $ubcastpre - $laswppre) : $tmp[10]);
 		}
@@ -216,6 +222,7 @@ for ($i = 1;$i < count($argv);$i++)
 			//echo "N: $ref_val[n]   Time: $ref_val[time]   Power: $refpower   Scaled Power: $powerval   Powertime: " . ($refpowerend - $refpowerstart) . " ($refpowerend - $refpowerstart)   Powercount: $numvals\n";
 
 			$ref_val['power'] = $powerval;
+			$ref_val['powereff'] = $ref_val['n'] > 5000 && $ref_val['power'] != 0 ? ((1e-9 * $ref_val['n'] * $ref_val['n'] * (2./3. * $ref_val['n'] + .3/2.) - 1e-9 * ($ref_val['n'] - $ref_val['nb']) * ($ref_val['n'] - $ref_val['nb']) * (2./3. * ($ref_val['n'] - $ref_val['nb']) + 3./2.)) / $ref_val['power']) : 0;
 		}
 	}
 	else
@@ -223,6 +230,7 @@ for ($i = 1;$i < count($argv);$i++)
 		foreach ($vals as &$ref_val)
 		{
 			$ref_val['power'] = 0;
+			$ref_val['powereff'] = 0;
 		}
 		$power_avail = 0;
 	}
@@ -248,6 +256,30 @@ for ($i = 1;$i < count($argv);$i++)
 			$line = explode(' ', $line);
 			$result[$i] = ' (' . round((float) $line[7], 1) . ' GFlop/s)';
 			break;
+		}
+	}
+}
+
+if (getenv('SMOOTHING') !== false)
+{
+	$smooth = intval(getenv('SMOOTHING'));
+	if ($smooth <= 0) $smooth = 1;
+
+	foreach ($plots as &$ref_plot)
+	{
+		for ($i = 0;$i < count($ref_plot);$i++)
+		{
+			$count = 0;
+			$avg = 0.;
+			for ($j = -$smooth;$j <= $smooth;$j++)
+			{
+				if ($i + $j >= 0 && $i + $j < count($ref_plot) && $ref_plot[$i]['nb'] == $ref_plot[$i + $j]['nb'])
+				{
+					$avg += $ref_plot[$i + $j]['powereff'];
+					$count++;
+				}
+			}
+			$ref_plot[$i]['powereff'] = $avg / $count;
 		}
 	}
 }
@@ -278,8 +310,10 @@ for ($i = 1;$i < count($argv);$i++)
 	$outputpre .= "\"$argv[$i]_time_ubcastpre\"\t";	//18
 	$outputpre .= "\"$argv[$i]_time_dla\"\t";	//19
 	$outputpre .= "\"$argv[$i]_power\"\t";	//20
-	$output100 .= "0\t100\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
-	$output0 .= "$maxn\t" . $plots[$i - 1][0]['progress'] . "\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
+	$outputpre .= "\"$argv[$i]_nb\"\t";	//21
+	$outputpre .= "\"$argv[$i]_powereff\"\t";	//22
+	$output100 .= "0\t100\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
+	$output0 .= "$maxn\t" . $plots[$i - 1][0]['progress'] . "\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
 }
 $outputpre .= "\n";
 $output100 .= "\n";
@@ -295,18 +329,18 @@ do
 		{
 			$entryfound = 1;
 			$plot = $plot[$line];
-			$tmpoutput .= "$plot[n]\t$plot[progress]\t$plot[perf]\t$plot[lperf]\t$plot[time]\t$plot[cputime]\t$plot[gputime]\t$plot[extracputime]\t$plot[facttime]\t$plot[dtrsmtime]\t$plot[laswptime]\t$plot[dlattime]\t$plot[bcasttime]\t$plot[dgemmtime]\t$plot[ubcasttime]\t$plot[dtrsmpre]\t$plot[laswppre]\t$plot[ubcastpre]\t$plot[dlatime]\t$plot[power]\t";
+			$tmpoutput .= "$plot[n]\t$plot[progress]\t$plot[perf]\t$plot[lperf]\t$plot[time]\t$plot[cputime]\t$plot[gputime]\t$plot[extracputime]\t$plot[facttime]\t$plot[dtrsmtime]\t$plot[laswptime]\t$plot[dlattime]\t$plot[bcasttime]\t$plot[dgemmtime]\t$plot[ubcasttime]\t$plot[dtrsmpre]\t$plot[laswppre]\t$plot[ubcastpre]\t$plot[dlatime]\t$plot[power]\t$plot[nb]\t$plot[powereff]\t";
 		}
 		else
 		{
-			$tmpoutput .= "0\t100\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
+			$tmpoutput .= "0\t100\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t";
 		}
 	}
 	$line++;
 	if ($entryfound) $output .= $tmpoutput . "\n";
 } while ($entryfound);
 
-$num_cols = 20;
+$num_cols = 22;
 
 file_put_contents("plot.dat", $outputpre . $output);
 
@@ -335,13 +369,13 @@ for ($axis = 0;$axis < 4;$axis++)
 			"set ylabel \"DGEMM Performance [GFlop/s]\"\nset output \"gp_perf$nameappend.pdf\"" : 
 			($s == 1 ? "set ylabel \"Iteration Time [s]\"\nset output \"gp_time$nameappend.pdf\"" : 
 				($s == 2 ? "set ylabel \"Time [s]\"\nset output \"gp_time2$nameappend.pdf\"" :
-				($yscale ? "set ylabel \"Power Efficiency [MFlop/J]\"\nset output \"gp_power$nameappend.pdf\"" : "set ylabel \"Total Power [J]\"\nset output \"gp_power$nameappend.pdf\""))
+				($yscale ? "set ylabel \"Power Efficiency [GFlop/J]\"\nset output \"gp_power$nameappend.pdf\"" : "set ylabel \"Total Power [J]\"\nset output \"gp_power$nameappend.pdf\""))
 			)
 		) . '
 		set xlabel "' . ($xaxis ? 'Iteration (Remaining Matrix Size)' : 'Progress [%]') . '"
 		' . ($xaxis ? "set mxtics 5\nset grid ytics xtics mxtics\nset xrange [$maxn:-2000]" : "set xrange [0:102]") . '
 		' . ($yscale ? "set mytics 5\nset grid mytics\n" : '') . '
-		' . ($s == 0 ? 'set key bottom left Left reverse' : 'set key top right') . '
+		' . ($s == 0 || ($s == 3 && $yscale) ? 'set key bottom left Left reverse' : 'set key top right') . '
 		plot';
 		$num = 1;
 		$dgemmpeakadded = 0;
@@ -439,13 +473,13 @@ for ($axis = 0;$axis < 4;$axis++)
 					$script .= "'../empty' using 1:2 ls 1 lc rgb \"#777777\" title \"CPU Time\",";
 					$script .= "'../empty' using 1:2 ls 2 lc rgb \"#777777\" title \"GPU Time\",";
 				}
-				$script .= "'plot.dat' using " . (($i - 1)*$num_cols+2-$xaxis) . ":(\$" . (($i - 1)*$num_cols+6) . '*' . (2048./$nbs[$i - 1]) . ") ls 1 lc rgb user_color$num title \"" . (isset($names[$argv[$i]]) ? $names[$argv[$i]] : str_replace(array("_", '.out'), array("-"), $argv[$i])) . $result[$i] . "\",";
-				$script .= "'plot.dat' using " . (($i - 1)*$num_cols+2-$xaxis) . ":(\$" . (($i - 1)*$num_cols+7) . '*' . (2048./$nbs[$i - 1]) . ") ls 2 lc rgb user_color$num notitle";
+				$script .= "'plot.dat' using " . (($i - 1)*$num_cols+2-$xaxis) . ":(\$" . (($i - 1)*$num_cols+6) . '*(2048./$' . (($i - 1)*$num_cols+21) . ")) ls 1 lc rgb user_color$num title \"" . (isset($names[$argv[$i]]) ? $names[$argv[$i]] : str_replace(array("_", '.out'), array("-"), $argv[$i])) . $result[$i] . "\",";
+				$script .= "'plot.dat' using " . (($i - 1)*$num_cols+2-$xaxis) . ":(\$" . (($i - 1)*$num_cols+7) . '*(2048./$' . (($i - 1)*$num_cols+21) . ")) ls 2 lc rgb user_color$num notitle";
 			}
 			else if ($s == 3)
 			{
 				$script .= "'plot.dat' using " . (($i - 1)*$num_cols+2-$xaxis) . ":(" . ($yscale ? (
-				  "\$" . (($i - 1)*$num_cols+1) . " > 5000 ? ((1e-9 * \$" . (($i - 1)*$num_cols+1) . " * \$" . (($i - 1)*$num_cols+1) . " * (2./3. * \$" . (($i - 1)*$num_cols+1) . "+ .3/2.) - 1e-9 * (\$" . (($i - 1)*$num_cols+1) . " - " . $nbs[$i - 1] . ") * (\$" . (($i - 1)*$num_cols+1) . " - " . $nbs[$i - 1] . ") * (2./3. * (\$" . (($i - 1)*$num_cols+1) . "-" . $nbs[$i - 1] . ")+ 3./2.)) / \$" . (($i - 1)*$num_cols+20) . ") : 0"
+				  '$' . (($i - 1)*$num_cols+22)
 				  ) : "\$" . (($i - 1)*$num_cols+20)) . ") ls 1 lc rgb user_color$num title \"" . (isset($names[$argv[$i]]) ? $names[$argv[$i]] : str_replace(array("_", '.out'), array("-"), $argv[$i])) . $result[$i] . " (" . $effs[$i - 1] . " MFlop/W)" . "\"";
 			}
 			if ($i < count($argv) - 1) $script .= ',';
