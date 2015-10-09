@@ -75,16 +75,23 @@ void setcpufreq(int freq, int dgemmfreq)
 {
 	if (freq == curcpufreq) return;
 	if (dgemmfreq == 0) dgemmfreq = freq;
-	//printf("Setting CPU Frequency %d (%d)\n", freq, dgemmfreq);
+	printf("Setting CPU Frequency %d (%d)\n", freq, dgemmfreq);
 	int i;
 	for (i = 0;i < 20;i++)
 	{
+		int retVal;
 #ifdef HPL_GPU_PIN_MAIN
 		if (i == HPL_GPU_PIN_MAIN)
-			cpufreq_modify_policy_max(i, dgemmfreq);
+			retVal = cpufreq_modify_policy_max(i, dgemmfreq);
 		else
 #endif
-		cpufreq_modify_policy_max(i, freq);
+			retVal = cpufreq_modify_policy_max(i, freq);
+			
+		if (retVal)
+		{
+			fprintf(stderr, "Error setting CPU frequency\n");
+			exit(1);
+		}
 	}
 	curcpufreq = freq;
 }
