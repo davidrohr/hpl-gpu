@@ -232,7 +232,7 @@ CCFLAGS      = $(_FLAGS) -std=gnu99 -Wimplicit
 LINKER       = $(CXX)
 #LINKER            = $(MPdir)/bin/mpicxx
 LINKFLAGS    = $(CCFLAGS) -Wl,--no-undefined  \
-                -fomit-frame-pointer -O3 -march=native -ffast-math
+                -fomit-frame-pointer -O3 -march=native -ffast-math -fopenmp
 #
 #
 ARCHIVER     = ar
