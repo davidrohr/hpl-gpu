@@ -161,8 +161,8 @@ void HPL_pdtest
    double                     walltime[1];
    double                     cputime[1];
    int                        info[3];
-   double                     Anorm1, AnormI, Gflops, Xnorm1, XnormI,
-                              BnormI, resid0, resid1;
+   double                     Anorm1 = 0, AnormI = 0, Gflops, Xnorm1 = 0, XnormI = 0,
+                              BnormI = 0, resid0 = 0, resid1 = 0;
    double                     * Bptr;
    void                       * vptr = NULL;
    static int                 first=1;
