@@ -582,6 +582,8 @@ void HPL_pdtest
       HPL_fprintf( TEST->outfp, "%s%16.7f%s%s\n",
          "||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)= ", resid1,
          " ...... ", ( resid1 < TEST->thrsh  && resultnan == 0 && resultinfinite == 0  && mat.info == 0 ? "PASSED" : "FAILED" ) );
+	  
+	  if (mat.info == 0)
 #ifndef CALDGEMM_TEST
       if( resid1 >= TEST->thrsh) 
 #endif
