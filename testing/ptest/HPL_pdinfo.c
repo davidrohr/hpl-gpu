@@ -1063,7 +1063,12 @@ void HPL_pdinfo
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
       (void) sscanf( line, "%s", num ); *SEED = atoi( num );
-      if( *SEED <= 0 ) *SEED = HPL_IDEFSEED;
+	  if( *SEED == 0 )
+	  {
+		  srand (time(NULL));
+		  *SEED = rand() % 100;
+	  }
+      if( *SEED < 0 ) *SEED = HPL_IDEFSEED;
 /*
  * Close input file
  */
