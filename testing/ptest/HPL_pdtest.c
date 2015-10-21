@@ -448,10 +448,12 @@ void HPL_pdtest
    {
       if( ( myrow == 0 ) && ( mycol == 0 ) )
          HPL_pwarn( TEST->outfp, __LINE__, "HPL_pdtest", "%s %d, %s", 
-                    "Error code returned by solve is", mat.info, "skip" );
-      (TEST->kskip)++;
-      if( vptr ) CALDGEMM_free( vptr ); return;
+                    "Error code returned by solve is", mat.info, "fail" );
+      //(TEST->kskip)++;
+      if( vptr ) CALDGEMM_free( vptr );
    }
+   else
+   {
 /*
  * Check computation, re-generate [ A | b ], compute norm 1 and inf of A and x,
  * and norm inf of b - A x. Display residual checks.
@@ -549,8 +551,9 @@ void HPL_pdtest
      HPL_reduce( &resultinfinite, 1, HPL_INT, HPL_sum, 0, GRID->row_comm );
    }
 
-   if( resid1 < TEST->thrsh && resultnan == 0 && resultinfinite == 0) (TEST->kpass)++;
+   if( resid1 < TEST->thrsh && resultnan == 0 && resultinfinite == 0 && mat.info == 0) (TEST->kpass)++;
    else                       (TEST->kfail)++;
+   }
 
    if( ( myrow == 0 ) && ( mycol == 0 ) )
    {
@@ -572,12 +575,13 @@ void HPL_pdtest
       {
     	HPL_fprintf( TEST->outfp, "ERROR: Infinite values in result vector: %d\n", resultinfinite);
       }
+      if (mat.info != 0) resid1 = NAN;
       HPL_fprintf( TEST->outfp, "%s%s\n",
                    "----------------------------------------",
                    "----------------------------------------" );
       HPL_fprintf( TEST->outfp, "%s%16.7f%s%s\n",
          "||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)= ", resid1,
-         " ...... ", ( resid1 < TEST->thrsh  && resultnan == 0 && resultinfinite == 0 ? "PASSED" : "FAILED" ) );
+         " ...... ", ( resid1 < TEST->thrsh  && resultnan == 0 && resultinfinite == 0  && mat.info == 0 ? "PASSED" : "FAILED" ) );
 #ifndef CALDGEMM_TEST
       if( resid1 >= TEST->thrsh) 
 #endif
