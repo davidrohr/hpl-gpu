@@ -105,9 +105,15 @@ namespace
 		caldgemm* cal_dgemm = (caldgemm*) ptr;
 		int num_procs = get_num_procs();
 		int num_cores_yet = 0;
+		int main_thread_add = 0;
 		for (int i = 0;i < num_procs;i++)
 		{
 			if (cal_dgemm->cpuUsed(i)) continue;
+			if (i == cal_dgemm->GetMainBLASCPU())
+			{
+				main_thread_add = 1;
+				continue;
+			}
 #ifdef HPL_EXCLUDE_FROM_LASWP
 			const int exclude[] = HPL_EXCLUDE_FROM_LASWP;
 			bool found = false;
@@ -128,7 +134,8 @@ namespace
 				if (num_cores_yet >= global_runtime_config.num_laswp_cores) break;
 			}
 		}
-		num_threads = CPU_COUNT(&fullMask);
+		num_threads = CPU_COUNT(&fullMask) + main_thread_add;
+		if (global_runtime_config.num_laswp_cores && num_threads > global_runtime_config.num_laswp_cores) num_threads = global_runtime_config.num_laswp_cores;
 		printf("Using %d threads for LASWP ( ", num_threads);
 		for (int i = 0;i < num_procs;i++)
 		{
