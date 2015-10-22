@@ -1,5 +1,5 @@
 #############################################################################################################
-#HPL-GPU 1.2 Options File for generic configuration
+#HPL-GPU 2.0 Options File for generic configuration
 #This file lists all mandatory options at the top, and optional tuning options in the end.
 #Some options can be configured via the traditional -DHPL... interface and with the new HPL_PARAMDEFS
 #interface. In this case, both variants are provided for reference, the new interface outcommented as "#NEW#"
@@ -32,7 +32,7 @@ HPL_AGGRESSIVE_OPTIMIZATION = 1
 #HPL_DEFS     += -DHPL_CPUFREQ
 
 #These settings cal alter certain parameters during runtime. The first setting is insider HPL, the second for CALDGEMM parameters. The example alters the CPU frequency over time and disables some GPUs towards the end for better efficiency.
-HPL_DEFS      += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 125000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 155000) {cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} if (global_m_remain < 35000) cal_dgemm->SetNumberDevices(4); else cal_dgemm->SetNumberDevices(8); if (global_m_remain > 50000) cal_info.PipelinedMidMarker = 25000; else cal_info.PipelinedMidMarker = global_m_remain / 2 + 1000;"
+HPL_DEFS      += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 125000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 155000) {cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} if (factorize_first_iteration || global_m_remain > 35000) cal_dgemm->SetNumberDevices(8); else cal_dgemm->SetNumberDevices(4); if (factorize_first_iteration || global_m_remain > 50000) cal_info.PipelinedMidMarker = 25000; else cal_info.PipelinedMidMarker = global_m_remain / 2 + 1000;"
 
 #As above, but this time we modify some factorization parameters over time. (Relevant for older AMD processors)
 #HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE="ALGO->nbmin = j > 45000 ? 64 : 32;"

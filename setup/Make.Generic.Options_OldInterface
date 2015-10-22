@@ -1,6 +1,7 @@
 #############################################################################################################
-#HPL-GPU 1.2 Options File for generic configuration
-#This file lists all mandatory options at the top, and optional tuning options in the end.
+# HPL-GPU 2.0 Options File for generic configuration
+#
+# This file lists all mandatory options at the top, and optional tuning options in the end.
 #############################################################################################################
 
 #This option defines whether HPL-GPU is compiled with MPI for multi-node support

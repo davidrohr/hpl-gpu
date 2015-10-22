@@ -1,12 +1,12 @@
 #############################################################################################################
-#HPL-GPU 1.2 Options File for generic configuration
+#HPL-GPU 2.0 Options File for generic configuration
 #This file lists all mandatory options at the top, and optional tuning options in the end.
 #Some options can be configured via the traditional -DHPL... interface and with the new HPL_PARAMDEFS
 #interface. In this case, both variants are provided for reference, the new interface outcommented as "#NEW#"
 #############################################################################################################
 
 #Any custom options here
-#HPL_DEFS      += 
+HPL_DEFS      += 
 
 #This option defines whether HPL-GPU is compiled with MPI for multi-node support
 HPL_CONFIG_MPI = 0
@@ -29,7 +29,7 @@ HPL_AGGRESSIVE_OPTIMIZATION = 1
 #HPL_DEFS     += -DHPL_CPUFREQ
 
 #These settings cal alter certain parameters during runtime. We step by step decrease the DGEMM threashold to move more and more dgemm workload to the GPU. We switch to 4 GPUs when 8 GPUs bring no more benefit and we use the -Yu option to use the remaining devices for async dgemm/dtrsm. The PipelinedMidMarker is dynamically adapted to allow pipelined mode also at the end of the run.
-HPL_DEFS      += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 125000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 155000) {cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} if (global_m_remain < 35000) cal_dgemm->SetNumberDevices(4); else cal_dgemm->SetNumberDevices(8); if (global_m_remain > 50000) cal_info.PipelinedMidMarker = 25000; else cal_info.PipelinedMidMarker = global_m_remain / 2 + 1000;"
+HPL_DEFS      += -DHPL_CUSTOM_PARAMETER_CHANGE_CALDGEMM="if (factorize_first_iteration) {cal_info.AsyncDGEMMThreshold = 256;} else if (global_m_remain < 125000) {cal_info.AsyncDGEMMThreshold = 480;} else if (global_m_remain < 155000) {cal_info.AsyncDGEMMThreshold = 1920;} else {cal_info.AsyncDGEMMThreshold = 3840;} if (factorize_first_iteration || global_m_remain > 35000) cal_dgemm->SetNumberDevices(8); else cal_dgemm->SetNumberDevices(4); if (factorize_first_iteration || global_m_remain > 50000) cal_info.PipelinedMidMarker = 25000; else cal_info.PipelinedMidMarker = global_m_remain / 2 + 1000;"
 
 #As above, but this time we modify some factorization parameters over time. (Relevant for older AMD processors)
 #HPL_DEFS     += -DHPL_CUSTOM_PARAMETER_CHANGE="ALGO->nbmin = j > 45000 ? 64 : 32;"
